@@ -12,7 +12,7 @@ A commonly used approach to deploy these models, is to use microservices. The AP
 | **Figure 1: API gateway pattern.**|
 
 The material covered in this post
-is discussed in great detail in [1]. You can find the source code for this post in
+is discussed in great detail in [1]. You can find the source code for this post here <a href="https://github.com/pockerman/kubernetes_101/tree/main">Kubernetes_101</a>.
 
 
 ## Kubernetes 101
