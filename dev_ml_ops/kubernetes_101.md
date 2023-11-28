@@ -14,6 +14,27 @@ A commonly used approach to deploy these models, is to use microservices. The AP
 The material covered in this post
 is discussed in great detail in [1]. You can find the source code for this post here <a href="https://github.com/pockerman/kubernetes_101/tree/main">Kubernetes_101</a>.
 
+ In order to use the files make sure that you build  your own Docker images and push these a public Docker hub repository. For example,
+
+
+ ```
+ cd info_service
+ docker build -t kubernetes-ml-info-api:0.1
+ docker tag kubernetes-ml-info-api:0.1 <your-repo-name>/<your-image-name>:<your-image-tag>
+ docker push <your-repo-name>/<your-image-name>:<your-image-tag>
+
+ ```
+
+ Depending on your setting, you many need to login to docker via the docker CLI using
+
+ ```
+ docker login
+ ```
+
+ Note also that you may need to adapt the supplied Kubernetes files to match the names above.
+
+**keywords:** kubernetes, docker, api-gateway,python
+
 
 ## Kubernetes 101
 
