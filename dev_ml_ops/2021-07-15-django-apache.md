@@ -11,7 +11,7 @@ You can find the application source code <a href="https://github.com/pockerman/h
 ##  Use Django with Apache
 
 <a href="https://www.djangoproject.com/">Django</a> is a popular web development framework for Python. I have used it a few times to develop back-end functionality
-to support various applications. In this post, I want to describe the steps I followed in order to deploy a Django backed application on a LAMP server.
+that supports various applications. In this post, I want to describe the steps I followed in order to deploy a Django backed application on a LAMP server.
 
 To start with, the Django offcial documentation has most of the information you need <a href="https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/modwsgi/">here</a>. The suggested way is by using ```mod_wsgi```. The problem that I had with that was due to a problem with SQLite that the project was initially using. I had to create a virtual environment on the server and install everything under this. However, ```mod_wsgi``` only works with the version of Python it was compiled against. So if this is the case you may have to install the package in your environment. 
 
