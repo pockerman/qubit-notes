@@ -5,7 +5,7 @@
 
 - <a href="software_engineering/2021-07-15-django-apache.md">Use Django with Apache</a>
 - <a href="software_engineering/2021-07-29-django-with-docker.md">Django with Docker</a>
-- <a href="software_engineering/2024-05-04-websocker-with-fastapi.md">Django with Docker</a>
+- <a href="software_engineering/2024-05-04-websocker-with-fastapi.md">WebSocket with FastAPI</a>
 
 ## Dev and ML operations
 

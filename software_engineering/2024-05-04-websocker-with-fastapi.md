@@ -90,7 +90,7 @@ Open the file with your browser. You should be able to view
 
 | ![top-defect-labels](./imgs/websocket_chat.png) |
 |:--:|
-| **Figure: _mir_ owner profile.**|
+| **Figure: Simple chat UI.**|
 
 Navigate to http://0.0.0.0:8001/docs
 
