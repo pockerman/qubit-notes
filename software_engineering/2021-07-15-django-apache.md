@@ -3,17 +3,19 @@
 
 ## Overview
 
-Recently, I had to serve an application developed with Django on a LAMP infrastructure. I will describe in this post the steps I followed in order to do so.
+In this note, I describe how to serve a Django application on a LAMP infrastructure.
 You can find the application source code <a href="https://github.com/pockerman/hmmtuf_app">here</a>.
 
-**keywords:** Django, Python, web-development, wsgi
+
+**keywords:** Django, Python, web-development, wsgi, LAMP
 
 ##  Use Django with Apache
 
 <a href="https://www.djangoproject.com/">Django</a> is a popular web development framework for Python. I have used it a few times to develop back-end functionality
-that supports various applications. In this post, I want to describe the steps I followed in order to deploy a Django backed application on a LAMP server.
+that supports various applications. In this note, I want to describe the steps I followed in order to deploy a Django backed application on a LAMP server.
 
-To start with, the Django offcial documentation has most of the information you need <a href="https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/modwsgi/">here</a>. The suggested way is by using ```mod_wsgi```. The problem that I had with that was due to a problem with SQLite that the project was initially using. I had to create a virtual environment on the server and install everything under this. However, ```mod_wsgi``` only works with the version of Python it was compiled against. So if this is the case you may have to install the package in your environment. 
+To start with, the Django offcial documentation has most of the information you need <a href="https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/modwsgi/">here</a>. 
+The suggested way is by using ```mod_wsgi```. The problem that I had with that was due to a problem with SQLite that the project was initially using. I had to create a virtual environment on the server and install everything under this. However, ```mod_wsgi``` only works with the version of Python it was compiled against. So if this is the case you may have to install the package in your environment. 
 
 In the latter scenario, you need to configure the modules loaded by Apache such that it points to your installation and not the system-wide one. You can run a ```find``` command on the directory you have your virtual environments:
 
@@ -55,8 +57,6 @@ Require all granted
 It turns out that the process is not overly complicated but it may take some time to figure out some things. 
 
 
-## Summary
+## References
 
-In this post, I described the steps to follow when I needed to deploy a Django application on  LAMP server.
-The Django offcial documentation already has most of the information you need <a href="https://docs.djangoproject.com/en/3.2/howto/deployment/wsgi/modwsgi/">here</a>.
-It turns out that the process is not overly complicated but it may take some time to figure out some things.
+1. <a href="https://www.djangoproject.com/">Django</a>
