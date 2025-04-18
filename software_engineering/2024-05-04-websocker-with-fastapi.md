@@ -1,6 +1,17 @@
 # WebSocket with FastAPi
 
-FastAPI is a powerful Python framework for web development and in particular REST APIs.
+
+## Overview
+
+In this note I discuss how to create a websocket with FastAPI.
+
+**keywords:** FastAPI, Python, web-development, websocket
+
+
+## WebSocket with FastAPi
+
+
+<a href="https://fastapi.tiangolo.com/2">FastAPI</a>  is a powerful Python framework for web development and in particular REST APIs.
 Most REST APIs use the HTTP/HTTPs protocol in order to communicate with the client.
 When using HTTP the client has to initiate the communcation with the server.
 However, this may not always be desirable. For example consider a chat application. 
@@ -9,7 +20,7 @@ if there is a new message. Certainly, this is not very conventient whilst it is
 resource consuming. It would have been very convenitient if we could establish
 a two way communication between the client and the server in such situations.
 
-The WebSocket protocol can be used in such cases. This is a comunication protocol that  provides simultaneous two-way communication channel over a single TCP connection [1]. 
+The <a href="https://en.wikipedia.org/wiki/WebSocket">WebSocket protocol</a> can be used in such cases. This is a comunication protocol that  provides simultaneous two-way communication channel over a single TCP connection [1]. 
 HTTP and WebSocket are different protocols. However, the latter has been designed to be compatible with the former.
 When opening a WebSocket connection, this is firt initiated using an HTTP request and then upgraded to a WebSocket tunnel.
 In addition, WebSockets are identified through classic URIs with a host, path and query parameters similar to HTTP.
@@ -96,5 +107,6 @@ Navigate to http://0.0.0.0:8001/docs
 
 ## References
 
-1. <a href="https://en.wikipedia.org/wiki/WebSocket">WebSocket</a>
-2. <a href="https://fastapi.tiangolo.com/advanced/websockets/">WebSockets</a>
+1. <a href="https://fastapi.tiangolo.com/2">FastAPI</a>
+2. <a href="https://en.wikipedia.org/wiki/WebSocket">WebSocket</a>
+3. <a href="https://fastapi.tiangolo.com/advanced/websockets/">WebSockets</a>
