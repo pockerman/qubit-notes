@@ -19,7 +19,13 @@ Let's discuss what these two aproaches entail.
 **Orchestration**
 
 As you can probably imagine, this approach implies the existence of an orchestrator service that all participating services
-interact with. This is shown in the following image.
+interact with. This is shown in the following figure.
+
+| ![orchestrator-vs-choreography](./imgs/orchestrator-vs-choreography.png) |
+|:----------------------------------------------------------------------------:|
+|             **Figure 1: Orchestrator vs Choreography patterns. Image edited from [1].**             |
+
+
 
 The orchestrotor in general should not implement any other domain behaviour aside of the worflow it orchestrates [1].
 This pattern is useful when the workflow we work on has more than one happy paths and/or error paths. Some advantages of
@@ -39,8 +45,7 @@ Disadvanges include:
 **Choreography**
 
 Choreography does not have any central coordination component. Instead  the participating services can interact with each
-other in predefined ways and under predefined circumstances. This is shown schematically in the image below
-
+other in predefined ways and under predefined circumstances. 
 
 This approach avoids the problem of SPF (signle point of failure)
 that the orchestrator pattern assumes. However, as the number of error cases increases, the complexity of the pattern also increases.
