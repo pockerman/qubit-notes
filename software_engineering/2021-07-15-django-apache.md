@@ -1,4 +1,4 @@
-# Use Django with Apache
+# Note: Use Django with Apache
 
 
 ## Overview
