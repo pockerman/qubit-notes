@@ -7,6 +7,7 @@ The main idea behind these notes is to give the gist of a topic and provide refe
 
 ## Software engineering
 
+- <a href="software_engineering/2025-04-21-load-balancing.md">Node: Load Balancing</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">Note: Managing Distributed Workflows</a>
 - <a href="software_engineering/2021-07-15-django-apache.md">Note: Use Django with Apache</a>
 - <a href="software_engineering/2021-07-29-django-with-docker.md">Note: Django with Docker</a>

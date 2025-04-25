@@ -21,9 +21,9 @@ Let's discuss what these two aproaches entail.
 As you can probably imagine, this approach implies the existence of an orchestrator service that all participating services
 interact with. This is shown in the following figure.
 
-| ![orchestrator-vs-choreography](./imgs/orchestrator-vs-choreography.png) |
-|:----------------------------------------------------------------------------:|
-|             **Figure 1: Orchestrator vs Choreography patterns. Image edited from [1].**             |
+| ![orchestrator-vs-choreography](./imgs/orchestrator-vs-choreography.png)         |
+|:--------------------------------------------------------------------------------:|
+|      **Figure 1: Orchestrator vs Choreography patterns. Image edited from [1].** |
 
 
 
