@@ -16,5 +16,6 @@ The main idea behind these notes is to give the gist of a topic and provide refe
 
 ## Machine learning engineering
 
+- <a href="ml/2025-04-26-bias-variance-dilemma.md">Note: Bias-Variance Dilemma</a>
 - <a href="ml/2025-04-24-collection-of-training-data.md">Note: Collection of Training Data</a>
 - <a href="ml/2025-04-23-model-context-protocol.md">Note: Model Context Protocol</a> 
