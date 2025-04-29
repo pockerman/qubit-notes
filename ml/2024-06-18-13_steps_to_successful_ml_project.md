@@ -96,7 +96,7 @@ what you are trying to solve will help you make better educated decisions as to 
 Versioning data is one thing that differentiates ML engineering with casual software engineering. It is essential that we version
 the data sets and maintain a catalogue of features associated with each and every data set. 
 This is required in order to be able to reproduce your results or train a new model on the same data that we used to train the existing models. 
-There are various products out there that they can help in this goal e.g. <a href="https://dvc.org/"DVC</a> and <a href="https://mlflow.org/"MLflow</a>.
+There are various products out there that they can help in this goal e.g. <a href="https://dvc.org/">DVC</a> and <a href="https://mlflow.org/">MLflow</a>.
 
 #### Step 8: Version the models
 
@@ -111,7 +111,7 @@ a deep neural network and the number of choices you have to make before even try
 learning rate, regularization, batch size, weight decay, loss function, train on CPU or GPU e.t.c. 
 Surely not all of these parameters will give you substantial improvements however it illustrates the point. 
 Thus it is essential that you track the parameters that affect the output of the training process. 
-<a href="https://mlflow.org/"MLflow</a> is a tool you can use for this amongst many others.
+<a href="https://mlflow.org/">MLflow</a> is a tool you can use for this amongst many others.
 
 #### Step 10: Test the infrastructure
 
