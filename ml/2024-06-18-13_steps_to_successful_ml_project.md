@@ -35,7 +35,7 @@ because you want to speed up the process.
 
 **keywords** machine-learning, project-management, machine-learning-model-development
 
-## 13 steps to a successful ML project
+## 13 +1 steps for a successful ML project
 
 Let's dive a bit more on the steps presented in the _Overview_ section.
 
