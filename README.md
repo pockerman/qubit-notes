@@ -21,6 +21,7 @@ The main idea behind these notes is to give the gist of a topic and provide refe
 
 ## How to
 
+- <a href="how_to/2025-04-29-task-based-parallelism-with-ray.md">Note: Task-based Parallelism With Ray Part 1</a>
 - <a href="how_to/2021-07-15-django-apache.md">Note: Use Django with Apache</a>
 - <a href="how_to/2021-07-29-django-with-docker.md">Note: Django with Docker</a>
 
