@@ -170,8 +170,8 @@ to start thinking how the selected models will be integrated into our system.
 ## References
 
 1. <a href="https://en.wikipedia.org/wiki/All_models_are_wrong">All models are wrong some are useful</a>
-2. <a href="https://dvc.org/"DVC</a> 
-3. <a href="https://mlflow.org/"MLflow</a>
+2. <a href="https://dvc.org/">DVC</a> 
+3. <a href="https://mlflow.org/">MLflow</a>
 4. <a herf="https://en.wikipedia.org/wiki/Test-driven_development">Test driven development</a>
 
 
