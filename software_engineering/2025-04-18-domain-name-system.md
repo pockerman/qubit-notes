@@ -4,7 +4,7 @@
 
 In this note, I cover some of the details of the Domain Name System or DNS for short.
 
-**keywords** domain-name-system, system-design
+**keywords** domain-name-system, system-design, distributed-systems
 
 ## Domain name system
 

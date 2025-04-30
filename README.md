@@ -7,6 +7,7 @@ The main idea behind these notes is to give the gist of a topic and provide refe
 
 ## Software engineering
 
+- <a href"software_engineering/2025-04-30-circuit-breaker-pattern.md">Note: Circuit Breaker Pattern</a>
 - <a href="software_engineering/2025-04-21-load-balancing.md">Node: Load Balancing</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">Note: Managing Distributed Workflows</a>
 - <a href="software_engineering/2025-04-18-domain-name-system.md">Note: Domain Name System</a>
