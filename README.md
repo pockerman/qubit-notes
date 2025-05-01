@@ -12,8 +12,9 @@ The main idea behind these notes is to give the gist of a topic and provide refe
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">Note: Managing Distributed Workflows</a>
 - <a href="software_engineering/2025-04-18-domain-name-system.md">Note: Domain Name System</a>
 
-## Machine learning engineering
+## Machine learning & AI engineering
 
+- <a href="ml/2025-05-01-detecting-datadrift.md">Note: Detecting Data Drift</a>
 - <a href="ml/2025-04-29-prompt-methods.md">Note: Prompt Methods</a>
 - <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">Note: 13 + 1 Steps For a Successful ML Project</a>
 - <a href="ml/2025-04-26-bias-variance-dilemma.md">Note: Bias-Variance Dilemma</a>
