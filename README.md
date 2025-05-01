@@ -14,7 +14,7 @@ The main idea behind these notes is to give the gist of a topic and provide refe
 
 ## Machine learning & AI engineering
 
-- <a href="ml/2025-05-01-detecting-datadrift.md">Note: Detecting Data Drift</a>
+- <a href="ml/2025-05-01-detecting-data-drift.md">Note: Detecting Data Drift</a>
 - <a href="ml/2025-04-29-prompt-methods.md">Note: Prompt Methods</a>
 - <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">Note: 13 + 1 Steps For a Successful ML Project</a>
 - <a href="ml/2025-04-26-bias-variance-dilemma.md">Note: Bias-Variance Dilemma</a>
