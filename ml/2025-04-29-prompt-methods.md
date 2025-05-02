@@ -1,4 +1,4 @@
-# Note: Prompt Methods
+# qubit-note: Prompt Methods
 
 
 ## Overview

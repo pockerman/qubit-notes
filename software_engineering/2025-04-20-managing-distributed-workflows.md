@@ -1,4 +1,4 @@
-# Note: Managing Distributed Workflows
+# qubit-note: Managing Distributed Workflows
 
 ## Overview
 

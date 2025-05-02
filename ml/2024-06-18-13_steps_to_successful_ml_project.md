@@ -1,4 +1,4 @@
-# Note: 13 + 1 Steps For a Successful ML Project
+# qubit-note: 13 + 1 Steps For a Successful ML Project
 
 
 ## Overview

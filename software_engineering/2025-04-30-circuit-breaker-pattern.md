@@ -1,4 +1,4 @@
-# Note: Circuit Breaker Pattern
+# qubit-note: Circuit Breaker Pattern
 
 ## Overview
 

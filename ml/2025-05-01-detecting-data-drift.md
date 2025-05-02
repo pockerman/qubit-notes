@@ -1,4 +1,4 @@
-# Note: Detecting Data Drift
+# qubit-note: Detecting Data Drift
 
 ## Overview
 

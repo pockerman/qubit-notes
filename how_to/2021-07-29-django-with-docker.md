@@ -1,4 +1,4 @@
-# Note: Django with Docker
+# qubit-note: Django with Docker
 
 
 ## Overview

@@ -1,4 +1,4 @@
-# Note: Domain Name System
+# qubit-note: Domain Name System
 
 ## Overview
 

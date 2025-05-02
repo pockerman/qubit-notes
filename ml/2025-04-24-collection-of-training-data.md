@@ -1,4 +1,4 @@
-# Note: Collection of Training Data
+# qubit-note: Collection of Training Data
 
 ## Overview
 

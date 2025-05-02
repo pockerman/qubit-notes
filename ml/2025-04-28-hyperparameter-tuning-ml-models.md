@@ -1,4 +1,4 @@
-# Note: Hyperparameter Tuning in ML Models
+# qubit-note: Hyperparameter Tuning in ML Models
 
 ## Overview
 

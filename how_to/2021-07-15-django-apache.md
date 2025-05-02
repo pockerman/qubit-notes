@@ -1,4 +1,4 @@
-# Note: Use Django with Apache
+# qubit-note: Use Django with Apache
 
 
 ## Overview

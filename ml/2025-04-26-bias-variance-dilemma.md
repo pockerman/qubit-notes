@@ -1,4 +1,4 @@
-# Note: Bias-Variance Dilemma
+# qubit-note: Bias-Variance Dilemma
 
 ## Overview
 
