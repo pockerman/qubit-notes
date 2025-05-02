@@ -17,6 +17,7 @@ a qubit can have more than two states (i.e. on/off). Hence, qubit-notes are stil
 ## Machine learning & AI engineering
 
 - <a href="ml/2025-05-01-detecting-data-drift.md">qubit-note: Detecting Data Drift</a>
+- <a href="ml/2025-05-01-detecting-concept-drift.md">qubit-note: Detecting Concept Drift</a>
 - <a href="ml/2025-04-29-prompt-methods.md">qubit-note: Prompt Methods</a>
 - <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">qubit-note: 13 + 1 Steps For a Successful ML Project</a>
 - <a href="ml/2025-04-26-bias-variance-dilemma.md">qubit-note: Bias-Variance Dilemma</a>

@@ -55,7 +55,7 @@ train data and the input data. If these are statistically different, then  we cl
 ### Detecting data drift
 
 Now that we have a conceptual understading of what data drift is, let's see how we can detect it. 
-We will use a toy example for this taken from [1].
+We will use a toy example for this that is taken from [1].
 We will use the <a href="https://github.com/SeldonIO/alibi">alibi</a> Python package for this.
 ```alibi``` is an open-source library written in Python, aimed at machine learning model inspection and interpretation. You can install it via pip:
 
@@ -123,7 +123,9 @@ def test_with_drift():
 
 ```
 
+<a href="2025-05-01-detecting-concept-drift.md">qubit-note: Detecting Concept Drift</a> discusses how to detect model concept drift.
+
 ## References
 
 1. Andrew P. McMahon, _Machine Learning Engineering with Python_, 2nd Edition, Packt Publications.
-2. Chip Huyen, _Designing Machine Learning Systems. An iterative process for production ready applications_, O'Reilly
+2. Chip Huyen, _Designing Machine Learning Systems. An iterative process for production ready applications_, O'Reilly.
