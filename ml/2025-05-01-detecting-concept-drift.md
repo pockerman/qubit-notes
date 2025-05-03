@@ -16,7 +16,7 @@ Concept drift refers to the change in the relationships between the independed a
 Concept drift occurs when there is a change in the relationship between the independed and the dependent variables in the model.
 For example linear regression assumes a relationship of the form
 
-$$y = w_0 + w_1x_1+ \dots + w_{m}x_m + \epsilon \tag{2}$$
+$$y = w_0 + w_1x_1+ \dots + w_{m}x_m + \epsilon $$
 
 However, with time this relationship may not be valid. Concept drift may manifest in any of these forms
 
