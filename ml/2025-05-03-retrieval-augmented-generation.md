@@ -40,7 +40,6 @@ Let's now turn attention to the RAG workflow
 
 The typical RAG pipeline consists of the following steps [1]:
 
-The RAG workflow consists of 
 - Pre-Retrieval 
 - Retrieval, 
 - Post-Retrieval phases. 
