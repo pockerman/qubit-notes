@@ -1,10 +1,10 @@
 # qubit-notes
 
 Hello and welcome to my personal notes. This is a series of notes that I maintain around a number of topics not necessarilly related
-to each other. These notes are just notes i.e. do not necessarilly go in depth or covering a topic exhaustively. 
+with each other. These notes are... just notes i.e. do not necessarilly go in depth or covering a topic exhaustively. 
 The main idea behind these notes is to give the gist of a topic and provide references for further more in depth research.
 The qubit in quantum computing is the analogus to the bit in the casual(?) computing. However,
-a qubit can have more than two states (i.e. on/off). Hence, qubit-notes are still tiny but sometimes not so tiny.
+a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are tiny but sometimes not so tiny.
 
 
 ## Software engineering
@@ -16,6 +16,7 @@ a qubit can have more than two states (i.e. on/off). Hence, qubit-notes are stil
 
 ## Machine learning & AI engineering
 
+- <a href="ml/2025-05-03-retrieval-augmented-generation.md">quibit-note: Retrieval Augmented Generation (RAG)</a>
 - <a href="ml/2025-05-01-detecting-data-drift.md">qubit-note: Detecting Data Drift</a>
 - <a href="ml/2025-05-01-detecting-concept-drift.md">qubit-note: Detecting Concept Drift</a>
 - <a href="ml/2025-04-29-prompt-methods.md">qubit-note: Prompt Methods</a>

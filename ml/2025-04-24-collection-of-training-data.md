@@ -9,6 +9,8 @@ Notice that these are some ideas and not necessarily the only approaches availab
 mix any of these as another approach. 
 
 
+**keywords** machine-learning, data-collection, machine-learning-model-development
+
 ## Collection of training data
 
 Training data is of paramount importance every time we want to develop a new ML model. 
