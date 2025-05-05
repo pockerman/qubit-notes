@@ -40,7 +40,6 @@ Let's now turn attention to the RAG workflow
 
 The typical RAG pipeline consists of the following steps [1]:
 
-The RAG workflow consists of 
 - Pre-Retrieval 
 - Retrieval, 
 - Post-Retrieval phases. 
@@ -48,7 +47,7 @@ The RAG workflow consists of
 As its name propbaly implies, during the pre-retrieval step we collect the data that we want to use in order to enhance out model.
 This is an offline step whereby we clean the data, create embeddings, index it and store in a database. The most common type
 of databases used in a RAG pipeline are <a href="https://en.wikipedia.org/wiki/Vector_database">vector databases</a>. 
-Although nothins stopping us to have this step performed during the user query i.e. online, given the amount of work required it would slow things down
+Although nothing is stopping us from having this step performed during the user query i.e. online, given the amount of work required it would slow things down
 considerably.
 
 During the retrieval stage, the system deals with the user query. A RAG system may not use the user prompt in its original form.
