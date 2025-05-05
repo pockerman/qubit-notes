@@ -62,8 +62,6 @@ GraphRAG is a similar approach to RAG, however it is using knowledge graphs to b
 better accuracy than the usual RAG [3]. A similar concept to RAG is CAG or Cached Augmented Generation [4].
 
 
-
-
 ## References
 
 1. Shivendra Srivastava and Naresh Vurukonda _Prompt Engineering in Action_, Manning Publications.

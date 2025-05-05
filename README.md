@@ -16,6 +16,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Machine learning & AI engineering
 
+- <a href="ml/2025-05-05-ml-model-compression.md">qubit-note: ML Model Compression</a>
 - <a href="ml/2025-05-03-retrieval-augmented-generation.md">quibit-note: Retrieval Augmented Generation (RAG)</a>
 - <a href="ml/2025-05-01-detecting-data-drift.md">qubit-note: Detecting Data Drift</a>
 - <a href="ml/2025-05-01-detecting-concept-drift.md">qubit-note: Detecting Concept Drift</a>
