@@ -44,7 +44,8 @@ However, each server focuses on a specific domain e.g. seraching over the intern
 As mentioned above, an  MCP server exposes specific actions, perhaps around one domain, that an MCP client can access. 
 An MCP client is hosted by an MCP host. Note that the MCP client can connect to multiple MCP servers.
 
-
+The video: <a href="https://www.youtube.com/watch?v=7j1t3UZA1TY">MCP vs API: Simplifying AI Agent Integration with External Data</a>
+discussess the differences between MCP and a REST API.
 
 
 ## References
