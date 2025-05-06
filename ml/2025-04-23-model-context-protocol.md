@@ -45,7 +45,8 @@ As mentioned above, an  MCP server exposes specific actions, perhaps around one 
 An MCP client is hosted by an MCP host. Note that the MCP client can connect to multiple MCP servers.
 
 The video: <a href="https://www.youtube.com/watch?v=7j1t3UZA1TY">MCP vs API: Simplifying AI Agent Integration with External Data</a>
-discussess the differences between MCP and a REST API.
+discussess the differences between MCP and a REST API. The video: <a href="https://www.youtube.com/watch?v=nPGXlIorZbg">Add Authorization to MCP Servers with WorkOS Roles & Permissions</a>
+discusses how to add authorization and authentication for MCP servers.
 
 
 ## References
