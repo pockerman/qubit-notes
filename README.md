@@ -9,6 +9,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
+
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Circuit Breaker Pattern</a>
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Load Balancing</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Managing Distributed Workflows</a>
@@ -29,6 +30,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
+- <a href="how_to/2025-05-06-pub-sub-model-in-redis.md">qubit-note: Pub/Sub Model in Redis</a>
 - <a href="how_to/2025-05-06-callback-chaning-in-nodejs.md">qubit-note: Callback Chaining in NodeJS</a>
 - <a href="how_to/2025-05-01-serving-ml-models-with-fastapi-ray.md">qubit-note: Serving ML Models With FastAPI & Ray</a>
 - <a href="how_to/2025-04-29-task-based-parallelism-with-ray.md">qubit-note: Task-based Parallelism With Ray Part 1</a>
