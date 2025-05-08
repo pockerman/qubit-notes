@@ -31,6 +31,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
+- <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: Hello ExpressJS</a>
 - <a href="how_to/2025-05-06-pub-sub-model-in-redis.md">qubit-note: Pub/Sub Model in Redis</a>
 - <a href="how_to/2025-05-06-callback-chaning-in-nodeJS.md">qubit-note: Callback Chaining in NodeJS</a>
 - <a href="how_to/2025-05-01-serving-ml-models-with-fastapi-ray.md">qubit-note: Serving ML Models With FastAPI & Ray</a>
