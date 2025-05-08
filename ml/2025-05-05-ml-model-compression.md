@@ -6,6 +6,7 @@ Very often we want to reduce the size of a machine learning model; e.g. when we 
 the model on an edge device. There are various ways we can do this. In this note I discuss
 some of the approaches we can follow in order to compress an ML model
 
+**keywords:** machine-learning, ml-model-compression
 
 ## ML model compression
 
