@@ -4,7 +4,7 @@
 
 Often when we work with web applications, we need to serve various assets such as images, CSS files and JavaScript.
 In this note, I will shou you how to do this with <a href="https://expressjs.com/">ExpressJS</a>. I
-will continue the example from <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: Hello ExpressJS</a>.
+will continue the example from <a href="2025-05-08-hello-expressJS.md">qubit-node: Hello ExpressJS</a>.
 
 Note that the way I am showing in this note, it's not necessarilly the way we want to organise our views.
 In a later note I will discuss how to better serve static files with NodeJS.
