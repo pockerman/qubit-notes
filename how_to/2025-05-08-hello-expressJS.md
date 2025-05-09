@@ -2,7 +2,7 @@
 
 ## Overview
 
-In this short note, I show how to use <a href="https://expressjs.com/">Express</a> to create a web server.
+In this short note, I show how to use <a href="https://expressjs.com/">ExpressJS</a> to create a web server.
 
 **keywords:** programming, NodeJS, ExpressJS
 
@@ -55,4 +55,4 @@ app.listen(3000, () => {
 
 ## References
 
-1. <a href="https://expressjs.com/">Express</a>
+1. <a href="https://expressjs.com/">ExpressJS</a>
