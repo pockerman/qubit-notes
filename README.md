@@ -7,6 +7,10 @@ The qubit in quantum computing is the analogus to the bit in the casual(?) compu
 a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are tiny but sometimes not so tiny.
 
 
+## Computational techniques
+
+- <a href="comp_techs/2025-05-10-thompson-sampling.md">qubit-note: Thompson Sampling</a>
+
 ## Software engineering
 
 
