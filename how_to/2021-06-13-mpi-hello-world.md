@@ -83,6 +83,9 @@ The ```mpirun``` command is also known as ```mpiexec``` on some implementations.
 In the code above, every process executes the same instructions. We can use ```if/else``` statements to differentiate what each process will execute. The variable ```MPI_COMM_WORLD``` is a predefined intra-communicator, i.e., it serves communications taking place between processes belonging to its own group of processes [1]. 
 The code above also calculates the rank of the calling process via ```MPI_Comm_rank```, and the total number of processes in the comunicator ```MPI_Comm_size```.
 
+The note <a href="2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: Point-to-Point Communication with MPI</a> shows some basic point-to-point communication 
+with MPI.
+
 
 ## References
 
