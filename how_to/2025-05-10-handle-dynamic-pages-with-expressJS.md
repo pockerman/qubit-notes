@@ -6,7 +6,7 @@ Only rarely do we want our web pages to be static. <a href="https://expressjs.co
 supports a number of template engines that we can use to render dynamic web pages.
 In this note, I will show use how to use one of them namely <a href="https://handlebarsjs.com/">Handlebars</a>.
 
-I will continue the code from <a href="serving-images-with-expressJS.md">qubit-note: Serving Images With ExpressJS</a>
+I will continue the code from <a href="2025-05-09-serving-images-with-expressJS.md">qubit-note: Serving Images With ExpressJS</a>
 
 
 ## Handle dynamic pages with ExpressJS
