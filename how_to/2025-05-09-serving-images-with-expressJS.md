@@ -54,6 +54,8 @@ node index.js
 
 Navigate to ```http://localhost:3000/``` and you should be able to access the view. 
 As I already mentioned in the _Overview_, the way we serve a static file above, it's not necessarilly the way we want to organise our views.
+Note <a href="2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: Handle Dynamic Pages with ExpressJS</a> discusses how to
+handle dynamic views with ExpressJS
 
 ## References
 
