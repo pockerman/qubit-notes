@@ -8,6 +8,7 @@ In this note, I will show use how to use one of them namely <a href="https://han
 
 I will continue the code from <a href="2025-05-09-serving-images-with-expressJS.md">qubit-note: Serving Images With ExpressJS</a>
 
+**keywords:** programming, NodeJS, ExpressJS, Handlebars, dynamic-views
 
 ## Handle dynamic pages with ExpressJS
 
