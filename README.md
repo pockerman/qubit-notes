@@ -9,6 +9,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Computational techniques
 
+- <a href="comp_techs/2025-05-11-monte-carlo-integration.md">qubit-note: Monte Carlo Integration</a>
 - <a href="comp_techs/2025-05-10-thompson-sampling.md">qubit-note: Thompson Sampling</a>
 
 ## Software engineering
