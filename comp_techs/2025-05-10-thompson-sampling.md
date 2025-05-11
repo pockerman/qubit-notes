@@ -42,7 +42,7 @@ where $\Gamma$ denotes the <a href="https://en.wikipedia.org/wiki/Gamma_function
 For a reward signal $R$ we can update the parameters according to
 
 $$
-\alpha \leftarrow \alpha + R, ~~ \beta \leftarrow \beta + R
+\alpha \leftarrow \alpha + R, ~~ \beta \leftarrow \beta + 1 - R
 $$
 
 The following script simulates MAD using the Bernoulli distribution for modelling an arm.
