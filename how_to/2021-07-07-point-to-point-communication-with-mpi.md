@@ -6,6 +6,8 @@
 When two processes communicate with each other, we call this communication pattern as point-to-point communication [3]. MPI allows for easy information exchange between processes or nodes although the resulting interfaces may be quite overwhelming. In this nnote, I introduce the two most basic point-to-point communication functions in MPI namely ```MPI_Send``` (<a href="https://www.mpich.org/static/docs/latest/www3/MPI_Send.html">doc</a>) and ```MPI_Recv``` (<a href="https://www.mpich.org/static/docs/latest/www3/MPI_Recv.html">doc</a>). 
 
 
+**keywords** message-passing-interface, MPI, point-to-point-communication
+
 ## Point-to-point communication with MPI
 
 ```MPI_Send``` performs a blocking send; that is the function call may block until the message is received by the destination process [1]. An ```MPI_Send``` must be matched with a receive operation. ```MPI_Recv``` (<a href="https://www.mpich.org/static/docs/latest/www3/MPI_Recv.html">doc</a>) performs a blocking receive [2]. 
@@ -111,6 +113,9 @@ Note the following:
 - ```MPI_Recv``` may use for the source the wildcard ```MPI_ANY_SOURCE```. This allows an ```MPI_Recv``` to receive from a send from any source.
 - ```MPI_Send``` must specify the process rank of the destination. No wildcard exists.
 
+
+<a href="2021-06-24-object-communication-with-mpi.md">qubit-note: Object Communication with MPI</a> shows how to communicate user defined types
+with MPI.
 
 ## References
 
