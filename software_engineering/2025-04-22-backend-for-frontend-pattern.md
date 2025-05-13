@@ -34,8 +34,6 @@ retries inside of this service.
 This may sound like the <a href="https://microservices.io/patterns/apigateway.html"API Gateway pattern</a> and indeed it is as the backend-for-frontend is a kind
 of an API Gateway pattern. But there are a few differences. This is best explained using the digrams below.
 
-bff-vs-api-gateway.png
-
 | ![bff-vs-api-gateway](./imgs/bff-vs-api-gateway.png)        |
 |:-----------------------------------------------------------:|
 |             **Figure 1: BFF vs API Gateway patterns**       |
