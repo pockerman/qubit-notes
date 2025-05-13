@@ -115,10 +115,10 @@ Note the following:
 
 
 <a href="2021-06-24-object-communication-with-mpi.md">qubit-note: Object Communication with MPI</a> shows how to communicate user defined types
-with MPI.
+with MPI. <a href="2021-07-08-p2p-communication-modes-with-mpi.md">qubit-note: P2P Communication Modes with MPI</a> discusses further communication modes for P2P transactions with MPI.
 
 ## References
 
 1. <a href="https://www.mpich.org/static/docs/latest/www3/MPI_Send.html">MPI_Send</a>
 2. <a href="https://www.mpich.org/static/docs/latest/www3/MPI_Recv.html">MPI_Recv</a>
-3. Gerassimos Barlas, ```Multicore and GPU Programming An Integrated Approach```, Morgan Kaufmann
+3. Gerassimos Barlas, _Multicore and GPU Programming An Integrated Approach_, Morgan Kaufmann
