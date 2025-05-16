@@ -24,6 +24,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Machine learning & AI engineering
 
+- <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: Training Patterns for Distributed ML</a>
 - <a href="ml/2025-05-08-dimensionality-reduction-with-PCA.md">qubit-note: Dimensionality Reduction with PCA</a>
 - <a href="ml/2025-05-07-data-ingestion-patterns-for-dist-ml.md">qubit-note: Data Ingestion Patterns for Distributed ML</a>
 - <a href="ml/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
