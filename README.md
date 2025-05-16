@@ -48,6 +48,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2025-05-06-callback-chaning-in-nodeJS.md">qubit-note: Callback Chaining in NodeJS</a>
 - <a href="how_to/2025-05-01-serving-ml-models-with-fastapi-ray.md">qubit-note: Serving ML Models With FastAPI & Ray</a>
 - <a href="how_to/2025-04-29-task-based-parallelism-with-ray.md">qubit-note: Task-based Parallelism With Ray Part 1</a>
+- <a href="how_to/2023-11-15-kubernetes_101.md">qubit-note: Deploy Microservices with Kubernetes 101</a>
 - <a href="how_to/2021-07-15-django-apache.md">qubit-note: Use Django with Apache</a>
 - <a href="how_to/2021-07-29-django-with-docker.md">qubit-note: Django with Docker</a>
 - <a href="how_to/2021-07-08-p2p-communication-modes-with-mpi.md">qubit-note: P2P Communication Modes with MPI</a>
