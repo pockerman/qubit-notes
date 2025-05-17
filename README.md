@@ -9,12 +9,11 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Computational techniques
 
-- <a href="2025-05-17-gradient-descent.md">qubit-note: Gradient Descent</a>
+- <a href="comp_techs/2025-05-17-gradient-descent.md">qubit-note: Gradient Descent</a>
 - <a href="comp_techs/2025-05-11-monte-carlo-integration.md">qubit-note: Monte Carlo Integration</a>
 - <a href="comp_techs/2025-05-10-thompson-sampling.md">qubit-note: Thompson Sampling</a>
 
 ## Software engineering
-
 
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Circuit Breaker Pattern</a>
 - <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Consistency Models</a>
