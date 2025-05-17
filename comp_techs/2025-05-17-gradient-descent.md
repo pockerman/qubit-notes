@@ -5,7 +5,7 @@
 Very often we want to calculate the maximum or minimum locations of a function. Another similar problem is to find the paramters
 of a function in order to minimize or maximize a certain condition. Both problems are of practical interest.
 
-In this short note, I discuss <a href="https://en.wikipedia.org/wiki/Gradient_descent"> gradient descent</a> algorithm also known as steepest descent.
+In this short note, I discuss the <a href="https://en.wikipedia.org/wiki/Gradient_descent"> gradient descent</a> algorithm also known as steepest descent.
 
 **keywords** graident-descent, unconstrained-optimization, numerical-methods 
 
