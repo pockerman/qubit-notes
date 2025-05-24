@@ -6,6 +6,7 @@ Very often we want to calculate the maximum or minimum locations of a function. 
 of a function in order to minimize or maximize a certain condition. Both problems are of practical interest.
 
 In this short note, I discuss <a href="https://en.wikipedia.org/wiki/Gradient_descent"> gradient descent</a> algorithm also known as steepest descent.
+A general overview of gradient descent methods can be found at [4].
 
 **keywords** graident-descent, unconstrained-optimization, numerical-methods 
 
@@ -128,3 +129,4 @@ plt.show()
 1. <a href="https://en.wikipedia.org/wiki/Gradient_descent">Gradient descent</a>
 2. Kevin P. Murphy, _Machine learning a probabilistic perspective_, The MIT Press
 3. Steven L. Brunton and J. Nathan Kutz, _Data-driven science and engineering. Machine learning, dynamical systems and control_, Cambridge University Press.
+4. <a href="https://ruder.io/optimizing-gradient-descent/">An overview of gradient descent optimization algorithms</a>
