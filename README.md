@@ -16,7 +16,6 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
-
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Circuit Breaker Pattern</a>
 - <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Consistency Models</a>
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Backend-for-frontend Pattern</a>
