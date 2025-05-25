@@ -1,5 +1,11 @@
 version: '3'
 services:
+  db:
+    image: mongo:7.0.0
+    container_name: db
+    ports:
+      - "4000:2707"
+    restart: always
   video-streaming:
     image: video-streaming
     build:
@@ -7,7 +13,9 @@ services:
       dockerfile: Dockerfile
     container_name: video-streaming-service
     ports:
-      - "4000:80"
+      - "4001:80"
     environment:
       - PORT=80
+      - DBHOST=mongodb://db:27017
+      - DBNAME=video-streaming
     restart: "no"
