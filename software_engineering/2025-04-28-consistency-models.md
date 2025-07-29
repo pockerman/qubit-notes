@@ -37,14 +37,14 @@ Let's briefly go over each of these terms.
 
 As the name implies this form guarantees that a client will be able to observe the state of a system
 that it is not affected if any of the replicas is lagging behind. This will be the case if the
-read/write requests to the leader. In other words, every request appears to be atomic [2].
+read/write requests are wired to the leader. In other words, every request appears to be atomic [2].
 Strong consistency is also known as <a href="https://jepsen.io/consistency/models/linearizable">linearizability</a> [2].
-However, in this consistency  all reads and writes have to go through the leader node which causes a chocking point
+However, in this consistency model all reads and writes have to go through the leader node which causes a chocking point
 which limits the throughput.
 
 ### Sequential consistency
 
-If relax the real-time guarantees of the stong consistency model the we have the seqiential consistency model.
+If we relax the real-time guarantees of the stong consistency model then we have the seqiential consistency model.
 In this model, the replica will receive the requests in the same order as the leader but it may not be
 necessarilly up to date with the leader. A typical example of sequential consistency is when a producer and a consumer
 are synchronized via a queue [2]. If we pin a client to a specific replica, then each client will have a different view of the system
@@ -53,14 +53,19 @@ in different times.
 
 ### Eventual consistency
 
-With sequential consistency, we allow reads from replicas  but accept that these may not be up to date with the leader.
-The question now is what happens is the replica we pinned the client to goes down? A solution is that we can allow the
-client to query any replica. The consequence is that the replica can be quite out of sync with the leader or even
-the replica we had pinned the client. Evential consistency, as its name implies, guarantees that all replicas eventually
+Eventual consistency allows us to read from replica nodes but there is no guarantee that the data will be up to date with the leader node.
+As its name imples, eventual consistency guarantees that all replicas eventually
 will converge to the same final state provided that the writes to the system stop [2].
+Pinning a client to a particular replica somehow poses a single point of failure for that client.
+To counter this, we can allow the client to read from any replica but in this case the data the client
+reads may be quite out-of-sync from the leader.
 
-In summary, the three consistency models above have different guarantees that stem from the different trade offs they offer.
-It's upon the system architect to decide which consistency model should be used. Note that a system does not have use just one consistency
+
+## Summary
+
+In summary, a consistency model defines the rules about how operations (especially reads and writes) appear to execute across multiple nodes, threads, or users in a distributed or concurrent system.
+The three consistency models above have different guarantees that stem from the different trade offs they offer.
+It's upon the system architect to decide which consistency model should be used. Note that a system does not have to use just one consistency
 model but can blend these depending on the requirements of the subsystem viewed. 
 
 
