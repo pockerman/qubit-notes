@@ -12,7 +12,7 @@ Often, we allow modules in higher levels to use functionality from modules in lo
 
 The layers pattern organises code into distinct layers or modules. Typically, this organisation should promote cohesion
 and decreased coupling. It also allows the developers to better collaborate [2]. These attributes of course increase 
-software maintainability. Below are the main components of this pattern
+software maintainability. Below are the main components of this pattern [2]:
 
 **Elements**
 
