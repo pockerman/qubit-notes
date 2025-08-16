@@ -90,4 +90,4 @@ This note explores three common strategies for generating unique IDs in distribu
 ## References
 
 1. Alex Xu _System Design Interview, An insider's view_.
-2 <a href="https://code.flickr.net/2010/02/08/ticket-servers-distributed-unique-primary-keys-on-the-cheap/">Ticket Servers: Distributed Unique Primary Keys on the Cheap</a>
+2. <a href="https://code.flickr.net/2010/02/08/ticket-servers-distributed-unique-primary-keys-on-the-cheap/">Ticket Servers: Distributed Unique Primary Keys on the Cheap</a>
