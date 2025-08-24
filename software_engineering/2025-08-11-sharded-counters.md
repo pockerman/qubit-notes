@@ -25,8 +25,8 @@ We can certainly store the counter as a single tuple/document or key in our data
 is problematic when we work with systems that have to deal with high traffic. These are the two main problems
 that such a database approach has:
 
-1. Database Write contention
-2. Throughput lmit
+1. Database write contention
+2. Throughput limit
 
 When multiple machines try to update the same row at the same time it is unavoidable that we need to serialize these operations leading to
 data locks which eventually degrades performance. In addition, the machine that holds the counter eventually becomes a bottlenec.
