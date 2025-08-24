@@ -17,6 +17,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
+- <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Data Replication</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Patterns-Pipeline Patternn</a>
 - <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note: Some Best Practices in API Design</a>
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Semantic Caching</a>
