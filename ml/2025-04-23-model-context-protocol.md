@@ -48,6 +48,10 @@ The video: <a href="https://www.youtube.com/watch?v=7j1t3UZA1TY">MCP vs API: Sim
 discussess the differences between MCP and a REST API. The video: <a href="https://www.youtube.com/watch?v=nPGXlIorZbg">Add Authorization to MCP Servers with WorkOS Roles & Permissions</a>
 discusses how to add authorization and authentication for MCP servers.
 
+## Summary
+
+This note provides a high-level overview of the Model Context Protocol (MCP), introduced by Anthropic in November 2024, which serves as an open standard for connecting AI agents, such as large language models, to diverse tools, data sources, and repositories. MCP simplifies integration by replacing fragmented connections with a universal protocol, enabling agents to access the resources they need without added complexity. Following a client-server architecture, MCP includes three main components: the MCP client, MCP host, and MCP server, with servers often focused on specific domains like internet search or database operations. While MCP does not enhance an agent’s inherent capabilities, it streamlines their ability to integrate and utilize external functionality, akin to an API gateway from the client perspective.
+
 
 ## References
 
