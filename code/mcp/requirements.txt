@@ -1,0 +1,4 @@
+mcp-use
+fastmcp
+ollama
+langchain_ollama

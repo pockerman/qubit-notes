@@ -52,6 +52,8 @@ discusses how to add authorization and authentication for MCP servers.
 
 This note provides a high-level overview of the Model Context Protocol (MCP), introduced by Anthropic in November 2024, which serves as an open standard for connecting AI agents, such as large language models, to diverse tools, data sources, and repositories. MCP simplifies integration by replacing fragmented connections with a universal protocol, enabling agents to access the resources they need without added complexity. Following a client-server architecture, MCP includes three main components: the MCP client, MCP host, and MCP server, with servers often focused on specific domains like internet search or database operations. While MCP does not enhance an agent’s inherent capabilities, it streamlines their ability to integrate and utilize external functionality, akin to an API gateway from the client perspective.
 
+<a href="../how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build a Local MCP Server & Client</a> shows how to use <a href="https://gofastmcp.com/getting-started/welcome">FastMCP</a> and <a href="https://github.com/mcp-use/mcp-use">mcp-use</a> to create an MCP server and an MCP client.
+
 
 ## References
 

@@ -57,6 +57,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
+- <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build a Local MCP Server & Client</a>
 - <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: Handle Dynamic Pages with ExpressJS</a>
 - <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: Serving Images With ExpressJS</a>
 - <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: Hello ExpressJS</a>
