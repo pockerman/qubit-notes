@@ -29,6 +29,8 @@ MCP works as an enabling technology rather than an antagonistic one to AI agents
 
 This note discusses the key differences between AI agents and the Model Context Protocol (MCP). AI agents, rooted in the concept of software agents, operate autonomously, utilize memory (both short and long term), and follow a sense-think-act cycle to analyze data and achieve goals. With advancements in large language models, their capabilities have significantly expanded. MCP, introduced by Anthropic, is a protocol designed to enable agents to interact with external systems such as databases, file systems, or tools. Rather than competing with AI agents, MCP serves as an enabling technology that enhances their ability to perform complex tasks by providing seamless access to external resources.
 
+<a href="../how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build a Local MCP Server & Client</a> shows how to use <a href="https://gofastmcp.com/getting-started/welcome">FastMCP</a> and <a href="https://github.com/mcp-use/mcp-use">mcp-use</a> to create an MCP server and an MCP client.
+
 
 ## References
 

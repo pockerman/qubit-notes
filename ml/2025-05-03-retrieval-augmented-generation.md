@@ -12,7 +12,7 @@ with information that it was not trained on.
 Specifically, I want to discuss <a href="https://en.wikipedia.org/wiki/Retrieval-augmented_generation">retrieval augmented generation</a> or RAG; its main componets and
 the typical workflow.
 
-**keywords** RAG, large-language-models, LLM, retrieval-augmented-generation, 
+**keywords** RAG, AI-engineering, large-language-models, LLM, retrieval-augmented-generation, 
 
 
 ## Retrieval augmented generation 
@@ -66,6 +66,7 @@ better accuracy than the usual RAG [3]. A similar concept to RAG is CAG or Cache
 LLMs are powerful but limited by outdated training data and domain gaps, often leading to hallucinations when asked questions outside their knowledge scope. RAG addresses this by combining an LLM with a retriever that pulls relevant, up-to-date information, typically from a vector database, before the model generates a response. The RAG workflow has three main phases: pre-retrieval (data preparation, embedding, and indexing), retrieval (query handling and optimization), and post-retrieval (refining and re-ranking documents before passing them to the model). Variants like GraphRAG, which integrates knowledge graphs, and Cached Augmented Generation (CAG) further extend the approach, offering improvements in accuracy and efficiency.
 
 <a href="2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a> discusses further how to do indexing for RAG-based applications.
+<a href="2025-08-28-evaluate-RAG-based-system.md">qubit-note: Evaluate a RAG-based System</a> provides some hints how to evaluate a RAG-based system.
 
 ## References
 
