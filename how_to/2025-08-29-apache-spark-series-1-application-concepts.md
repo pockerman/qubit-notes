@@ -99,7 +99,7 @@ Both actions and transformations contribute to a query plan in Spark [2]( the fo
 
 In this note I went briefly onto some of the basic but core concepts in Spark. Specifically, we saw what a job, a stage, and a task are. And how these are used to organize computation in Spark. Furthermore, we touched upon the ```SparkSession``` construct. This entity gives us access to all the functionality provided by Spark. Finally, we saw the two types of operations that we can apply of an RDD. Namely transformations and actions. We will come back to these topics as these an occurring theme when working with Spark.
 
-In <a herf="2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series 2-Hello World</a> I will describe how to submit a standalone Python application to Spark for execution.
+In <a href="2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series 2-Hello World</a> I will describe how to submit a standalone Python application to Spark for execution.
 
 ## References
 
