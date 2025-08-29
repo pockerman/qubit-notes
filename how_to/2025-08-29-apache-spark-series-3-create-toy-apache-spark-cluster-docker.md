@@ -2,7 +2,8 @@
 
 ## Overview
 
-In  <a href="2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series 1-Application concepts</a> we went over some basic but core concepts associated with Spark. In this note, I describe the steps you need to take in order to submit a self-contained application to be executed by Spark. You should also check the official documentation on <a href="https://spark.apache.org/docs/latest/quick-start.html#self-contained-applications">Self-contained Applications</a>. 
+In  <a href="2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series 1-Application concepts</a> we went over some basic but core concepts associated with Spark. In this note, I describe the steps you need to take in order to submit a self-contained application to be executed by Spark. You should also check the official documentation on <a href="https://spark.apache.org/docs/latest/quick-start.html#self-contained-applications">Self-contained Applications</a>. Apache Spark is designed to run on computer clusters and data centers.
+Although I don't have access to such a facility, I will describe how to create a toy cluster locally using Docker. The cluster will have two working nodes and one master.
 
 **keywords** Apache-Spark, big-data, high-performance-computing, Python, Docker
 
