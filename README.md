@@ -59,7 +59,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
-- <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md"># qubit-note: Apache Spark Series 4-Overview of RDDs</a>
+- <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series 4-Overview of RDDs</a>
 - <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Coroutine Chaining & Asynchronous Queues in Python</a>
 - <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series 3-Create a Toy Apache Spark Cluster With Docker</a>
 - <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series 2-Hello World</a>
