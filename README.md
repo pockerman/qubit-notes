@@ -37,6 +37,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Machine learning & AI engineering
 
+- <a href="ml/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: Weighted Fusion & Multi-stage Retrieval for Multi-modal RAG</a>
 - <a href="ml/2025-08-31-RAG-or-fine-tuning.md">qubit-note: RAG or Fine Tuning?</a>
 - <a href="ml/2025-08-28-evaluate-RAG-based-system.md">qubit-note: Evaluate a RAG-based System</a>
 - <a href="ml/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Agent vs MCP</a>
