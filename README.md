@@ -9,6 +9,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Computational techniques
 
+- <a href="comp_techs/2025-09-13-linear-regression-model.md">qubit-note: Linear Regression Model</a>
 - <a href="comp_techs/2025-08-24-K-means-image-quantization.md">qubit-note: K-means for Image Quantization</a>
 - <a href="comp_techs/2025-05-24-stochastic-grdaient-descent.md">qubit-note: Stochastic Grdaient Descent</a>
 - <a href="comp_techs/2025-05-17-gradient-descent.md">qubit-note: Gradient Descent</a>
