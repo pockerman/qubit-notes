@@ -5,6 +5,8 @@
 The two dominant models in supervised learning are regression and classification modeling. In the former, the output of the model is a real value whilst for the latter its a class index.  More generally, in regression modeling we associate an input vector $\mathbf{x} \in \mathbb{R}^N$ with a continuous variable $y\in \mathbb{R}$ whilst in classification modeling the vector $\mathbf{x}$  is associated with a $y \in \mathbb{N}$. There are various models we can use for regression modeling e.g. k-nearest neighbors or decision trees. In this section however, we restrict attention to a more humble approach and perhaps one of the most known statistical modeling approaches i.e. the <a href="https://en.wikipedia.org/wiki/Linear_regression">linear regression model</a>. You can find out more on this and other topics at <a href="https://github.com/pockerman/ml_notes">Statistics, Probability and Machine Learning Notes</a>.
 
 
+**keywords** linear-regression-model, statistical-modelling, scikit-learn, Python
+
 ## Linear regression model
 
 In Statistics, linear regression represents a linear model of the relationship between a scalar target variable  $y$ and one or more explanatory variables $x_1, \dots, x_k $ [1]. The variables $y$ and $x_i$ are also known as dependent and independent variables respectively [1]. When only one explanatory variable is used the method is also called **simple linear regression**. When  more than one explanatory variables are involved, then the process is called **multiple linear regression** [1]. 
@@ -49,8 +51,10 @@ $$y = \mathbf{w}^T \mathbf{x} + \epsilon$$
 
 The term $w_0$ is the bias or interception term. The rest of the weights represent the amount that $y$ changes when the variable associated with that specific weight changes given that the rest of the variables remain the same. Given the assumed functional form among the independent variables, we need to estimate the weights $w_i$. This is done by fitting the model in the available data. The following  image shows a line fitted in a one dimensional data set 
 
-![](imgs/sgd_linear_regression.png.png)
-*Figure 1. Linear regression model fitted using SGD.*
+
+| ![gd-eta-01](./imgs/sgd_linear_regression.png)              |
+|:-----------------------------------------------------------:|
+|      **Figure 1. Linear regression model fitted using SGD.**    |
 
 Linear regression was the first type of regression analysis to be studied rigorously, and to be used extensively in practical applications [1]. This is because models which depend linearly on their unknown parameters are easier to fit than models which are non-linearly related to their parameters and because the statistical properties of the resulting estimators are easier to determine [1].
 
