@@ -18,14 +18,14 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
-- <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Patterns-Service Oriented Architecture Pattern</a>
+- <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Patterns/Service Oriented Architecture Pattern</a>
 - <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Data Replication</a>
-- <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Patterns-Pipeline Pattern</a>
+- <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Patterns/Pipeline Pattern</a>
 - <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note: Some Best Practices in API Design</a>
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Semantic Caching</a>
 - <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
-- <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Patterns-Ports and Adapters Pattern</a>
-- <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Patterns-Layers Pattern</a>
+- <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Patterns/Ports and Adapters Pattern</a>
+- <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Patterns/Layers Pattern</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
 - <a href="software_engineering/2025-08-04-partitioning.md">qubit-note: Partitioning</a> 
 - <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Digital Twins</a>
@@ -61,6 +61,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
+- <a href="how_to/2025-10-06-checking-code-dependencies-python.md">ubit-note: Checking Code Dependencies in Python Codebases</a>
 - <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series 4-Overview of RDDs</a>
 - <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Coroutine Chaining & Asynchronous Queues in Python</a>
 - <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series 3-Create a Toy Apache Spark Cluster With Docker</a>
