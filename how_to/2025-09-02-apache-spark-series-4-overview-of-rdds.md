@@ -1,4 +1,4 @@
-# qubit-note: Apache Spark Series 4-Overview of RDDs
+# qubit-note: Apache Spark Series 4/Overview of RDDs
 
 ## Overview
 

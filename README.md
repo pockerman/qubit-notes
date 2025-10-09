@@ -79,6 +79,6 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2021-07-15-django-apache.md">qubit-note: Use Django with Apache</a>
 - <a href="how_to/2021-07-29-django-with-docker.md">qubit-note: Django with Docker</a>
 - <a href="how_to/2021-07-08-p2p-communication-modes-with-mpi.md">qubit-note: P2P Communication Modes with MPI</a>
-- <a href="how_to/2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: Point-to-Point Communication with MPI</a>
+- <a href="how_to/2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: MPI Series 2/Point-to-Point Communication with MPI</a>
 - <a href="how_to/2021-06-24-object-communication-with-mpi.md">qubit-note: Object Communication with MPI</a>
-- <a href="how_to/2021-06-13-mpi-hello-world.md">qubit-note: MPI Hello World</a>
+- <a href="how_to/2021-06-13-mpi-hello-world.md">qubit-note: MPI Series 1/MPI Hello World</a>

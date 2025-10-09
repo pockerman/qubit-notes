@@ -1,12 +1,13 @@
-# qubit-note: MPI Hello World
+# qubit-note: MPI Series 1/MPI Hello World
 
 
 ## Overview
 
-The <a href="https://en.wikipedia.org/wiki/Message_Passing_Interface">Message Passage Interface</a>, or MPI for short, is perhaps the defacto standard used in nowadays scientific distributed computing. It provides interfaces for both point-to-point and collective communication. 
-In this short note, I show how to write a very basic C++ driver using MPI.
+The <a href="https://en.wikipedia.org/wiki/Message_Passing_Interface">Message Passage Interface</a>, or MPI for short, is perhaps the de facto standard used nowadays in scientific distributed computing.
+In fact, the terminology used by ```torch.distributed``` is based on the terminology in the MPI [3]. The MPI standard provides interfaces for both point-to-point and collective communication. 
+In this qubit  note, I will  write a very basic C++ driver using MPI and discuss some basic terminology.
 
-
+**keywords** message-passage-interface, high-performance-computing, c/c++
 
 ## MPI Hello World
 
@@ -20,7 +21,7 @@ MPI is a well-established standard that includes [1]:
 - External interfaces
 - Topologies
 
-Language bindings exist for C and Fortran. Newer MPI standards are trying to better support the scalability in future extreme-scale computing systems, because currently, the only feasible option for increasingthe computing power is to increase the number of cooperating processors [1]. 
+Language bindings exist for C and Fortran. Newer MPI standards are trying to better support the scalability in future extreme-scale computing systems, because at the time of writing, the only feasible option for increasing the computing power is to increase the number of cooperating processors [1]. 
 
 The following code snippet is the ```Hello World``` equivalent for MPI. It demonstrates basic usage of the standard. 
 
@@ -64,7 +65,7 @@ Executing using four processes:
 mpirun -np 4 example_1
 ```
 
-produces:
+This produces:
 
 ```
 Hello from process 0 of 4
@@ -86,7 +87,15 @@ The code above also calculates the rank of the calling process via ```MPI_Comm_r
 The note <a href="2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: Point-to-Point Communication with MPI</a> shows some basic point-to-point communication 
 with MPI.
 
+## Summary
+
+In this short post, we saw how to write a basic Hello World example using MPI. Nevertheless, this example allowed us to introduce some basic terminology such as ```MPI_COMM_WORLD```
+and how to access the total number of processes as well as the id of the process we are looking into. 
+
+MPI is not the only standard for distributed computing. Other standards for this task are <a href="https://github.com/pytorch/gloo">gloo</a> a collective communications library with various primitives for multi-machine training on CPUs and <a href="https://github.com/NVIDIA/nccl">nccl</a> by NVIDIA targeting collective multi-GPU communication.
 
 ## References
 
-1. Roman Trobec et al., ```Introduction to parallel computing. From algorithms to programming on state-of-the-art platforms```, Springer.
+1. Roman Trobec et al., _Introduction to parallel computing. From algorithms to programming on state-of-the-art platforms_, Springer.
+2. <a href="https://docs.pytorch.org/docs/stable/distributed.html">Distributed communication package - torch.distributed</a>
+3. Luca Antiga, Eli Stevens, Howard Huang, Thomas Viehmann, _Deep Learning with PyTorch_, 2nd Edition, Manning.

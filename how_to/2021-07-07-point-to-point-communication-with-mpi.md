@@ -1,4 +1,4 @@
-# qubit-note: Point-to-Point Communication with MPI
+# qubit-note: MPI Series 2/Point-to-Point Communication with MPI
 
 
 ## Overview

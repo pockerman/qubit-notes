@@ -8,7 +8,7 @@ In addition, asynchronous programming is a programming paradigm that is very wel
 In this qubit note, I want to dsicuss two core patterns that frquently arise when employing asynchronous programming namely;
 coroutine chaining and asynchronous queues. This note is essentially taken from the article <a href="https://realpython.com/async-io-python/#conclusion">Python's asyncio: A Hands-On Walkthrough</a>
 
-**keywords** Asynchronous-programming, Python, High-Performance-Computing, asyncio
+**keywords** asynchronous-programming, python, high-performance-computing, asyncio
 
 ## Coroutine chaining & asynchronous queues
 
