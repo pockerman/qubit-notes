@@ -114,8 +114,8 @@ Note the following:
 - ```MPI_Send``` must specify the process rank of the destination. No wildcard exists.
 
 
-<a href="2021-06-24-object-communication-with-mpi.md">qubit-note: Object Communication with MPI</a> shows how to communicate user defined types
-with MPI. <a href="2021-07-08-p2p-communication-modes-with-mpi.md">qubit-note: P2P Communication Modes with MPI</a> discusses further communication modes for P2P transactions with MPI.
+<a href="2021-06-24-object-communication-with-mpi.md">qubit-note: MPI Series 5/ Object Communication with MPI</a> shows how to communicate user defined types
+with MPI. <a href="2021-07-08-p2p-communication-modes-with-mpi.md">qubit-note: MPI Series 4/ P2P Communication Modes with MPI</a> discusses further communication modes for P2P transactions with MPI.
 
 ## References
 

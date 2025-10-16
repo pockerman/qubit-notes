@@ -1,8 +1,8 @@
-# qubit-note: P2P Communication Modes with MPI
+# qubit-note: MPI Series 3/ P2P Communication Modes with MPI
 
 ## Overview
 
-<a href="2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: Point-to-Point Communication with MPI</a>
+<a href="2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: MPI Series 2/Point-to-Point Communication with MPI</a>
 used ```MPI_Send``` and ```MPI_Recv``` to enable communication between to pocesses in communication groupt. 
 In this note, I want to expand on this and discuss a few more communication modes supportd by the MPI standard.
 Specifically,
@@ -46,6 +46,8 @@ int [ MPI_Bsend | MPI_Ssend | MPI_Rsend ] (void∗ buf , int count ,
 Finally, note that blocking sends can be matched with non blocking receives,
 and vice versa. The crucial parts that need to match are the endpoints, as identified
 by the (communicator, rank, message tag) tuple.
+
+## Summary
 
 ## References
 
