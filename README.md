@@ -18,6 +18,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
+- <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: qubit-note: Architecture Patterns-Scalability Patterns</a>
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Patterns/Service Oriented Architecture Pattern</a>
 - <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Data Replication</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Patterns/Pipeline Pattern</a>

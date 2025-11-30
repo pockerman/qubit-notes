@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
 ### Other methods
 
-As an aside, we can create an RDD by using the following also:
+As an aside, we can create an RDD by using the following:
 
 - JDBC
 - Cassandra
@@ -177,6 +177,15 @@ Transformations in Spark transform a ```DataFrame``` into a new one. This is don
 
 - ```intersection(otherDataset)```: It returns a new data set that contains the intersection of elements from the source RDD and the argument RDD.
 
+
+In general, transformations are used to create new RDDs from existing RDDs. There are two types of transformations:
+
+- narrow transformations 
+- wide transformations.
+
+The former  are used to create RDDs with narrow dependencies; each child partition is made from a single partition of the parent RDD.
+The latter are used to make RDDs with wide dependency; each partition of child RDD is dependent on multiple partitions of parent RDD.
+
 ### Actions
 
 An action triggers the lazy evaluation of all the recorded transformations [1]. A list of actions is given below [3].
@@ -194,7 +203,8 @@ An action triggers the lazy evaluation of all the recorded transformations [1]. 
 
 ## Summary
 
-This qubit note introduces Apache Spark’s Resilient Distributed Dataset (RDD), the fundamental abstraction underlying Spark’s higher-level APIs such as DataFrame and Dataset. It explains that RDDs are immutable collections distributed across a cluster and composed of partitions, dependencies, and compute functions, which together enable fault tolerance and parallel computation. The document outlines two main methods to create an RDD—using SparkContext.parallelize for in-memory collections and textFile() for files—along with examples of reading CSV files, handling parsing errors, and setting custom partitions. It also provides an overview of transformations (which create new RDDs without altering the original data) and actions (which trigger computation and return results), listing key operations for both categories.
+This qubit note introduces Apache Spark’s Resilient Distributed Dataset (RDD), the fundamental abstraction underlying Spark’s higher-level APIs such as ```DataFrame``` and ```Dataset```. It explains that RDDs are immutable collections distributed across a cluster and composed of partitions, dependencies, and compute functions, which together enable fault tolerance and parallel computation. The document outlines two main methods to create an RDD—using ```SparkContext.parallelize``` for in-memory collections and ```textFile()``` for files—along with examples of reading CSV files, handling parsing errors, and setting custom partitions. It also provides an overview of transformations (which create new RDDs without altering the original data) and actions (which trigger computation and return results), listing key operations for both categories.
+
 
 ## References
 
