@@ -50,6 +50,8 @@ necessarilly up to date with the leader. A typical example of sequential consist
 are synchronized via a queue [2]. If we pin a client to a specific replica, then each client will have a different view of the system
 in different times.
 
+Sequential consistency is different from strong consistency in that it does not provide real-time guarantees [2].
+
 
 ### Eventual consistency
 
