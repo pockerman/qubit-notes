@@ -60,6 +60,15 @@ Pinning a client to a particular replica somehow poses a single point of failure
 To counter this, we can allow the client to read from any replica but in this case the data the client
 reads may be quite out-of-sync from the leader.
 
+Eventual consistency is the model of choice when prioritizing low latency as it eliminates the expensive node coordination [4].
+
+
+### Other consistency models
+
+There is a numbe of consistency models other than what is mentioned above; casiual consistency and strong eventual consisyency are some.
+However, I would like to briefly mention session consistency as this is very prevalent for web and mobile applications [4].
+Session consistency guarantees that within a single user session, reads are monotonic and users always see their own writes. Updates are visible immediately only to the same session, not necessarily to other users. This model is ideal for individual user–focused applications (like e-commerce carts or web/mobile apps), where a consistent personal experience matters, but it is not suitable for collaborative applications that require shared, real-time visibility.
+
 
 ## Summary
 
@@ -74,3 +83,4 @@ model but can blend these depending on the requirements of the subsystem viewed.
 1. <a href="https://en.wikipedia.org/wiki/Consistency_model">Consistency models</a>
 2. Roberto Vitillo _Understanding Distributed Stystems. What every developer should know about large distributed apllications_
 3. <a href="https://en.wikipedia.org/wiki/CAP_theorem">CAP Theorem</a>
+4. Pekka Enberg _Latency Reduce Delay in Software Systems_, Manning Publications.
