@@ -1,4 +1,4 @@
-# qubit-note: Build a Local MCP Server & Client
+# qubit-note: Build a Local MCP Server & Client part 1
 
 ## Overview
 
@@ -6,7 +6,7 @@ The Model Context Protocol (MCP) is an architectural pattern and open standard d
 
 In this qubit note we will see how to build an MCP server using <a href="https://gofastmcp.com/getting-started/welcome">FastMCP</a> and a client using <a href="https://github.com/mcp-use/mcp-use">mcp-use</a>, <a href="https://github.com/ollama/ollama">Ollama</a> and Python. We will use a rather trivial example in this note as I simply want to illustrate the approach.
 
-**keywords:** programming, AI-engineering, Model-Context-Protocol, MCP, Python
+**keywords:** programming, AI-engineering, AI-architecture, Model-Context-Protocol, MCP, Python
 
 ## Build a Local MCP Server & Client
 
