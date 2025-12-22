@@ -1,4 +1,4 @@
-# qubit-note: Build a Local MCP Server & Client part 1
+# qubit-note: Build an MCP Server Part 1
 
 ## Overview
 
@@ -8,7 +8,7 @@ In this qubit note we will see how to build an MCP server using <a href="https:/
 
 **keywords:** programming, AI-engineering, AI-architecture, Model-Context-Protocol, MCP, Python
 
-## Build a Local MCP Server & Client
+## Build an MCP Server Part 1
 
 Let's first create a new environment in our system. I am using Anaconda for this but any other tool will do the trick.
 With Ananconda, simply execute:

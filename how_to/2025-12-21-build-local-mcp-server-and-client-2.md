@@ -1,15 +1,15 @@
-# qubit-note: Build a Local MCP Server & Client part 2
+# qubit-note: Build an MCP Server Part 2
 
 ## Overview
 
-In <a href="2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build a Local MCP Server & Client part 1</a> I discussed how to create a simple MCP
+In <a href="2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build an MCP Server Part 1</a> I discussed how to create a simple MCP
 server and a client. In this qubit note I want to extend the server that we built in part by adding resources and prompts. I will also show how we can
 test an MCP server using <a href="https://modelcontextprotocol.io/docs/tools/inspector">MCP Inspector</a>.
 
 **keywords:** programming, AI-engineering, AI-architecture, Model-Context-Protocol, MCP, Python
 
 
-## Build a Local MCP Server & Client
+## Build an MCP Server Part 2
 
 Follow the instructions from <a href="2025-08-27-build-local-mcp-server-and-client.md">part 1</a> to install the requirements.
 The new server implementation is shown below:
