@@ -130,7 +130,10 @@ be able to access the tool exposed by the server.
 
 ## Summary
 
-In this qubit-note we continue building an MCP server. In earlier parts, the server used STDIO, suitable only for local transport. This part introduces Server-Sent Events (SSE) to allow remote or streaming communication over HTTP.
+In this qubit-note we continue building an MCP server. In earlier parts, the server used STDIO, suitable only for local transport. This part introduces Server-Sent Events (SSE) to allow remote or streaming communication over HTTP. 
+
+SSE is somehow considered deprecated and the main transport for communicating over HTTP with MCP serveres is Streamable HTTP. 
+We will cover this in <a href="2025-12-22-build-local-mcp-server-4.md">part 4</a>.
 
 ## References
 

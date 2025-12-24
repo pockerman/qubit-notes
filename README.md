@@ -62,6 +62,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
+- <a href="how_to/2025-12-22-build-local-mcp-server-4.md">qubit-note: Build an MCP Server Part 4</a>
 - <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: Build an MCP Server Part 3</a>
 - <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: Build an MCP Server Part 2</a>
 - <a href="how_to/2025-10-06-checking-code-dependencies-python.md">ubit-note: Checking Code Dependencies in Python Codebases</a>
