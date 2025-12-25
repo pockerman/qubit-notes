@@ -62,17 +62,17 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
-- <a href="how_to/2025-12-25-build-mcp-client-1.md">qubit-note: Build an MCP Client</a>
-- <a href="how_to/2025-12-22-build-local-mcp-server-4.md">qubit-note: Build an MCP Server Part 4</a>
-- <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: Build an MCP Server Part 3</a>
-- <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: Build an MCP Server Part 2</a>
+- <a href="how_to/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
+- <a href="how_to/2025-12-22-build-local-mcp-server-4.md">qubit-note: AI Series | Build an MCP Server Part 4</a>
+- <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
+- <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
 - <a href="how_to/2025-10-06-checking-code-dependencies-python.md">ubit-note: Checking Code Dependencies in Python Codebases</a>
 - <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series 4-Overview of RDDs</a>
 - <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Coroutine Chaining & Asynchronous Queues in Python</a>
 - <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series 3-Create a Toy Apache Spark Cluster With Docker</a>
 - <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series 2-Hello World</a>
 - <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series 1-Application concepts</a>
-- <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build an MCP Server Part 1</a>
+- <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
 - <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: Handle Dynamic Pages with ExpressJS</a>
 - <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: Serving Images With ExpressJS</a>
 - <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: Hello ExpressJS</a>
@@ -83,7 +83,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2023-11-15-kubernetes_101.md">qubit-note: Deploy Microservices with Kubernetes 101</a>
 - <a href="how_to/2021-07-15-django-apache.md">qubit-note: Use Django with Apache</a>
 - <a href="how_to/2021-07-29-django-with-docker.md">qubit-note: Django with Docker</a>
-- <a href="how_to/2021-07-08-p2p-communication-modes-with-mpi.md">qubit-note: MPI Series 3/P2P Communication Modes with MPI</a>
-- <a href="how_to/2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: MPI Series 2/Point-to-Point Communication with MPI</a>
-- <a href="how_to/2021-06-24-object-communication-with-mpi.md">qubit-note: MPI Series 4/Object Communication with MPI</a>
-- <a href="how_to/2021-06-13-mpi-hello-world.md">qubit-note: MPI Series 1/MPI Hello World</a>
+- <a href="how_to/2021-07-08-p2p-communication-modes-with-mpi.md">qubit-note: MPI Series | P2P Communication Modes with MPI</a>
+- <a href="how_to/2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: MPI Series | Point-to-Point Communication with MPI</a>
+- <a href="how_to/2021-06-24-object-communication-with-mpi.md">qubit-note: MPI Series | Object Communication with MPI</a>
+- <a href="how_to/2021-06-13-mpi-hello-world.md">qubit-note: MPI Series | MPI Hello World</a>
