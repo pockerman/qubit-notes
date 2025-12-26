@@ -1,4 +1,4 @@
-# qubit-note: Build an MCP Client
+# qubit-note: qubit-note: AI Series | Build an MCP Client
 
 ## Overview 
 
