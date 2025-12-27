@@ -137,6 +137,6 @@ to use the tools available on the server.
 ## References
 
 1. <a her="https://modelcontextprotocol.io/docs/develop/build-client">Build an MCP client</a>
-2. 1. Christoffer Noring _Learn Model Context Protocol with Python_, Packt
+2. Christoffer Noring _Learn Model Context Protocol with Python_, Packt
 
 

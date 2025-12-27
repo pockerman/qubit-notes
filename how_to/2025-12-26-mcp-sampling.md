@@ -1,4 +1,4 @@
-# qubit-note: qubit-note: AI Series | MCP Sampling
+# qubit-note: AI Series | MCP Sampling
 
 
 ## Overview
@@ -209,3 +209,4 @@ In MCP, sampling is a standardized mechanism that allows an MCP server to reques
 ## References
 
 1. <a href="https://modelcontextprotocol.io/specification/2025-06-18/client/sampling">Sampling</a>
+2. Christoffer Noring _Learn Model Context Protocol with Python_, Packt
