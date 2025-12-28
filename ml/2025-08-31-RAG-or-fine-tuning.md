@@ -1,4 +1,4 @@
-# qubit-note: RAG or Fine Tuning?
+# qubit-note: LLM Series | RAG or Fine Tuning?
 
 ## Overview
 
