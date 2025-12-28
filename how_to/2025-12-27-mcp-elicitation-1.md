@@ -16,7 +16,7 @@ In this qubit-note we will discuss how to implement elicitation
 
 MCP is designed for:
 
--Tool-using models
+- Tool-using models
 - Long-lived context
 - External memory
 - Multi-step reasoning
