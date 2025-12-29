@@ -42,8 +42,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
 - <a href="ml/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: LLM Series | Document Fusion & Multi-stage Retrieval for Multi-modal RAG</a>
 - <a href="ml/2025-08-31-RAG-or-fine-tuning.md">qubit-note: LLM Series | RAG or Fine Tuning?</a>
-- <a href="ml/2025-08-28-evaluate-RAG-based-system.md">qubit-note: Evaluate a RAG-based System</a>
-- <a href="ml/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Agent vs MCP</a>
+- <a href="ml/2025-08-28-evaluate-RAG-based-system.md">qubit-note: LLM Series | Evaluate a RAG-based System</a>
+- <a href="ml/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Series | AI Agent vs MCP</a>
 - <a href="ml/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>
 - <a href="ml/2025-08-21-indexing-for-rag.md">qubit-note: LLM Series | Indexing for RAG</a>
 - <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: Training Patterns for Distributed ML</a>
@@ -58,7 +58,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">qubit-note: 13 + 1 Steps For a Successful ML Project</a>
 - <a href="ml/2025-04-26-bias-variance-dilemma.md">qubit-note: Bias-Variance Dilemma</a>
 - <a href="ml/2025-04-24-collection-of-training-data.md">qubit-note: Collection of Training Data</a>
-- <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: Model Context Protocol</a>
+- <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: AI Series | Model Context Protocol</a>
 - <a href="ml/2025-04-28-hyperparameter-tuning-ml-models.md">qubit-note: Hyperparameter Tuning in ML Models</a> 
 
 ## How to
