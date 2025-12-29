@@ -63,6 +63,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
+- <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
 - <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
 - <a href="how_to/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
 - <a href="how_to/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
@@ -70,11 +71,11 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
 - <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
 - <a href="how_to/2025-10-06-checking-code-dependencies-python.md">ubit-note: Checking Code Dependencies in Python Codebases</a>
-- <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series 4-Overview of RDDs</a>
+- <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series | Overview of RDDs</a>
 - <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Coroutine Chaining & Asynchronous Queues in Python</a>
-- <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series 3-Create a Toy Apache Spark Cluster With Docker</a>
+- <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series | Create a Toy Apache Spark Cluster With Docker</a>
 - <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series 2-Hello World</a>
-- <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series 1-Application concepts</a>
+- <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series | Application concepts</a>
 - <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
 - <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: Handle Dynamic Pages with ExpressJS</a>
 - <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: Serving Images With ExpressJS</a>
