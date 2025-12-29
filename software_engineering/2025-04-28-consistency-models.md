@@ -1,4 +1,4 @@
-# qubit-note: Consistency Models
+# qubit-note: Distributed Systems Series | Data Replication Part 2 | Consistency Models
 
 
 ## Overview

@@ -20,7 +20,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 - <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: qubit-note: Architecture Series | Scalability Patterns</a>
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
-- <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Data Replication</a>
+- <a href="software_engineering/2025-04-22-data-replication.md">Distributed Systems Series | Data Replication Part 1</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
 - <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note: Some Best Practices in API Design</a>
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Semantic Caching</a>
@@ -31,7 +31,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-04-partitioning.md">qubit-note: Partitioning</a> 
 - <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Digital Twins</a>
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Circuit Breaker Pattern</a>
-- <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Consistency Models</a>
+- <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Distributed Systems Series | Data Replication Part 2 | Consistency Models</a>
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Backend-for-frontend Pattern</a>
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Load Balancing</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Managing Distributed Workflows</a>
