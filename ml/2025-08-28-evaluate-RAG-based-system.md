@@ -13,9 +13,9 @@ discuss some ideas on how to evaluate a RAG-based system.
 RAG based systems typically involve a number of components and this is what makes their evaluation rather involved. Let's first discuss how to evaluate the 
 retrieval step.
 
-### Evaluate the retrieve step
+### Evaluate the retrieval step
 
-The retrieve step involves embeeding the user's query and using the resulting vector to search for relevant documents in our database.
+The retrieval step involves embeding the user's query and using the resulting vector to search for relevant documents in our database.
 Some metrics we can use for evaluating the retreived documents are:
 
 - Precision@k: How many of the top k retrieved documents are relevant?
