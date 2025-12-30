@@ -64,6 +64,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
+- <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi ConnectI</a>
 - <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
 - <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
 - <a href="how_to/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
@@ -78,9 +79,9 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series | Hello World</a>
 - <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series | Application concepts</a>
 - <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
-- <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: Handle Dynamic Pages with ExpressJS</a>
-- <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: Serving Images With ExpressJS</a>
-- <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: Hello ExpressJS</a>
+- <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: NodeJS Series | Handle Dynamic Pages with ExpressJS</a>
+- <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: NodeJS Series |  Serving Images With ExpressJS</a>
+- <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: NodeJS Series |  Hello ExpressJS</a>
 - <a href="how_to/2025-05-06-pub-sub-model-in-redis.md">qubit-note: Pub/Sub Model in Redis</a>
 - <a href="how_to/2025-05-06-callback-chaning-in-nodeJS.md">qubit-note: Callback Chaining in NodeJS</a>
 - <a href="how_to/2025-05-01-serving-ml-models-with-fastapi-ray.md">qubit-note: Ray Series | Serving ML Models With FastAPI & Ray</a>
