@@ -3,10 +3,17 @@
 
 ## Overview
 
+In <a href="2025-04-22-data-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 1</a> we discussed the idea of data replication
+as a means of increasing a systems availability and improving performance. Data replication refers to maintaining multiple copies of the same
+data in a such a way that client applications perceive this as a single object. This is referred as _replication transparency_.
+
+However, data replication is not easy as the copies have to be consistent and thus consistency models play a dominant role
+on how data is replicated.
+
+
 In this note I give a brief overview of the most common <a href="https://en.wikipedia.org/wiki/Consistency_model">consistency models</a> used when designing distributed systems.
 The choice of the model depends heavily on the application requirements and therefore this is not  a discussion
-over which model is better but rather stating the attributes of each approach. 
-In this note, I will discuss the following models:
+over which model is better but rather stating the attributes of each approach. We will discuss the following models:
 
 - Strong consistency
 - Sequential consistency
@@ -22,7 +29,7 @@ In an ideal world, when a client sends a request to a replicated store, this req
 However this is far from what is happening in reality. In particular, when we have a system where the read requests
 can be served by any follower and not the leader, then it is possible that two clients may get a different view of the 
 state of the system [2]. This will be particularly true if we have weighted the availability of the system more
-than its consisyency see <a href="https://en.wikipedia.org/wiki/CAP_theorem">CAP Theorem</a>.
+than its consistency see <a href="https://en.wikipedia.org/wiki/CAP_theorem">CAP Theorem</a>.
 
 More formally, consistency models define the various views that observers of a system can have with respect
 to the system state. We will look into the following consistency models:
@@ -45,8 +52,8 @@ which limits the throughput.
 ### Sequential consistency
 
 If we relax the real-time guarantees of the stong consistency model then we have the seqiential consistency model.
-In this model, the replica will receive the requests in the same order as the leader but it may not be
-necessarilly up to date with the leader. A typical example of sequential consistency is when a producer and a consumer
+In this model, the replica will receive the requests in the same order as the leader but it may not
+necessarilly be up to date with the leader. A typical example of sequential consistency is when a producer and a consumer
 are synchronized via a queue [2]. If we pin a client to a specific replica, then each client will have a different view of the system
 in different times.
 
@@ -67,7 +74,7 @@ Eventual consistency is the model of choice when prioritizing low latency as it 
 
 ### Other consistency models
 
-There is a numbe of consistency models other than what is mentioned above; casiual consistency and strong eventual consisyency are some.
+There is a number of consistency models other than what is mentioned above; casual consistency and strong eventual consisyency are some.
 However, I would like to briefly mention session consistency as this is very prevalent for web and mobile applications [4].
 Session consistency guarantees that within a single user session, reads are monotonic and users always see their own writes. Updates are visible immediately only to the same session, not necessarily to other users. This model is ideal for individual user–focused applications (like e-commerce carts or web/mobile apps), where a consistent personal experience matters, but it is not suitable for collaborative applications that require shared, real-time visibility.
 
@@ -78,6 +85,8 @@ In summary, a consistency model defines the rules about how operations (especial
 The three consistency models above have different guarantees that stem from the different trade offs they offer.
 It's upon the system architect to decide which consistency model should be used. Note that a system does not have to use just one consistency
 model but can blend these depending on the requirements of the subsystem viewed. 
+
+Next part will discuss  <a href="2025-12-30-state-machine-replication.md">state machine replication</a>.
 
 
 ## References

@@ -7,8 +7,8 @@ Data replicaiton is one of the techniques we can employ in order to improve the 
 in this series of notes we go ove the essential elements of data replication. Specifically we discuss the following ideas:
 
 - Consensus
-- State machine replication
-- Replication strategies
+- <a href="2025-12-30-state-machine-replication.md">State machine replication</a>
+- Replication strategies (see below)
 - Boradcast protocols
 - PACELC, CAP and CALM theorems 
 
@@ -58,7 +58,7 @@ Just like with multi-leader systems, this creates conflicts that we need to addr
 - Operational Transformation (OT)
 - Conflict-free Replicated Data Types (CRDTs)
 
-We will discuss these strategies further in the series. The next part will discuss consistency models
+We will discuss these strategies further in the series. The next part will discuss <a href="2025-04-28-consistency-models.md">consistency models</a>
 
 
 ## Summary
@@ -70,6 +70,6 @@ Data replication is the process of maintaining multiple copies of the same data 
 
 1. Dominik Tornow, _Think Distributed Systems_, Manning Publications
 2. Pekka Enberg, _Latency Reduce delay in software systems_ Manning Publications
-3. Robert Vitillo, _Understanding Distributed Systems What every developer should know about large distributed applications_,
+3. Robert Vitillo, _Understanding Distributed Systems What every developer should know about large distributed applications_
 4. <a href="https://milvus.io/ai-quick-reference/what-are-some-methods-for-conflict-resolution-in-distributed-databases">What are some methods for conflict resolution in distributed databases?</a>
 

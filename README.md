@@ -29,7 +29,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note:Architecture Series | Layers Pattern</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems Series | Sharded Counters</a>
 - <a href="software_engineering/2025-08-04-partitioning.md">qubit-note: Distributed Systems Series |  Partitioning</a> 
-- <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Digital Twins</a>
+- <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Distributed Systems Series | Digital Twins</a>
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Architecture Series | Circuit Breaker Pattern</a>
 - <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Distributed Systems Series | Data Replication Part 2 | Consistency Models</a>
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture Series | Backend-for-frontend Pattern</a>
@@ -46,20 +46,20 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Series | AI Agent vs MCP</a>
 - <a href="ml/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>
 - <a href="ml/2025-08-21-indexing-for-rag.md">qubit-note: LLM Series | Indexing for RAG</a>
-- <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: Training Patterns for Distributed ML</a>
-- <a href="ml/2025-05-08-dimensionality-reduction-with-PCA.md">qubit-note: Dimensionality Reduction with PCA</a>
-- <a href="ml/2025-05-07-data-ingestion-patterns-for-dist-ml.md">qubit-note: Data Ingestion Patterns for Distributed ML</a>
+- <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: ML Series | Training Patterns for Distributed ML</a>
+- <a href="ml/2025-05-08-dimensionality-reduction-with-PCA.md">qubit-note: ML Series | Dimensionality Reduction with PCA</a>
+- <a href="ml/2025-05-07-data-ingestion-patterns-for-dist-ml.md">qubit-note: ML Series | Data Ingestion Patterns for Distributed ML</a>
 - <a href="ml/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: LLM Series | Tactics to Increase LLM Reliability</a>
-- <a href="ml/2025-05-05-ml-model-compression.md">qubit-note: ML Model Compression</a>
+- <a href="ml/2025-05-05-ml-model-compression.md">qubit-note: ML Series | ML Model Compression</a>
 - <a href="ml/2025-05-03-retrieval-augmented-generation.md">qubit-note: LLM Series | Retrieval Augmented Generation (RAG)</a>
-- <a href="ml/2025-05-01-detecting-data-drift.md">qubit-note: Detecting Data Drift</a>
-- <a href="ml/2025-05-01-detecting-concept-drift.md">qubit-note: Detecting Concept Drift</a>
+- <a href="ml/2025-05-01-detecting-data-drift.md">qubit-note: ML Series | Detecting Data Drift</a>
+- <a href="ml/2025-05-01-detecting-concept-drift.md">qubit-note: ML Series | Detecting Concept Drift</a>
 - <a href="ml/2025-04-29-prompt-methods.md">qubit-note: LLM Series | Prompt Methods</a>
-- <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">qubit-note: 13 + 1 Steps For a Successful ML Project</a>
-- <a href="ml/2025-04-26-bias-variance-dilemma.md">qubit-note: Bias-Variance Dilemma</a>
-- <a href="ml/2025-04-24-collection-of-training-data.md">qubit-note: Collection of Training Data</a>
+- <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">qubit-note: ML Series | 13 + 1 Steps For a Successful ML Project</a>
+- <a href="ml/2025-04-26-bias-variance-dilemma.md">qubit-note: ML Series | Bias-Variance Dilemma</a>
+- <a href="ml/2025-04-24-collection-of-training-data.md">qubit-note: ML Series | Collection of Training Data</a>
 - <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: AI Series | Model Context Protocol</a>
-- <a href="ml/2025-04-28-hyperparameter-tuning-ml-models.md">qubit-note: Hyperparameter Tuning in ML Models</a> 
+- <a href="ml/2025-04-28-hyperparameter-tuning-ml-models.md">qubit-note: ML Series | Hyperparameter Tuning in ML Models</a> 
 
 ## How to
 
