@@ -26,7 +26,7 @@ Some metrics we can use for evaluating the retreived documents are:
 Let's discuss these metrics. 
 
 Precision@k and Recall@k are common metrics that help evaluate the performance of ranking algorithms. 
-The approach is similar to the metrics used in classification models. For more inofrmation see [3]
+The approach is similar to the metrics used in classification models. For more information see [3]
 
 MRR is a metric used to evaluate systems that return ranked lists of results (like retrieval-based or search systems). It measures how well the system ranks the first relevant item for a given query.
 The MRR metric is defined as, see [1]:
@@ -42,14 +42,14 @@ Specifically, NDCG helps measure a machine learning algorithm's ability to sort 
 ### Evalaute generation quality
 
 After retrieving the relevant documents, the system should generate a response. This is another aspect 
-that we need to evaluate. Some metrices we can use here are:
+that we need to evaluate. Some metrics we can use here are:
 
 - Faithfulness/Groundedness: Does the answer strictly rely on retrieved documents? (No hallucinations)
 - Relevance: Is the generated text answering the query?
 - Factuality: Are facts accurate according to trusted sources?
 
 Evaluating generation quality may not be straightforward. Particularly, if we don't have reference answers.
-If however such answers exist, we can use mterics such as <a href="https://en.wikipedia.org/wiki/BLEU">BLEU</a>, <a href="https://en.wikipedia.org/wiki/ROUGE_(metric)">ROUGE</a>, or 
+If however such answers exist, we can use metrics such as <a href="https://en.wikipedia.org/wiki/BLEU">BLEU</a>, <a href="https://en.wikipedia.org/wiki/ROUGE_(metric)">ROUGE</a>, or 
 <a href="https://huggingface.co/spaces/evaluate-metric/bertscore">BERTScore</a>. Another approach can be to use another model to rate factuality and faithfulness i.e. LLM-as-a-judge.
 Human evaluation can also be employed i.e. domain experts score the model's output. However, this approach may not be easy to automate.
 
