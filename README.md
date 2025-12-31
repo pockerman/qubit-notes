@@ -65,11 +65,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
-<<<<<<< HEAD
-- <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
-=======
+
 - <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi ConnectI</a>
->>>>>>> 8aa52370f93e4bcf07ebc20cc8ba7bbf63518d39
 - <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
 - <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
 - <a href="how_to/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
