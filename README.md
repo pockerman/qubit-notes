@@ -18,13 +18,14 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
+- <a href="software_engineering/2025-12-31-consensus.md"># qubit-note: Distributed Systems Series | Data Replication Part 4 | Consensus</a>
 - <a href="software_engineering/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 3 | State Machine Replication</a>
-- <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: qubit-note: Architecture Series | Scalability Patterns</a>
+- <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: Architecture Series | Scalability Patterns</a>
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
 - <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 1</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
-- <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note: Some Best Practices in API Design</a>
-- <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Semantic Caching</a>
+- <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note: Architecture Series | Some Best Practices in API Design</a>
+- <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
 - <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Distributed Systems Series | Unique ID Generation</a>
 - <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Series | Ports and Adapters Pattern</a>
 - <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note:Architecture Series | Layers Pattern</a>
@@ -35,7 +36,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Distributed Systems Series | Data Replication Part 2 | Consistency Models</a>
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture Series | Backend-for-frontend Pattern</a>
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Distributed Systems Series |  Load Balancing</a>
-- <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Managing Distributed Workflows</a>
+- <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture Series | Managing Distributed Workflows</a>
 - <a href="software_engineering/2025-04-18-domain-name-system.md">qubit-note: Distributed Systems Series |  Domain Name System</a>
 
 ## Machine learning & AI engineering
@@ -64,7 +65,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
-- <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi ConnectI</a>
+- <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
 - <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
 - <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
 - <a href="how_to/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
@@ -72,7 +73,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2025-12-22-build-local-mcp-server-4.md">qubit-note: AI Series | Build an MCP Server Part 4</a>
 - <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
 - <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
-- <a href="how_to/2025-10-06-checking-code-dependencies-python.md">ubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
+- <a href="how_to/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
 - <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series | Overview of RDDs</a>
 - <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Python Series | Coroutine Chaining & Asynchronous Queues in Python</a>
 - <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series | Create a Toy Apache Spark Cluster With Docker</a>

@@ -6,9 +6,9 @@
 Data replicaiton is one of the techniques we can employ in order to improve the latency and availability of a distributed system [2].
 in this series of notes we go ove the essential elements of data replication. Specifically we discuss the following ideas:
 
-- Consensus
-- <a href="2025-12-30-state-machine-replication.md">State machine replication</a>
 - Replication strategies (see below)
+- <a href="2025-12-30-state-machine-replication.md">State machine replication</a>
+- <a href="2025-12-31-consensus.md">Consensus</a>
 - Boradcast protocols
 - PACELC, CAP and CALM theorems 
 

@@ -5,8 +5,14 @@
 In this qubit-note we will discuss <a href="https://en.wikipedia.org/wiki/State_machine_replication">state machine replication</a>.
 This is a technique used to implement   a fault-tolerant service by replicating servers and coordinating client interactions with server replicas. 
 However, it also provides a framework for understanding and designing replication management protocols [1]. It is therefore, very relevant to the
-discussion of data replication. In fact, Raft replication algorithm is based on state machine replication [2]
+discussion of data replication. In fact, Raft replication algorithm is based on state machine replication [2].
+
+State machine replication works uner a simple principle; if two identical, deterministic processes begin in the same state and receive the same inputs in the same order, they will
+produce the same output and reach the same state [4].
+
 All in all, for our purposes we can view state machine replication as another replication strategy (see <a href="2025-04-22-data-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 1</a>).
+
+**keywords** System-design, Software-architecture, Data-replication, Distributed-system, State-machine-replication
 
 ## State machine replication
 
@@ -41,6 +47,8 @@ You can implement state machine replication using algorithms like [3]:
 State machine replication is a replication approach that guarantees all nodes in a distributed system maintain the same state by executing the same commands in the same order [3]. 
 Unlike traditional replication, which focuses on data or service duplication for availability or load balancing without strict state consistency, state machine replication enforces a consistent global state across nodes. It achieves this by using consensus algorithms to agree on the order of commands, even in the presence of failures or network partitions. This provides strong consistency and fault tolerance but introduces additional latency, a tradeoff that is examined in the context of the Viewstamped Replication algorithm [3].
 
+There are many open-source projects that implement state machine replication and expose APIs on top of it; <a href="https://etcd.io/">etcd</a> and <a href="https://zookeeper.apache.org/">Apache Zookeper</a>
+
 ## Summary
 
 his qubit-note discusses state machine replication (SMR), a technique for building fault-tolerant systems by replicating servers and coordinating client interactions with replicas. SMR is widely used in distributed databases and key-value stores to ensure consistent replication across nodes. When a client request is acknowledged by a node, its effect on the system state is persistent, and subsequent requests to other nodes see the update, providing linearizability.
@@ -50,8 +58,11 @@ $2f+1$ replicas can tolerate $f$ failures, forming a quorum of $f+1$ nodes to ma
 
 SMR relies on consensus algorithms to maintain a consistent global state across all nodes by executing the same sequence of commands in the same order, even under failures or network partitions. Popular algorithms for implementing SMR include Paxos, Raft, and Viewstamped Replication. While SMR provides strong consistency and fault tolerance, it comes with a latency tradeoff compared to traditional replication strategies.
 
+In the next post we will talk about <a href="2025-12-31-consensus.md">qubit-note: Distributed Systems Series | Data Replication Part 4 | Consensus</a>
+
 ## References
 
 1. <a href="https://en.wikipedia.org/wiki/State_machine_replication">state machine replication</a>
 2. Robert Vitillo, _Understanding Distributed Systems What every developer should know about large distributed applications_,
 3. Pekka Enberg, _Latency Reduce delay in software systems_ Manning Publications
+4. Dominik Tornow, _Think Distributed Systems_, Manning Publications
