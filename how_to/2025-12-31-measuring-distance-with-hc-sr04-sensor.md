@@ -24,7 +24,7 @@ The HC-SR04 ultrasonic sensor has two main components: a transmitter (TX) that e
 When TRIG is HIGH the sensor sends out ultrasonic pulses. When the ECHO  pin goes HIGH when TRIG is made HIGH, then
 transitions to LOW when it detects an ultrasonic pulse [1].
 
-The circuit for this qubit-note is taken from [1] and it shown below:
+The circuit for this qubit-note is taken from [1] and it shown below in two parts:
 
 
 | ![containers-view](./imgs/hc_sr04_circuit_1.jpeg)   |
@@ -44,9 +44,15 @@ Here is the Python script to run on the Pi
 Ultrasonic Distance Measurement Example (HC-SR04)
 Tested for Raspberry Pi 5
 """
-
+import datetime
 import lgpio
 import time
+import paho.mqtt.client as mqtt
+
+# hostname -I on the machine that hosts MQTT
+BROKER = "192.168.0.212"
+PORT = 1883
+ULTRASOUND_TOPIC = "ultrasound"
 
 # HC-SR04 pins
 TRIG_GPIO = 20
@@ -110,6 +116,9 @@ def get_distance_cms():
 
 
 if __name__ == "__main__":
+
+    client = mqtt.Client()
+    client.connect(BROKER, PORT, 60)
     try:
         print("Press Ctrl+C to exit")
 
@@ -119,7 +128,14 @@ if __name__ == "__main__":
             if distance == SENSOR_TIMEOUT:
                 print("Timeout")
             else:
-                print(f"{distance:.2f} cm, {distance / 2.54:.2f} in")
+                print(f"{distance:.2f} cm")
+
+                z_str = json.dumps({"distance": distance,
+                                    "unit":"cm",
+                                    "timestamp": str(datetime.datetime.now(datetime.UTC))}
+                                   )
+                client.publish(topic=ULTRASOUND_TOPIC, payload=z_str)
+
 
             time.sleep(0.25)  # Do not exceed sensor rate
 
@@ -131,6 +147,115 @@ if __name__ == "__main__":
 
 ```
 
+The C++ code is shown below:
+
+```
+#include "bitrl/bitrl_config.h"
+#ifdef BITRL_MQTT
+
+#include "bitrl/network/mqtt_subscriber.h"
+#include "bitrl/sensors/messages/ultrasound.h"
+
+#include <chrono>
+#include <iostream>
+#include <thread>
+#include <iomanip>
+
+int main()
+{
+
+    using namespace bitrl;
+
+    network::MqttSubscriber ultrasound_subscriber("tcp://localhost:1883", "ultrasound");
+    ultrasound_subscriber.connect();
+
+    while (true)
+    {
+        auto message = ultrasound_subscriber.poll(std::chrono::milliseconds(3000));
+
+        if (message.has_value())
+        {
+            auto reading = sensors::UltrasoundMessage::parse(message.value());
+            if (reading.has_value())
+            {
+
+                auto read_message = reading.value();
+
+                std::time_t t = std::chrono::system_clock::to_time_t(read_message.source_timestamp);
+                std::tm tm = *std::localtime(&t);
+                std::cout<<"Distance received: "<<read_message.distance<<std::endl;
+                std::cout<<"Units    received: "<<read_message.unit_str<<std::endl;
+                std::cout<<"Generated      at: "<< std::put_time(&tm, "%Y-%m-%d %H:%M:%S")<<std::endl;
+            }
+
+        }
+
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
+    }
+
+    return 0;
+}
+
+#else
+#include <iostream>
+int main()
+{
+    std::cerr << "This example requires MQTT and OpenCV to be enable. "
+                 "Reconfigure bitrl with ENABLE_MQTT=ON and ENABLE_OPENCV=ON"
+              << std::endl;
+    return 1;
+}
+#endif
+```
+
+I am using the <a href="https://github.com/pockerman/bitrl">bitrl</a> library for the core of the C++ aspect.
+When running the code  above you should get something similar to what is shown below:
+
+```
+Distance received: 25.4518
+Units    received: cm
+Generated      at: 2026-01-01 10:41:01
+Distance received: 25.4655
+Units    received: cm
+Generated      at: 2026-01-01 10:41:01
+Distance received: 25.4816
+Units    received: cm
+Generated      at: 2026-01-01 10:41:01
+Distance received: 25.482
+Units    received: cm
+Generated      at: 2026-01-01 10:41:01
+Distance received: 25.4998
+Units    received: cm
+Generated      at: 2026-01-01 10:41:02
+Distance received: 25.501
+Units    received: cm
+Generated      at: 2026-01-01 10:41:02
+Distance received: 25.4747
+Units    received: cm
+Generated      at: 2026-01-01 10:41:02
+Distance received: 25.4816
+Units    received: cm
+Generated      at: 2026-01-01 10:41:02
+Distance received: 25.4661
+Units    received: cm
+Generated      at: 2026-01-01 10:41:03
+Distance received: 25.4696
+Units    received: cm
+Generated      at: 2026-01-01 10:41:03
+Distance received: 25.4788
+Units    received: cm
+Generated      at: 2026-01-01 10:41:03
+Distance received: 25.475
+Units    received: cm
+Generated      at: 2026-01-01 10:41:03
+Distance received: 25.4997
+Units    received: cm
+Generated      at: 2026-01-01 10:41:04
+Distance received: 25.4842
+Units    received: cm
+Generated      at: 2026-01-01 10:41:04
+
+```
 
 ----
 **Remark**
