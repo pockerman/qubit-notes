@@ -7,14 +7,16 @@ The qubit in quantum computing is the analogus to the bit in the casual(?) compu
 a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are tiny but sometimes not so tiny.
 
 
-## Computational techniques
+## Coputational & mathematical techniques
 
-- <a href="comp_techs/2025-09-13-linear-regression-model.md">qubit-note: Linear Regression Model</a>
-- <a href="comp_techs/2025-08-24-K-means-image-quantization.md">qubit-note: K-means for Image Quantization</a>
-- <a href="comp_techs/2025-05-24-stochastic-grdaient-descent.md">qubit-note: Stochastic Grdaient Descent</a>
-- <a href="comp_techs/2025-05-17-gradient-descent.md">qubit-note: Gradient Descent</a>
-- <a href="comp_techs/2025-05-11-monte-carlo-integration.md">qubit-note: Monte Carlo Integration</a>
-- <a href="comp_techs/2025-05-10-thompson-sampling.md">qubit-note: Thompson Sampling</a>
+- <a href="comp_techs/2026-01-01-linear-time-invariant-systems.md"># qubit-note: The Maths Project Series | Linear Time-Invariant Systems</a>
+- <a href="comp_techs/2026-01-01-intro-to-pdes.md">qubit-note: The Maths Project Series | Intro to PDEs</a>
+- <a href="comp_techs/2025-09-13-linear-regression-model.md">qubit-note: The Maths Project Series | Linear Regression Model</a>
+- <a href="comp_techs/2025-08-24-K-means-image-quantization.md">qubit-note: The Maths Project Series | K-means for Image Quantization</a>
+- <a href="comp_techs/2025-05-24-stochastic-grdaient-descent.md">qubit-note: The Maths Project Series | Stochastic Grdaient Descent</a>
+- <a href="comp_techs/2025-05-17-gradient-descent.md">qubit-note: The Maths Project Series | Gradient Descent</a>
+- <a href="comp_techs/2025-05-11-monte-carlo-integration.md">qubit-note: The Maths Project Series | Monte Carlo Integration</a>
+- <a href="comp_techs/2025-05-10-thompson-sampling.md">qubit-note: The Maths Project Series | Thompson Sampling</a>
 
 ## Software engineering
 
