@@ -66,7 +66,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 ## How to
 
 
-- <a href="how_to/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
+- <a href="how_to/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
 - <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
 - <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
 - <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
