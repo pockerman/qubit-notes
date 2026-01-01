@@ -14,7 +14,7 @@ We will be working with Raspberry Pi 5 in this note.
 The HC-SR04 sensor is shown in the image below:
 
 
-| ![containers-view](./imgs/hc_sr04.jpeg)             |
+| ![containers-view](./images/hc_sr04.jpeg)             |
 |:---------------------------------------------------:|
 |          **Figure: HC-SR04 distance sensor module.**|
 
@@ -27,12 +27,12 @@ transitions to LOW when it detects an ultrasonic pulse [1].
 The circuit for this qubit-note is taken from [1] and it shown below in two parts:
 
 
-| ![containers-view](./imgs/hc_sr04_circuit_1.jpeg)   |
+| ![containers-view](./images/hc_sr04_circuit_1.jpeg)   |
 |:---------------------------------------------------:|
 |    **Figure: HC-SR04 distance sensor module. Image from [1]** | 
 
 
-| ![containers-view](./imgs/hc_sr04_circuit_2.jpeg)   |
+| ![containers-view](./images/hc_sr04_circuit_2.jpeg)   |
 |:---------------------------------------------------:|
 |    **Figure: HC-SR04 distance sensor module. Image from [1]** | 
 
