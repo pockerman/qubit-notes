@@ -9,14 +9,14 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Coputational & mathematical techniques
 
-- <a href="comp_techs/2026-01-01-linear-time-invariant-systems.md">qubit-note: The Maths Project Series | Linear Time-Invariant Systems</a>
-- <a href="comp_techs/2026-01-01-intro-to-pdes.md">qubit-note: The Maths Project Series | Intro to PDEs</a>
-- <a href="comp_techs/2025-09-13-linear-regression-model.md">qubit-note: The Maths Project Series | Linear Regression Model</a>
-- <a href="comp_techs/2025-08-24-K-means-image-quantization.md">qubit-note: The Maths Project Series | K-means for Image Quantization</a>
-- <a href="comp_techs/2025-05-24-stochastic-grdaient-descent.md">qubit-note: The Maths Project Series | Stochastic Grdaient Descent</a>
-- <a href="comp_techs/2025-05-17-gradient-descent.md">qubit-note: The Maths Project Series | Gradient Descent</a>
-- <a href="comp_techs/2025-05-11-monte-carlo-integration.md">qubit-note: The Maths Project Series | Monte Carlo Integration</a>
-- <a href="comp_techs/2025-05-10-thompson-sampling.md">qubit-note: The Maths Project Series | Thompson Sampling</a>
+- [qubit-note: The Maths Project Series | Linear Time-Invariant Systems](comp_techs/2026-01-01-linear-time-invariant-systems.md)
+- [qubit-note: The Maths Project Series | Intro to PDEs](comp_techs/2026-01-01-intro-to-pdes.md)
+- [qubit-note: The Maths Project Series | Linear Regression Model](comp_techs/2025-09-13-linear-regression-model.md)
+- [qubit-note: The Maths Project Series | K-means for Image Quantization](comp_techs/2025-08-24-K-means-image-quantization.md)
+- [qubit-note: The Maths Project Series | Stochastic Grdaient Descent](comp_techs/2025-05-24-stochastic-grdaient-descent.md)
+- [qubit-note: The Maths Project Series | Gradient Descent](comp_techs/2025-05-17-gradient-descent.md)
+- [qubit-note: The Maths Project Series | Monte Carlo Integration](comp_techs/2025-05-11-monte-carlo-integration.md)
+- [qubit-note: The Maths Project Series | Thompson Sampling](comp_techs/2025-05-10-thompson-sampling.md)
 
 ## Software engineering
 
