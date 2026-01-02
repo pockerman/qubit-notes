@@ -9,7 +9,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Coputational & mathematical techniques
 
-- [qubit-note: The Maths Project Series  Linear Time-Invariant Systems](comp_techs/2026-01-01-linear-time-invariant-systems.md)
+- [qubit-note: The Maths Project Series  Linear Time-Invariant Systems](comp_techs/2026-01-01-linear-time-invariant-systems)
 - [qubit-note: The Maths Project Series  Intro to PDEs](comp_techs/2026-01-01-intro-to-pdes.md)
 - [qubit-note: The Maths Project Series  Linear Regression Model](comp_techs/2025-09-13-linear-regression-model.md)
 - [qubit-note: The Maths Project Series  K-means for Image Quantization](comp_techs/2025-08-24-K-means-image-quantization.md)
