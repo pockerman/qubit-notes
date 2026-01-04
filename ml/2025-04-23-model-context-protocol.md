@@ -50,7 +50,7 @@ The video: <a href="https://www.youtube.com/watch?v=7j1t3UZA1TY">MCP vs API: Sim
 discussess the differences between MCP and a REST API. The video: <a href="https://www.youtube.com/watch?v=nPGXlIorZbg">Add Authorization to MCP Servers with WorkOS Roles & Permissions</a>
 discusses how to add authorization and authentication for MCP servers.
 
-<a href="../how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build an MCP Server Part 1</a> shows how to build and  run an MCP server locally.
+<a href="../how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a> shows how to build and  run an MCP server locally.
 
 ## Summary
 
