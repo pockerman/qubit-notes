@@ -41,12 +41,16 @@ However, each server focuses on a specific domain e.g. seraching over the intern
 - MCP host
 - MCP server
 
-As mentioned above, an  MCP server exposes specific actions, perhaps around one domain, that an MCP client can access. 
-An MCP client is hosted by an MCP host. Note that the MCP client can connect to multiple MCP servers.
+As mentioned above, an  MCP server exposes specific actions, perhaps around one domain, that an MCP client can access.
+Servers can run  either on the same machine as the MCP host or remotely. MCP is designed to support both scenarios seamlessly. 
+An MCP server will advertise what it can do in a standard format. The MCP client can query and understand  tools available on an MCP servet.
+An MCP client is hosted by an MCP host and it handles  the low-level communication details with an MCP Server. Note that the MCP client can connect to multiple MCP servers.
 
 The video: <a href="https://www.youtube.com/watch?v=7j1t3UZA1TY">MCP vs API: Simplifying AI Agent Integration with External Data</a>
 discussess the differences between MCP and a REST API. The video: <a href="https://www.youtube.com/watch?v=nPGXlIorZbg">Add Authorization to MCP Servers with WorkOS Roles & Permissions</a>
 discusses how to add authorization and authentication for MCP servers.
+
+<a href="2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build an MCP Server Part 1</a> shows how to build and  run an MCP server locally.
 
 ## Summary
 
