@@ -1,4 +1,4 @@
-# qubit-note: Model Context Protocol
+# qubit-note: AI Series | Model Context Protocol
 
 In this note, I give a high level overview of the <a href="https://www.anthropic.com/news/model-context-protocol">model context protocol</a> paradigm or MCP
 for short. Then I would like to cover the MCP architecture from a rather hight level perspective.
@@ -50,7 +50,7 @@ The video: <a href="https://www.youtube.com/watch?v=7j1t3UZA1TY">MCP vs API: Sim
 discussess the differences between MCP and a REST API. The video: <a href="https://www.youtube.com/watch?v=nPGXlIorZbg">Add Authorization to MCP Servers with WorkOS Roles & Permissions</a>
 discusses how to add authorization and authentication for MCP servers.
 
-<a href="2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build an MCP Server Part 1</a> shows how to build and  run an MCP server locally.
+<a href="../how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build an MCP Server Part 1</a> shows how to build and  run an MCP server locally.
 
 ## Summary
 
