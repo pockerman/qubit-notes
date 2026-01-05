@@ -32,7 +32,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
 - <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Distributed Systems Series | Unique ID Generation</a>
 - <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Series | Ports and Adapters Pattern</a>
-- <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note:Architecture Series | Layers Pattern</a>
+- <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Series | Layers Pattern</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems Series | Sharded Counters</a>
 - <a href="software_engineering/2025-08-04-partitioning.md">qubit-note: Distributed Systems Series |  Partitioning</a> 
 - <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Distributed Systems Series | Digital Twins</a>
