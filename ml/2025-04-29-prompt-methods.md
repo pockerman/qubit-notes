@@ -1,9 +1,9 @@
-# qubit-note: Prompt Methods
+# qubit-note: LLM Series | Prompting Methods
 
 
 ## Overview
 
-In this note I want to go over some basic prompt techniques.
+In this note I want to go over some basic prompting techniques.
 Specifically, we will look into the following methods
 
 - <a herf="https://www.promptingguide.ai/techniques/zeroshot">Zero-shot prompting</a>
@@ -16,7 +16,7 @@ visit <a href="https://www.promptingguide.ai/">Prompt Engineering Guide</a>.
 
 **keywords:** large-language-models, prompt-engineering, machine-learning
 
-## Prompt methods
+## Prompting methods
 
 There is no doupt that, at the time of writing this note, LLMs have completely overtaken the
 tech industry as they open new paths of doing a lot of things  including software development.
