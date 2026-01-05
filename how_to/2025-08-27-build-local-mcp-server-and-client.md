@@ -1,4 +1,4 @@
-# qubit-note: Build an MCP Server Part 1
+# qubit-note: AI Series | Build an MCP Server Part 1
 
 ## Overview
 
