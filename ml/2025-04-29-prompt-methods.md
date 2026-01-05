@@ -77,6 +77,23 @@ We can utilise chain-of-thought with <a href="https://www.promptingguide.ai/tech
 that chain-of-thought does not account for any external information. According to [4], often such a combination can lead to a very good prompting
 approach. 
 
+CoT prompting, although powerful, has some limitations:
+- It can inflict high token usage as well as computation time
+- When doing multi-step reasonig there is a potential for error propagation
+- Just loke all prompting techniques, the quality of the initial prompt is important
+- Finally, CoT may not be suitable for all types of problems
+
+Note that CoT has several extensions:
+
+- Adaptive CoT
+- Multi-modal CoT: https://arxiv.org/abs/2302.00923
+- Collaborative CoT: https://arxiv.org/html/2409.07355v1
+- Meta-learning for CoT: https://arxiv.org/abs/2311.05922
+
+## Summary
+
+This qubit-note provides an overview of basic prompting techniques used to interact effectively with large language models, focusing on zero-shot, few-shot, and chain-of-thought (CoT) prompting. It explains how zero-shot and few-shot prompting differ in the number of examples provided to the model, highlighting their simplicity, common use cases, and limitations related to model capability and context window size. The note then introduces chain-of-thought prompting, which encourages step-by-step reasoning to improve performance on complex tasks, along with its benefits, typical applications, and trade-offs such as higher token usage and potential error propagation. Overall, the text emphasizes how these prompting methods can improve response quality, reveal model limitations, and be combined or extended (e.g., with ReAct or advanced CoT variants) to handle more sophisticated reasoning tasks.
+
 ## References
 
 
