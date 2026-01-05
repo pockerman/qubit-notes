@@ -9,7 +9,7 @@ in this series of notes we go ove the essential elements of data replication. Sp
 - Replication strategies (see below)
 - <a href="2025-12-30-state-machine-replication.md">State machine replication</a>
 - <a href="2025-12-31-consensus.md">Consensus</a>
-- Boradcast protocols
+- <a href="2026-01-05-broadcast-protocols.md">Boradcast protocols</a>
 - PACELC, CAP and CALM theorems 
 
 In this qubit note series I go over data replication. This is a process whereby copies of the data are created and stored.

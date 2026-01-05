@@ -20,6 +20,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
+- <a href="software_engineering/2026-01-05-broadcast-protocols.md">Distributed Systems Series | Data Replication | Broadcast Protocols</a>
 - <a href="software_engineering/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
 - <a href="software_engineering/2025-12-31-consensus.md">qubit-note: Distributed Systems Series | Data Replication Part 4 | Consensus</a>
 - <a href="software_engineering/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 3 | State Machine Replication</a>
