@@ -10,7 +10,7 @@ in this series of notes we go ove the essential elements of data replication. Sp
 - <a href="2025-12-30-state-machine-replication.md">State machine replication</a>
 - <a href="2025-12-31-consensus.md">Consensus</a>
 - <a href="2026-01-05-broadcast-protocols.md">Boradcast protocols</a>
-- PACELC, CAP and CALM theorems 
+- <a href="2026-01-06-paelc-cap-calm-theorems.md"</a>PACELC, CAP and CALM theorems</a>
 
 In this qubit note series I go over data replication. This is a process whereby copies of the data are created and stored.
 Data replicatin improves both system availability and reliability. In this part of the series we will discuss what data replication is
@@ -44,8 +44,8 @@ Based on this strategy, we can distinguish the following configurations [1]:
 - Multi-leader systems
 - Leader-less systems
 
- Typically, in systems with leadership, the leading nodes are capable of handling read/write requests. 
- On the other hand, following nodes are mainly restricted to serving read requests.
+Typically, in systems with leadership, the leading nodes are capable of handling read/write requests. 
+On the other hand, following nodes are mainly restricted to serving read requests.
 Specifically, in a single leader system there is just one leading node that coordinates the operation.
 The leader accepts requests and propagates these to the followers. This is a simple configuration 
 but given that poses an SPF, it can invalidate the point of replication.
