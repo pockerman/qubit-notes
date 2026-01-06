@@ -1,9 +1,9 @@
-# qubit-note: Prompt Methods
+# qubit-note: LLM Series | Prompting Methods
 
 
 ## Overview
 
-In this note I want to go over some basic prompt techniques.
+In this note I want to go over some basic prompting techniques.
 Specifically, we will look into the following methods
 
 - <a herf="https://www.promptingguide.ai/techniques/zeroshot">Zero-shot prompting</a>
@@ -16,7 +16,7 @@ visit <a href="https://www.promptingguide.ai/">Prompt Engineering Guide</a>.
 
 **keywords:** large-language-models, prompt-engineering, machine-learning
 
-## Prompt methods
+## Prompting methods
 
 There is no doupt that, at the time of writing this note, LLMs have completely overtaken the
 tech industry as they open new paths of doing a lot of things  including software development.
@@ -76,6 +76,23 @@ Use case of chain-of-thought include, [5]:
 We can utilise chain-of-thought with <a href="https://www.promptingguide.ai/techniques/react">ReAct</a> in order to accomodate for the fact
 that chain-of-thought does not account for any external information. According to [4], often such a combination can lead to a very good prompting
 approach. 
+
+CoT prompting, although powerful, has some limitations:
+- It can inflict high token usage as well as computation time
+- When doing multi-step reasonig there is a potential for error propagation
+- Just loke all prompting techniques, the quality of the initial prompt is important
+- Finally, CoT may not be suitable for all types of problems
+
+Note that CoT has several extensions:
+
+- Adaptive CoT
+- Multi-modal CoT: https://arxiv.org/abs/2302.00923
+- Collaborative CoT: https://arxiv.org/html/2409.07355v1
+- Meta-learning for CoT: https://arxiv.org/abs/2311.05922
+
+## Summary
+
+This qubit-note provides an overview of basic prompting techniques used to interact effectively with large language models, focusing on zero-shot, few-shot, and chain-of-thought (CoT) prompting. It explains how zero-shot and few-shot prompting differ in the number of examples provided to the model, highlighting their simplicity, common use cases, and limitations related to model capability and context window size. The note then introduces chain-of-thought prompting, which encourages step-by-step reasoning to improve performance on complex tasks, along with its benefits, typical applications, and trade-offs such as higher token usage and potential error propagation. Overall, the text emphasizes how these prompting methods can improve response quality, reveal model limitations, and be combined or extended (e.g., with ReAct or advanced CoT variants) to handle more sophisticated reasoning tasks.
 
 ## References
 
