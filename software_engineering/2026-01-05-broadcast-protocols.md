@@ -10,6 +10,8 @@
 
 In this note we will discuss broadcast protocols.
 
+**keywords** Boradcast-protocol, System-design, Data-replication, Distributed-system
+
 ## Broadcast Protocols
 
 We are aware of point-to-point or uncast communication protocols like TCP. This is the protocol that is mostly utilised over the the internet.
