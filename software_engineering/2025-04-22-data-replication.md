@@ -10,7 +10,7 @@ in this series of notes we go ove the essential elements of data replication. Sp
 - <a href="2025-12-30-state-machine-replication.md">State machine replication</a>
 - <a href="2025-12-31-consensus.md">Consensus</a>
 - <a href="2026-01-05-broadcast-protocols.md">Boradcast protocols</a>
-- <a href="2026-01-06-paelc-cap-calm-theorems.md"</a>PACELC, CAP and CALM theorems</a>
+- <a href="2026-01-06-paelc-cap-calm-theorems.md">PACELC, CAP and CALM theorems</a>
 
 In this qubit note series I go over data replication. This is a process whereby copies of the data are created and stored.
 Data replicatin improves both system availability and reliability. In this part of the series we will discuss what data replication is
