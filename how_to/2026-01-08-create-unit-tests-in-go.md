@@ -86,6 +86,16 @@ func TestHelloEmpty(t *testing.T) {
 
 ```
 
+In order to run the tests use
+
+```
+go test
+```
+
 ## Summary
 
+In this qubit-note we went through how to create unit tests in Go
+
 ## Refernces
+
+1. <a href="https://go.dev/doc/tutorial/add-a-test">Add a test</a>

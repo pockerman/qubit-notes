@@ -85,6 +85,16 @@ In addition, we have the following denitions associated  with Amdahl's and  Gust
 
 #### Little's law
 
+Little's law can be used in order to describe the connection between latency, throughput, and concurrency [4].
+Little's law can be expressed according to the following equation
+
+$$C=TL$$
+
+where $C$ denotes the system’s concurrency, $T$ the throughput, and $L$ the average latency. From this equation thus we can conclude that
+the concurrecny of a system is the product of throughput and latency. The system's latency increases as concurrency
+increases i.e.  the more work you have to do, the longer it takes to complete it (average latency). 
+As concurrency increases, you must reduce latency to improve throughput (and vice versa) [4].
+
 #### Efficiency
 
 The efficiency $E_p$ shows the average usage of the processors and it is defined as [3]
@@ -108,9 +118,11 @@ $$E_p = \frac{4}{5} = 0.8$$
 
 ## Summary
 
+This qubit-note provides an overview of fundamental laws used to analyze and reason about the performance of parallel computing systems, which are essential for scalability as CPU clock speeds plateau. It introduces key concepts such as speedup, latency, and efficiency, and explains how speedup measures performance gains from parallelization, with theoretical limits ranging from no improvement to linear scaling. The note discusses Amdahl’s law, which shows how even small sequential portions of a program severely limit achievable speedup under fixed problem sizes, and contrasts it with Gustafson–Barsis’s law, which accounts for increasing problem sizes and highlights weak versus strong scaling. It also presents Little’s law to relate concurrency, throughput, and latency, and defines efficiency as a measure of processor utilization. Together, these laws provide a practical framework for understanding the trade-offs and limits of parallel system performance.
 
 ## References
 
 1. Robert Robey, Yuliana Zamora, _Parallel and High Performance Computing_, Manning Publications
 2. Michael Cosnard, Denis Trystram, _Parallel Algorithms And Architectures_, International Thomson Computer Press
-3. Michael J. Quinn, _Parallel Computing Theory And Practice 2nd Edition_, McGraw-Hill 
+3. Michael J. Quinn, _Parallel Computing Theory And Practice 2nd Edition_, McGraw-Hill
+4. Pekka Enberg, _Latency Reduce delay in software systems_ Manning Publications
