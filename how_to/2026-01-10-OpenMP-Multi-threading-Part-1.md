@@ -1,4 +1,4 @@
-# qubit-note: Parallel Computing Series | 
+# qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 1
 
 ## Overview
 
