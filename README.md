@@ -70,6 +70,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
+- <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 1</a>
+- <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
 - <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>
 - <a href="how_to/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
 - <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
