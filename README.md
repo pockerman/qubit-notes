@@ -73,6 +73,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 1</a>
 - <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
 - <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>
+- <a href="how_to/2025-12-31-use-raspberrypi-camera-module.md">qubit-note: RaspeberryPi Series | Use Raspberry Pi Camera Module</a>
 - <a href="how_to/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
 - <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
 - <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
@@ -91,7 +92,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
 - <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: NodeJS Series | Handle Dynamic Pages with ExpressJS</a>
 - <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: NodeJS Series |  Serving Images With ExpressJS</a>
-- <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: NodeJS Series |  Hello ExpressJS</a>
+- <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: NodeJS Series | Hello ExpressJS</a>
 - <a href="how_to/2025-05-06-pub-sub-model-in-redis.md">qubit-note: Pub/Sub Model in Redis</a>
 - <a href="how_to/2025-05-06-callback-chaning-in-nodeJS.md">qubit-note: NodeJS Series | Callback Chaining in NodeJS</a>
 - <a href="how_to/2025-05-01-serving-ml-models-with-fastapi-ray.md">qubit-note: Ray Series | Serving ML Models With FastAPI & Ray</a>
