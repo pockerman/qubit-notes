@@ -14,9 +14,9 @@ We will be working with Raspberry Pi 5 in this note.
 The HC-SR04 sensor is shown in the image below:
 
 
-| ![containers-view](./images/hc_sr04.jpeg)             |
-|:---------------------------------------------------:|
-|          **Figure: HC-SR04 distance sensor module.**|
+| ![containers-view](./images/hc_sr04.jpeg)      |
+|:----------------------------------------------:|
+|     **Figure: HC-SR04 distance sensor module.**|
 
 
 The HC-SR04 ultrasonic sensor has two main components: a transmitter (TX) that emits ultrasonic pulses and a receiver (RX) that detects them. It has four pins: Vcc (5V power), GND (ground), TRIG (trigger input to send pulses), and ECHO (output that goes HIGH when a pulse is detected). Common uses include car parking sensors, where they measure distance to nearby objects, and liquid-level monitoring, such as measuring water depth in a tank.
