@@ -61,7 +61,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2025-05-03-retrieval-augmented-generation.md">qubit-note: LLM Series | Retrieval Augmented Generation (RAG)</a>
 - <a href="ml/2025-05-01-detecting-data-drift.md">qubit-note: ML Series | Detecting Data Drift</a>
 - <a href="ml/2025-05-01-detecting-concept-drift.md">qubit-note: ML Series | Detecting Concept Drift</a>
-- <a href="ml/2025-04-29-prompt-methods.md">qubit-note: LLM Series | Prompt Methods</a>
+- <a href="ml/2025-04-29-prompt-methods.md">qubit-note: LLM Series | Prompt Engineering Part 1</a>
 - <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">qubit-note: ML Series | 13 + 1 Steps For a Successful ML Project</a>
 - <a href="ml/2025-04-26-bias-variance-dilemma.md">qubit-note: ML Series | Bias-Variance Dilemma</a>
 - <a href="ml/2025-04-24-collection-of-training-data.md">qubit-note: ML Series | Collection of Training Data</a>
