@@ -1,4 +1,4 @@
-# qubit-note: LLM Series | Prompting Methods
+# qubit-note: LLM Series | Prompt Engineering Part 1
 
 
 ## Overview

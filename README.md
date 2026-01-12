@@ -46,6 +46,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Machine learning & AI engineering
 
+- <a href="ml/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a>
+- <a href="ml/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: LLM Series | Prompt Engineering Part 2</a>
 - <a href="ml/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
 - <a href="ml/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: LLM Series | Document Fusion & Multi-stage Retrieval for Multi-modal RAG</a>
 - <a href="ml/2025-08-31-RAG-or-fine-tuning.md">qubit-note: LLM Series | RAG or Fine Tuning?</a>
@@ -61,7 +63,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2025-05-03-retrieval-augmented-generation.md">qubit-note: LLM Series | Retrieval Augmented Generation (RAG)</a>
 - <a href="ml/2025-05-01-detecting-data-drift.md">qubit-note: ML Series | Detecting Data Drift</a>
 - <a href="ml/2025-05-01-detecting-concept-drift.md">qubit-note: ML Series | Detecting Concept Drift</a>
-- <a href="ml/2025-04-29-prompt-methods.md">qubit-note: LLM Series | Prompt Methods</a>
+- <a href="ml/2025-04-29-prompt-methods.md">qubit-note: LLM Series | Prompt Engineering Part 1</a>
 - <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">qubit-note: ML Series | 13 + 1 Steps For a Successful ML Project</a>
 - <a href="ml/2025-04-26-bias-variance-dilemma.md">qubit-note: ML Series | Bias-Variance Dilemma</a>
 - <a href="ml/2025-04-24-collection-of-training-data.md">qubit-note: ML Series | Collection of Training Data</a>

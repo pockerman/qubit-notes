@@ -1,11 +1,11 @@
-# qubit-note: Tactics to Increase LLM Reliability
+# qubit-note: LLM Series | Tactics to Increase LLM Reliability
 
 ## Overview
 
 In this note I briefly summarise some of the tactics one can follow in order to increase 
 the reliability of LLM models. LLMs have proven that they are capable of many different things thus
 we need to take their capability somehow for granted. On the other hand, LLMs have not yet
-proven their reliability i.e consistently produce the appropriate response. In creasing the 
+proven their reliability i.e consistently produce the appropriate response. Increasing the 
 reliability of an AI system, is one of main duties of an AI engineer.
 
 In this brief note I summarise some tactics we can employ in order to increase the reliability of an LLM model:
@@ -19,11 +19,11 @@ In this brief note I summarise some tactics we can employ in order to increase t
 - Tactic 6: Implement facts checking
 
 
-**keywords** large-language-models, LLM, llm-reliability, AI-engineering
+**keywords** Large-language-models, LLM-reliability, AI-engineering
 
 ## Tactics to increase LLM reliability
 
-LLMs are becoming ubiquitous in modern software either as copilots, bots or any kind or serach engines.
+LLMs are becoming ubiquitous in modern software either as copilots, bots or any kind or search engine.
 Despite their versatility, LLMs have weaknesses that should be addressed. In this short note,
 I briefly discuss various tactics to improve LLM reliability. Specifically, I discuss the following 7 tactics:
 
@@ -94,6 +94,14 @@ same input. Of course most of the time the semantics, i.e. dates, numbers, feeli
 In any case it is towards your advantage to somehow verify what the model produced is valid. Reflection is one approach you can use.
 Using another model is a second. Extracting the facts of interest is a third. All these may or may not be easy to implement but
 if you want your AI system to be reliable you need to invest time into such approaches.
+
+
+## Summary 
+
+This note outlines practical engineering tactics to improve the reliability of large language models, emphasizing that while LLMs are powerful, their outputs are inherently stochastic and not consistently reliable by default. It presents a hierarchy of strategies, starting with avoiding LLMs entirely when deterministic code suffices, and then selecting an appropriate model tailored to the task and performance constraints. The text highlights the importance of prompt engineering (e.g., few-shot prompting and chain-of-thought), followed by fine-tuning when prompting alone is insufficient. It contrasts fine-tuning with retrieval-based approaches such as RAG and GraphRAG, which inject external, domain-specific knowledge at inference time. The note also discusses the use of tools and APIs for accessing dynamic data and concludes with the need for fact-checking mechanisms—such as reflection, secondary models, or explicit fact extraction—to validate outputs and ensure dependable AI system behavior.
+
+<a href="2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a> introduces various approaches
+about how to detect and measure LLM model hallucinations
 
 
 ## References
