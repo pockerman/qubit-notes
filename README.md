@@ -68,8 +68,11 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: AI Series | Model Context Protocol</a>
 - <a href="ml/2025-04-28-hyperparameter-tuning-ml-models.md">qubit-note: ML Series | Hyperparameter Tuning in ML Models</a> 
 
+## Electronics
+
 ## How to
 
+- <a href="how_to/2026-01-11-go-principal-tools.md">qubit-note: Go Progamming Series | Go Principal Tools</a>
 - <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 1</a>
 - <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
 - <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>

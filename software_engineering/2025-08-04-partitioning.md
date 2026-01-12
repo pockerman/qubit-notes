@@ -2,9 +2,14 @@
 
 ## Overview
 
+We have discussed <a href="2025-04-22-data-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 1</a> as a technique to
+increase the availability of a system by copying data across various locations. However, replicating the entire dataset across numerous locations can be impractical 
+due to storage costs and network bandwidth requirements.
+
 Whenever we want to guarantee the scalability of a data system we need to consider partitioning.
-In general, by partitioning a system we try to address any scalability limitations of
-a single component [2].
+By partitioning a dataset we divided it into smaller pieces, each of which is accessible independently, enabling efficient reads and writes [4].
+Patitioning as a technique can be applied to a number of situations e.g. partitioning TCP connections using a <a href="2025-04-21-load-balancing.md">load balancer</a> [1].
+In general, by partitioning a system we try to address any scalability limitations of a single component [2].
 
 In this note, I will discuss the most common partitioning approaches available.
 In a similar topic, we have discussed <a href="https://github.com/pockerman/qubit-notes/blob/main/ml/2025-05-11-training-patterns-for-distributed-ML.md">Training Patterns for Distributed ML</a> and
@@ -17,16 +22,28 @@ In a similar topic, we have discussed <a href="https://github.com/pockerman/qubi
 For large applications, it is typically infeasible to fit the complete data set in a single server; consider for example training a machine learning model
 over a large data set. In order to overcome this we want to somehow split the data into smaller groups and store these groups in multiple servers [3].
 
-There exist various ways one can partition a dataset. Two of the most common ones are [1].
+----
+**Remark**
 
+When we discuss partitioning the term sharding often comes up. Sharding refers to a specific
+type of paritioning namely horizontal paritioning [4].
+
+----
+
+
+There exist various ways one can partition a dataset.
+
+- Horizontal partitioning
 - Range partitioning
 - Hash partitioning
 
 Let's briefly discuss the two approaches.
 
+**Horizontal partitioning**
+
 **Range partitioning**
 
-With range paritioning the data is divided  non-overlapping segments based on specified value ranges of a partition key column.
+With range paritioning the data is divided  in non-overlapping segments based on specified value ranges of a partition key column.
 This technique is particularly useful for continuous partition keys, such as time, enabling efficient data organization and query optimization.
 It is commonly used with date columns, where each partition can represent a specific time period like a month or quarter.
 Also note that if the data is stored in sorted order on disk within each partition, we can have fast range scans [1].
@@ -43,7 +60,6 @@ Hash partitioning works by applying a hash function to a specified partition key
  
 Despite the fact that hash partitioning ensures that the resulting partitions contain more or less the same number of entries, it does not eliminate hotspots [1].
 This will be indeed the case if the access pattern is not uniform e.g. when a key is accessed significantly more often than others.
-
 
 
 Regardless of the approach we want to follow in order to parition our dataset there are two challenges we need to address [3]:
@@ -74,5 +90,6 @@ Range partitioning divides data into value-based segments (e.g., by date) for ef
 ## References
 
 1. Roberto Vitillo _Understanding Distributed Stystems. What every developer should know about large distributed apllications_
-2. Dominik Tornow _Think Distributed Systems_, Manning Publications.
-3. Alex Xu, _System Design Interview_. 
+2. Dominik Tornow _Think Distributed Systems_, Manning Publications
+3. Alex Xu, _System Design Interview_
+4. Pekka Enberg, _Latency Reduce delay in software systems_ Manning Publications
