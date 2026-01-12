@@ -1,4 +1,4 @@
-# qubit-note: LLM Series | Prompting Methods
+# qubit-note: LLM Series | Prompt Engineering Part 1
 
 
 ## Overview
@@ -16,7 +16,7 @@ visit <a href="https://www.promptingguide.ai/">Prompt Engineering Guide</a>.
 
 **keywords:** large-language-models, prompt-engineering, machine-learning
 
-## Prompting methods
+## Prompt Engineering
 
 There is no doupt that, at the time of writing this note, LLMs have completely overtaken the
 tech industry as they open new paths of doing a lot of things  including software development.
