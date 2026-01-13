@@ -34,14 +34,28 @@ type of paritioning namely horizontal paritioning [4].
 There exist various ways one can partition a dataset.
 
 - Horizontal partitioning
-- Range partitioning
+- Vertical partitioning
+- <a href="https://www.sciencedirect.com/topics/computer-science/range-partitioning">Range partitioning</a>
 - Hash partitioning
 
 Let's briefly discuss the two approaches.
 
-**Horizontal partitioning**
+#### Horizontal partitioning
 
-**Range partitioning**
+Horizontal partitioning is frequently applied on database partitioning. However, we can use it beyon database systems.
+For example, horizontal partitioning is often used in online transaction processing
+(OLTP) systems [4]. 
+
+When using horizontal partitioning on a database system, we typically partition the data on the values of specific column.
+For example, if we store a ```User``` entity in our database alongoside the user's location, then we can partition the table
+based on the location.  If, for example, we store timestamps we could use range partitioning (see below).
+
+
+When querying the database that it has been horizontally partitioned, we first need to detrmine the partition we need
+to query. However, note that maintaining consistency between the database and an index in the horizontally partitioned database can
+be challenging [4].
+
+#### Range partitioning
 
 With range paritioning the data is divided  in non-overlapping segments based on specified value ranges of a partition key column.
 This technique is particularly useful for continuous partition keys, such as time, enabling efficient data organization and query optimization.
@@ -51,9 +65,10 @@ Also note that if the data is stored in sorted order on disk within each partiti
 Range partitioning has two main drawbacks [1]:
 
 - If the distribution of the keys is not more or less uniform then we may have to deal with unbalanced partitions
-- Some access patterns e.g. range partitioning by date, can lead to hotspots
+- Some access patterns e.g. range partitioning by date, can lead to hotspots.
 
-**Hash partitioning**
+
+#### Hash partitioning
 
 
 Hash partitioning works by applying a hash function to a specified partition key (such as a column value or expression), which generates a hash value that determines the specific partition where the data is stored. This method ensures an even distribution of data, which helps achieve load balancing, improves query performance through parallel processing, and enhances scalability.
@@ -69,7 +84,17 @@ Regardless of the approach we want to follow in order to parition our dataset th
 
 <a href="https://en.wikipedia.org/wiki/Consistent_hashing">Consistent hashing</a> can be used in order to solve the latter problem [3].
 
-**Static vs dynamic partitioning**
+#### Vertical partitioning
+
+
+Vertical partitioning is a database technique that divides records by columns rather than by rows [4]. Instead of storing complete records together, related fields are grouped into separate partitions. This approach is mainly used in OLAP systems, which are read-intensive and optimized for large analytical queries such as aggregations, joins, sorting, and machine learning workloads.
+
+Vertical partitioning improves performance by enabling better compression, reduced read amplification, and more efficient query execution, since only the required columns are read. Storing similar data types together allows databases to compress data more effectively and leverage CPU optimizations like SIMD. It can also make some join operations faster.
+
+However, vertical partitioning has drawbacks: it is harder to scale because each partition still spans all rows, and writes are slower since updates must touch multiple partitions. The text also distinguishes between static partitioning, where partitions are fixed in advance, and dynamic partitioning, where partitions are created or split as needed based on size or load, trading simplicity for adaptability and scalability.
+
+
+#### Static vs dynamic partitioning
 
 One other question we need to address is how many partitions should we generate? This of course depends on the system we are delaing with. The number of partitions can be predetermined and
 never change thereafter i.e. _static partitioning_. This is a simple approach with the obvious disadvantage; too many partitions add overhead while too few partitions limit scalability [1].
