@@ -1,4 +1,4 @@
-# quibit-note: Partitioning
+# quibit-note: Distributed Systems Series | Partitioning | Partitioning Part 1
 
 ## Overview
 
@@ -37,6 +37,7 @@ There exist various ways one can partition a dataset.
 - Vertical partitioning
 - <a href="https://www.sciencedirect.com/topics/computer-science/range-partitioning">Range partitioning</a>
 - Hash partitioning
+- Logical partitioning
 
 Let's briefly discuss the two approaches.
 
@@ -49,7 +50,6 @@ For example, horizontal partitioning is often used in online transaction process
 When using horizontal partitioning on a database system, we typically partition the data on the values of specific column.
 For example, if we store a ```User``` entity in our database alongoside the user's location, then we can partition the table
 based on the location.  If, for example, we store timestamps we could use range partitioning (see below).
-
 
 When querying the database that it has been horizontally partitioned, we first need to detrmine the partition we need
 to query. However, note that maintaining consistency between the database and an index in the horizontally partitioned database can
@@ -67,15 +67,12 @@ Range partitioning has two main drawbacks [1]:
 - If the distribution of the keys is not more or less uniform then we may have to deal with unbalanced partitions
 - Some access patterns e.g. range partitioning by date, can lead to hotspots.
 
-
 #### Hash partitioning
-
 
 Hash partitioning works by applying a hash function to a specified partition key (such as a column value or expression), which generates a hash value that determines the specific partition where the data is stored. This method ensures an even distribution of data, which helps achieve load balancing, improves query performance through parallel processing, and enhances scalability.
  
 Despite the fact that hash partitioning ensures that the resulting partitions contain more or less the same number of entries, it does not eliminate hotspots [1].
 This will be indeed the case if the access pattern is not uniform e.g. when a key is accessed significantly more often than others.
-
 
 Regardless of the approach we want to follow in order to parition our dataset there are two challenges we need to address [3]:
 
@@ -94,6 +91,20 @@ Vertical partitioning improves performance by enabling better compression, reduc
 However, vertical partitioning has drawbacks: it is harder to scale because each partition still spans all rows, and writes are slower since updates must touch multiple partitions. The text also distinguishes between static partitioning, where partitions are fixed in advance, and dynamic partitioning, where partitions are created or split as needed based on size or load, trading simplicity for adaptability and scalability.
 
 
+We can combine both vertical and horizontal partitioning into a hybird partitioning in order to mitigate the downsides of the two [4].
+
+#### Logical partitioning
+
+The two main partitioning strategies for data are horizontal and vertical partitioning [4]. However, we can employ data partitioning based on the 
+application needs. Load balancing  is one other way we can apply parititioning. In this section, we briefly discuss some alternative partitioning
+approaches. For more details see [4] chapter 5.
+
+- **Functional partitioning**: Functional partitioning methods partition the data based on how the application uses it i.e. the applications usage patterns.
+- **Geographical partitioning**: As the name implies, in this strategy we partition the data based on geographical location e.g. the physical location of the client. 
+- **User-based partitioning**: This is similar to geographical location but this time the data is partition based on the user.
+- **Time-based partitioning**: Time-based partitioning is a strategy for partitioning data based on time.
+- **Overpartitioning**: In this approach not only do we partition the data but also have multiple copies of each partition i.e. replicating the partitions.
+
 #### Static vs dynamic partitioning
 
 One other question we need to address is how many partitions should we generate? This of course depends on the system we are delaing with. The number of partitions can be predetermined and
@@ -104,13 +115,19 @@ it serves is beyond a threshold.
 
 ## Summary
 
-Partitioning is a key strategy for ensuring scalability in data systems by distributing datasets across multiple servers. Two common techniques are:
+This note introduces partitioning as a fundamental technique for achieving scalability in distributed systems, complementing data replication. Partitioning divides large datasets or workloads into smaller, independently accessible pieces, enabling efficient reads, writes, and parallel processing while avoiding the impracticality of fully replicating data.
 
-- range partitioning
-- hash partitioning 
+The text reviews common partitioning strategies:
 
+* **Horizontal partitioning (sharding):** Splits data by rows based on a partition key (e.g., user location or timestamp). Widely used in OLTP systems, it improves scalability but introduces challenges around indexing and consistency.
+* **Range partitioning:** Divides data into non-overlapping value ranges (e.g., time-based partitions). It supports efficient range queries but can suffer from unbalanced partitions and hotspots.
+* **Hash partitioning:** Uses a hash function to evenly distribute data across partitions, improving load balance. However, hotspots can still arise from skewed access patterns.
+* **Vertical partitioning:** Splits data by columns rather than rows, primarily used in OLAP systems. It improves compression, reduces read amplification, and speeds analytical queries, but makes writes slower and scaling harder.
+* **Hybrid partitioning:** Combines horizontal and vertical partitioning to balance their trade-offs.
+* **Logical partitioning:** Partitions data based on application needs, such as functional, geographical, user-based, time-based partitioning, or overpartitioning with replicated partitions.
 
-Range partitioning divides data into value-based segments (e.g., by date) for efficient queries but risks unbalanced partitions and hotspots. Hash partitioning, uses hash functions to evenly distribute data and improve load balancing. Both approaches may  still face hotspots under skewed access patterns. Regardless of method, challenges include achieving even data distribution and minimizing data movement when nodes are added or removed, for which consistent hashing can help. Additionally, systems must decide between static partitioning, where the number of partitions is fixed in advance, and dynamic partitioning, which creates new partitions on demand to better adapt to workload changes.
+Finally, it distinguishes between static partitioning, where partitions are fixed in advance, and dynamic partitioning, where partitions are created or split on demand to adapt to data size and load, trading simplicity for flexibility and scalability.
+
 
 ## References
 
