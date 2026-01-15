@@ -8,6 +8,7 @@ However, given the shared memory that is asusmed by this progamming model, the d
 In this qubit note we will introduce <a href="https://www.openmp.org/">OpenMP</a>. This is one of the most widedly supported open standards
 for threads parallelism and shared memory programming
 
+**keywords** Programming, OpenMP, Mutli-threading, Shared-memory-programming, C++
 
 ## OpenMP Multi-threading Part 1
 
