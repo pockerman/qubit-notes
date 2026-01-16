@@ -10,14 +10,72 @@ a mutlti-threading programing paradigm. In this note we will discusss some synch
 
 Very often, when developing mutlti-threading software, we want and operation to be performed by one thread only or an operation should
 be performed by a thread and when the performing thread finishes another thread can take over. These are operations that require
-some sort of synchronization. We will will look into the following OpenMP constructs
+some sort of synchronization. We will will look into the following OpenMP constructs:
 
 - ```omp master```
 - ```omp single```
+- ```omp masked```
 - ```omp shared```
 - ```omp critical```
 
-Let's start with ```omp single```
+Let's start with ```omp master```
+
+#### omp master
+
+```omp master``` is one of the original OpenMP constructs and is very simple in intent—but easy to misuse if you don’t understand its synchronization behavior.
+What ```omp master``` does:
+- The enclosed block is executed only by the master thread
+- The master thread is thread 0
+- There is no implicit barrier at entry or exit
+- Other threads skip the block and continue immediately
+
+In other words, we can think of ```omp master``` as _Only thread 0 runs this, everyone else moves on._ Below is a C++ code snippet that
+illustrates ```omp master```:
+
+```
+#include <omp.h>
+#include <iostream>
+
+int main()
+{
+    #pragma omp parallel num_threads(4)
+    {
+        int tid = omp_get_thread_num();
+
+        #pragma omp master
+        {
+            std::cout << "Master section executed by thread "
+                      << tid << "\n";
+        }
+
+        std::cout << "Thread " << tid << " continues\n";
+    }
+}
+
+```
+
+The important thing to notice is that there is no implict barrier at the end of the the construct. Having said this,
+this construct is not appropriate to initialise data structures shared by all threads. ```omp single``` (see below) can be used
+for this. In other words, this is not an sychronization construct but a construct that limits execution to the main thread. We can
+turn it into a synchronization construct by placing an explicit barrier at the end as shown below
+
+```
+#pragma omp parallel
+{
+    #pragma omp master
+    {
+        initialize_shared_data();
+    }
+
+    #pragma omp barrier
+
+    use_shared_data();  
+}
+
+```
+
+Similarly avoid using ```omp task``` with this construct and prefer ```omp masked``` instead (see below). Although, it is legal to use
+```omp task``` with ```omp master```, this can cause scheduling problems.
 
 #### omp single
 
