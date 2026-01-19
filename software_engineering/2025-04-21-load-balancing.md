@@ -1,13 +1,12 @@
-# qubit-note: Load Balancing
+# qubit-note: Distributed Systems Series | Load Balancing
 
 ## Overview
 
 In this note I will go over <a href="https://en.wikipedia.org/wiki/Load_balancing_(computing)">load balancing</a> approaches. Modern systems  have to 
 deal with heavy load/traffic. This poses the need to distribute this work over a number
-of workers. A load balancer effectively partions in one way or another the incoming traffic
-so that we do not overload one machine. 
+of workers. A load balancer effectively partions in one way or another the incoming traffic so that we do not overload one machine. 
 
-We can implement load balancing in various places in our systemLaod balancers can be used in various places in our system. Furthermore, we can have static or dynamic load balancing 
+We can implement load balancing in various places in our system. Furthermore, we can have static or dynamic load balancing 
 and statefull or stateless.
 
 
@@ -42,10 +41,15 @@ However, a load balancer can also provide several key services such as:
 
 Typically, we will place a load balancer between the client and the available servers.
 However, this need not be the case; for example we can place a load balancer between the application servers and the 
-servers that host the database and/or  between our web servers and the application servers
+servers that host the database and/or  between our web servers and the application servers. Below is a list of where a load balancer can be used [5]:
+
+- DNS load balancing
+- Transport layer load balancing
+- Application layer load balancing
+- Geo load balancing
 
 Now that we have  a conceptual understanding what a load balancer does, let's briefly discuss how a load balancer distributes
-the load. This is done using various algorithms various <a href="https://kemptechnologies.com/load-balancer/load-balancing-algorithms-techniques">load balacing algorithms</a>:
+the load. This is done using various <a href="https://kemptechnologies.com/load-balancer/load-balancing-algorithms-techniques">load balacing algorithms</a>:
 
 - Round-robin scheduling
 - Weighted round-robin
@@ -56,8 +60,21 @@ I won't go over the details of these algorithms. You can check the references pr
 I do want to mention that in general we have staic and dynamic load balancing algorithms.
 Usually, a static algorithm will not consider the changing state of the servers. Their major advantage is their simplicity.
 In contrast, a dynamic algorithm will consider the state of the servers. These  algorithms maintain state and thet do so by communicating with the server.
-These algorithms therefore can potentially increase commnucation overhead but it results in improved forwarding decisions.
+These algorithms therefore can potentially increase communication overhead but it results in improved forwarding decisions.
 
+## Summary
+
+This note introduces load balancing as a core technique in modern distributed systems for handling high traffic and computational load. Load balancers distribute incoming requests across multiple workers to prevent overloading individual machines, thereby improving scalability, availability, and performance.
+
+Load balancing can be implemented at different points in a system (e.g., between clients and servers, application and database layers) and can be static or dynamic, as well as stateful or stateless.
+
+Beyond traffic distribution, load balancers also provide important system services:
+
+- Security, such as mitigating denial-of-service attacks
+- Health checking, by monitoring server availability and routing traffic only to healthy nodes
+
+To distribute traffic, load balancers rely on various algorithms such as round-robin, weighted round-robin, least connections, and URL hashing.
+Static algorithms are simpler and ignore server state, while dynamic algorithms adapt to server load by maintaining state and communicating with backend servers, trading simplicity for better routing decisions.
 
 ## References
 
@@ -65,3 +82,4 @@ These algorithms therefore can potentially increase commnucation overhead but it
 2. <a href="https://aws.amazon.com/what-is/load-balancing/">What is load balancing?</a>
 3. <a href="https://cloud.google.com/load-balancing">Cloud load balancing</a>
 4. <a href="https://kemptechnologies.com/load-balancer/load-balancing-algorithms-techniques">Load balacing algorithms</a>
+5. Roberto Vitillo _Understanding Distributed Stystems. What every developer should know about large distributed apllications_

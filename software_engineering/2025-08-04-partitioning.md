@@ -128,6 +128,9 @@ The text reviews common partitioning strategies:
 
 Finally, it distinguishes between static partitioning, where partitions are fixed in advance, and dynamic partitioning, where partitions are created or split on demand to adapt to data size and load, trading simplicity for flexibility and scalability.
 
+Note that partitioning can introduce a fair amount of complexity in a system. Partition imbalances can cause the same problems that we are trying to solve and limit the
+ability of  a system to scale. Partitions are independent, we will need transactions to update multiple partitions atomically [1].
+
 
 ## References
 
