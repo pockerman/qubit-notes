@@ -10,7 +10,7 @@ We can implement load balancing in various places in our system. Furthermore, we
 and statefull or stateless.
 
 
-**keywords** software-architecture, system-design, distributed-systems, load-balance
+**keywords** software-architecture, system-design, distributed-systems, load-balancing
 
 
 # Load balancing
