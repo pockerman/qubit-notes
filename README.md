@@ -20,7 +20,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
-- <a href="software_engineering/2026-01-20-Caching.md">qubit-note: Distributed Systems Series | Caching Part 1</a>
+- <a href="software_engineering/2026-01-21-cache-coherency.md">qubit-note: Distributed Systems Series | Caching Part 2 | Cache Coherence</a>
+- <a href="software_engineering/2026-01-20-Caching.md">qubit-note: Distributed Systems Series | Caching Part 1 |  Caching Methods</a>
 - <a href="software_engineering/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Distributed Systems Series | Data Replication Part 6 | PACELC, CAP and CALM Theorems </a>
 - <a href="software_engineering/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems Series | Data Replication Part 5 | Broadcast Protocols</a>
 - <a href="software_engineering/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
