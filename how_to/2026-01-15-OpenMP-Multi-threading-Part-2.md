@@ -15,7 +15,6 @@ some sort of synchronization. We will will look into the following OpenMP constr
 - ```omp master```
 - ```omp single```
 - ```omp masked```
-- ```omp shared```
 - ```omp critical```
 
 Let's start with ```omp master```
@@ -79,8 +78,7 @@ Similarly avoid using ```omp task``` with this construct and prefer ```omp maske
 
 #### omp single
 
-Executes a block of code by exactly one thread in a parallel region. It is useful when:
-
+The construct ```omp single```  executes a block of code by exactly one thread in a parallel region. It is useful when we want to perform any of the following:
 
 -Initialization
 - I/O
@@ -126,7 +124,7 @@ int main()
 
 ```omp masked``` is a newer OpenMP construct (introduced in OpenMP 5.0) that is often misunderstood because it looks similar to ```single``` and ```master```, but it serves a different purpose.
 ```omp masked``` executes a block of code only on threads that satisfy a mask. By default, only the master thread (thread 0) executes it. There is no implicit barrier at the end.
-esigned mainly for tasking and accelerator/offload scenarios
+Below is an example using the construct
 
 ```
 #include <omp.h>
@@ -149,46 +147,47 @@ int main()
 
 ```
 
-Why ```masked``` exists
+#### omp critical
 
-master has problems:
-
-Only thread 0 executes
-
-Cannot safely create tasks in many cases
-
-Not compatible with some offloading models
-
-masked replaces master in modern OpenMP.
-
-OpenMP 5+ recommendation:
-Use masked instead of master.
-
+```omp critical``` defines a mutual-exclusion region. In other words all threads get to execute the construct but one at the time.
+The construct is useful for protecting shared data fom race conditions. Below is an example
 
 ```
+#include <iostream>
 #include <omp.h>
-#include <cstdio>
 
-int main()
-{
-    #pragma omp parallel
+int main() {
+    int counter = 0;
+
+    #pragma omp parallel shared(counter)
     {
-        #pragma omp masked
+        #pragma omp critical
         {
-            for (int i = 0; i < 4; ++i)
-            {
-                #pragma omp task
-                {
-                    printf("Task %d executed by thread %d\n",
-                           i, omp_get_thread_num());
-                }
-            }
+            counter++;
         }
     }
+
+    std::cout << "counter = " << counter << std::endl;
+    return 0;
 }
 
 ```
 
 ## Summary
+
+This note builds on the introduction to OpenMP multi-threading by focusing on synchronization primitives used to control how and when threads execute shared code. 
+It covers four key OpenMP constructs: ```omp master```, ```omp single```, ```omp masked```, and ```omp critical```.
+
+- ```omp master```: Executes a code block only on the master thread (thread 0), with no implicit barrier. Other threads skip the block and continue immediately. Because of the lack of synchronization, it is not suitable for initializing shared data unless combined with an explicit ```omp barrier```. It should also be avoided for task creation due to potential scheduling issues.
+- ```omp single```: Ensures a block of code is executed by exactly one thread, chosen at runtime. Unlike ```master```, it has an implicit barrier at the end, making it ideal for initialization, I/O, shared data setup, and task creation before other threads proceed.
+- ```omp masked```: Introduced in OpenMP 5.0, it restricts execution to threads that satisfy a mask—by default, only the master thread. Like ```master```, it has no implicit barrier, but it is the preferred construct when combining with tasks, avoiding the scheduling pitfalls of ```master```.
+- ```omp critical```: Defines a mutual-exclusion region where all threads may execute the code, but only one at a time. It is used to protect shared data from race conditions, though excessive use can harm performance.
+
+Overall, the note clarifies that these constructs serve different purposes:
+
+- ```omp master``` and ```omp masked``` limit which threads execute code,
+- ```omp single``` both limits execution and synchronizes threads, and
+- ```omp critical``` enforces safe, serialized access to shared resources.
+
 
 ## References
