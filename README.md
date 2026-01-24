@@ -66,7 +66,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 - <a href="rl/2026-01-24-Temporal-Difference-Learning.md">qubit-note: Temporal Difference Learning</a>
 
-## Machine learning & AI engineering
+## Machine learning 
 
 
 - <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: ML Series | Training Patterns for Distributed ML</a>
