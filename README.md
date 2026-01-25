@@ -61,6 +61,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2025-12-22-build-local-mcp-server-4.md">qubit-note: AI Series | Build an MCP Server Part 4</a>
 - <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
 - <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
+- <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
 - <a href="ml/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a>
 - <a href="ml/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: LLM Series | Prompt Engineering Part 2</a>
 - <a href="ml/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
@@ -81,7 +82,6 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="rl/2026-01-24-Temporal-Difference-Learning.md">qubit-note: Temporal Difference Learning</a>
 
 ## Machine learning 
-
 
 - <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: ML Series | Training Patterns for Distributed ML</a>
 - <a href="ml/2025-05-08-dimensionality-reduction-with-PCA.md">qubit-note: ML Series | Dimensionality Reduction with PCA</a>
@@ -110,7 +110,6 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series | Create a Toy Apache Spark Cluster With Docker</a>
 - <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series | Hello World</a>
 - <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series | Application concepts</a>
-- <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
 - <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: NodeJS Series | Handle Dynamic Pages with ExpressJS</a>
 - <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: NodeJS Series |  Serving Images With ExpressJS</a>
 - <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: NodeJS Series | Hello ExpressJS</a>
