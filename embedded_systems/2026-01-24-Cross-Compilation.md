@@ -5,8 +5,8 @@
 When working with embedded system most often than not, we need to work with two types of environments;
 the environment where we write and build the code and the environment that runs the software.
 In this qubit note we will look into the topic of cross compilation C++ programs on Linux platforms. Specifically,
-we will build a simple hello program using the ```arm-linux-gnueabihf``` toolchain. We will then upload and execute
-the binary on a Raspberry Pi 5 board. 
+we will build a simple hello program using the ```g++-aarch64-linux-gnu``` toolchain. We will then upload and execute
+the binary on a Raspberry Pi 5 board. This is a board having a 64-bit quad-core Cortex-A76 processor.
 
 **keywords** Cross-compilation, C++, Raspberry Pi, ARM
 
@@ -19,31 +19,28 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install cross-compilation toolchain and common build tools
 RUN apt-get update && apt-get install -y \
     build-essential \
-    gcc-arm-linux-gnueabihf \
-    g++-arm-linux-gnueabihf \
-    binutils-arm-linux-gnueabihf \
+    gcc-aarch64-linux-gnu \
+    g++-aarch64-linux-gnu \
+    binutils-aarch64-linux-gnu \
     pkg-config \
     cmake \
     make \
     git \
     nano \
+    file \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-
-
-# Set default cross-compiler environment variables
-ENV CC=arm-linux-gnueabihf-gcc \
-    CXX=arm-linux-gnueabihf-g++ \
-    AR=arm-linux-gnueabihf-ar \
-    AS=arm-linux-gnueabihf-as \
-    LD=arm-linux-gnueabihf-ld \
-    STRIP=arm-linux-gnueabihf-strip \
-    CFLAGS="-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard" \
-    CXXFLAGS="-march=armv7-a -mfpu=neon-vfpv4 -mfloat-abi=hard"
+ENV CC=aarch64-linux-gnu-gcc \
+    CXX=aarch64-linux-gnu-g++ \
+    AR=aarch64-linux-gnu-ar \
+    AS=aarch64-linux-gnu-as \
+    LD=aarch64-linux-gnu-ld \
+    STRIP=aarch64-linux-gnu-strip \
+    CFLAGS="-march=armv8-a" \
+    CXXFLAGS="-march=armv8-a"
 
 WORKDIR /work
 
@@ -80,7 +77,7 @@ docker exec -it dev_env /bin/bash
 Check the version of the ARM GNU toolchain
 
 ```
-arm-linux-gnueabihf-g++ --version
+aarch64-linux-gnu-g++ --version
 ```
 
 Inside the container, use the nano editor to create the example below:
@@ -98,7 +95,7 @@ std::cout<<"Hello world"<<std::endl;
 Buld the executable:
 
 ```
-arm-linux-gnueabihf-g++ example.cpp -o example
+aarch64-linux-gnu-g++ example.cpp -o example
 ```
 
 We have also installed in the container the ```file``` command. We can use it to make sure that the produced executable is an ARM executable:
@@ -125,8 +122,6 @@ Log in your Pi board and execute the uploaded program. Note the you may have to 
 ```
 chmod +x example
 ```
-
-
 
 ## Summary
 
