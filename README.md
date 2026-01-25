@@ -46,8 +46,21 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture Series | Managing Distributed Workflows</a>
 - <a href="software_engineering/2025-04-18-domain-name-system.md">qubit-note: Distributed Systems Series |  Domain Name System</a>
 
-## AI Engineering
+## Embedded system engineering
 
+- <a href="embedded_systems/2026-01-24-Cross-Compilation.md">qubit-note: Cross Compiling C++ on Linux</a>
+- <a href="how_to/2025-12-31-use-raspberrypi-camera-module.md">qubit-note: RaspeberryPi Series | Use Raspberry Pi Camera Module</a>
+- <a href="how_to/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
+- <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
+
+## AI engineering
+
+- <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
+- <a href="how_to/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
+- <a href="how_to/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
+- <a href="how_to/2025-12-22-build-local-mcp-server-4.md">qubit-note: AI Series | Build an MCP Server Part 4</a>
+- <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
+- <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
 - <a href="ml/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a>
 - <a href="ml/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: LLM Series | Prompt Engineering Part 2</a>
 - <a href="ml/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
@@ -62,11 +75,11 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2025-04-29-prompt-methods.md">qubit-note: LLM Series | Prompt Engineering Part 1</a>
 - <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: AI Series | Model Context Protocol</a>
 
-## Reinforcement Learning
+## Reinforcement learning
 
 - <a href="rl/2026-01-24-Temporal-Difference-Learning.md">qubit-note: Temporal Difference Learning</a>
 
-## Machine learning & AI engineering
+## Machine learning 
 
 
 - <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: ML Series | Training Patterns for Distributed ML</a>
@@ -89,16 +102,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 1</a>
 - <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
 - <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>
-- <a href="how_to/2025-12-31-use-raspberrypi-camera-module.md">qubit-note: RaspeberryPi Series | Use Raspberry Pi Camera Module</a>
-- <a href="how_to/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
-- <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
 - <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
-- <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
-- <a href="how_to/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
-- <a href="how_to/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
-- <a href="how_to/2025-12-22-build-local-mcp-server-4.md">qubit-note: AI Series | Build an MCP Server Part 4</a>
-- <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
-- <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
 - <a href="how_to/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
 - <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series | Overview of RDDs</a>
 - <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Python Series | Coroutine Chaining & Asynchronous Queues in Python</a>
