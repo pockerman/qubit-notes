@@ -80,7 +80,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Reinforcement learning
 
-- <a href="rl/2026-01-25-SARSA.md"># qubit-note: SARSA or State-Action-Reward-State-Action</a>
+- <a href="rl/2026-01-25-SARSA.md">qubit-note: SARSA or State-Action-Reward-State-Action</a>
 - <a href="rl/2026-01-24-Temporal-Difference-Learning.md">qubit-note: Temporal Difference Learning</a>
 
 ## Machine learning 
