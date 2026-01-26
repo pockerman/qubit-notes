@@ -2,6 +2,8 @@
 
 ## Overview
 
+In this note we will discuss cache coherency i.e. how multiple caches can maintain a uniform view of the cached data.
+
 
 **keywords** software-architecture, system-design, distributed-systems, caching, data-replication
 
@@ -64,8 +66,22 @@ the working set.
 
 ## Summary
 
+
+The note explains **cache coherence**—how multiple caches keep a consistent view of shared data—and why it’s critical in both hardware and distributed systems.
+
+It first illustrates the problem using **multi-core CPUs**, where each core has its own cache. When multiple caches store the same data, writes by one core can leave other caches with **stale values** unless a coordination mechanism exists. CPUs solve this using **cache coherence protocols**, most notably **MESI**, which tracks cache lines through four states:
+
+* **Modified** (changed and owned by one cache),
+* **Exclusive** (owned by one cache, unchanged),
+* **Shared** (unchanged and present in multiple caches), and
+* **Invalid** (not usable).
+
+The note then shifts to **cache hit ratio**, a key metric for evaluating cache effectiveness. It’s defined as the proportion of cache accesses served directly from the cache versus total accesses. A higher hit ratio means better performance, since fewer requests hit slower primary storage.
+
+Finally, it introduces the idea of the **working set**—the subset of data that is frequently accessed during a given period. Because caches are smaller than total datasets, maximizing performance depends on ensuring the working set fits in the cache. Real-world examples include popular products in e-commerce or viral posts on social media, which dominate access patterns despite much larger overall datasets.
+
+
 ## References
 
 1. <a href="https://en.wikipedia.org/wiki/Cache_coherence">Cache coherence</a>
-
-1. Pekka Enberg, _Latency Reduce delay in software systems_ Manning Publications
+2. Pekka Enberg, _Latency Reduce delay in software systems_ Manning Publications
