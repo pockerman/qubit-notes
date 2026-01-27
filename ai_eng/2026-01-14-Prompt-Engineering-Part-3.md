@@ -47,6 +47,8 @@ For reliable outputs, use temperature=0.3 with top_p=0.8. For creative but contr
 
 ----
 
+There is also a top-k m paramter that restricts sampling to the top k most probable tokens. However, top-p is more adaptive than top-k.
+
 
 #### Output tokens
 
