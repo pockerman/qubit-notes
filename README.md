@@ -20,6 +20,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
+- <a href="software_engineering/2026-01-28-Failure-Causes.md">qubit-note: Distributed Systems Series | Resiliency Part 1 | Failure Causes</a>
 - <a href="software_engineering/2026-01-26-Cache-Replacement.md">qubit-note: Distributed Systems Series | Caching Part 3 | Cache Replacement</a>
 - <a href="software_engineering/2026-01-21-cache-coherency.md">qubit-note: Distributed Systems Series | Caching Part 2 | Cache Coherence</a>
 - <a href="software_engineering/2026-01-20-Caching.md">qubit-note: Distributed Systems Series | Caching Part 1 |  Caching Methods</a>
