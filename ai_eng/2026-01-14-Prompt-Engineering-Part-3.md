@@ -47,6 +47,11 @@ For reliable outputs, use temperature=0.3 with top_p=0.8. For creative but contr
 
 ----
 
+There is also a top-k m paramter that restricts sampling to the top k most probable tokens. However, top-p is more adaptive than top-k.
+Let me alsom mention the <a href="https://arxiv.org/abs/2407.01082">min-p sampling</a>. This is similar to top-p sampling, but instead
+of keeping a fixed cumulative probability mass (say, 90%), it dynamically adjusts based on the model’s confidence.
+It looks at the probability of the most likely token and only keeps tokens that are at least a certain fraction, e.g. 5%, as likely.
+
 
 #### Output tokens
 

@@ -57,7 +57,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## AI engineering
 
-- <a href="ai_eng/2026-01-12-Prompt-Engineering-Part-3.md">qubit-note: LLM Series | Prompt Engineering Part 3</a>
+- <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: LLM Series | Prompt Engineering Part 3</a>
 - <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
 - <a href="how_to/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
 - <a href="how_to/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
