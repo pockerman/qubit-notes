@@ -1,10 +1,12 @@
-# qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 2
+# qubit-note: Parallel Computing Series | OpenMP Part 2 | Synchronization Constructs
 
 ## Overview
 
 <a href="2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 1</a> introduced OpenMP as
 a mutlti-threading programing paradigm. In this note we will discusss some synchronization primitives available.
 
+
+**keywords** openmp, synchronization, c++, programing 
 
 ## OpenMP Multi-threading Part 2
 
@@ -191,3 +193,5 @@ Overall, the note clarifies that these constructs serve different purposes:
 
 
 ## References
+
+1. Robert Robey, Yulian Zamora, _Parallel and High Perfromance Computing_, Manning Publications.

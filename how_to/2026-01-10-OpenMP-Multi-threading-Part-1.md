@@ -1,4 +1,4 @@
-# qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 1
+# qubit-note: Parallel Computing Series | OpenMP  Part 1 | Introduction
 
 ## Overview
 
@@ -108,3 +108,4 @@ This qubit-note introduces OpenMP as a widely supported standard for shared-memo
 ## References
 
 1. <a href="https://www.openmp.org/">OpenMP</a>
+2. Robert Robey, Yulian Zamora, _Parallel and High Perfromance Computing_, Manning Publications.
