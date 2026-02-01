@@ -260,7 +260,7 @@ OpenMP guarantees:
 
 🚫 If iterations depend on each other → **data race / wrong result**
 
----
+
 
 ## What OpenMP does *not* do
 
@@ -271,27 +271,6 @@ OpenMP guarantees:
 You promise the loop is safe — OpenMP just schedules it.
 
 ---
-
-## Mental model (very important)
-
-Think of `omp for` as:
-
-> “Take this loop, slice it up, hand slices to threads, then optionally wait.”
-
-That’s it. Simple. Powerful.
-
----
-
-If you want next, I can:
-
-* show a timeline diagram for `static` vs `dynamic`
-* explain false sharing & cache effects
-* or walk through what happens in the OpenMP runtime internally
-
-Just point the direction 👇
-
-
-
 
 In order to ```omp for``` to work, our progam has to respect certain rules [1]:
 
