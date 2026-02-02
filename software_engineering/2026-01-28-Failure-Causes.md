@@ -23,12 +23,44 @@ The most glaring example is perhaps an application that cannot connect to its ba
 Obviously, SPFs should be detected when architecturing the system. Sometimes identifying SPFs is easy. However, the best way to identify a node
 whether is an SPF or not is to what would happen to the system if the node were to fail [1].
 
-#### Networke paritioning
+#### Network paritioning
+
+The network that a distributed system operates on can be unreliable in many aspects. For example packets may be dropped or the network may simply be slow.
+When a client sends a request to a server it expects that a response will be returned. This however need not be the case. The client though has no way of
+knowing whether the response is on its way or not. At this point a client has two options either wait or fail the request [1].
+There are several reasons why the client hasn't received a response [1]:
+
+- The request has been dropped by a proxy or router or network switch
+- The server is slow or crashed
+- The server's response has been dropped by a proxy or router or network switch
+
+#### Slow processes
+
+A process running on a server many times can slow down. From a client's perspective a slow process is the same as an one that isn't running at all.
+Typically, a process is slowing down because of resource leaks with memory leaks is probably the most well known. Other issues may be
+a thread that is making HTTP requests without setting  a timeout. If the call never returns then the thread will never be returend to the thread pool [1].
 
 
+#### Load spikes
+
+Typically a system is designed having a certain load pattern in mind. However often this assumption fails in practice for a variety of reasons [1]:
+
+- The requests may exhibit some sort of seasonality
+- Some requests might be more expensive than others
+- Some requests are malicious intended to abuse the system e.g. DDoS attacks
 
 
 ## Summary
+
+This note introduces common causes of failure in distributed systems as a foundation for building resilient architectures. It focuses on four major failure categories.
+
+- Single points of failure (SPFs)
+- Network partitioning
+- Slow processes
+- Load spikes
+
+Overall, understanding these failure modes is a prerequisite to designing resilient distributed systems.
+
 
 ## References
 
