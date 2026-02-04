@@ -2,8 +2,8 @@
 
 ## Overview
 
-In this part of the series we want to discuss how to make a distributed system more resilient to failure. To this end
-we need to know the most common causes of failure we can encounter in a distributed system. In this qubit-note, we will discuss the following
+In this part of the series we want to discuss how to make a distributed system more resilient to failure. 
+To this end we need to know the most common causes of failure we can encounter in a distributed system. In this qubit-note, we will discuss the following
 
 - Single point of failure
 - Network paritioning
@@ -13,6 +13,10 @@ we need to know the most common causes of failure we can encounter in a distribu
 **keywords** software-architecture, system-design, distributed-systems, failure-causes, system-resilience
 
 ## Failure causes
+
+Systems can fail so informally, we can say that a failure is a potential state that that the systen can transition to albeit unwanted.
+Typicallly, on a failure the system will transition from a good state to a bad state
+Failure tolerance is the ability of a system to behave in a well-defined manner when the system is in a bad state [2].
 
 #### Single point of failure
 
@@ -60,9 +64,12 @@ This note introduces common causes of failure in distributed systems as a founda
 - Load spikes
 
 Overall, understanding these failure modes is a prerequisite to designing resilient distributed systems.
+In the next part we will look into specific mechanisms that help a system to have failure tolerance.
+We will follow [1] and split these mechanisms into downstream and upstream approaches.
 
 
 ## References
 
 1. Robert Vitillo, _Understanding Distributed Systems What every developer should know about large distributed applications_
+2. Dominik Tornow, _Think Distributed Systems_, Manning Publications
 

@@ -1,4 +1,4 @@
-# qubit-note: Circuit Breaker Pattern
+# qubit-note: qubit-note: Architecture Series | Circuit Breaker Pattern
 
 ## Overview
 
@@ -67,6 +67,22 @@ However, rate limiters simply block the traffic to a service if the number of re
 within a specified time interval. On the other hand, the circuit breaker tries to isolate the failure to one component
 Overall, a circuit breaker is in general _smarter_ than a rate limiter.
 However, this comes with the price of increased complexity.
+
+## Summary
+
+The note explains the circuit breaker pattern, a software architecture pattern used to build resilient distributed systems. Its goal is to prevent repeated calls to a failing service, which can waste resources and trigger cascading failures.
+
+In modern systems, service calls often fail. While retries help with transient issues, they can worsen situations when failures persist, especially under high concurrency. Timeouts alone aren’t enough, because blocked requests can still consume resources like threads, memory, and database connections.
+
+The circuit breaker pattern addresses this by failing fast when a service is likely to fail and only allowing calls when recovery is probable. It’s typically implemented as a state machine that tracks recent failures using configurable thresholds.
+
+The pattern has three states:
+
+- Closed: Normal operation. Failures are counted, and if they exceed a threshold within a time window, the breaker opens.
+- Open: Calls fail immediately without contacting the service. After a timeout, the breaker moves to half-open.
+- Half-open: A limited number of test requests are allowed. If they succeed, the breaker closes; if any fail, it reopens.
+
+Finally, the note contrasts circuit breakers with ate limiters. While both restrict calls, rate limiters are based purely on request volume, whereas circuit breakers are failure-aware and isolate faulty components. Circuit breakers are more intelligent but also more complex to implement.
 
 
 ## References
