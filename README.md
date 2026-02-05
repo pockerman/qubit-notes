@@ -59,13 +59,13 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 ## AI engineering
 
 - <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: LLM Series | Prompt Engineering Part 3</a>
-- <a href="how_to/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
-- <a href="how_to/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
-- <a href="how_to/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
-- <a href="how_to/2025-12-22-build-local-mcp-server-4.md">qubit-note: AI Series | Build an MCP Server Part 4</a>
-- <a href="how_to/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
-- <a href="how_to/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
-- <a href="how_to/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
+- <a href="ai_eng/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
+- <a href="ai_eng/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
+- <a href="ai_eng/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
+- <a href="ai_eng/2025-12-22-build-local-mcp-server-4.md">qubit-note: AI Series | Build an MCP Server Part 4</a>
+- <a href="ai_eng/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
+- <a href="ai_eng/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
+- <a href="ai_eng/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
 - <a href="ml/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a>
 - <a href="ai_eng/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: LLM Series | Prompt Engineering Part 2</a>
 - <a href="ml/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
