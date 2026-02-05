@@ -105,7 +105,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
-- <a href="how_to/2026-01-29-OpenMP-Multi-threading-Part-3.md">qubit-note: Parallel Computing Series | OpenMP Part 3 | Work Sharing</a>
+- <a href="how_to/2026-02-05-OpenMP-Multi-threading-Part-4.md">qubit-note: Parallel Computing Series | OpenMP Part 4 | Reduction Operations</a>
+- <a href="how_to/2026-01-29-OpenMP-Multi-threading-Part-3.md">qubit-note: Parallel Computing Series | OpenMP Part 3 | Parallelization of for Constructs</a>
 - <a href="how_to/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel Computing Series | OpenMP  Part 2 | Synchronization Constructs</a>
 - <a href="how_to/2026-01-11-go-principal-tools.md">qubit-note: Go Progamming Series | Go Principal Tools</a>
 - <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel Computing Series | OpenMP Part 1</a>

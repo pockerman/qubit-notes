@@ -1,4 +1,4 @@
-# qubit-note: Parallel Computing Series | OpenMP Part 3 | Work Sharing
+# qubit-note: Parallel Computing Series | OpenMP Part 3 | Parallelization of for Constructs
 
 ## Overview
 
