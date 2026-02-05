@@ -57,220 +57,27 @@ int main() {
 
 ```
 
-The program use two of the constructs we saw in - <a href="how_to/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 2</a>
+The program uses two of the constructs we saw in <a href="/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel Computing Series | OpenMP Multi-threading Part 2</a>
 namely ```omp mster``` and ```omp single```. In this section we are interested in the ```omp for``` construct. So how work sharing is achieved in OpenMP ```omp for``` construct?
 
+`#pragma omp for` achieves work sharing by dividing the iteration space into chunks and then assigns each of these  chunks to the threads in the current parallel team
+There is also an implicit barrier at the end of the construct. All of this is done by the OpenMP runtime, not us. It is no surprise therefore why OpenMP has seen
+much popularity when it comes to optimizing performance for applications dominated by for loops. There are various policies how to assign iterations to threads:
 
+**static**
+This is the default policy. Iterations are divided contiguously and as evenly as possible. Iterations are assumed independent and therefore each thread can execute
+independent of the others. Notice that the loop index is private and unque per thread.
 
+**dynamic**
 
+Static scheduling is good when work can be evenly divided among the threads. However, this is not always the case.
+In the dynamic policy, threads request chunks on the fly. This is benetificial when dealing with uneven workloads. However, the overhead is in general higher. 
 
-## Big picture
 
-`#pragma omp for` achieves work sharing by:
+**guided**
 
-1. Taking the **iteration space** of a loop
-2. **Dividing it into chunks**
-3. **Assigning chunks to threads** in the current parallel team
-4. Enforcing **optional synchronization** at the end
+A balance between the dynamic and static policies is the guided policy. in this policy the large chunks will go first followed by the  smaller 
 
-All of this is done **by the OpenMP runtime**, not by you.
-
----
-
-## Step-by-step: what happens at runtime
-
-Given:
-
-```cpp
-#pragma omp parallel
-{
-    #pragma omp for
-    for (int i = 0; i < 16; i++) {
-        work(i);
-    }
-}
-```
-
-Assume **4 threads**.
-
----
-
-### 1. Create the iteration space
-
-OpenMP first defines the loop bounds:
-
-```
-i = 0 … 15
-```
-
-That’s **16 independent iterations**.
-
----
-
-### 2. Choose a scheduling policy
-
-If you don’t specify one:
-
-```cpp
-#pragma omp for
-```
-
-OpenMP uses:
-
-```
-schedule(static)
-```
-
-by default (unless overridden by `OMP_SCHEDULE`).
-
----
-
-### 3. Partition iterations into chunks
-
-For `schedule(static)`:
-
-* Iterations are divided **contiguously**
-* As evenly as possible
-
-With 16 iterations, 4 threads:
-
-```
-Thread 0 → i = 0–3
-Thread 1 → i = 4–7
-Thread 2 → i = 8–11
-Thread 3 → i = 12–15
-```
-
-Each thread knows *exactly* which iterations it owns.
-
----
-
-### 4. Execute independently
-
-Each thread runs:
-
-```cpp
-for (int i = my_start; i <= my_end; i++) {
-    work(i);
-}
-```
-
-No locks, no atomics — because iterations are assumed independent.
-
-The loop index `i` is:
-
-* **private**
-* **unique per thread**
-
----
-
-### 5. Synchronize (barrier)
-
-At the end of the `omp for`:
-
-* All threads **wait** at an implicit barrier
-* Ensures all iterations are complete before moving on
-
-Unless you say:
-
-```cpp
-#pragma omp for nowait
-```
-
----
-
-## Other scheduling strategies (how work is divided)
-
-### `static` (default)
-
-```cpp
-#pragma omp for schedule(static)
-```
-
-* Divide once, at start
-* Lowest overhead
-* Best for uniform workloads
-
----
-
-### `static, chunk`
-
-```cpp
-#pragma omp for schedule(static, 2)
-```
-
-Chunks of size 2:
-
-```
-Thread 0 → 0–1, 8–9
-Thread 1 → 2–3, 10–11
-Thread 2 → 4–5, 12–13
-Thread 3 → 6–7, 14–15
-```
-
-(Cyclic distribution)
-
----
-
-### `dynamic`
-
-```cpp
-#pragma omp for schedule(dynamic, 2)
-```
-
-* Threads request chunks **on the fly**
-* Good for uneven workloads
-* Higher overhead
-
----
-
-### `guided`
-
-```cpp
-#pragma omp for schedule(guided)
-```
-
-* Large chunks first, smaller later
-* Balance between static and dynamic
-
----
-
-### `runtime`
-
-```cpp
-#pragma omp for schedule(runtime)
-```
-
-Defers decision to:
-
-```
-OMP_SCHEDULE=dynamic,4
-```
-
----
-
-## Why this works safely
-
-OpenMP guarantees:
-
-* Each iteration is executed **exactly once**
-* No two threads get the same iteration
-* Loop index is private
-* Memory consistency at the barrier
-
-🚫 If iterations depend on each other → **data race / wrong result**
-
-
-
-## What OpenMP does *not* do
-
-* It does **not** reorder iterations semantically
-* It does **not** insert locks automatically
-* It does **not** fix dependency bugs
-
-You promise the loop is safe — OpenMP just schedules it.
-
----
 
 In order to ```omp for``` to work, our progam has to respect certain rules [1]:
 
@@ -282,6 +89,25 @@ In order to ```omp for``` to work, our progam has to respect certain rules [1]:
 
 
 ## Summary
+
+
+This note introduces how to parallelize `for` loops using OpenMP, which is especially useful for scientific computing workloads like FEM matrix assembly where loops dominate runtime. When memory fits on a single node and computation is loop-heavy, OpenMP’s `parallel for` construct offers an easy performance boost.
+
+The core idea of `#pragma omp for` is work sharing: the OpenMP runtime splits the loop iteration space into chunks and assigns them to threads automatically. An implicit barrier at the end ensures all threads finish before continuing.
+
+The note also explains loop scheduling policies:
+
+- static (default): iterations are evenly and contiguously divided among threads; low overhead, best for balanced workloads
+- dynamic: threads request work chunks at runtime; useful for uneven workloads but with higher overhead
+- guided: a hybrid approach where large chunks are assigned first, then smaller ones to improve load balance
+
+Finally, it lists the requirements for using `omp for`:
+
+- The loop index must be an integer and private to each thread
+- The loop must have a standard, countable structure
+- The loop index must not be modified inside the loop
+- There must be no loop-carried dependencies
+
 
 ## References
 
