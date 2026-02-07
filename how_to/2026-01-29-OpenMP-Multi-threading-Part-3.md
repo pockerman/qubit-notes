@@ -6,7 +6,7 @@ In this qubit-note we will look into how to parallelize for loops using OpenMP. 
 frequently in sceintific applications e.g. when assembling the matric contributions in an FEM simulation.
 OpenMP provides a very easy way to parallelize such loops
 
-**keywords** openmp, synchronization, c++, programing
+**keywords** openmp, parallel-for, c++, programing
 
 ## OpenMP Multi-threading Part 3
 
@@ -100,13 +100,6 @@ The note also explains loop scheduling policies:
 - static (default): iterations are evenly and contiguously divided among threads; low overhead, best for balanced workloads
 - dynamic: threads request work chunks at runtime; useful for uneven workloads but with higher overhead
 - guided: a hybrid approach where large chunks are assigned first, then smaller ones to improve load balance
-
-Finally, it lists the requirements for using `omp for`:
-
-- The loop index must be an integer and private to each thread
-- The loop must have a standard, countable structure
-- The loop index must not be modified inside the loop
-- There must be no loop-carried dependencies
 
 
 ## References
