@@ -101,6 +101,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Electronics
 
+- <a href="electronics/2026-02-08-Resistors.md">qubit-note: Resistors</a>
 - <a href="electronics/2026-01-25-Electronic-Circuits-101.md">qubit-note: Electronic Circuits 101</a>
 
 ## How to
