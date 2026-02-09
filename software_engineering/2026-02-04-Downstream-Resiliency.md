@@ -68,6 +68,9 @@ It introduces three core resiliency mechanisms:
 - Circuit breakers: When failures are persistent rather than transient, retries are ineffective. A circuit breaker detects repeated failures and temporarily blocks requests to the failing service, allowing the system to degrade gracefully and recover without wasting resources.
 
 
+In the next part: <a href="2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems Series | Resiliency Part 3 | Upstream Resiliency</a> we will see how to handle
+external requests that somehow push our system to its limits. 
+
 ## References
 
 1. Robert Vitillo, _Understanding Distributed Systems What every developer should know about large distributed applications_
