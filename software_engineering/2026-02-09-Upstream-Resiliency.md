@@ -36,6 +36,20 @@ When the clients of our service do not expect a response within a short time fra
 The idea behind load leveling is to introduce a messaging channel between the client and the service. The client pushes messages
 to the messaging channel instead of to the server directly. The server pulls the messages at its own pace [1].
 
+#### Rate limiting
+ With rate limiting or throttling the server will reject a request when a specific quota is exceeded [1].
+ Quotas are typically applied to specific users, API keys or IP addresses [1]. When a request is rate-limited we need to return
+ a response with a speciific error code.  When working with HTTP APIs, the most common way to do this is to return a response with statuc code 429.
+ The response can also include a Retry-After header that indicates how long to wait before making a new request [1].
+
+ Other uses of rate limiting include enforcing price tiers and to some extent help with DDoS[1].
+
+ #### Bulkhead
+
+
+ #### Health check
+
+
 ## Summary
 
 Both load leveling and load shedding don't address an increase in load directly. Instead they attempt to protect the service from getting overloaded.

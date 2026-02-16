@@ -59,6 +59,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## AI engineering
 
+- <a href="ai_eng/2026-02-10-Prompt-Engineering-Part-4.md">qubit-note: LLM Series | Prompt Engineering Part 4</a>
 - <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: LLM Series | Prompt Engineering Part 3</a>
 - <a href="ai_eng/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
 - <a href="ai_eng/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
@@ -78,7 +79,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2025-08-21-indexing-for-rag.md">qubit-note: LLM Series | Indexing for RAG</a>
 - <a href="ml/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: LLM Series | Tactics to Increase LLM Reliability</a>
 - <a href="ml/2025-05-03-retrieval-augmented-generation.md">qubit-note: LLM Series | Retrieval Augmented Generation (RAG)</a>
-- <a href="ml/2025-04-29-prompt-methods.md">qubit-note: LLM Series | Prompt Engineering Part 1</a>
+- <a href="ai_eng/2025-04-29-Prompt-Engineering-Part-1.md">qubit-note: LLM Series | Prompt Engineering Part 1</a>
 - <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: AI Series | Model Context Protocol</a>
 
 ## Reinforcement learning
