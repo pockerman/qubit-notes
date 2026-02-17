@@ -37,6 +37,7 @@ The idea behind load leveling is to introduce a messaging channel between the cl
 to the messaging channel instead of to the server directly. The server pulls the messages at its own pace [1].
 
 #### Rate limiting
+
  With rate limiting or throttling the server will reject a request when a specific quota is exceeded [1].
  Quotas are typically applied to specific users, API keys or IP addresses [1]. When a request is rate-limited we need to return
  a response with a speciific error code.  When working with HTTP APIs, the most common way to do this is to return a response with statuc code 429.
@@ -46,8 +47,20 @@ to the messaging channel instead of to the server directly. The server pulls the
 
  #### Bulkhead
 
+ The bulkhead pattern, named after the partitions of a ship's hull, is to isolate a fault in one part of a service from degrading the entrire service [1].
+ Some clients create a lot more load one a service than others. This means that if there is no mechanism to isolate this client, it can degrade the whole
+ system. We have seen that rate-limiting as an approach to prevent a single client from using more resources than it should. Howver, this is not bulletproof.
+
+ The bulkhead pattern partitions a shared resource behind a load balancer and assigns each user of the service  to a specific partition.
+ This means that the requests of the greedy user can only utilize the resources in the partition he has been assigned to. Unavoidably, the greedy user
+ will negatively affect the other users in the same partition however the pattern does not allow any furthre mitigation of the entire system.
+
 
  #### Health check
+
+ A health check allows us to query a service is overloaded or not. That is it gives us the potentially to stop the traffic to a service that is
+ operating at its limit. This is in contrast to the patterns we have seen above. The service exposes a health endpoint that is periodically queried by the
+ load balancer. If the enpoint returns an error the load balancer will consider the service unhealthy and won't propagate traffic into it [1].
 
 
 ## Summary
