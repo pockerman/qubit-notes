@@ -14,7 +14,7 @@ The material in this note is mainly taken from the book <a href="https://www.man
 If you want to learn more about prompting techniques, apart from the aforementioned book, you can also
 visit <a href="https://www.promptingguide.ai/">Prompt Engineering Guide</a>.
 
-**keywords:** Large-language-models, Prompt-engineering, AI-engineering, Machine-learning
+**keywords:** large-language-models, prompt-engineering, AI-engineering, machine-learning
 
 ## Prompt Engineering
 
