@@ -9,7 +9,7 @@ In a nutshell, the variable scope determines whether a variable is:
 - Shared: One memory location, visible to all threads
 - Private: Each thread has its own copy
 
-
+**keywords** openmp, variable-scope, c++, programing
 
 ## Variable scope
 
