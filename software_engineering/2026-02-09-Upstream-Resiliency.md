@@ -36,6 +36,9 @@ When the clients of our service do not expect a response within a short time fra
 The idea behind load leveling is to introduce a messaging channel between the client and the service. The client pushes messages
 to the messaging channel instead of to the server directly. The server pulls the messages at its own pace [1].
 
+Both load leveling and load shedding don't address an increase in load directly. Instead they attempt to protect the service from getting overloaded.
+In order for a service to be able to handle more request, it has to be scaled out [1]. Therefore, these mechanisms are typically combined with autoscaling [1].
+
 #### Rate limiting
 
  With rate limiting or throttling the server will reject a request when a specific quota is exceeded [1].
@@ -63,10 +66,19 @@ to the messaging channel instead of to the server directly. The server pulls the
  load balancer. If the enpoint returns an error the load balancer will consider the service unhealthy and won't propagate traffic into it [1].
 
 
+ #### Watchdog
+
+ A watchdog is implemented as a background thread that monitors the runnning process. It wakes up periodically and checks various aspects of the
+ running process like memory consumption. When the metric is identified to exceed a configured threshold, the watchdog will restart the running
+ process [1]. This approach allows the system to gain some room before failing and gives time to the engineering team to identify the bug.
+ Obviously, a watchdog has to be tested thoroughly otherwise we may end restarting the process continuous.ly
+
+
 ## Summary
 
-Both load leveling and load shedding don't address an increase in load directly. Instead they attempt to protect the service from getting overloaded.
-In order for a service to be able to handle more request, it has to be scaled out [1]. Therefore, these mechanisms are typically combined with autoscaling [1].
+
+This note discusses upstream resiliency, focusing on how to handle failures that originate within our own system—especially overload scenarios. It presents several complementary patterns: load shedding (rejecting requests with 503 when overloaded), load leveling (using a message queue so the server can process requests at its own pace), rate limiting (enforcing per-client quotas with 429 responses), bulkheads (partitioning resources to isolate noisy or greedy clients), health checks (allowing load balancers to stop sending traffic to unhealthy instances), and watchdogs (monitoring processes and restarting them when critical thresholds are exceeded). Together, these techniques protect system stability by rejecting excess load, smoothing traffic, isolating failures, and enabling detection and recovery.
+
 
 ## References
 
