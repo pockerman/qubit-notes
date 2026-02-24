@@ -1,4 +1,4 @@
-# qubit-note: Domain Name System
+# qubit-note: Distributed Systems Series | Domain Name System
 
 ## Overview
 
