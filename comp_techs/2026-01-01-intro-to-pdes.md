@@ -6,7 +6,7 @@ In this series of notes I will be discussing partial differential equations (PDE
 to solve a partial differential equation. 
 
 
-**keywords** Partial-differential-equations, PDE, Mathematical-physics
+**keywords** partial-differential-equations, PDE, mathematical-physics
 
 ## Intro to PDEs
 
