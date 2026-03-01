@@ -8,7 +8,7 @@ In this qubit note we will look into the topic of cross compilation C++ programs
 we will build a simple hello program using the ```g++-aarch64-linux-gnu``` toolchain. We will then upload and execute
 the binary on a Raspberry Pi 5 board. This is a board having a 64-bit quad-core Cortex-A76 processor.
 
-**keywords** Cross-compilation, C++, Raspberry Pi, ARM
+**keywords** cross-compilation, c++, raspberry-pi, ARM
 
 ## Cross Compiling C++ on Linux
 
