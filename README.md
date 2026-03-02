@@ -49,7 +49,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture Series | Backend-for-frontend Pattern</a>
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Distributed Systems Series |  Load Balancing</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture Series | Managing Distributed Workflows</a>
-- <a href="software_engineering/2025-04-18-domain-name-system.md">qubit-note: Distributed Systems Series |  Domain Name System</a>
+- <a href="dist_systems/2025-04-18-domain-name-system.md">qubit-note: Distributed Systems Series |  Domain Name System</a>
 
 ## Embedded system engineering
 
