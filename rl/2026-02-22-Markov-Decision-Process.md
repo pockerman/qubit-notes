@@ -104,7 +104,7 @@ MDPs pose a classical framework or formalism for sequential decision making. In 
 
 Note that both quantities are state dependent. A value function in RL defines the expected cumulative reward of the agent starting from a particular state or state-action pair, following a certain policy. And, as stated above, there are two types of value functions: state-value function $V(s)$ and action-value function $Q(s,\alpha)$. 
 
-Since we are dealing with finite MDPs, $\mathbb{S}$, $\mathbb{A}$ and $\mathbb{R}$ are finite. One question is that how the agent transitions from one state to another. Clearly this depends on the action selected but how does it choose that action?
+Since we are dealing with finite MDPs, $\mathbb{S}$, $\mathbb{A}$ and $\mathbb{R}$ are finite. One question is how the agent transitions from one state to another. Clearly this depends on the action selected but how does it choose that action?
 Let's assume that $R_t$ and $S_t$ are <a href="https://en.wikipedia.org/wiki/Random_variable">random variables</a> that have well defined <a href="https://en.wikipedia.org/wiki/Probability_distribution">discrete probability distribution</a> that depends only on the previous state and action. Hence, for  given values of state and reward say $s_t$ and $r_t$ respectively, the function $p(s_t, r_t | s_{t-1}, \alpha_{t-1})$
 defines the so-called dynamics of the MDP [1]. The dynamics function isa mapping from $\mathbb{S}\times \mathbb{R} \times \mathbb{S} \times \mathbb{A}$ to the interval $[0,1]$. It specifies a probability distribution for each choice of $s$ and $\alpha$ [1]. Hence
 
