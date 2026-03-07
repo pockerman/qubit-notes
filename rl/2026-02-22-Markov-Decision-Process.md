@@ -100,7 +100,7 @@ cases we try to stay as close to it as possible.
 MDPs pose a classical framework or formalism for sequential decision making. In this framework the actions that the decision maker performs, influence both the subsequent rewards as well as the futures  states and thus the future rewards to be received [1]. When dealing with MDPs in the reinforcement learning framework we estimate in one way or another, either of the following two functions:
 
 - $Q(s, \alpha)$ for each action $\alpha$ and state $s$. This is called the state-action value function see e.g Q-learning.
-- $V(s)$ for each state $s$ given that we have optimal action selections. This caled the state value function, see e.g. [value iteration @sec-value-iteration]
+- $V(s)$ for each state $s$ given that we have optimal action selections. This caled the state value function, see e.g. value iteration.
 
 Note that both quantities are state dependent. A value function in RL defines the expected cumulative reward of the agent starting from a particular state or state-action pair, following a certain policy. And, as stated above, there are two types of value functions: state-value function $V(s)$ and action-value function $Q(s,\alpha)$. 
 
