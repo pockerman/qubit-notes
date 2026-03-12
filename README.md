@@ -112,13 +112,14 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
-- <a href="how_to/2026-03-05-OpenMP-Multi-threading-Part-8.md">qubit-note: Parallel Computing Series | OpenMP Part 8 | Example 2 Compute Mean Usin smid</a>
+- <a href="how_to/2026-03-12-OpenMP-Multi-threading-Part-9.md">qubit-note: Parallel Computing Series | OpenMP Part 9 | Task Parallelism with OpenMP 1</a>
+- <a href="how_to/2026-03-05-OpenMP-Multi-threading-Part-8.md">qubit-note: Parallel Computing Series | OpenMP Part 8 | Example 2 Compute Mean Using smid</a>
 - <a href="how_to/2026-02-26-OpenMP-Multi-threading-Part-7.md">qubit-note: Parallel Computing Series | OpenMP Part 7 | Example 1 Compute Mean & Variance</a>
 - <a href="how_to/2026-02-20-OpenMP-Multi-threading-Part-6.md">qubit-note: Parallel Computing Series | OpenMP Part 6 | Function-level Parallelization</a>
 - <a href="how_to/2026-02-19-OpenMP-Multi-threading-Part-5.md">qubit-note: Parallel Computing Series | OpenMP Part 5 | Variable Scope</a>
 - <a href="how_to/2026-02-05-OpenMP-Multi-threading-Part-4.md">qubit-note: Parallel Computing Series | OpenMP Part 4 | Reduction Operations</a>
 - <a href="how_to/2026-01-29-OpenMP-Multi-threading-Part-3.md">qubit-note: Parallel Computing Series | OpenMP Part 3 | Parallelization of for Constructs</a>
-- <a href="how_to/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel Computing Series | OpenMP  Part 2 | Synchronization Constructs</a>
+- <a href="how_to/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel Computing Series | OpenMP Part 2 | Synchronization Constructs</a>
 - <a href="how_to/2026-01-11-go-principal-tools.md">qubit-note: Go Progamming Series | Go Principal Tools</a>
 - <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel Computing Series | OpenMP Part 1</a>
 - <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
