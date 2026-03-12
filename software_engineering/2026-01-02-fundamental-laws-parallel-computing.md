@@ -31,7 +31,16 @@ where $T_s$ is the time taken by the same parallel machine executing (on one pro
 $$1 \leq S_p \leq p$$
 
 
-Theoretically, therefore, the best we can hope is for linear speedup; i.e. $S_p = p$. Speedup is a global measure
+Theoretically, therefore, the best we can hope is for linear speedup; i.e. $S_p = p$. 
+
+----
+**Remark: Super-linear Speedup**
+Super-linear speedup is performance that's better than the ideal scaling curve fro strong scaling. This may happen because the data can
+fit into a higher level cache resulting in better cache performance [1].
+
+----
+
+Speedup is a global measure
 of the quatlity of a parallel algorithm. Note that this definition assumes that the problem size is fixed and
 only the number of processors increases. However, this may not necessarily be true; as the number of processors increases
 we want to solve larger problems.
