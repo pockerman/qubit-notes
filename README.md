@@ -19,7 +19,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="comp_techs/2025-05-11-monte-carlo-integration.md">qubit-note: The Maths Project Series | Monte Carlo Integration</a>
 - <a href="comp_techs/2025-05-10-thompson-sampling.md">qubit-note: The Maths Project Series | Thompson Sampling</a>
 
-## Software engineering
+## Distributed Systems
 
 - <a href="software_engineering/2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems Series | Resiliency Part 3 | Upstream Resiliency</a>
 - <a href="software_engineering/2026-02-04-Downstream-Resiliency.md">qubit-note: Distributed Systems Series | Resiliency Part 2 | Downstream Resiliency</a>
@@ -29,27 +29,33 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2026-01-20-Caching.md">qubit-note: Distributed Systems Series | Caching Part 1 |  Caching Methods</a>
 - <a href="software_engineering/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Distributed Systems Series | Data Replication Part 6 | PACELC, CAP and CALM Theorems </a>
 - <a href="software_engineering/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems Series | Data Replication Part 5 | Broadcast Protocols</a>
-- <a href="software_engineering/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
+- <a href="dist_systems/2025-04-18-domain-name-system.md">qubit-note: Distributed Systems Series |  Domain Name System</a>
 - <a href="software_engineering/2025-12-31-consensus.md">qubit-note: Distributed Systems Series | Data Replication Part 4 | Consensus</a>
 - <a href="software_engineering/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 3 | State Machine Replication</a>
+- <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 1</a>
+- <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Distributed Systems Series | Unique ID Generation</a>
+- <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Distributed Systems Series |  Load Balancing</a>
+- <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems Series | Sharded Counters</a>
+- <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Distributed Systems Series | Partitioning | Partitioning Part 1</a> 
+- <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Distributed Systems Series | Part 1 | Introduction to Distributed Systems</a>
+
+## Software engineering
+
+
+- <a href="software_engineering/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
 - <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: Architecture Series | Scalability Patterns</a>
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
-- <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 1</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
 - <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note: Architecture Series | Some Best Practices in API Design</a>
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
-- <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Distributed Systems Series | Unique ID Generation</a>
 - <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Series | Ports and Adapters Pattern</a>
 - <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Series | Layers Pattern</a>
-- <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems Series | Sharded Counters</a>
-- <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Distributed Systems Series | Partitioning | Partitioning Part 1</a> 
 - <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Distributed Systems Series | Digital Twins</a>
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Architecture Series | Circuit Breaker Pattern</a>
 - <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Distributed Systems Series | Data Replication Part 2 | Consistency Models</a>
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture Series | Backend-for-frontend Pattern</a>
-- <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Distributed Systems Series |  Load Balancing</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture Series | Managing Distributed Workflows</a>
-- <a href="dist_systems/2025-04-18-domain-name-system.md">qubit-note: Distributed Systems Series |  Domain Name System</a>
+
 
 ## Embedded system engineering
 
