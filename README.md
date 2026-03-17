@@ -37,6 +37,9 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Distributed Systems Series |  Load Balancing</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems Series | Sharded Counters</a>
 - <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Distributed Systems Series | Partitioning | Partitioning Part 1</a> 
+- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: Distributed Systems Series | Part 4 | TCP 101</a>
+- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Distributed Systems Series | Part 3 | Inter Process Communication</a> 
+- <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Distributed Systems Series | Part 2 | Challenges in Distributed Systems</a>
 - <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Distributed Systems Series | Part 1 | Introduction to Distributed Systems</a>
 
 ## Software engineering
