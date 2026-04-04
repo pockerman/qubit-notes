@@ -37,6 +37,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note:   Load Balancing</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
+- <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Digital Twins</a>
 - <a href="software_engineering/2025-08-04-partitioning.md">quibit-note:  Partitioning | Partitioning Part 1</a> 
 - <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: Distributed Systems Series | Part 4 | TCP 101</a>
 - <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Distributed Systems Series | Part 3 | Inter Process Communication</a> 
@@ -53,7 +54,6 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
 - <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Series | Ports and Adapters Pattern</a>
 - <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Series | Layers Pattern</a>
-- <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Distributed Systems Series | Digital Twins</a>
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Architecture Series | Circuit Breaker Pattern</a>
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture Series | Backend-for-frontend Pattern</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture Series | Managing Distributed Workflows</a>
