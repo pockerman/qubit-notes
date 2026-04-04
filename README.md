@@ -21,22 +21,23 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Distributed Systems
 
-- <a href="software_engineering/2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems Series | Resiliency Part 3 | Upstream Resiliency</a>
-- <a href="software_engineering/2026-02-04-Downstream-Resiliency.md">qubit-note: Distributed Systems Series | Resiliency Part 2 | Downstream Resiliency</a>
-- <a href="software_engineering/2026-01-28-Failure-Causes.md">qubit-note: Distributed Systems Series | Resiliency Part 1 | Failure Causes</a>
-- <a href="software_engineering/2026-01-26-Cache-Replacement.md">qubit-note: Distributed Systems Series | Caching Part 3 | Cache Replacement</a>
-- <a href="software_engineering/2026-01-21-cache-coherency.md">qubit-note: Distributed Systems Series | Caching Part 2 | Cache Coherence</a>
-- <a href="software_engineering/2026-01-20-Caching.md">qubit-note: Distributed Systems Series | Caching Part 1 |  Caching Methods</a>
-- <a href="software_engineering/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Distributed Systems Series | Data Replication Part 6 | PACELC, CAP and CALM Theorems </a>
-- <a href="software_engineering/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems Series | Data Replication Part 5 | Broadcast Protocols</a>
-- <a href="dist_systems/2025-04-18-domain-name-system.md">qubit-note: Distributed Systems Series |  Domain Name System</a>
-- <a href="software_engineering/2025-12-31-consensus.md">qubit-note: Distributed Systems Series | Data Replication Part 4 | Consensus</a>
-- <a href="software_engineering/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 3 | State Machine Replication</a>
-- <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Distributed Systems Series | Data Replication Part 1</a>
-- <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Distributed Systems Series | Unique ID Generation</a>
-- <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Distributed Systems Series |  Load Balancing</a>
-- <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems Series | Sharded Counters</a>
-- <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Distributed Systems Series | Partitioning | Partitioning Part 1</a> 
+- <a href="software_engineering/2026-02-09-Upstream-Resiliency.md">qubit-note: Resiliency Part 3 | Upstream Resiliency</a>
+- <a href="software_engineering/2026-02-04-Downstream-Resiliency.md">qubit-note: Resiliency Part 2 | Downstream Resiliency</a>
+- <a href="software_engineering/2026-01-28-Failure-Causes.md">qubit-note: Resiliency Part 1 | Failure Causes</a>
+- <a href="software_engineering/2026-01-26-Cache-Replacement.md">qubit-note: Caching Part 3 | Cache Replacement</a>
+- <a href="software_engineering/2026-01-21-cache-coherency.md">qubit-note: Caching Part 2 | Cache Coherence</a>
+- <a href="software_engineering/2026-01-20-Caching.md">qubit-note: Caching Part 1 |  Caching Methods</a>
+- <a href="dist_systems/2025-04-18-domain-name-system.md">qubit-note: Domain Name System</a>
+- <a href="software_engineering/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Data Replication Part 6 | PACELC, CAP and CALM Theorems </a>
+- <a href="software_engineering/2026-01-05-broadcast-protocols.md">qubit-note: Data Replication Part 5 | Broadcast Protocols</a>
+- <a href="software_engineering/2025-12-31-consensus.md">qubit-note: Data Replication Part 4 | Consensus</a>
+- <a href="software_engineering/2025-12-30-state-machine-replication.md">qubit-note: Data Replication Part 3 | State Machine Replication</a>
+- <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Data Replication Part 2 | Consistency Models</a>
+- <a href="software_engineering/2025-04-22-data-replication.md">qubit-note: Data Replication Part 1</a>
+- <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
+- <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note:   Load Balancing</a>
+- <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
+- <a href="software_engineering/2025-08-04-partitioning.md">quibit-note:  Partitioning | Partitioning Part 1</a> 
 - <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: Distributed Systems Series | Part 4 | TCP 101</a>
 - <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Distributed Systems Series | Part 3 | Inter Process Communication</a> 
 - <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Distributed Systems Series | Part 2 | Challenges in Distributed Systems</a>
@@ -55,7 +56,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Series | Layers Pattern</a>
 - <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Distributed Systems Series | Digital Twins</a>
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Architecture Series | Circuit Breaker Pattern</a>
-- <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Distributed Systems Series | Data Replication Part 2 | Consistency Models</a>
+
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture Series | Backend-for-frontend Pattern</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture Series | Managing Distributed Workflows</a>
 
