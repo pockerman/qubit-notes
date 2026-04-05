@@ -29,11 +29,11 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2026-01-20-Caching.md">qubit-note: Caching Part 1 |  Caching Methods</a>
 - <a href="software_engineering/2026-01-06-paelc-cap-calm-theorems.md">qubit-note:  Data Replication Part 6 | PACELC, CAP and CALM Theorems </a>
 - <a href="software_engineering/2026-01-05-broadcast-protocols.md">qubit-note: Data Replication Part 5 | Broadcast Protocols</a>
-- <a href="dist_systems/2025-04-18-domain-name-system.md">qubit-note:  Domain Name System</a>
 - <a href="software_engineering/2025-12-31-consensus.md">qubit-note:  Data Replication Part 4 | Consensus</a>
 - <a href="software_engineering/2025-12-30-state-machine-replication.md">qubit-note: Data Replication Part 3 | State Machine Replication</a>
 - <a href="software_engineering/2025-04-22-data-replication.md">qubit-note:  Data Replication Part 1</a>
-- <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Distributed Systems Series | Unique ID Generation</a>
+- <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
+- <a href="dist_systems/2025-04-18-domain-name-system.md">qubit-note:  Domain Name System</a>
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Load Balancing</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
 - <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Partitioning | Partitioning Part 1</a> 
@@ -42,8 +42,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Part 2 | Challenges in Distributed Systems</a>
 - <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Part 1 | Introduction to Distributed Systems</a>
 
-## Software engineering
 
+## Software engineering
 
 - <a href="software_engineering/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
 - <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: Architecture Series | Scalability Patterns</a>
@@ -53,9 +53,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
 - <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Series | Ports and Adapters Pattern</a>
 - <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Series | Layers Pattern</a>
-- <a href="software_engineering/2025-07-28-digital-twins.md">qubit-note: Distributed Systems Series | Digital Twins</a>
 - <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Architecture Series | Circuit Breaker Pattern</a>
-- <a href="software_engineering/2025-04-28-consistency-models.md">qubit-note: Distributed Systems Series | Data Replication Part 2 | Consistency Models</a>
 - <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture Series | Backend-for-frontend Pattern</a>
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture Series | Managing Distributed Workflows</a>
 
@@ -70,8 +68,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## AI engineering
 
-- <a href="ai_eng/2026-02-10-Prompt-Engineering-Part-4.md">qubit-note: LLM Series | Prompt Engineering Part 4</a>
-- <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: LLM Series | Prompt Engineering Part 3</a>
+
 - <a href="ai_eng/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
 - <a href="ai_eng/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
 - <a href="ai_eng/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
@@ -80,18 +77,20 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ai_eng/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
 - <a href="ai_eng/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
 - <a href="ml/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a>
-- <a href="ai_eng/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: LLM Series | Prompt Engineering Part 2</a>
 - <a href="ml/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
-- <a href="ml/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: LLM Series | Document Fusion & Multi-stage Retrieval for Multi-modal RAG</a>
-- <a href="ml/2025-08-31-RAG-or-fine-tuning.md">qubit-note: LLM Series | RAG or Fine Tuning?</a>
-- <a href="ml/2025-08-28-evaluate-RAG-based-system.md">qubit-note: LLM Series | Evaluate a RAG-based System</a>
 - <a href="ml/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Series | AI Agent vs MCP</a>
 - <a href="ml/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>
-- <a href="ml/2025-08-21-indexing-for-rag.md">qubit-note: LLM Series | Indexing for RAG</a>
-- <a href="ml/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: LLM Series | Tactics to Increase LLM Reliability</a>
-- <a href="ml/2025-05-03-retrieval-augmented-generation.md">qubit-note: LLM Series | Retrieval Augmented Generation (RAG)</a>
-- <a href="ai_eng/2025-04-29-Prompt-Engineering-Part-1.md">qubit-note: LLM Series | Prompt Engineering Part 1</a>
-- <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: AI Series | Model Context Protocol</a>
+- <a href="ml/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
+- <a href="ml/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: Document Fusion & Multi-stage Retrieval for Multi-modal RAG</a>
+- <a href="ml/2025-08-31-RAG-or-fine-tuning.md">qubit-note: RAG or Fine Tuning?</a>
+- <a href="ml/2025-08-28-evaluate-RAG-based-system.md">qubit-note: Evaluate a RAG-based System</a>
+- <a href="ml/2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a>
+- <a href="ml/2025-05-03-retrieval-augmented-generation.md">qubit-note: Retrieval Augmented Generation (RAG)</a>
+- <a href="ai_eng/2026-02-10-Prompt-Engineering-Part-4.md">qubit-note: Prompt Engineering Part 4</a>
+- <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: Prompt Engineering Part 3</a>
+- <a href="ai_eng/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: Prompt Engineering Part 2</a>
+- <a href="ai_eng/2025-04-29-Prompt-Engineering-Part-1.md">qubit-note: Prompt Engineering Part 1</a>
+- <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: Model Context Protocol</a>
 
 ## Reinforcement learning
 

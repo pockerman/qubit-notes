@@ -1,4 +1,4 @@
-# qubit-note: AI Series | Model Context Protocol
+# qubit-note: Model Context Protocol (MCP)
 
 In this note, I give a high level overview of the <a href="https://www.anthropic.com/news/model-context-protocol">model context protocol</a> paradigm or MCP
 for short. Then I would like to cover the MCP architecture from a rather hight level perspective.
