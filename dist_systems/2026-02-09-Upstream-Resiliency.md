@@ -1,4 +1,4 @@
-# qubit-note: Distributed Systems Series | Resiliency Part 3 | Upstream Resiliency
+# qubit-note: Resiliency Part 3 | Upstream Resiliency
 
 ## Overview
 
