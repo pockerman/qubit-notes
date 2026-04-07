@@ -1,8 +1,8 @@
-# qubit-note: Distributed Systems Series | Resiliency Part 3 | Upstream Resiliency
+# qubit-note: Resiliency Part 3 | Upstream Resiliency
 
 ## Overview
 
-<a href="2026-02-04-Downstream-Resiliency.md">qubit-note: Distributed Systems Series | Resiliency Part 2 | Downstream Resiliency</a>
+<a href="2026-02-04-Downstream-Resiliency.md">qubit-note: Resiliency Part 2 | Downstream Resiliency</a>
 discussed various options we can employ in order to handle downstream failures i.e. failures that are caused due to a failed
 interaction with another service.
 
