@@ -37,6 +37,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Load Balancing</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
 - <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Partitioning | Partitioning Part 1</a> 
+- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note:  Part 5 | TLS 101</a>
 - <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note:  Part 4 | TCP 101</a>
 - <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Part 3 | Inter Process Communication</a> 
 - <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Part 2 | Challenges in Distributed Systems</a>
@@ -69,28 +70,30 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 ## AI engineering
 
 
-- <a href="ai_eng/2025-12-27-mcp-elicitation-1.md">qubit-note: AI Series | MCP Elicitation</a>
-- <a href="ai_eng/2025-12-26-mcp-sampling.md">qubit-note: AI Series | MCP Sampling</a>
-- <a href="ai_eng/2025-12-25-build-mcp-client-1.md">qubit-note: AI Series | Build an MCP Client</a>
-- <a href="ai_eng/2025-12-22-build-local-mcp-server-4.md">qubit-note: AI Series | Build an MCP Server Part 4</a>
-- <a href="ai_eng/2025-12-22-build-local-mcp-server-3.md">qubit-note: AI Series | Build an MCP Server Part 3</a>
-- <a href="ai_eng/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: AI Series | Build an MCP Server Part 2</a>
-- <a href="ai_eng/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: AI Series | Build an MCP Server Part 1</a>
-- <a href="ml/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a>
-- <a href="ml/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
-- <a href="ml/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Series | AI Agent vs MCP</a>
-- <a href="ml/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>
-- <a href="ml/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
-- <a href="ml/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: Document Fusion & Multi-stage Retrieval for Multi-modal RAG</a>
-- <a href="ml/2025-08-31-RAG-or-fine-tuning.md">qubit-note: RAG or Fine Tuning?</a>
-- <a href="ml/2025-08-28-evaluate-RAG-based-system.md">qubit-note: Evaluate a RAG-based System</a>
-- <a href="ml/2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a>
-- <a href="ml/2025-05-03-retrieval-augmented-generation.md">qubit-note: Retrieval Augmented Generation (RAG)</a>
+- <a href="ai_eng/2026-04-05-AI-Agents-Part-Introduction.md">qubit-note: AI Agents Part 1 | Introduction</a>
+- <a href="ai_eng/2025-12-27-mcp-elicitation-1.md">qubit-note: MCP Elicitation</a>
+- <a href="ai_eng/2025-12-26-mcp-sampling.md">qubit-note: MCP Sampling</a>
+- <a href="ai_eng/2025-12-25-build-mcp-client-1.md">qubit-note: Build an MCP Client</a>
+- <a href="ai_eng/2025-12-22-build-local-mcp-server-4.md">qubit-note: Build an MCP Server Part 4</a>
+- <a href="ai_eng/2025-12-22-build-local-mcp-server-3.md">qubit-note: Build an MCP Server Part 3</a>
+- <a href="ai_eng/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: Build an MCP Server Part 2</a>
+- <a href="ai_eng/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build an MCP Server Part 1</a>
+- <a href="ai_eng/2025-04-23-model-context-protocol.md">qubit-note: Model Context Protocol or MCP</a>
+- <a href="ai_eng/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a>
+- <a href="ai_eng/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
+- <a href="ai_eng/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Series | AI Agent vs MCP</a>
+- <a href="ai_eng/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>
+- <a href="ai_eng/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
+- <a href="ai_eng/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: Document Fusion & Multi-stage Retrieval for Multi-modal RAG</a>
+- <a href="ai_eng/2025-08-31-RAG-or-fine-tuning.md">qubit-note: RAG or Fine Tuning?</a>
+- <a href="ai_eng/2025-08-28-evaluate-RAG-based-system.md">qubit-note: Evaluate a RAG-based System</a>
+- <a href="ai_eng/2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a>
+- <a href="ai_eng/2025-05-03-retrieval-augmented-generation.md">qubit-note: Retrieval Augmented Generation (RAG)</a>
 - <a href="ai_eng/2026-02-10-Prompt-Engineering-Part-4.md">qubit-note: Prompt Engineering Part 4</a>
 - <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: Prompt Engineering Part 3</a>
 - <a href="ai_eng/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: Prompt Engineering Part 2</a>
 - <a href="ai_eng/2025-04-29-Prompt-Engineering-Part-1.md">qubit-note: Prompt Engineering Part 1</a>
-- <a href="ml/2025-04-23-model-context-protocol.md">qubit-note: Model Context Protocol</a>
+
 
 ## Reinforcement learning
 
