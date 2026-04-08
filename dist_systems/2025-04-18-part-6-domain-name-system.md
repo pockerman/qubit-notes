@@ -1,10 +1,10 @@
-# qubit-note: Distributed Systems Series | Domain Name System
+# qubit-note: Part 6 | Domain Name System
 
 ## Overview
 
-In this note, I cover some of the details of the Domain Name System or DNS for short.
+We now know how to reliably, see <a href="2026-03-17-part-4-TCP_101.md">qubit-note:  Part 4 | TCP 101</a>, and securely, see <a href="2026-04-06-Part-5-TLS-101.md">qubit-note:  Part 5 | TLS 101</a>, communicate between two processes located on different machines. Howver in order to do this we need to discover the IP address of the remote process we want to connect to.
+In order to do this we can use the <a href="https://en.wikipedia.org/wiki/Domain_Name_System">Domain name system</a> or DNS. This is distributed, hierarchical ane eventually consistent ke-value store [5].
 
-**keywords** domain-name-system, system-design, distributed-systems
 
 ## Domain name system
 
@@ -45,11 +45,15 @@ However, given the distributed nature of DNS satisfying such a requirement would
 - Slower response times
 - Bottlenecks at the authoritative servers
 
-As a distributed system, DNS uses caching in order to enhance scalability.
+As a distributed system, DNS uses <a href="2026-01-20-Caching.md">caching</a> in order to enhance scalability.
 In other words, When a resolver queries a DNS record, it stores the result for a period defined by the <a href="https://en.wikipedia.org/wiki/Time_to_live">Time to Live (TTL) value</a>.
 This tactic is in general ok as most of the time, DNS records don’t change frequently. In additiion if we do need faster propagation,
 we can lower the TTL before making changes. The downside of course of such an approach is that if a domain’s IP address changes, 
 it might take minutes or hours for the change to propagate everywhere as some resolvers still use the cached version until the TTL expires.
+
+## Summary
+
+The Domain Name System (DNS) is a distributed, hierarchical service that translates human-friendly domain names (like “google.com”) into machine-friendly IP addresses, enabling browsers to locate and connect to remote servers. While protocols like TCP and TLS handle reliable and secure communication, DNS is responsible for discovering the correct destination address. It works through a network of servers (resolvers, root, TLD, and authoritative servers), with the user’s operating system typically preconfigured with DNS resolver addresses. To ensure scalability and availability, DNS relies on caching: resolved addresses are stored temporarily based on a Time to Live (TTL) value, reducing load and speeding up responses, though this introduces eventual consistency—meaning updates to records may take time to propagate across the system.
 
 
 
@@ -59,3 +63,4 @@ it might take minutes or hours for the change to propagate everywhere as some re
 2. <a href="https://en.wikipedia.org/wiki/Domain_Name_System">Domain name system</a>
 3. <a href="https://en.wikipedia.org/wiki/BIND">Berkeley Internet Name Domain</a>
 4. <a href="https://en.wikipedia.org/wiki/Time_to_live">Time to Live (TTL) value</a>
+5. Robert Vitillo, _Understanding Distributed Systems What every developer should know about large distributed applications_

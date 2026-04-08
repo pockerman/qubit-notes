@@ -33,10 +33,10 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-12-30-state-machine-replication.md">qubit-note: Data Replication Part 3 | State Machine Replication</a>
 - <a href="software_engineering/2025-04-22-data-replication.md">qubit-note:  Data Replication Part 1</a>
 - <a href="software_engineering/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
-- <a href="dist_systems/2025-04-18-domain-name-system.md">qubit-note:  Domain Name System</a>
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Load Balancing</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
-- <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Partitioning | Partitioning Part 1</a> 
+- <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Partitioning | Partitioning Part 1</a>
+- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Part 6 | Domain Name System</a> 
 - <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note:  Part 5 | TLS 101</a>
 - <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note:  Part 4 | TCP 101</a>
 - <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Part 3 | Inter Process Communication</a> 
