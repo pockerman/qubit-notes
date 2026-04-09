@@ -36,10 +36,12 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-04-21-load-balancing.md">qubit-note: Load Balancing</a>
 - <a href="software_engineering/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
 - <a href="software_engineering/2025-08-04-partitioning.md">quibit-note: Partitioning | Partitioning Part 1</a>
-- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Part 6 | Domain Name System</a> 
-- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note:  Part 5 | TLS 101</a>
-- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note:  Part 4 | TCP 101</a>
-- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Part 3 | Inter Process Communication</a> 
+- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note: Part 8 | Communication | HTTP</a>
+- <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Part 7 | Communication | APIs</a>
+- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Part 6 | Communication | Domain Name System</a> 
+- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note:  Part 5 | Communication|  TLS 101</a>
+- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note:  Part 4 | Communication | TCP 101</a>
+- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Part 3 | Communication | Inter Process Communication</a> 
 - <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Part 2 | Challenges in Distributed Systems</a>
 - <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Part 1 | Introduction to Distributed Systems</a>
 
