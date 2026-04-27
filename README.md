@@ -81,7 +81,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ai_eng/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: Build an MCP Server Part 2</a>
 - <a href="ai_eng/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: Build an MCP Server Part 1</a>
 - <a href="ai_eng/2025-04-23-model-context-protocol.md">qubit-note: Model Context Protocol or MCP</a>
-- <a href="ai_eng/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1</a>
+- <a href="ai_eng/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Hallucination & How to Measure it PArt 1</a>
 - <a href="ai_eng/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
 - <a href="ai_eng/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Series | AI Agent vs MCP</a>
 - <a href="ai_eng/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>

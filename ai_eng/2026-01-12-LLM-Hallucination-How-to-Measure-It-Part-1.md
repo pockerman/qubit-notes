@@ -1,18 +1,16 @@
-# qubit-note: LLM Series | LLM Hallucination & How to Measure It PArt 1
+# qubit-note: LLM Hallucination & How to Measure it Part 1
 
 
 ## Overview 
 
 Large language models are capable of many different things and they are reshaping the way
 we conceive businesses. However, LLMs have limitations which if we don't address can break
-an application in a non-recoberable way. It is important therefore that we can monitor the
+an application in a non-recoverable way. It is important therefore that we can monitor the
 performance of an LLM model.
 
-<a href="2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: LLM Series | Tactics to Increase LLM Reliability</a>
+<a href="2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
 discussed several tactics we can employ in order to imporove the perforance of such models. These where general guidelines.
-In this series of notes we will go in more details. 
-
-We will start with one of the major problems that reduce the performance of LLMs that is model hallucination
+In this note we will go in more detail. We will start with one of the major problems that reduce the performance of LLMs that is model hallucination
 
 **keywords** Large-language-models, LLM-hallucination, LLM-reliability, AI-engineering
 
@@ -20,10 +18,10 @@ We will start with one of the major problems that reduce the performance of LLMs
 
 As language models like GPT become more advanced and more widely used, hallucinations  emerge as a major challenge. 
 Hallucinations occur whenan AI system generate content that is untrue, inconsistent, or just plain made-up. 
-This, obviously, can lead to the spread of fake information, incorrect medical diagnoses, bad financial advice, and many other potential harms that can be detrimental for a business.
+This, obviously, can lead to the spread of fake information, incorrect medical diagnosis, bad financial advice, and many other potential harms that can be detrimental for a business.
 
 There seems to be some controversy regarding the term _hallucination_ in the AI community, I won't go into this
-discussion as our perspective in this series is purely from a systems engineering perspective. Thus, in this series of notes the term
+discussion as our perspective in this note is purely from a systems engineering perspective. Thus, in this note the term
 will correspond to a class of issues around truthfulness, consistency, and coherence in language model outputs. 
 
 We can, however, distinguish betweem[1]:
@@ -43,7 +41,7 @@ Overall, there are several contributing factors to model hallucinations [1]:
 - Parametric knowledge bias
 - Imperfect representation
 
-Now that we have an understanding of what LLM halluicantions are we want to address how to identify model hallucination and how to measure it.
+Now that we have an understanding of what LLM halluicantions are, we want to address how to identify model hallucination and how to measure it.
 
 #### Identify & measure hallucinations
 
@@ -54,7 +52,7 @@ According to [1], there are four steps in this process:
 3. Extract claims and validate against the grounding data
 4. Report metrics
 
-We wiil discuss these steps and the involved metrics/evaluation approaches in comning notes.
+We wiil discuss these steps and the involved metrics/evaluation approaches in comning up notes.
 The list below briefly mentions the various metrics/evaluation approaches we can use. See also [1].
 
 - Grounding Defect Rate (GDR)
