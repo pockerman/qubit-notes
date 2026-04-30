@@ -24,6 +24,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Resiliency Part 3 | Upstream Resiliency</a>
 - <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note:  Resiliency Part 2 | Downstream Resiliency</a>
 - <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Resiliency Part 1 | Failure Causes</a>
+- <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note: Caching Part 4 | Negative Caching</a>
 - <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Caching Part 3 | Cache Replacement</a>
 - <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Caching Part 2 | Cache Coherence</a>
 - <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching Part 1 |  Caching Methods</a>
