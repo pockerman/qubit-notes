@@ -3,7 +3,7 @@
 ## Overview
 
 APIs from the connecting tissue in a distributed system and the internet.
-Designing APIs however is not easy. In this qubit note I go over some best practices regarding API design.
+Designing APIs however is not easy. In this  note we will go over some best practices regarding API design.
 This article is editted from [1].
 
 **keywords** API-design, system-design, distributed-systems
@@ -13,7 +13,7 @@ This article is editted from [1].
 
 APIs are a significant aspect of a distributed system as they allow the participating nodes to communicate with each other.
 In general, we want APIs that behave in a consisten and predictable manner, they are secure and easy to maintain and evolve.
-Desigining  APIs with such attributes is not necessarilly easy however following some best practices can be very helpful towards this goal.
+Desigining  APIs with such attributes is not necessarilly easy however following some best practices can be very helpful towards this goal [1].
 
 - Naming: Use clear and concise names when building an API. Names should convey the message of what something is and/or does. Establish conventions and stick to these
 - Pagination: Not all APIs should support pagination, but as the volume of data grows most likely you need to implement it in your APIs. So its always better to be prepared for such a scenario.
