@@ -14,6 +14,57 @@ A simple implementation can be found at: <a href="https://github.com/pockerman/m
 
 ## Document fusion & multi-stage retrieval for multi-modal RAG
 
+Embedding models map documents to vectors thus creating a semantic space where similar meanings cluster together. 
+This ia a powerful approach known as dense retrieval [4]. It has however limitations when deployed in real-world applications.
+Let's consider the  scenario whereby the user asks a question and while the answer is contained within the documnent corpus we have
+indexed, the retrieved documents do not contain it. How this can be possible? The problem lies with how dense retrieval works and there
+are three key reasons why [4]:
+
+- Semantic drift
+- Recall limitations
+- Domain gaps
+
+The bottom line is that in real-world retrieval we need more advanced techniques than simply taking the top-k nearest vectors [4].
+
+
+### Hybrid retrieval
+
+The first line of attack is to combine two complementary approaches [4]:
+
+- Dense retrievals i.e. search based on embeddings
+- Sparse retrieval i.e. search based on keywords like the <a href="https://www.geeksforgeeks.org/nlp/what-is-bm25-best-matching-25-algorithm/">Best Matching 25 Algorithm</a>
+
+---
+**Remark**
+
+BM25 is the most common sparse retrieval algorithm, but alternatives include <a href="https://www.geeksforgeeks.org/machine-learning/understanding-tf-idf-term-frequency-inverse-document-frequency/">TF-IDF</a> i.e. Term Frequency-Inverse Document Frequency and learned sparse methods like <a href="https://www.pinecone.io/learn/splade/">SPLADE</a>. 
+
+---
+
+In such a hybrid approach, the dense model recognizes the conceptual relationship between the various terms whilst the sparse retrieval
+prioritizes documents containing the exact terms [4]. Hence, a typical hybrid retrieval system will work as follows
+
+- Execute dense retrieval to find semantically related documents
+- Execute sparse search to find keyword matching documents
+- Combine both result sets and remove duplicates
+- Apply a reranking step
+
+Such an approach is used in production systems as it improves recall by ensuring the right documents are somewhere in the results set.
+
+
+### Multi-stage retrieval
+
+Hybrid redtrieval improves the recall however in a retrieval application we are also interested in precision also.
+
+---
+**Remark:**
+
+Precision measures how many of the retrieved documents are actually relevant. It answers the question: _Are the most relevant documents at the top of my results?_ [4].
+
+---
+
+
+
 The approach we will discuss in this note consists of two main components; document fusion and multi-state retrieval
 Document fusion is a technique used to combine results from different modalities or retrieval sources to improve the overall performance of a multimodal RAG system.
 Two approaches for document fusion are weighted fusion and reciprocal rank fusion, or RRF.
@@ -66,4 +117,6 @@ This qubit note introduces a hybrid approach for improving retrieval in multi-mo
 1. <a href="https://huyenchip.com/2023/10/10/multimodal.html">Multimodality and Large Multimodal Models (LMMs)</a> 
 2. <a href="https://www.assembled.com/blog/better-rag-results-with-reciprocal-rank-fusion-and-hybrid-search">Better RAG results with Reciprocal Rank Fusion and Hybrid Search</a>
 3. <a href="https://www.sbert.net/examples/cross_encoder/applications/README.html">cross-encoders</a>
+4. Rush Shahani _Building Reliable AI Systems_, Manning Publications 
+5. <a href="https://www.geeksforgeeks.org/nlp/what-is-bm25-best-matching-25-algorithm/">What is BM25 (Best Matching 25) Algorithm</a>
 

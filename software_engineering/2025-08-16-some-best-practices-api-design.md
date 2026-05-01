@@ -25,6 +25,8 @@ Desigining  APIs with such attributes is not necessarilly easy however following
 - Security: Nowadays, API security is not an option but something that we need to satisfy. Well-designed APIs are secure by design. Make sure that you use proper authentication/authorization using API Keys, JWTs, OAuth2, and other mechanisms.
 
 
+
+
 ## Summary
 
 In a nutshell, APIs are the backbone of communication in distributed systems, but designing them effectively requires attention to clarity, consistency, and robustness. Best practices include using clear naming conventions, supporting pagination and query-based sorting/filtering, and maintaining clean cross-resource references. Ensuring idempotency for appropriate calls, implementing rate limiting, and providing proper versioning all help improve reliability and adaptability as systems evolve. Finally, strong security through mechanisms like API keys, JWTs, and OAuth2 is essential to protect data and maintain trust.
