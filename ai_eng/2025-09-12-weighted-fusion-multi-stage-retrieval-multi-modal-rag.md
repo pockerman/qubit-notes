@@ -57,7 +57,7 @@ Such an approach is used in production systems as it improves recall by ensuring
 Hybrid redtrieval improves the recall however in a retrieval application we are also interested in precision also.
 
 ---
-**Remark:**
+**Remark: Precision**
 
 Precision measures how many of the retrieved documents are actually relevant. It answers the question: _Are the most relevant documents at the top of my results?_ [4].
 
