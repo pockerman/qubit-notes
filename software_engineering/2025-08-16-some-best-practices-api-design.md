@@ -4,7 +4,7 @@
 
 In the API basics  series of notes we will go over some fundamental concepts regarding API design and development.
 APIs from the connecting tissue in a distributed system and the internet. There are various API architectural approaches one can
-take see <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Part 7 | Communication | APIs</a> for a review.
+take see <a href="../dist_systems/2026-04-09-Part-7-API.md">qubit-note: Part 7 | Communication | APIs</a> for a review.
 Each approach has its advanatges and disadvantages. Moreover, designing APIs is not easy. In this  note we will go over some best practices regarding API design.
 This article is editted from [1].
 
