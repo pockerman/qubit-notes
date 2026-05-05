@@ -25,7 +25,7 @@ are three key reasons why [4]:
 - Domain gaps
 
 The bottom line is that in real-world retrieval we need more advanced techniques than simply taking the top-k nearest vectors [4].
-
+Below are some approaches we can use to imporve the information retrieval.
 
 ### Hybrid retrieval
 
@@ -54,14 +54,32 @@ Such an approach is used in production systems as it improves recall by ensuring
 
 ### Multi-stage retrieval
 
-Hybrid redtrieval improves the recall however in a retrieval application we are also interested in precision also.
+Hybrid redtrieval improves the recall however in a retrieval application we are also interested in precision.
 
 ---
 **Remark: Precision**
 
-Precision measures how many of the retrieved documents are actually relevant. It answers the question: _Are the most relevant documents at the top of my results?_ [4].
+Precision in the context of document retrieval measures how many of the retrieved documents are actually relevant. 
+It answers the question: _Are the most relevant documents at the top of my results?_ [4].
 
 ---
+
+Multi-stage retrieval uses a filterin pipeline.  We split the task of finding and ranking documents into states. Specifically, see e.g. [4],
+
+1. Broad retrieval: Find documents that are protentially relevant. The aim here is the fetch as many relevant documents as possible.
+2. Progressive filtering: apply selective fileter to narrow the documents from stage 1
+3. Precision Reranking (Ranking): Use sophisticated models to sort what remains
+
+Broad retrieval is typically a hybrid retrieval i.e. dense and sparse search as we saw in the previous section. Traditional emebedding models e.g. OpenAI embeddings, are bi-encoders meaning the encode both the query and each documents into separate vectors and then compare these vectors using for example cosine similarity. One problem with such an approach is that the query and and documents never interact directly [4].
+
+
+A cross-encoder takes a different approach [4]:
+
+1. They accept both the query and document as a single input pair
+2. Process this pair through all layers of the transformer model
+3. Output a single relevance score
+
+This allows the model to capture complex interactions between query and document terms. A cross-encoder can understand, for example, that "work accommodation" in the query is highly relevant to "ADA" in the document, even if these specific terms don't co-occur.
 
 
 

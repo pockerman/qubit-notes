@@ -53,6 +53,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: Architecture Series | Scalability Patterns</a>
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
+- <a hrer="software_engineering/2026-05-05-API Basics-HTTP-Conditional-Requests.md">qubit-note:  API Basics | HTTP Conditional Requests</a>
 - <a href="software_engineering/2026-05-04-API-Basics-API-Pagination-Strategies.md">qubit-note: API Basics | API Pagination Strategies</a>
 - <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note:  API Basics | Some Best Practices in API Design</a>
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
@@ -88,6 +89,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ai_eng/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Series | AI Agent vs MCP</a>
 - <a href="ai_eng/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>
 - <a href="ai_eng/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
+- <a href="ai_eng/2026-05-05-Hands-On-Hybrid-Retrieval.md">qubit-note: Hands On | Hybrid Retrieval</a>
 - <a href="ai_eng/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: Document Fusion & Multi-stage Retrieval for Multi-modal RAG</a>
 - <a href="ai_eng/2025-08-31-RAG-or-fine-tuning.md">qubit-note: RAG or Fine Tuning?</a>
 - <a href="ai_eng/2025-08-28-evaluate-RAG-based-system.md">qubit-note: Evaluate a RAG-based System</a>
