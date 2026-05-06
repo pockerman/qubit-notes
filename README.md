@@ -54,7 +54,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
 - <a href="software_engineering/2026-05-06-API-Basics-Diff-Rate-Limit-Throttling-Quotas.md">qubit-note API Basics | Difference between Rate Limiting and Throttling and Quotas</a>
-- <a hrer="software_engineering/2026-05-05-API Basics-HTTP-Conditional-Requests.md">qubit-note:  API Basics | HTTP Conditional Requests</a>
+- <a href="software_engineering/2026-05-05-API Basics-HTTP-Conditional-Requests.md">qubit-note:  API Basics | HTTP Conditional Requests</a>
 - <a href="software_engineering/2026-05-04-API-Basics-API-Pagination-Strategies.md">qubit-note: API Basics | API Pagination Strategies</a>
 - <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note:  API Basics | Some Best Practices in API Design</a>
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
