@@ -48,6 +48,14 @@ In order for a service to be able to handle more request, it has to be scaled ou
 
  Other uses of rate limiting include enforcing price tiers and to some extent help with DDoS[1].
 
+ ---
+ **Remark Differences between rate limiting, throttling and quotas**
+
+ The text above uses the terms rate limiting, throttlin and quotas somehow interchangeably.
+ However, technically thes terms are different. See  <a href="../software_engineering/2026-05-06-API-Basics-Diff-Rate-Limit-Throttling-Quotas.md">qubit-note API Basics | Difference between Rate Limiting and Throttling and Quotas</a> for the differences between these terms.
+
+ ---
+
  #### Bulkhead
 
  The bulkhead pattern, named after the partitions of a ship's hull, is to isolate a fault in one part of a service from degrading the entrire service [1].

@@ -1,4 +1,4 @@
-# qubit-note: Document Fusion & Multi-stage Retrieval for Multi-modal RAG
+# qubit-note: Document Fusion & Multi-stage Retrieval
 
 
 ## Overview
@@ -64,71 +64,65 @@ It answers the question: _Are the most relevant documents at the top of my resul
 
 ---
 
-Multi-stage retrieval uses a filterin pipeline.  We split the task of finding and ranking documents into states. Specifically, see e.g. [4],
+Multi-stage retrieval uses a filtering pipeline.  We split the task of finding and ranking documents into states. Specifically, see e.g. [4],
 
 1. Broad retrieval: Find documents that are protentially relevant. The aim here is the fetch as many relevant documents as possible.
-2. Progressive filtering: apply selective fileter to narrow the documents from stage 1
+2. Progressive filtering: apply selective filetering to narrow the documents from stage 1
 3. Precision Reranking (Ranking): Use sophisticated models to sort what remains
 
 Broad retrieval is typically a hybrid retrieval i.e. dense and sparse search as we saw in the previous section. Traditional emebedding models e.g. OpenAI embeddings, are bi-encoders meaning the encode both the query and each documents into separate vectors and then compare these vectors using for example cosine similarity. One problem with such an approach is that the query and and documents never interact directly [4].
 
 
-A cross-encoder takes a different approach [4]:
+A <a href="https://www.sbert.net/examples/cross_encoder/applications/README.html">cross-encoder</a> takes a different approach [4]:
 
 1. They accept both the query and document as a single input pair
 2. Process this pair through all layers of the transformer model
 3. Output a single relevance score
 
-This allows the model to capture complex interactions between query and document terms. A cross-encoder can understand, for example, that "work accommodation" in the query is highly relevant to "ADA" in the document, even if these specific terms don't co-occur.
+This allows the model to capture complex interactions between query and document terms. A cross-encoder can understand, for example, that "work accommodation" in the query is highly relevant to "ADA" in the document, even if these specific terms don't co-occur. Thus, multi-stage retrieval is a core component of any advanced RAG architecture, designed to enhance the quality and relevance of retrieved information.
 
-
-
-The approach we will discuss in this note consists of two main components; document fusion and multi-state retrieval
-Document fusion is a technique used to combine results from different modalities or retrieval sources to improve the overall performance of a multimodal RAG system.
-Two approaches for document fusion are weighted fusion and reciprocal rank fusion, or RRF.
-In addition, multi-stage retrieval is a core component of any advanced RAG architecture, designed to enhance the quality and relevance of retrieved information.
 
 ### Document fusion
 
-Often vector search is not enough. Indeed the performance of the search depends on indexing as well as the user query. Let's assume that
-we have indexed our DB in a such a way that both small and large chunks are used, see e.g.  <a href="2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a>.
-We send the user query in the DB and now we want to somehow combine the results. Document fusion is a technique that allows us to do exactly this. Two commonly used
-approaches are weighted fusion and reciprocal rank fusion. 
+We have seen that hybrid search involves two searches a dense search based on embeddings and sparse search based on keywords. 
+In addition, we may have indexed our DB in a such a way that both small and large chunks are used, see e.g.  <a href="2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a>.
+
+In order to answer the user query not all documents are of equal importance. And this is the responsibility of stage 2 Progressive filtering; to filter out irrelevant or less relevant documents.
+Furthermore, we can use document fusion i.e. somehow fuse the documents together. Two popular approaches include weighted fusion and reciprocal rank fusion or RRF. 
+These appraoches will typically compute a score:
+
+**Weighted fusion** 
 
 For two documents, weighted fusion would give a score:
 
 $$fused_{score} = w_1 * doc^{1}_{score} + w_2 * doc^{2}_{score} $$
 
-Reciprocal rank fusion would give s document score as
+**Reciprocal rank fusion**
 
 $$RRF_{score} = \sum_i (1 / (k + rank_i))$$
 
 where $k$ is a smoothing constant to control the weight of existing ranks. Note that we are taking a sum as we assume that a document has a large and small chunks.
 Similarly, we can assume that an image document is associated with a text document i.e. a caption or image description.
 
-
-### Multi-stage retrieval
-
-Document fusion allows us to score the retrieved documents in a different way than simply relying on distance scores. Multi-stage retrieval involves a number 
-of steps aiming at refining the retreived results at every step. The first step involves a broad retrieval. The second step involves the use of a <a href="https://www.sbert.net/examples/cross_encoder/applications/README.html">cross-encoder</a> or a visual-language model to compute fine-grained similarities between the user query and the retrieved documents.
-
-In our case, the results from the broad retrieval can be combined using a fusion approach discussed above. Then we use the cross-encoder to reranke the
-fused documents.
-
-Collectively a hybrid document fusion and multi-stage retrival could work as follows:
+Overall, document fusion allows us to score the retrieved documents in a different way than simply relying on distance scores.
 
 
-1. Indexing: For each image produce one or more representations (embeddings, captions, metadata). Two collections are used one for the images and one for the description of the image
-2. Multi-stage retrieval. 
-   1. Retrieve: Get the top $K$ images and image descriptions i.e two DB queries
-   2. Fuse: Merge candidate sets, normalize scores, compute fused score (weighted) 
-   3. Re-rank: Run cross-modal re-ranker (e.g. cross-encoder that takes query + image) over top $N$ fused candidates; final ranking from re-rank.
-3. Generate: top $M$ candidates (images + captions + metadata) into context for the generator. If the generator is text-only, supply captions & metadata; if multi-modal generator, feed images directly.
+Colllectively, multi-stage retrieval combined with document fusion could work as follows
+
+1. Indexing for each document produce one or more representations e.g. embeddings, metadata, summaries. 
+2. Multi-stage retrieval
+   1. Broad retrieval:  Find documents that are protentially relevant. The aim here is the fetch as many relevant documents as possible.
+   2. Filter: Remove irrelevant documents
+   3. Fuse: Merge candidate sets, normalize scores, compute fused score (weighted) 
+   4. Re-rank: Run cross-modal re-ranker (e.g. cross-encoder that takes query + documents) over top $N$ fused candidates.
+3. Pass the the top $M$ candidates to the model.
+
 
 
 ## Summary
 
-This qubit note introduces a hybrid approach for improving retrieval in multi-modal retrieval-augmented generation (RAG) systems by combining document fusion and multi-stage retrieval. Document fusion enhances performance by merging results from different modalities (e.g., text, images, metadata) using techniques such as weighted fusion or reciprocal rank fusion. Multi-stage retrieval refines search results in successive steps: starting with broad retrieval, then applying fusion, and finally re-ranking with more precise models like cross-encoders or vision-language models. Together, these methods enable more accurate, context-aware retrieval across modalities, ultimately improving the quality of information fed into downstream generators.
+This note explains how to improve retrieval in RAG systems by combining hybrid retrieval, multi-stage retrieval, and document fusion. While dense retrieval using embeddings is powerful, it suffers from issues like semantic drift, recall limitations, and domain gaps, so it is often complemented with sparse methods such as keyword-based search (e.g., BM25) to improve recall. A multi-stage retrieval pipeline then refines results by first retrieving a broad set of candidates, filtering them, and finally reranking them using more sophisticated models like cross-encoders, which better capture query-document interactions. Document fusion techniques, such as weighted fusion and reciprocal rank fusion, further enhance ranking by combining scores from multiple sources or representations (e.g., text, images, different chunk sizes). Together, these techniques create a more robust retrieval pipeline that balances recall and precision, ultimately improving the quality of information passed to the language model.
+
 
 ## References
 
