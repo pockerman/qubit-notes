@@ -35,7 +35,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Distributed systems
 
-- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">istributed Systems Design Concepts Part 1</a>
+- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">qubit-note: Distributed Systems Design Concepts Part 1</a>
 - <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Resiliency Part 3 | Upstream Resiliency</a>
 - <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note:  Resiliency Part 2 | Downstream Resiliency</a>
 - <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Resiliency Part 1 | Failure Causes</a>
@@ -145,15 +145,12 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
-
 - <a href="how_to/2026-01-11-go-principal-tools.md">qubit-note: Go Progamming Series | Go Principal Tools</a>
-
 - <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
 - <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>
 - <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
 - <a href="how_to/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
 - <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series | Overview of RDDs</a>
-
 - <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series | Create a Toy Apache Spark Cluster With Docker</a>
 - <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series | Hello World</a>
 - <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series | Application concepts</a>
