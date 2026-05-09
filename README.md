@@ -19,7 +19,21 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="comp_techs/2025-05-11-monte-carlo-integration.md">qubit-note: The Maths Project Series | Monte Carlo Integration</a>
 - <a href="comp_techs/2025-05-10-thompson-sampling.md">qubit-note: The Maths Project Series | Thompson Sampling</a>
 
-## Distributed Systems
+## High performance computing
+
+- <a href="hpc/2026-05-09-Asynchronous-Programming.md">qubit-note: Asynchronous Programming C++ | Promises and Futures</a>
+- <a href="how_to/2026-03-12-OpenMP-Multi-threading-Part-9.md">qubit-note: Parallel OpenMP Part 9 | Task Parallelism with OpenMP 1</a>
+- <a href="how_to/2026-03-05-OpenMP-Multi-threading-Part-8.md">qubit-note: Parallel OpenMP Part 8 | Example 2 Compute Mean Using smid</a>
+- <a href="how_to/2026-02-26-OpenMP-Multi-threading-Part-7.md">qubit-note: Parallel OpenMP Part 7 | Example 1 Compute Mean & Variance</a>
+- <a href="how_to/2026-02-20-OpenMP-Multi-threading-Part-6.md">qubit-note: Parallel OpenMP Part 6 | Function-level Parallelization</a>
+- <a href="how_to/2026-02-19-OpenMP-Multi-threading-Part-5.md">qubit-note: Parallel OpenMP Part 5 | Variable Scope</a>
+- <a href="how_to/2026-02-05-OpenMP-Multi-threading-Part-4.md">qubit-note: Parallel OpenMP Part 4 | Reduction Operations</a>
+- <a href="how_to/2026-01-29-OpenMP-Multi-threading-Part-3.md">qubit-note: Parallel OpenMP Part 3 | Parallelization of for Constructs</a>
+- <a href="how_to/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel OpenMP Part 2 | Synchronization Constructs</a>
+- <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel OpenMP Part 1</a>
+- <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Asynchronous Programming Python | Coroutine Chaining & Asynchronous Queues in Python</a>
+
+## Distributed systems
 
 - <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Resiliency Part 3 | Upstream Resiliency</a>
 - <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note:  Resiliency Part 2 | Downstream Resiliency</a>
@@ -121,7 +135,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">qubit-note: ML Series | 13 + 1 Steps For a Successful ML Project</a>
 - <a href="ml/2025-04-26-bias-variance-dilemma.md">qubit-note: ML Series | Bias-Variance Dilemma</a>
 - <a href="ml/2025-04-24-collection-of-training-data.md">qubit-note: ML Series | Collection of Training Data</a>
-- <a href="ml/2025-04-28-hyperparameter-tuning-ml-models.md">qubit-note: ML Series | Hyperparameter Tuning in ML Models</a> 
+- <a href="ml/2025-04-28-hyperparameter-tuning-ml-models.md">qubit-note: ML Series |Hyperparameter Tuning in ML Models</a> 
 
 ## Electronics
 
@@ -130,22 +144,15 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## How to
 
-- <a href="how_to/2026-03-12-OpenMP-Multi-threading-Part-9.md">qubit-note: Parallel Computing Series | OpenMP Part 9 | Task Parallelism with OpenMP 1</a>
-- <a href="how_to/2026-03-05-OpenMP-Multi-threading-Part-8.md">qubit-note: Parallel Computing Series | OpenMP Part 8 | Example 2 Compute Mean Using smid</a>
-- <a href="how_to/2026-02-26-OpenMP-Multi-threading-Part-7.md">qubit-note: Parallel Computing Series | OpenMP Part 7 | Example 1 Compute Mean & Variance</a>
-- <a href="how_to/2026-02-20-OpenMP-Multi-threading-Part-6.md">qubit-note: Parallel Computing Series | OpenMP Part 6 | Function-level Parallelization</a>
-- <a href="how_to/2026-02-19-OpenMP-Multi-threading-Part-5.md">qubit-note: Parallel Computing Series | OpenMP Part 5 | Variable Scope</a>
-- <a href="how_to/2026-02-05-OpenMP-Multi-threading-Part-4.md">qubit-note: Parallel Computing Series | OpenMP Part 4 | Reduction Operations</a>
-- <a href="how_to/2026-01-29-OpenMP-Multi-threading-Part-3.md">qubit-note: Parallel Computing Series | OpenMP Part 3 | Parallelization of for Constructs</a>
-- <a href="how_to/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel Computing Series | OpenMP Part 2 | Synchronization Constructs</a>
+
 - <a href="how_to/2026-01-11-go-principal-tools.md">qubit-note: Go Progamming Series | Go Principal Tools</a>
-- <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel Computing Series | OpenMP Part 1</a>
+
 - <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
 - <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>
 - <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
 - <a href="how_to/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
 - <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series | Overview of RDDs</a>
-- <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Python Series | Coroutine Chaining & Asynchronous Queues in Python</a>
+
 - <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series | Create a Toy Apache Spark Cluster With Docker</a>
 - <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series | Hello World</a>
 - <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series | Application concepts</a>
