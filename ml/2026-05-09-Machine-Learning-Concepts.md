@@ -82,3 +82,6 @@ This note introduces several foundational machine learning concepts related to m
 
 ## References
 
+1. <a href="https://www.geeksforgeeks.org/machine-learning/machine-learning-interview-questions/">Machine Learning Interview Questions and Answers</a>
+2. <a href="https://www.dailydoseofds.com/">Daily Dose of Data Science</a>
+
