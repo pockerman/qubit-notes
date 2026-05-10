@@ -2,7 +2,7 @@
 
 ## Overview
 
-In this now we will summarize some common concepts in machine learning such what is overfittings and
+In this series of notes we will summarize some common concepts in machine learning such what is overfittings and
 what is regualrization.
 
 

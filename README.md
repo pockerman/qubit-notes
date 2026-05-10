@@ -32,6 +32,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="how_to/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel OpenMP Part 2 | Synchronization Constructs</a>
 - <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel OpenMP Part 1</a>
 - <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Asynchronous Programming Python | Coroutine Chaining & Asynchronous Queues in Python</a>
+- <a href="software_engineering/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
 
 ## Distributed systems
 
@@ -64,7 +65,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Software engineering
 
-- <a href="software_engineering/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
+
 - <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: Architecture Series | Scalability Patterns</a>
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
@@ -127,6 +128,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Machine learning 
 
+- <a href="ml/2026-05-10-Machine-Learning-Concepts-Part-2.md"># qubit-note: ML Series | Machine Learning Concepts Part 2</a>
+- <a href="ml/2026-05-10-Machine-Learning-Concepts.md"># qubit-note: ML Series | Machine Learning Concepts Part 1</a>
 - <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: ML Series | Training Patterns for Distributed ML</a>
 - <a href="ml/2025-05-08-dimensionality-reduction-with-PCA.md">qubit-note: ML Series | Dimensionality Reduction with PCA</a>
 - <a href="ml/2025-05-07-data-ingestion-patterns-for-dist-ml.md">qubit-note: ML Series | Data Ingestion Patterns for Distributed ML</a>
