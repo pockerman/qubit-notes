@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package grpc101;
+
+option go_package = "grpc101/proto;proto";
+
+
+service Service {
+  rpc Ask(Request) returns (stream Response);
+}
+
+message Request {
+  string query = 1;
+}
+
+message Response {
+  string response = 1;
+}
