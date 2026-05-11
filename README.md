@@ -51,6 +51,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Data Replication Part 3 | State Machine Replication</a>
 - <a href="dist_systems/2025-04-22-data-replication.md">qubit-note:  Data Replication Part 1</a>
 - <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
+- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Sticky Sesssions</a>
 - <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Load Balancing</a>
 - <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
 - <a href="dist_systems/2025-08-04-partitioning.md">quibit-note: Partitioning | Partitioning Part 1</a>
