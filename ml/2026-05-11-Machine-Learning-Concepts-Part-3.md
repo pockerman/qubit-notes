@@ -80,7 +80,9 @@ Key steps in feature engineering:
 Feature selection is the process of choosing the most relevant features from your dataset to improve model performance, reduce overfitting and simplify the model.
 There are various methods we can use for this task [1]:
 
-- Filter Methods: Filter methods evaluate each feature independently with target variable. Feature with high correlation with target variable are selected as it means this feature has some relation and can help us in making predictions. Here features are selected based on statistical measures without involving any machine learning model.
+**Filter Methods** 
+
+Filter methods evaluate each feature independently with target variable. Feature with high correlation with target variable are selected as it means this feature has some relation and can help us in making predictions. Here features are selected based on statistical measures without involving any machine learning model.
 
 Some examples are:
 
@@ -88,7 +90,9 @@ Some examples are:
 - Chi-Square Test: For categorical features.
 - ANOVA F-Test: For numerical features.
 
-- Wrapper Methods: It uses different combination of features and compute relation between these subset features and target variable and based on conclusion addition and removal of features are done. Stopping criteria for selecting the best subset are usually pre-defined by the person training the model such as when the performance of the model decreases or a specific number of features are achieved.
+**Wrapper Methods** 
+
+It uses different combination of features and compute relation between these subset features and target variable and based on conclusion addition and removal of features are done. Stopping criteria for selecting the best subset are usually pre-defined by the person training the model such as when the performance of the model decreases or a specific number of features are achieved.
 
 Some examples are:
 
@@ -96,7 +100,9 @@ Some examples are:
 - Backward elimination: Start with all features and remove one at a time.
 - Recursive feature elimination (RFE): Iteratively removes least important features using model weights.
 
-- Embedded Methods: Embedded methods perform feature selection during the model training process allowing the model to select the most relevant features based on the training process dynamically.
+**Embedded Methods** 
+
+Embedded methods perform feature selection during the model training process allowing the model to select the most relevant features based on the training process dynamically.
 
 Some examples are:
 
@@ -106,7 +112,6 @@ Some examples are:
 ## Summary
 
 This note discusses several important machine learning concepts related to model evaluation, preprocessing, and feature selection. It explains that accuracy can be misleading for imbalanced classification problems and that metrics such as precision, recall, and the F1-score often provide better insight into model performance. It introduces cross-validation, particularly k-fold cross-validation, as a technique for evaluating how well a model generalizes to unseen data. The note also distinguishes between regularization, which reduces overfitting by penalizing model complexity, and preprocessing techniques such as standardization and normalization, which rescale feature values for better training stability. Additionally, it covers feature engineering, the process of creating and transforming useful features from raw data, and summarizes common feature selection methods including filter, wrapper, and embedded approaches used to improve model performance and reduce overfitting.
-
 
 
 ## References
