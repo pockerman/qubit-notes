@@ -57,7 +57,7 @@ $$\text{FPR} = \frac{FP}{FP + TN}$$
 
 ### Concept 8: What is the  $F1$ score?
 
-The $F1$ score is defined as
+The $F1$ score is defined as the harmonic means of precision and recall. Namely:
 
 $$
 F1 = 2 \times \frac{\text{Precision}\times \text{Recall}}{\text{Precision} + \text{Recall}}
