@@ -18,7 +18,7 @@ We noticed the confusion matrix when discussing metrics for evaluating classifie
 As its name suggests, a  confusion matrix is a table. It is  used to evaluate the performance of a classification model. 
 It compares the predicted labels with the actual labels, telling how well the model is performing and what types of errors it makes.
 
-Specifically, we log two types of counters (for a binary classification problem)
+Specifically, we log four types of counters (for a binary classification problem)
 
 - True Positives (TP): Correctly predicted positive cases.
 - True Negatives (TN): Correctly predicted negative cases.
