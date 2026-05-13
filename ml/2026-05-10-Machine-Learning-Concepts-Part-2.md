@@ -12,7 +12,7 @@ We continue the series of machine learning concepts by looking into the followin
 
 We will continue counting from where we finished in the previous note
 
-### Concept 6: What is a confusion matrix? 
+### Concept 7: What is a confusion matrix? 
 
 We noticed the confusion matrix when discussing metrics for evaluating classifiers, see _Concept 6: What are some model evaluation metrics in machine learning?_.
 As its name suggests, a  confusion matrix is a table. It is  used to evaluate the performance of a classification model. 
@@ -28,7 +28,7 @@ Specifically, we log two types of counters (for a binary classification problem)
 
 From these counters we can compute, precision, recall and $F1$ score.
 
-### Concept 7: What is the difference between precision and recall?
+### Concept 8: What is the difference between precision and recall?
 
 Precision and recall are two metrics we can compute out of a confusion matrix.
 
@@ -55,7 +55,7 @@ We can also compute the following metric (False Positive Rate)
 
 $$\text{FPR} = \frac{FP}{FP + TN}$$
 
-### Concept 8: What is the  $F1$ score?
+### Concept 9: What is the  $F1$ score?
 
 The $F1$ score is defined as the harmonic means of precision and recall. Namely:
 
@@ -65,7 +65,7 @@ $$
 
 The $F1$ score is a metric we can use when there high class imbalance.
 
-### Concept 9: What are some common loss functions in machine learning?
+### Concept 10: What are some common loss functions in machine learning?
 
 Machine learning models optimze during training a loss function. A loss function measures the error between the model’s predicted output and the actual target value. 
 They guide the optimization process during training. There are many different loss functions one can use [1]. 
@@ -79,7 +79,7 @@ They guide the optimization process during training. There are many different lo
 - KL Divergence: Measures how one probability distribution differs from another hence used in probabilistic models.
 - Exponential Loss: Used in boosting methods like AdaBoost; penalizes misclassified points more strongly.
 
-### Concept 10: What is the  AUC/ROC curve?
+### Concept 11: What is the  AUC/ROC curve?
 
 The Receiver Operating Characteristic or ROC curve is a graphical plot that shows the trade-off between True Positive Rate (TPR / Recall) and False Positive Rate (FPR) at different threshold values (see also _Concept 7: What is the difference between precision and recall?_.
 
