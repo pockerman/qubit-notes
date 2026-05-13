@@ -3,9 +3,7 @@
 ## Overview
 
 When working with supervised machine learning models we typically need to address the so called
-<a href="https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff">bias-variance dilemma</a> or trade off. In this note, I describe what this dilemma consists of.
-
-**keywords** bias-variance-dilemma, machine-learning, supervised-learning
+<a href="https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff">bias-variance dilemma</a>. In this note, I describe what this dilemma consists of.
 
 ## Bias-variance dilemma
 
