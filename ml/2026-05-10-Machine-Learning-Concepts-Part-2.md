@@ -81,14 +81,14 @@ They guide the optimization process during training. There are many different lo
 
 ### Concept 11: What is the  AUC/ROC curve?
 
-The Receiver Operating Characteristic or ROC curve is a graphical plot that shows the trade-off between True Positive Rate (TPR / Recall) and False Positive Rate (FPR) at different threshold values (see also _Concept 7: What is the difference between precision and recall?_.
+The Receiver Operating Characteristic or ROC curve is a graphical plot that shows the trade-off between True Positive Rate (TPR / Recall) and False Positive Rate (FPR) at different threshold values (see also _Concept 8: What is the difference between precision and recall?_.
 
 The Area Under the Curve or AUC is the area under the ROC curve. 
 It represents the probability that a randomly chosen positive instance is ranked higher than a randomly chosen negative instance [1].
 
-AUC = 1 → Perfect classifier
-AUC = 0.5 → Random guessing
-AUC < 0.5 → Worse than random
+- AUC = 1 → Perfect classifier
+- AUC = 0.5 → Random guessing
+- AUC < 0.5 → Worse than random
 
 
 ROC shows performance across thresholds. AUC summarizes overall model performance into a single number.
