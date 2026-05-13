@@ -8,9 +8,6 @@ why an ML model in prodcution may fail namely concept drift.
 
 Concept drift refers to the change in the relationships between the independed and the dependent variables in the model.
 
-**keywords:** concept-drift, ml-model-monitoring, alibi, alibi-detect, Python
-
-
 ## Detecting concept drift
 
 Concept drift occurs when there is a change in the relationship between the independed and the dependent variables in the model.
