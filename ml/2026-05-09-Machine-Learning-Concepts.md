@@ -10,7 +10,7 @@ what is regualrization.
 ### Concept 1: What is overfitting?
 
 We say that a model overfits the train set when it pics up every nuance and noise that is present in it. A very clear 
-sign of model overfitting is when the accuracy is very high in the training set but rather high in the test/validation set.
+sign of model overfitting is when the accuracy is very high in the training set but rather low in the test/validation set.
 in other words, the model learns random fluctuation in the train set.
 
 ### Concept 2: How can it we avoid overfitting?
