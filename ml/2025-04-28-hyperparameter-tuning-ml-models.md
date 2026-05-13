@@ -11,8 +11,6 @@ Specifically, I will discuss:
 - _Grid-search_
 - _Random-search_
 
-**keywords** machine-learning, hyperparameter-tuning, grid-search, random-search, sklearn
-
 ## Hyperparameter tuning in ML models
 
 A hyperparameter is a model argument whose value is set before the learning process begins.
