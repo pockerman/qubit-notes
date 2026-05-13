@@ -73,6 +73,8 @@ In order for a service to be able to handle more request, it has to be scaled ou
  operating at its limit. This is in contrast to the patterns we have seen above. The service exposes a health endpoint that is periodically queried by the
  load balancer. If the enpoint returns an error the load balancer will consider the service unhealthy and won't propagate traffic into it [1].
 
+ Two common health checks are <a href="2026-05-13-Liveness-Readiness-Checks.md">liveness and readiness checks</a>.
+
 
  #### Watchdog
 

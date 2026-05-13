@@ -1,8 +1,8 @@
-# qubit-notes: Sticky Sessions
+# qubit-notes: Distributed Systems | Resiliency | Sticky Sessions
 
 ## Overview
 
-The note <a href="2025-04-21-load-balancing.md">Load Balancing</a> discussed how we can balance the work load on a system. Oftentimes we want all
+The note <a href="2025-04-21-load-balancing.md">load balancing</a> discussed how we can balance the work load on a system. Oftentimes we want all
 requests from a specific user to be consistently routed to the same server. Session affinity or sticky sessions is load balancing technique
 that we can use.
 

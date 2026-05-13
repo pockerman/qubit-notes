@@ -36,33 +36,34 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Distributed systems
 
-- <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">qubit-note: Distributed Systems Design Concepts Part 2</a>
-- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">qubit-note: Distributed Systems Design Concepts Part 1</a>
-- <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Resiliency Part 3 | Upstream Resiliency</a>
-- <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note:  Resiliency Part 2 | Downstream Resiliency</a>
-- <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Resiliency Part 1 | Failure Causes</a>
-- <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note: Caching Part 4 | Negative Caching</a>
-- <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Caching Part 3 | Cache Replacement</a>
-- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Caching Part 2 | Cache Coherence</a>
-- <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching Part 1 |  Caching Methods</a>
-- <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note:  Data Replication Part 6 | PACELC, CAP and CALM Theorems </a>
-- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Data Replication Part 5 | Broadcast Protocols</a>
-- <a href="dist_systems/2025-12-31-consensus.md">qubit-note:  Data Replication Part 4 | Consensus</a>
-- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Data Replication Part 3 | State Machine Replication</a>
-- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note:  Data Replication Part 1</a>
-- <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
-- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Sticky Sesssions</a>
-- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Load Balancing</a>
-- <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
-- <a href="dist_systems/2025-08-04-partitioning.md">quibit-note: Partitioning | Partitioning Part 1</a>
-- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note: Part 8 | Communication | HTTP</a>
-- <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Part 7 | Communication | APIs</a>
-- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Part 6 | Communication | Domain Name System</a> 
-- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note:  Part 5 | Communication|  TLS 101</a>
-- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note:  Part 4 | Communication | TCP 101</a>
-- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Part 3 | Communication | Inter Process Communication</a> 
-- <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Part 2 | Challenges in Distributed Systems</a>
-- <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Part 1 | Introduction to Distributed Systems</a>
+- <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Distributed Systems | Unique ID Generation</a>
+- <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems | Sharded Counters</a>
+- <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Distributed Systems | Resiliency | Liveness and Readiness Checks</a>
+- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Distributed Systems | Resiliency | Sticky Sesssions</a>
+- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Distributed Systems | Resiliency | | Load Balancing</a>
+- <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems | Resiliency | Upstream Resiliency</a>
+- <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note:  Distributed Systems | Resiliency| Downstream Resiliency</a>
+- <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Distributed Systems | Resiliency | Failure Causes</a>
+- <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note:  Distributed Systems | Caching | Negative Caching</a>
+- <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note:  Distributed Systems | Caching | Cache Replacement</a>
+- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note:  Distributed Systems | | Caching | Cache Coherence</a>
+- <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Distributed Systems | Caching | Caching Methods</a>
+- <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note:  Distributed Systems | Data Replication | PACELC, CAP and CALM Theorems </a>
+- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems | Data Replication  | Broadcast Protocols</a>
+- <a href="dist_systems/2025-12-31-consensus.md">qubit-note:  Distributed Systems | Data Replication | Consensus</a>
+- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note:  Distributed Systems | Data Replication| State Machine Replication</a>
+- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note:  Distributed Systems | Data Replication</a>
+- <a href="dist_systems/2025-08-04-partitioning.md">quibit-note: Distributed Systems | Partitioning | Partitioning</a>
+- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Distributed Systems| Communication | HTTP</a>
+- <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Distributed Systems | Communication | APIs</a>
+- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Distributed Systems | Communication | Domain Name System</a> 
+- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note:  Distributed Systems | Communication |  TLS 101</a>
+- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note:  Distributed Systems | Communication | TCP 101</a>
+- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Distributed Systems | Communication | Inter Process Communication</a>
+- <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">qubit-note: Distributed Systems | Design Concepts Part 2</a>
+- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">qubit-note: Distributed Systems | Design Concepts Part 1</a> 
+- <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Distributed Systems | Challenges in Distributed Systems</a>
+- <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Distributed Systems | Introduction to Distributed Systems</a>
 
 
 ## Software engineering
@@ -71,11 +72,11 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: Architecture Series | Scalability Patterns</a>
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
-- <a href="software_engineering/2026-05-06-API-Basics-Diff-Rate-Limit-Throttling-Quotas.md">qubit-note API Basics | Difference between Rate Limiting and Throttling and Quotas</a>
+- <a href="software_engineering/2026-05-06-API-Basics-Diff-Rate-Limit-Throttling-Quotas.md">qubit-note APIs| Difference between Rate Limiting and Throttling and Quotas</a>
 - <a href="software_engineering/2026-05-05-API-Basics-gRPC-101.md">qubit-note: API Basics | Hands On | gRPC </a>
-- <a href="software_engineering/2026-05-05-API-Basics-HTTP-Conditional-Requests.md">qubit-note:  API Basics | HTTP Conditional Requests</a>
-- <a href="software_engineering/2026-05-04-API-Basics-API-Pagination-Strategies.md">qubit-note: API Basics | API Pagination Strategies</a>
-- <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note:  API Basics | Some Best Practices in API Design</a>
+- <a href="software_engineering/2026-05-05-API-Basics-HTTP-Conditional-Requests.md">qubit-note:  APIs | HTTP Conditional Requests</a>
+- <a href="software_engineering/2026-05-04-API-Basics-API-Pagination-Strategies.md">qubit-note: APIs | API Pagination Strategies</a>
+- <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note:  APIs | Some Best Practices in API Design</a>
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
 - <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Series | Ports and Adapters Pattern</a>
 - <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Series | Layers Pattern</a>

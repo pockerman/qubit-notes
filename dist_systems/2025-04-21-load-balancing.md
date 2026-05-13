@@ -1,4 +1,4 @@
-# qubit-note: Distributed Systems Series | Load Balancing
+# qubit-note: Distributed Systems | Resiliency |  Load Balancing
 
 ## Overview
 
