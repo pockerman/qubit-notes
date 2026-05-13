@@ -132,9 +132,6 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Machine learning 
 
-- <a href="ml/2026-05-11-Machine-Learning-Concepts-Part-3.md">qubit-note: ML Series | Machine Learning Concepts Part 3</a>
-- <a href="ml/2026-05-10-Machine-Learning-Concepts-Part-2.md">qubit-note: ML Series | Machine Learning Concepts Part 2</a>
-- <a href="ml/2026-05-10-Machine-Learning-Concepts.md">qubit-note: ML Series | Machine Learning Concepts Part 1</a>
 - <a href="ml/2025-05-11-training-patterns-for-distributed-ML.md">qubit-note: ML Series | Training Patterns for Distributed ML</a>
 - <a href="ml/2025-05-08-dimensionality-reduction-with-PCA.md">qubit-note: ML Series | Dimensionality Reduction with PCA</a>
 - <a href="ml/2025-05-07-data-ingestion-patterns-for-dist-ml.md">qubit-note: ML Series | Data Ingestion Patterns for Distributed ML</a>
@@ -144,7 +141,11 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2024-06-18-13_steps_to_successful_ml_project.md">qubit-note: ML Series | 13 + 1 Steps For a Successful ML Project</a>
 - <a href="ml/2025-04-26-bias-variance-dilemma.md">qubit-note: ML Series | Bias-Variance Dilemma</a>
 - <a href="ml/2025-04-24-collection-of-training-data.md">qubit-note: ML Series | Collection of Training Data</a>
-- <a href="ml/2025-04-28-hyperparameter-tuning-ml-models.md">qubit-note: ML Series |Hyperparameter Tuning in ML Models</a> 
+- <a href="ml/2025-04-28-hyperparameter-tuning-ml-models.md">qubit-note: ML Series |Hyperparameter Tuning in ML Models</a>
+- <a href="ml/2026-05-13-Machine-Learning-Concepts-Part-4.md">qubit-note: ML Series | Machine Learning Concepts Part 4</a>
+- <a href="ml/2026-05-11-Machine-Learning-Concepts-Part-3.md">qubit-note: ML Series | Machine Learning Concepts Part 3</a>
+- <a href="ml/2026-05-10-Machine-Learning-Concepts-Part-2.md">qubit-note: ML Series | Machine Learning Concepts Part 2</a>
+- <a href="ml/2026-05-10-Machine-Learning-Concepts.md">qubit-note: ML Series | Machine Learning Concepts Part 1</a> 
 
 ## Electronics
 
