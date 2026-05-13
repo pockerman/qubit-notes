@@ -2,14 +2,12 @@
 
 ## Overview
 
-In this note, I discuss three patterns for data ingestion when working with distributed ML.
-Specifically, I discuss the following patterns
+In this note, we will discuss three patterns for data ingestion when working with distributed ML.
+Specifically, we will discuss the following patterns:
 
 - Batching pattern
 - Sharding pattern
 - Caching pattern
-
-**keywords** machine-learning, distributed-machine-learning, data-ingestion
 
 ## Data ingestion patterns for distributed ML
 
