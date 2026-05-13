@@ -13,7 +13,7 @@ We say that a model overfits the train set when it pics up every nuance and nois
 sign of model overfitting is when the accuracy is very high in the training set but rather low in the test/validation set.
 in other words, the model learns random fluctuation in the train set.
 
-### Concept 2: How can it we avoid overfitting?
+### Concept 2: How can we avoid overfitting?
 
 There are several ways one can use in order to avoid model overfitting:
 
