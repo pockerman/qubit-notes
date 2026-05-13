@@ -44,8 +44,7 @@ High variance can be mitigated by using more data or regularization techniques.
 ----
 **Remark**
 
-Notice that high variance can also be observed due to outliers in the data, see question [Q16: How can you make your models more robust to outliers?](#q16), and may
-not neccessarily be a consequence of overiffiting.
+Notice that high variance can also be observed due to outliers in the data,  and may not neccessarily be a consequence of overiffiting.
 
 ----
 
