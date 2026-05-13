@@ -60,14 +60,18 @@ This is because the cost of communication among the workers and parameter server
 This is particularly the case when multiple workers send gradient updates to one parameter server.
 
 
-Collective communication involves communication across all particiapating
+Collective communication involves communication across all participating
 processes in a group, if you ever used MPI this is your ```MPI_COMM_WORLD``` variable.
-In such a scenario, all particiapting workers communicate their gradients to each other.  
+In such a scenario, all participating workers communicate their gradients to each other.  
 In fact, we typically perform some sort of aggregation, e.g maximum, minimum, summmation, on all the gradients received and this aggregated result
 is what is communicated.
 
+---
+**Remark**
 
 Collective communication can done in $O(2(N-1))$ using the _ring-allreduce_ algorithm.
+
+---
 
 ## References
 
