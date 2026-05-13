@@ -48,7 +48,7 @@ the under-represented class. Sure we can use weighting to mitigate this but havi
 In this case we can use GANs in order to artificially generate data for the under-represented class. 
 
 
-Finally, I want to mention the case where we available a significant volume of data but it requires labelling.
+Finally, I want to mention the case where we have available a significant volume of data but it requires labelling.
 There are various ways we can tackle such a scenario from using  human labelers to interatively building models
 that do the labelling for us. For example we can start with a small dataset that is labelled manually train a small
 model that has some good accuracy, label a few more data points and then train a more ellaborate model and so on.
