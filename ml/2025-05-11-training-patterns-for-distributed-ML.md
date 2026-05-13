@@ -48,7 +48,7 @@ The worker nodes do not have to communicate with each other. This is shown schem
 
 
 The parameter server pattern presented above assumes that the model can fit in a single machine.
-This however this need not be the case. When the model does not fit in a single machine, 
+This however does not have to be the case. When the model does not fit in a single machine, 
 we can use additional parameter servers, that each new parameter server is responsible 
 for storing and updating a particular model partition. 
 
