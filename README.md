@@ -46,7 +46,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Distributed Systems | Resiliency | Failure Causes</a>
 - <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note:  Distributed Systems | Caching | Negative Caching</a>
 - <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note:  Distributed Systems | Caching | Cache Replacement</a>
-- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note:  Distributed Systems | | Caching | Cache Coherence</a>
+- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note:  Distributed Systems | Caching | Cache Coherence</a>
 - <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Distributed Systems | Caching | Caching Methods</a>
 - <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note:  Distributed Systems | Data Replication | PACELC, CAP and CALM Theorems </a>
 - <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems | Data Replication  | Broadcast Protocols</a>
