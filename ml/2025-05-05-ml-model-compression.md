@@ -10,7 +10,7 @@ some of the approaches we can follow in order to compress an ML model
 
 Although in general large models are exepected to have better accuracy, there cases where we can trade
 a bit of accuracy with a significantly smaller model. Compressing an ML model is sometimes the only
-viable way in order to deploy this model. Comression techniques include: 
+viable way in order to deploy it. Comression techniques include: 
 
 
 - <a href="https://pytorch.org/tutorials/intermediate/pruning_tutorial.html">Model pruning</a> 
