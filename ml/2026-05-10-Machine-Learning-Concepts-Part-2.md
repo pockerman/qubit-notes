@@ -40,7 +40,7 @@ $$\text{Precision} = \frac{TP}{TP + FP}$$
 In other words, it measures how many of the predicted positive examples are actually true positives. It is a measure of the model's ability to avoid false positives and make accurate positive predictions.
 **Example:** In spam detection, high precision means most emails marked as spam are truly spam.
 
-Recall is defined as the ratio of true positives (TP) and the total number of examples (TP+FN) that actually fall in the positive class. 
+Recall is defined as the ratio of true positives (TP) and the total number of examples  that actually fall in the positive class meaning (TP+FN). 
 
 $$\text{Recall} = \frac{TP}{TP + FN}$$
 
