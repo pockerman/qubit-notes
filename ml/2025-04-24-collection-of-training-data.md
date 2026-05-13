@@ -6,10 +6,7 @@ Machine learning models in one way or another recognise patterns in data. In ord
 to feed these models with training data so that we are able to tune somehow their parameters.
 In this short note, I want to go over some methodologies for collecting training data.
 Notice that these are some ideas and not necessarily the only approaches available; for example we could easily
-mix any of these as another approach. 
-
-
-**keywords** machine-learning, data-collection, machine-learning-model-development
+mix any of these as approaches and come up with another one. 
 
 ## Collection of training data
 
@@ -17,7 +14,7 @@ Training data is of paramount importance every time we want to develop a new ML 
 This is the case regardless of whether we are training a model from scratch, or using <a href="https://en.wikipedia.org/wiki/Transfer_learning">transfer learning</a> or we simply
 <a hre="https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning)">fine-tune</a> the model over the specific cases we have want to model.
 
-There are various ways we can collect training data that I will describe below.
+There are various ways we can collect training data that we will describe below.
 
 **Pre-existing system data**
 
