@@ -1,4 +1,4 @@
-# qubit-note: Resiliency Part 3 | Upstream Resiliency
+# qubit-note: Distributed Systems  | Resiliency | Upstream Resiliency
 
 ## Overview
 
@@ -16,7 +16,6 @@ we will look into:
 - Health check
 - Watchdog
 
-**keywords** software-architecture, system-design, distributed-systems, failure-causes, system-resilience
 
 ## Upstream reciliency
 

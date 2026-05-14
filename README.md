@@ -40,6 +40,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems | Sharded Counters</a>
 - <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Distributed Systems | Resiliency | Liveness and Readiness Checks</a>
 - <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Distributed Systems | Resiliency | Sticky Sesssions</a>
+- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Distributed Systems  | Resiliency | Global Server Load Balancing</a>
 - <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Distributed Systems | Resiliency | | Load Balancing</a>
 - <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems | Resiliency | Upstream Resiliency</a>
 - <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note:  Distributed Systems | Resiliency| Downstream Resiliency</a>
