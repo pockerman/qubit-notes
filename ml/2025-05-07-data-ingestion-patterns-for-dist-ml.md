@@ -2,14 +2,12 @@
 
 ## Overview
 
-In this note, I discuss three patterns for data ingestion when working with distributed ML.
-Specifically, I discuss the following patterns
+In this note, we will discuss three patterns for data ingestion when working with distributed ML.
+Specifically, we will discuss the following patterns:
 
 - Batching pattern
 - Sharding pattern
 - Caching pattern
-
-**keywords** machine-learning, distributed-machine-learning, data-ingestion
 
 ## Data ingestion patterns for distributed ML
 
@@ -34,7 +32,7 @@ feed the training data into the model all at once but rather split the data into
 pass these chunks to the model.
 
 The batching pattern is essentially this; split the dataset into chunks and feed these chunks to the model.
-Thus, batching groups the data into batches that is then used to train the ML model sequentially.
+Thus, batching groups the data into segments that is then used to train the ML model sequentially.
 This pattern allows us to deal with smaller chunks of data each time.
 
 Batching can really slow down training. This is where we can use sharding.

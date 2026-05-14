@@ -6,10 +6,7 @@ Machine learning models in one way or another recognise patterns in data. In ord
 to feed these models with training data so that we are able to tune somehow their parameters.
 In this short note, I want to go over some methodologies for collecting training data.
 Notice that these are some ideas and not necessarily the only approaches available; for example we could easily
-mix any of these as another approach. 
-
-
-**keywords** machine-learning, data-collection, machine-learning-model-development
+mix any of these as approaches and come up with another one. 
 
 ## Collection of training data
 
@@ -17,7 +14,7 @@ Training data is of paramount importance every time we want to develop a new ML 
 This is the case regardless of whether we are training a model from scratch, or using <a href="https://en.wikipedia.org/wiki/Transfer_learning">transfer learning</a> or we simply
 <a hre="https://en.wikipedia.org/wiki/Fine-tuning_(deep_learning)">fine-tune</a> the model over the specific cases we have want to model.
 
-There are various ways we can collect training data that I will describe below.
+There are various ways we can collect training data that we will describe below.
 
 **Pre-existing system data**
 
@@ -51,7 +48,7 @@ the under-represented class. Sure we can use weighting to mitigate this but havi
 In this case we can use GANs in order to artificially generate data for the under-represented class. 
 
 
-Finally, I want to mention the case where we available a significant volume of data but it requires labelling.
+Finally, I want to mention the case where we have available a significant volume of data but it requires labelling.
 There are various ways we can tackle such a scenario from using  human labelers to interatively building models
 that do the labelling for us. For example we can start with a small dataset that is labelled manually train a small
 model that has some good accuracy, label a few more data points and then train a more ellaborate model and so on.

@@ -147,7 +147,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2026-05-13-Machine-Learning-Concepts-Part-4.md">qubit-note: ML Series | Machine Learning Concepts Part 4</a>
 - <a href="ml/2026-05-11-Machine-Learning-Concepts-Part-3.md">qubit-note: ML Series | Machine Learning Concepts Part 3</a>
 - <a href="ml/2026-05-10-Machine-Learning-Concepts-Part-2.md">qubit-note: ML Series | Machine Learning Concepts Part 2</a>
-- <a href="ml/2026-05-10-Machine-Learning-Concepts.md">qubit-note: ML Series | Machine Learning Concepts Part 1</a> 
+- <a href="ml/2026-05-09-Machine-Learning-Concepts.md">qubit-note: ML Series | Machine Learning Concepts Part 1</a> 
 
 ## Electronics
 

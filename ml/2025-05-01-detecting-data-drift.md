@@ -2,15 +2,13 @@
 
 ## Overview
 
-When a model is deployed into production it exhibit a performance drop. This is despite the efforts excercised by the data scientists.
+When a model is deployed into production it exhibits a performance drop. This is despite the efforts excercised by the data scientists.
 This performace drop can be attributed to a variety of reasons. This is called model drift and we split this into two main categories [1,2]:
 
 - Data drift
 - Concept drift
 
-In this note I want talk about data drift namely what it is and how to detect it in an ML system.
-
-**keywords:** data-drift, ml-model-monitoring, alibi, alibi-detect, Python
+In this note we will talk about data drift namely what it is and how to detect it in an ML system.
 
 ## Detecting Data Drift
 

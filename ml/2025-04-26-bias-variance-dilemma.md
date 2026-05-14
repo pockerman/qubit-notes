@@ -3,9 +3,7 @@
 ## Overview
 
 When working with supervised machine learning models we typically need to address the so called
-<a href="https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff">bias-variance dilemma</a> or trade off. In this note, I describe what this dilemma consists of.
-
-**keywords** bias-variance-dilemma, machine-learning, supervised-learning
+<a href="https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff">bias-variance dilemma</a>. In this note, I describe what this dilemma consists of.
 
 ## Bias-variance dilemma
 
@@ -46,18 +44,16 @@ High variance can be mitigated by using more data or regularization techniques.
 ----
 **Remark**
 
-Notice that high variance can also be observed due to outliers in the data, see question [Q16: How can you make your models more robust to outliers?](#q16), and may
-not neccessarily be a consequence of overiffiting.
+Notice that high variance can also be observed due to outliers in the data,  and may not neccessarily be a consequence of overiffiting.
 
 ----
 
 
 From what we discussed above, the bias variance dilema is effectively related with the modelling assumptions we made i.e. a simple model will in general show high bias whilst a highly complex model will in genral exhibit high variance. That being said, we can increase the model complexity in order to mitigate bias and we can use more data in order to mitigate
-high variance.
+high variance. Thus the bias-variance dilema is effectively related to the <a href="https://machinelearningmastery.com/overfitting-and-underfitting-with-machine-learning-algorithms/">model overfitting or underfitting</a> 
 
-The model bias-variance is effectively related to the <a href="https://machinelearningmastery.com/overfitting-and-underfitting-with-machine-learning-algorithms/">model overfitting or underfitting</a> the data set.
-Typically a model that underfits the data will have low complexity and it will exhibit low performance in both during training and testing i.e. when targeting both the train and the test set.
-In contrast when facing overfitting, the model will typically exhibit very good performance on the training zero; the model loss will be almost zero.
+Typically a model that underfits the data will have low complexity and it will exhibit low performance in both the training and test sets.
+In contrast when facing overfitting, the model will typically exhibit very good performance on the training set; the model loss will be almost zero.
 However, the model exhibits very low performance on the test set. In this case the model is very complex for the presented data set and it able to pick up the
 noise that is present in it. Some common remedies for overfitting are:
 
