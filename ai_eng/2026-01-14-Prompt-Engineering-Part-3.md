@@ -1,4 +1,4 @@
-# qubit-note: LLM Series | Prompt Engineering Part 3
+# qubit-note: LLM Basics | Prompt Engineering Part 3
 
 ## Overview
 
@@ -20,11 +20,11 @@ We review some of them below
 
 #### Temperature parameter
 
-Perhaps the most known model parameter is the temperature. It controls the randomness and diversity of a chatbot's responses [1]. 
+Perhaps the most known model parameter is the temperature. It controls the randomness and diversity of a model's responses [1]. 
 Specifically, the temperature parameter adjusts the distribution of next token probabilities during text generation.
-Low temperature values produce more deterministic responses that are more grounded on the provided taining data.
+Low temperature values produce more deterministic responses that are more grounded on the provided training data.
 The temperature values vary in the range $[0,2]$.  
-Hightemperature values introduce more randomness and diversity into the model's responses. This may be required if we want more casual and conversational responses
+High temperature values introduce more randomness and diversity into the model's responses. This may be required if we want more casual and conversational responses
 e.g. when implementing a chatbot. 
 
 
@@ -47,8 +47,8 @@ For reliable outputs, use temperature=0.3 with top_p=0.8. For creative but contr
 
 ----
 
-There is also a top-k m paramter that restricts sampling to the top k most probable tokens. However, top-p is more adaptive than top-k.
-Let me alsom mention the <a href="https://arxiv.org/abs/2407.01082">min-p sampling</a>. This is similar to top-p sampling, but instead
+There is also a top-k m paramter that restricts sampling to the top $k$ most probable tokens. However, top-p is more adaptive than top-k.
+Let me also mention the <a href="https://arxiv.org/abs/2407.01082">min-p sampling</a>. This is similar to top-p sampling, but instead
 of keeping a fixed cumulative probability mass (say, 90%), it dynamically adjusts based on the model’s confidence.
 It looks at the probability of the most likely token and only keeps tokens that are at least a certain fraction, e.g. 5%, as likely.
 
@@ -57,13 +57,12 @@ It looks at the probability of the most likely token and only keeps tokens that 
 
 Another parameter we can control is the length of the LLM response. In particular, allowing a model to generate lengthy and possibly open-ended outputs 
 increases the potential for a model to generate inconsistent and/or contradictory details. Thus apart form being more expensive, lengthy outputs can also be of bad quality.
-In a similar token, allowing for open-ended multi-turn conversations can lead to the model losing track of what is being discusses and generate
+In a similar token, allowing for open-ended multi-turn conversations can lead to the model losing track of what is being discussed and generates
 responses that are inconsistent with the original topic.
 
 Most LLM providers expose a parameter in their API that allows us to set the number of output tokens. In addition, we can use stop sequences; i.e.
 define specific tokens or phrases that signal the model to stop generating further content.  
 For example, using a stop sequence like "\n" can prevent the model from continuing beyond a single paragraph [1].
-
 
 
 #### Frequency and presence penalties 

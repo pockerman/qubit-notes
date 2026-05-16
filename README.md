@@ -121,13 +121,14 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ai_eng/2026-05-14-Embeddings-And-Vector-Search.md">qubit-note: RAG | Embdeddings and Vector Search</a>
 - <a href="ai_eng/2025-08-21-indexing-for-rag.md">qubit-note: RAG  | Indexing for RAG</a>
 - <a href="ai_eng/2025-05-03-retrieval-augmented-generation.md">qubit-note: RAG  | Retrieval Augmented Generation (RAG) 101</a>
-- <a href="ai_eng/2026-05-16-Knowledge-Distillation-LLM.md"> qubit-note: Knowledge Distillation for LLMs</a>
-- <a href="ai_eng/2026-05-15-Hands-On-Fine-Tune-LLaMA.md">Hands On | Fine Tune  LLaMA-2-7B</a>
-- <a href="ai_eng/2026-05-14-Fine-Tuning.md">qubit-note: Fine Tuning</a>
-- <a href="ai_eng/2026-02-10-Prompt-Engineering-Part-4.md">qubit-note: Prompt Engineering Part 4</a>
-- <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: Prompt Engineering Part 3</a>
-- <a href="ai_eng/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: Prompt Engineering Part 2</a>
-- <a href="ai_eng/2025-04-29-Prompt-Engineering-Part-1.md">qubit-note: Prompt Engineering Part 1</a>
+- <a href="ai_eng/2026-05-16-Knowledge-Distillation-LLM.md"> qubit-note: LLM Basics | Knowledge Distillation for LLMs</a>
+- <a href="ai_eng/2026-05-15-Hands-On-Fine-Tune-LLaMA.md">qubit-note: LLM Basics | Hands On | Fine Tune  LLaMA-2-7B</a>
+- <a href="ai_eng/2026-05-14-Fine-Tuning.md">qubit-note: LLM Basics | Fine Tuning</a>
+- <a href="ai_eng/2026-05-16-Hands-On-Create-Curruncy-Excahnge-Assistant.md">qubit-note: LLM Basics | Hands On | Create a Currency Exchange Assistant</a>
+- <a href="ai_eng/2026-02-10-Prompt-Engineering-Part-4.md">qubit-note: LLM Basics | Prompt Engineering Part 4</a>
+- <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: LLM Basics | Prompt Engineering Part 3</a>
+- <a href="ai_eng/2026-01-12-Prompt-Engineering-Part-2.md">qubit-note: LLM Basics | Prompt Engineering Part 2</a>
+- <a href="ai_eng/2025-04-29-Prompt-Engineering-Part-1.md">qubit-note: LLM Basics | Prompt Engineering Part 1</a>
 
 
 ## Reinforcement learning

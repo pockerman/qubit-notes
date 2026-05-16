@@ -1,4 +1,4 @@
-# qubit-note: LLM Series | Prompt Engineering Part 1
+# qubit-note: LLM Basics | Prompt Engineering Part 1
 
 
 ## Overview
@@ -9,6 +9,7 @@ Specifically, we will look into the following methods
 - <a herf="https://www.promptingguide.ai/techniques/zeroshot">Zero-shot prompting</a>
 - <a href="https://www.promptingguide.ai/techniques/fewshot">Few-shot prompting</a>
 - <a href="https://www.promptingguide.ai/techniques/cot">Chain-of-thought prompting</a>
+- Self Consistency
 
 The material in this note is mainly taken from the book <a href="https://www.manning.com/books/prompt-engineering-in-action">_Prompt Engineering in Action_</a>.
 If you want to learn more about prompting techniques, apart from the aforementioned book, you can also
@@ -39,10 +40,46 @@ Zero-shot means that the model sees no examples whilst few-shot means that the m
 before crafting its response. 
 
 Thus zero-shot prompting relies exclusively on the capability of the model to parser the user and system prompts
-and generate a response. To a great extent this capability depends on the data used to train the model.
+and generate a response. To a great extent this capability depends on the data used to train the model. Here
+is an example of how an instruction prompt will look like
+
+```
+Instructions: Classify this movie review sentiment:
+
+---
+Review: $MOVIE=REVIEW
+
+---
+Sentiment:
+```
 
 In contrast, in few-shot learning, the model gets to see a few examples of what constitutes a right response.
 Few-shot learning may be particularly useful in cases when the model has to respond to a task that has multiple outcomes.
+Here is an example prompt using few-shot learning
+
+```
+Instructions: Classify this movie review sentiment.
+
+---
+
+Examples:
+
+Review: The acting was wooden and the story dragged on forever.  
+Sentiment: Negative
+
+Review: A heartfelt, funny film with great performances that left me smiling.  
+Sentiment: Positive
+
+Review: The film had poor acting and a dull plot.  
+Sentiment:
+
+---
+Review: $MOVIE=REVIEW
+
+---
+Sentiment:
+
+```
 
 Both techniques are rather easy to implement, well nothing really to implement in the zero-shot case, however they have several use cases [5]:
 
@@ -55,21 +92,48 @@ basically relies on the model's capacity to generate a correct response. With fe
 towards a solution however this approach may be problematic when the conext window is small. 
 
 
-###  Chain-of-thought prompting
+###  Chain-of-Thought prompting
 
-Chain-of-thought is akin to divide-and-conquer technique as in this approach the model breaks down the given problem into smaller steps that can reason about more easilly.
+Chain-of-thought is akin to divide-and-conquer technique as in this approach the model breaks down the given problem into smaller steps that it can reason about more easilly.
 Thus, in this appraoch a step-by-step solution guide to the problem at hand is provided to the model.
 We can fuse zero-shot and few-shot learning into chain-of-thought to further enhance the model's capabilities [5].
 
 Note however, that zero-shot prompting combined with chain-of-thought may sometimes be problematic; as the model is not supplied with any example of how to act,
 it may generate a number of reasoning steps and thus may not scale.
 
-Use case of chain-of-thought include, [5]:
+Some use case of chain-of-thought include, [5]:
 
 - Content generation
 - Hypothesis testing
 - Coding assistants
 
+Here is a prompt using Chain-of-Thought
+
+```
+
+Instructions: Classify this movie review sentiment. Let’s break this down step-by-step and explain the reasoning briefly, then give the final label.
+
+---
+Examples
+
+Review: The acting was wooden and the story dragged on forever.  
+Reasoning: The review uses strongly negative language (“wooden,” “dragged on”), indicating dissatisfaction.  
+Sentiment: Negative
+
+Review: A heartfelt, funny film with great performances that left me smiling.  
+Reasoning: The review uses positive descriptors (“heartfelt,” “funny,” “great performances,” “smiling”).  
+Sentiment: Positive
+
+---
+Review: $MOVIE=REVIEW
+
+---
+Reasoning:
+
+---
+Sentiment:
+
+```
 
 We can utilise chain-of-thought with <a href="https://www.promptingguide.ai/techniques/react">ReAct</a> in order to accomodate for the fact
 that chain-of-thought does not account for any external information. According to [4], often such a combination can lead to a very good prompting
@@ -87,6 +151,13 @@ Note that CoT has several extensions:
 - Multi-modal CoT: https://arxiv.org/abs/2302.00923
 - Collaborative CoT: https://arxiv.org/html/2409.07355v1
 - Meta-learning for CoT: https://arxiv.org/abs/2311.05922
+
+
+### Self-Consistency
+
+Self-consistency methods reduce hallucinations by generating multiple candidate outputs for the same input and then cross-verifying them. The basic workflow is to sample several outputs using different random seeds or prompt variations; if the outputs agree, you can be more confident, and if they disagree, that’s a signal the model may be unreliable on that query .
+In practice, you compare the candidates to find common themes and filter out inconsistent elements.
+
 
 ## Summary
 
