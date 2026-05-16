@@ -2,14 +2,12 @@
 
 ## Overview
 
-<a href="2025-04-29-prompt-methods.md">qubit-note: LLM Series | Prompt Engineering Part 1</a> looked into three ptompt engineering
+<a href="2025-04-29-prompt-methods.md">qubit-note: Prompt Engineering Part 1</a> looked into three ptompt engineering
 approaches. In this qubit note we expand into these techniques by looking into the following approaches:
 
 - <a href="https://www.promptingguide.ai/techniques/tot">Tree-of-Thoughts prompting (ToT)</a>
 - <a href="https://www.promptingguide.ai/techniques/react">Reasoning and Acting (ReAct)</a>
 - <a href="https://langchain-ai.github.io/langgraph/tutorials/rewoo/rewoo/">Reasoning WithOut Observation (ReWOO)</a>
-
-**keywords:** Large-language-models, Prompt-engineering, AI-engineering, Machine-learning
 
 ## Prompt Engineering
 
