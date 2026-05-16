@@ -109,8 +109,6 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ai_eng/2025-12-21-build-local-mcp-server-and-client-2.md">qubit-note: MCP Part 3 | Build an MCP Server</a>
 - <a href="ai_eng/2025-08-27-build-local-mcp-server-and-client.md">qubit-note: MCP Part 2 | Build an MCP Server</a>
 - <a href="ai_eng/2025-04-23-model-context-protocol.md">qubit-note: MCP Part 1 | Model Context Protocol or MCP</a>
-- <a href="ai_eng/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Hallucination & How to Measure it PArt 1</a>
-- <a href="ai_eng/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Series | Augmentation Techniques for Text Data</a>
 - <a href="ai_eng/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>
 - <a href="ai_eng/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
 - <a href="ai_eng/2026-05-06-RAG-Part-6-Retrieval-Optimizations.md">qubit-note: RAG | Retrieval Optimizations for RAG</a>
@@ -121,6 +119,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ai_eng/2026-05-14-Embeddings-And-Vector-Search.md">qubit-note: RAG | Embdeddings and Vector Search</a>
 - <a href="ai_eng/2025-08-21-indexing-for-rag.md">qubit-note: RAG  | Indexing for RAG</a>
 - <a href="ai_eng/2025-05-03-retrieval-augmented-generation.md">qubit-note: RAG  | Retrieval Augmented Generation (RAG) 101</a>
+- <a href="ai_eng/2026-01-12-LLM-Hallucination-How-to-Measure-It-Part-1.md">qubit-note: LLM Basics | LLM Hallucination & How to Measure it PArt 1</a>
+- <a href="ai_eng/2025-12-28-augmentation-techniques-text-data.md">qubit-note: LLM Basics | Augmentation Techniques for Text Data</a>
 - <a href="ai_eng/2026-05-16-Knowledge-Distillation-LLM.md"> qubit-note: LLM Basics | Knowledge Distillation for LLMs</a>
 - <a href="ai_eng/2026-05-15-Hands-On-Fine-Tune-LLaMA.md">qubit-note: LLM Basics | Hands On | Fine Tune  LLaMA-2-7B</a>
 - <a href="ai_eng/2026-05-14-Fine-Tuning.md">qubit-note: LLM Basics | Fine Tuning</a>
