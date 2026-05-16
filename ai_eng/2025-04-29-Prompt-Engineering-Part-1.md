@@ -1,9 +1,9 @@
-# qubit-note: LLM Series | Prompt Engineering Part 1
+# qubit-note: LLMs | Prompt Engineering Part 1
 
 
 ## Overview
 
-In this note I want to go over some basic prompting techniques.
+In this note we will go over some basic prompting techniques.
 Specifically, we will look into the following methods
 
 - <a herf="https://www.promptingguide.ai/techniques/zeroshot">Zero-shot prompting</a>
