@@ -112,7 +112,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ai_eng/2025-08-24-visual-language-models.md">qubit-note: Visual Language Models</a>
 - <a href="ai_eng/2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
 - <a href="ai_eng/2026-05-06-RAG-Part-6-Retrieval-Optimizations.md">qubit-note: RAG | Retrieval Optimizations for RAG</a>
-- <a href="ai_eng/2026-05-05-Hands-On-Hybrid-Retrieval.md">qubit-note: Hands On | Hybrid Retrieval</a>
+- <a href="ai_eng/2026-05-05-Hands-On-Hybrid-Retrieval.md">qubit-note: RAG | Hands On | Hybrid Retrieval</a>
 - <a href="ai_eng/2025-08-28-evaluate-RAG-based-system.md">qubit-note: RAG | Evaluate a RAG-based System</a>
 - <a href="ai_eng/2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">qubit-note: RAG | Document Fusion & Multi-stage Retrieval</a>
 - <a href="ai_eng/2025-08-31-RAG-or-fine-tuning.md">qubit-note: RAG  | RAG or Fine Tuning?</a>
