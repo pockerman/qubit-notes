@@ -38,11 +38,11 @@ The other side of the spectrum is Parameter-Efficient Fine-Tuning (PEFT). In PEF
 
 Fine tuning in general should increase the perfromance of a model on a specific domain. In addition, <a href="2025-05-03-retrieval-augmented-generation.md">Retrieval Augmented Generation</a>
 can also be used for this task. We will address when should we use each of these techniques in <a href="2025-08-31-RAG-or-fine-tuning.md">RAG or Fine Tuning?</a>. 
+qubit note <a href="2026-05-15-Hands-On-Fine-Tune-LLaMA.md">Hands On | Fine Tune  LLaMA-2-7B</a> shows how to fine tune a LLaMA-2-7B model.
 
 ## Summary
 
 This note provides a high-level overview of fine-tuning large language models (LLMs), describing it as the process of adapting a pre-trained model to a specific domain or task using custom training examples. It outlines the typical fine-tuning workflow, including data preparation, model selection, training, deployment, and monitoring. The text compares different fine-tuning approaches, starting with full fine-tuning, where all model parameters are updated for maximum adaptation at the cost of high computational requirements and possible catastrophic forgetting. It then introduces parameter-efficient fine-tuning (PEFT) methods such as Low-Rank Adaptation (LoRA), which trains only small adapter layers while keeping the original model weights frozen, and Quantized Low-Rank Adaptation (QLoRA), which combines LoRA with low-bit quantization to enable fine-tuning large models on limited hardware. The note also highlights that fine-tuning can improve model performance on specialized domains and mentions Retrieval-Augmented Generation (RAG) as a complementary technique for enhancing LLM capabilities.
-
 
 
 ## References

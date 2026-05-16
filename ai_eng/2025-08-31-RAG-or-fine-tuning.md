@@ -70,3 +70,6 @@ For example, suppose your legal document assistant must cite sources in Bluebook
 In this qubit note I provided some guideline on how to choose  fine-tuning or RAG in order to improve large language model (LLM) performance. Specifically, fine-tuning involves retraining a pre-trained model on a smaller, labeled, and task-specific dataset, making it well-suited for cases requiring model adaptation to unique tasks but with higher costs and technical expertise requirements. RAG, on the other hand, enhances an LLM by retrieving relevant external information at query time, making it more cost-effective and ideal for incorporating up-to-date data without retraining. However, RAG is less useful when the model fundamentally underperforms at a task or when task complexity demands deeper model adjustments. Both approaches have trade-offs in cost, complexity, and interpretability.
 
 ## References
+
+1. Rush Shahani, _Building Reliable AI Systems_, Manning Publications
+

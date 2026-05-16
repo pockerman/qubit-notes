@@ -68,6 +68,15 @@ Just like ToT, ReAct has a number of limitations [4]
 - Computational cost
 - Prompt complexity 
 
+
+---
+**Remark**
+
+We will discuss again ReAct and ToT when we discuss reasoning in LLM agents, see  <a href="./agents/2026-05-16-AI Agents-Decision-Making-AI-Agents.md">Decision Making in AI Agents</a>.
+
+---
+
+
 #### Reasoning WithOut Observation
 
 

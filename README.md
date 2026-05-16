@@ -74,8 +74,9 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
 - <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
 - <a href="software_engineering/2026-05-06-API-Basics-Diff-Rate-Limit-Throttling-Quotas.md">qubit-note APIs| Difference between Rate Limiting and Throttling and Quotas</a>
-- <a href="software_engineering/2026-05-05-API-Basics-gRPC-101.md">qubit-note: API Basics | Hands On | gRPC </a>
+- <a href="software_engineering/2026-05-05-API-Basics-gRPC-101.md">qubit-note: APIs | Hands On | gRPC </a>
 - <a href="software_engineering/2026-05-05-API-Basics-HTTP-Conditional-Requests.md">qubit-note:  APIs | HTTP Conditional Requests</a>
+- <a href="software_engineering/2026-05-16-API-Basics-API-Versioning-Backward-Compatibility.md">qubit-note: API Versioning and Backward Compatibility</a>
 - <a href="software_engineering/2026-05-04-API-Basics-API-Pagination-Strategies.md">qubit-note: APIs | API Pagination Strategies</a>
 - <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note:  APIs | Some Best Practices in API Design</a>
 - <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
@@ -96,8 +97,10 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## AI engineering
 
-- <a href="ai_eng/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Agents Part 2 | AI Agent vs MCP</a>
-- <a href="ai_eng/2026-04-05-AI-Agents-Part-Introduction.md">qubit-note: AI Agents Part 1 | Introduction</a>
+- <a href="ai_eng/agents/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Agents | AI Agent vs MCP</a>
+- <a href="ai_eng/agents/2026-05-16-AI-Agents-Hands-On-Agentic-RAG.md">qubit-note: AI Agents | Hands On | Agentic RAG</a>
+- <a href="ai_eng/agents/2026-05-16-AI Agents-Decision-Making-AI-Agents.md">qubit-note: AI Agents | Decision Making in AI Agents</a>
+- <a href="ai_eng/agents/2026-04-05-AI-Agents-Part-Introduction.md">qubit-note: AI Agents| Introduction</a>
 - <a href="ai_eng/2025-12-27-mcp-elicitation-1.md">qubit-note: MCP Part 8 | MCP Elicitation</a>
 - <a href="ai_eng/2025-12-26-mcp-sampling.md">qubit-note: MCP Part 7 | MCP Sampling</a>
 - <a href="ai_eng/2025-12-25-build-mcp-client-1.md">qubit-note: MCP Part 6 | Build an MCP Client</a>
@@ -118,6 +121,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ai_eng/2026-05-14-Embeddings-And-Vector-Search.md">qubit-note: RAG | Embdeddings and Vector Search</a>
 - <a href="ai_eng/2025-08-21-indexing-for-rag.md">qubit-note: RAG  | Indexing for RAG</a>
 - <a href="ai_eng/2025-05-03-retrieval-augmented-generation.md">qubit-note: RAG  | Retrieval Augmented Generation (RAG) 101</a>
+- <a href="ai_eng/2026-05-16-Knowledge-Distillation-LLM.md"> qubit-note: Knowledge Distillation for LLMs</a>
+- <a href="ai_eng/2026-05-15-Hands-On-Fine-Tune-LLaMA.md">Hands On | Fine Tune  LLaMA-2-7B</a>
 - <a href="ai_eng/2026-05-14-Fine-Tuning.md">qubit-note: Fine Tuning</a>
 - <a href="ai_eng/2026-02-10-Prompt-Engineering-Part-4.md">qubit-note: Prompt Engineering Part 4</a>
 - <a href="ai_eng/2026-01-14-Prompt-Engineering-Part-3.md">qubit-note: Prompt Engineering Part 3</a>
