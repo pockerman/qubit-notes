@@ -1,9 +1,8 @@
 # qubit-note: LLM Basics | Prompt Engineering Part 1
 
-
 ## Overview
 
-In this note I want to go over some basic prompting techniques.
+In this note we will go over some basic prompting techniques.
 Specifically, we will look into the following methods
 
 - <a herf="https://www.promptingguide.ai/techniques/zeroshot">Zero-shot prompting</a>
@@ -23,7 +22,7 @@ tech industry as they open new paths of doing a lot of things  including softwar
 Primarily, a user/client interacts with an LLM via a user prompt. Similarly, we have the system prompt which
 basically sets the context up that the user prompt should be interpreted, establishes the tone of the reply 
 and possibly provides examples and instructions how the task should be carried out. 
-Although personally I wouldn't necessarilly call crafting a prompt an engineering discipline, there exists certainly approaches
+There exists a number of approaches
 we can use in order to improve our prompts and hence the response from the model. 
 
 Overall these techniques/methods allow us to [5]:
@@ -39,6 +38,7 @@ These two approaches refer to the number of examples the model sees before asked
 Zero-shot means that the model sees no examples whilst few-shot means that the model gets to see a few examples
 before crafting its response. 
 
+<<<<<<< HEAD
 Thus zero-shot prompting relies exclusively on the capability of the model to parser the user and system prompts
 and generate a response. To a great extent this capability depends on the data used to train the model. Here
 is an example of how an instruction prompt will look like
@@ -87,7 +87,7 @@ Both techniques are rather easy to implement, well nothing really to implement i
 - Sentiment analysis
 - Chatbot development
 
-Despite their rather extensive usage, these approaches have limitations. I have already mentioned that zero-shot learning
+Despite their rather extensive usage, these approaches have limitations. We have already mentioned that zero-shot learning
 basically relies on the model's capacity to generate a correct response. With few-shot learning one can guide the model
 towards a solution however this approach may be problematic when the conext window is small. 
 
