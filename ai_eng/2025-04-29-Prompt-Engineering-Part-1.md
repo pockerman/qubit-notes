@@ -22,7 +22,7 @@ tech industry as they open new paths of doing a lot of things  including softwar
 Primarily, a user/client interacts with an LLM via a user prompt. Similarly, we have the system prompt which
 basically sets the context up that the user prompt should be interpreted, establishes the tone of the reply 
 and possibly provides examples and instructions how the task should be carried out. 
-Although personally I wouldn't necessarilly call crafting a prompt an engineering discipline, there exists certainly approaches
+There exists a number of approaches
 we can use in order to improve our prompts and hence the response from the model. 
 
 Overall these techniques/methods allow us to [5]:
