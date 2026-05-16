@@ -38,7 +38,7 @@ These two approaches refer to the number of examples the model sees before asked
 Zero-shot means that the model sees no examples whilst few-shot means that the model gets to see a few examples
 before crafting its response. 
 
-Thus zero-shot prompting relies exclusively on the capability of the model to parser the user and system prompts
+Thus zero-shot prompting relies exclusively on the capability of the model to parse the user and system prompts
 and generate a response. To a great extent this capability depends on the data used to train the model.
 
 In contrast, in few-shot learning, the model gets to see a few examples of what constitutes a right response.
@@ -50,7 +50,7 @@ Both techniques are rather easy to implement, well nothing really to implement i
 - Sentiment analysis
 - Chatbot development
 
-Despite their rather extensive usage, these approaches have limitations. I have already mentioned that zero-shot learning
+Despite their rather extensive usage, these approaches have limitations. We have already mentioned that zero-shot learning
 basically relies on the model's capacity to generate a correct response. With few-shot learning one can guide the model
 towards a solution however this approach may be problematic when the conext window is small. 
 
