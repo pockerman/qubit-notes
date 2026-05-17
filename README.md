@@ -40,8 +40,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems | Sharded Counters</a>
 - <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Distributed Systems | Resiliency | Liveness and Readiness Checks</a>
 - <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Distributed Systems | Resiliency | Sticky Sesssions</a>
-- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Distributed Systems  | Resiliency | Global Server Load Balancing</a>
-- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Distributed Systems | Resiliency | | Load Balancing</a>
+- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Distributed Systems | Resiliency | Global Server Load Balancing</a>
+- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Distributed Systems | Resiliency | Load Balancing</a>
 - <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems | Resiliency | Upstream Resiliency</a>
 - <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note: Distributed Systems | Resiliency| Downstream Resiliency</a>
 - <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Distributed Systems | Resiliency | Failure Causes</a>
@@ -55,7 +55,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems | Data Replication| State Machine Replication</a>
 - <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Distributed Systems | Data Replication</a>
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Distributed Systems | Partitioning | Partitioning</a>
-- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Distributed Systems| Communication | HTTP</a>
+- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Distributed Systems | Communication | HTTP</a>
 - <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Distributed Systems | Communication | APIs</a>
 - <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Distributed Systems | Communication | Domain Name System</a> 
 - <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note:  Distributed Systems | Communication |  TLS 101</a>
