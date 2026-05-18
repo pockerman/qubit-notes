@@ -49,12 +49,13 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Distributed Systems | Caching | Cache Replacement</a>
 - <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Distributed Systems | Caching | Cache Coherence</a>
 - <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Distributed Systems | Caching | Caching Methods</a>
-- <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Distributed Systems | Data Replication | PACELC, CAP and CALM Theorems </a>
-- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems | Data Replication  | Broadcast Protocols</a>
-- <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Distributed Systems | Data Replication | Consensus</a>
-- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems | Data Replication| State Machine Replication</a>
-- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Distributed Systems | Data Replication</a>
-- <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Distributed Systems | Partitioning | Partitioning</a>
+- <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Distributed Systems | Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
+- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems | Scalability | Data Replication  | Broadcast Protocols</a>
+- <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Distributed Systems | Scalability | Data Replication | Consensus</a>
+- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems | Scalability | State Machine Replication</a>
+- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Distributed Systems | Scalability | Data Replication</a>
+- <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Distributed Systems | Scalability | Partitioning</a>
+- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Distributed Systems | Scalability | Little’s Law</a>
 - <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Distributed Systems| Communication | HTTP</a>
 - <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Distributed Systems | Communication | APIs</a>
 - <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Distributed Systems | Communication | Domain Name System</a> 
@@ -97,6 +98,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## AI engineering
 
+- <a href="ai_eng/plafrom/2026-05-16-AI-Platform-Design-Observability.md">qubit-note: AI Platform Design | Observability</a>
 - <a href="ai_eng/agents/2025-08-25-ai-agents-vs-mcp.md">qubit-note: AI Agents | AI Agent vs MCP</a>
 - <a href="ai_eng/agents/2026-05-16-AI-Agents-Hands-On-Agentic-RAG.md">qubit-note: AI Agents | Hands On | Agentic RAG</a>
 - <a href="ai_eng/agents/2026-05-16-AI Agents-Decision-Making-AI-Agents.md">qubit-note: AI Agents | Decision Making in AI Agents</a>
