@@ -37,3 +37,22 @@ Example tools:
 
 get_flight_status(flight_number)
 get_airport_departures(airport_code)
+
+
+15. AI Tutor Assistant
+
+Main APIs:
+
+Wolfram Alpha API
+Wikipedia API
+
+LLM concepts:
+
+reasoning
+educational explanations
+fact grounding
+
+Example tools:
+
+solve_math(problem)
+lookup_concept(topic)
