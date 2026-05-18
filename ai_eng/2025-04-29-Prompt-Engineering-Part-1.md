@@ -38,7 +38,6 @@ These two approaches refer to the number of examples the model sees before asked
 Zero-shot means that the model sees no examples whilst few-shot means that the model gets to see a few examples
 before crafting its response. 
 
-<<<<<<< HEAD
 Thus zero-shot prompting relies exclusively on the capability of the model to parser the user and system prompts
 and generate a response. To a great extent this capability depends on the data used to train the model. Here
 is an example of how an instruction prompt will look like
