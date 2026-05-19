@@ -8,36 +8,32 @@ we conceive businesses. However, LLMs have limitations which if we don't address
 an application in a non-recoverable way. It is important therefore that we can monitor the
 performance of an LLM model.
 
-<a href="2025-05-06-tactics-to-increase-llm-reliability.md">qubit-note: Tactics to Increase LLM Reliability</a>
+In <a href="2025-05-06-tactics-to-increase-llm-reliability.md">Tactics to Increase LLM Reliability</a> we
 discussed several tactics we can employ in order to imporove the perforance of such models. These where general guidelines.
-In this note we will go in more detail. We will start with one of the major problems that reduce the performance of LLMs that is model hallucination
+In this note we will go more into the details. We will start with one of the major problems that reduce the performance of LLMs that is model hallucination
 
-**keywords** Large-language-models, LLM-hallucination, LLM-reliability, AI-engineering
-
-## LLM Hallucination & How to Measure It PArt 1
+## LLM Hallucination & How to Measure It Part 1
 
 As language models like GPT become more advanced and more widely used, hallucinations  emerge as a major challenge. 
-Hallucinations occur whenan AI system generate content that is untrue, inconsistent, or just plain made-up. 
+Hallucinations occur when an AI system generate content that is untrue, inconsistent, or just plain made-up. 
 This, obviously, can lead to the spread of fake information, incorrect medical diagnosis, bad financial advice, and many other potential harms that can be detrimental for a business.
 
 There seems to be some controversy regarding the term _hallucination_ in the AI community, I won't go into this
 discussion as our perspective in this note is purely from a systems engineering perspective. Thus, in this note the term
 will correspond to a class of issues around truthfulness, consistency, and coherence in language model outputs. 
 
-We can, however, distinguish betweem[1]:
+We can, however, distinguish betweem [1]:
 
 - Intrinsic hallucinations
 - Extrinsic hallucinations
 
-
 The first class of hallucinations corresponds to the cases where the language model generates content that is false or inconsistent based on the knowledge and patterns it has learned from its training data, rather than from the specific conversational context or prompt [1]. The second type of hallucinations occur when the model introduces information that doesn't exist in the provided input or context at all. Unlike intrinsic hallucinations that stem from flawed training knowledge, extrinsic hallucinations represent complete fabrications where the model generates content with no grounding in any available source material [1].
-
 
 Overall, there are several contributing factors to model hallucinations [1]:
 
 - Training data
 - Exposure bias
-- Errroneous decoding
+- Erroneous decoding
 - Parametric knowledge bias
 - Imperfect representation
 
