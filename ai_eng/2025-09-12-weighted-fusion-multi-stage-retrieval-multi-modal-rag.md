@@ -3,19 +3,16 @@
 
 ## Overview
 
-<a href="2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a> discussed how to imporve indexing for RAG systems. However, depending on the application, this may not be enough.
+<a href="2025-08-21-indexing-for-rag.md">Indexing for RAG</a> discussed how to imporve indexing for RAG systems. However, depending on the application, this may not be enough.
 In addition, applications typically involve more than one modalities in terms of data e.g. text, images and video. In this qubit note I want to discuss a 
 hybrid approach for improving retrieval. The approach combines weighted fusion and multi-stage retrieval.
 
 A simple implementation can be found at: <a href="https://github.com/pockerman/multi_modal_rag/tree/main">Document fusion & multi-step retrieval of multi-modal RAG</a>
 
-
-**keywords** weighted-fusion, multi-stage-retrieval, RAG, AI-engineering, large-language-models, LLM, retrieval-augmented-generation
-
 ## Document fusion & multi-stage retrieval for multi-modal RAG
 
 Embedding models map documents to vectors thus creating a semantic space where similar meanings cluster together. 
-This ia a powerful approach known as dense retrieval [4]. It has however limitations when deployed in real-world applications.
+This is a powerful approach known as dense retrieval [4]. It has however limitations when deployed in real-world applications.
 Let's consider the  scenario whereby the user asks a question and while the answer is contained within the documnent corpus we have
 indexed, the retrieved documents do not contain it. How this can be possible? The problem lies with how dense retrieval works and there
 are three key reasons why [4]:
@@ -51,7 +48,6 @@ prioritizes documents containing the exact terms [4]. Hence, a typical hybrid re
 
 Such an approach is used in production systems as it improves recall by ensuring the right documents are somewhere in the results set.
 
-
 ### Multi-stage retrieval
 
 Hybrid redtrieval improves the recall however in a retrieval application we are also interested in precision.
@@ -72,20 +68,19 @@ Multi-stage retrieval uses a filtering pipeline.  We split the task of finding a
 
 Broad retrieval is typically a hybrid retrieval i.e. dense and sparse search as we saw in the previous section. Traditional emebedding models e.g. OpenAI embeddings, are bi-encoders meaning the encode both the query and each documents into separate vectors and then compare these vectors using for example cosine similarity. One problem with such an approach is that the query and and documents never interact directly [4].
 
-
 A <a href="https://www.sbert.net/examples/cross_encoder/applications/README.html">cross-encoder</a> takes a different approach [4]:
 
 1. They accept both the query and document as a single input pair
 2. Process this pair through all layers of the transformer model
 3. Output a single relevance score
 
-This allows the model to capture complex interactions between query and document terms. A cross-encoder can understand, for example, that "work accommodation" in the query is highly relevant to "ADA" in the document, even if these specific terms don't co-occur. Thus, multi-stage retrieval is a core component of any advanced RAG architecture, designed to enhance the quality and relevance of retrieved information.
+This allows the model to capture complex interactions between query and document terms. A cross-encoder can understand, for example, that _work accommodation_ in the query is highly relevant to _ADA_ in the document, even if these specific terms don't co-occur. Thus, multi-stage retrieval is a core component of any advanced RAG architecture, designed to enhance the quality and relevance of retrieved information.
 
 
 ### Document fusion
 
 We have seen that hybrid search involves two searches a dense search based on embeddings and sparse search based on keywords. 
-In addition, we may have indexed our DB in a such a way that both small and large chunks are used, see e.g.  <a href="2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a>.
+In addition, we may have indexed our DB in a such a way that both small and large chunks are used, see e.g.  <a href="2025-08-21-indexing-for-rag.md">Indexing for RAG</a>.
 
 In order to answer the user query not all documents are of equal importance. And this is the responsibility of stage 2 Progressive filtering; to filter out irrelevant or less relevant documents.
 Furthermore, we can use document fusion i.e. somehow fuse the documents together. Two popular approaches include weighted fusion and reciprocal rank fusion or RRF. 
@@ -111,7 +106,7 @@ Colllectively, multi-stage retrieval combined with document fusion could work as
 
 1. Indexing for each document produce one or more representations e.g. embeddings, metadata, summaries. 
 2. Multi-stage retrieval
-   1. Broad retrieval:  Find documents that are protentially relevant. The aim here is the fetch as many relevant documents as possible.
+   1. Broad retrieval:  Find documents that are potentially relevant. The aim here is to fetch as many relevant documents as possible.
    2. Filter: Remove irrelevant documents
    3. Fuse: Merge candidate sets, normalize scores, compute fused score (weighted) 
    4. Re-rank: Run cross-modal re-ranker (e.g. cross-encoder that takes query + documents) over top $N$ fused candidates.

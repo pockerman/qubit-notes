@@ -10,11 +10,11 @@ a high level overview of the topic. In this note we will discuss:
 
 ## Fine tuning LLMs
 
-Let's first of all discuss what fine-tuning is. In simple terms, Fine-tuning is taking a pre-trained LLM and training it further on your own custom, 
+Let's first of all discuss what fine-tuning is. In simple terms, fine-tuning is taking a pre-trained LLM and training it further on your own custom, 
 domain-specific or task-specific examples so it adapts its behavior to your use case. 
 Thus the purpose of fine tuning is to adapt an LLM to a given scope.
 
-Typically, in fine tuning we will have to prepare input/output examples (often in a chat/message format), then run additional training so the model’s weights get updated based on those examples—so it learns your domain’s terminology, preferred tone, and response style, instead of relying only on prompting. 
+Typically, with fine tuning we will have to prepare input/output examples (often in a chat/message format), then run additional training so the model’s weights get updated based on those examples—so it learns your domain’s terminology, preferred tone, and response style, instead of relying only on prompting. 
 
 Fine tuning a model should follow a structured approach just like any other training methodology for machine learning.
 Specifically, the AI platform should somehow support the following phases:
@@ -27,8 +27,8 @@ Specifically, the AI platform should somehow support the following phases:
 
 ### Approaches to fine tuning
 
-There are various appraoches to fine tuning. Perhaps the simplest approach is full fine tuning.
-In full fine-tuning, you update all of the model’s parameters. It can give the best task/domain adaptation, but it’s expensive (large VRAM/compute needs) and increases the risk of catastrophic forgetting.
+There are various approaches to fine tuning. Perhaps the simplest approach is full fine tuning.
+In full fine-tuning, you update all of the model’s parameters. It can give the best task/domain adaptation, but it’s expensive (large RAM requirements as well as compute resources) and increases the risk of catastrophic forgetting.
 
 The other side of the spectrum is Parameter-Efficient Fine-Tuning (PEFT). In PEFT you keep the base model frozen and train only a small number of added parameters (“adapters”), which drastically reduces compute and memory needs. Two practical PEFT methods are: LoRA and QLoRA.
 
@@ -37,8 +37,8 @@ The other side of the spectrum is Parameter-Efficient Fine-Tuning (PEFT). In PEF
 
 
 Fine tuning in general should increase the perfromance of a model on a specific domain. In addition, <a href="2025-05-03-retrieval-augmented-generation.md">Retrieval Augmented Generation</a>
-can also be used for this task. We will address when should we use each of these techniques in <a href="2025-08-31-RAG-or-fine-tuning.md">RAG or Fine Tuning?</a>. 
-qubit note <a href="2026-05-15-Hands-On-Fine-Tune-LLaMA.md">Hands On | Fine Tune  LLaMA-2-7B</a> shows how to fine tune a LLaMA-2-7B model.
+can also be used for this task. We will discuss when should we use each of these techniques in <a href="2025-08-31-RAG-or-fine-tuning.md">RAG or Fine Tuning?</a>. 
+qubit note <a href="2026-05-15-Hands-On-Fine-Tune-LLaMA.md">Fine Tune  LLaMA-2-7B</a> shows how to fine tune a LLaMA-2-7B model.
 
 ## Summary
 

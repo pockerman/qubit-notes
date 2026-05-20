@@ -14,13 +14,13 @@ In this qubit note we will review some of these parameters. Namely, we will disc
 
 ## Prompt Engineering
 
-There are several parameters that we can in tune in order to improve the generated response from a large language model.
-We review some of them below
+There are several parameters we can tune in order to improve the generated response from a large language model.
+We review some of them below.
 
 
 #### Temperature parameter
 
-Perhaps the most known model parameter is the temperature. It controls the randomness and diversity of a model's responses [1]. 
+Perhaps the most known model parameter is the temperature. It controls the randomness and diversity of the respopnses of a model [1]. 
 Specifically, the temperature parameter adjusts the distribution of next token probabilities during text generation.
 Low temperature values produce more deterministic responses that are more grounded on the provided training data.
 The temperature values vary in the range $[0,2]$.  
@@ -30,8 +30,9 @@ e.g. when implementing a chatbot.
 
 #### Top-p parameter
 
-Another parameter that works closely with the temperature parameter is top-p. This is actually a sampling technique but LLM providers allow us
-to control the pool of candiate tokens a model can use. Specifically, this parameter determines the cumulative probability threshold for selecting the top tokens [1].
+Another parameter that works closely with the temperature parameter is top-p. This is actually a sampling technique.  LLM providers allow us
+to control the pool of candiate tokens a model can use via this parameter. 
+Specifically, this parameter determines the cumulative probability threshold for selecting the top tokens [1].
 
 The top-p (or nucleus) sampling technique is a powerful tool for controlling the randomness and quality of LLM outputs. By tuning the top-p value, we can reduce the risk of hallucinations and improve the coherence and relevance of generated responses. For example, setting top-p to 0.9 means that the model will only consider the smallest set of most probable tokens whose cumulative probability exceeds 90%. This helps eliminate less likely and potentially irrelevant or inconsistent choices.
 
@@ -48,7 +49,7 @@ For reliable outputs, use temperature=0.3 with top_p=0.8. For creative but contr
 ----
 
 There is also a top-k m paramter that restricts sampling to the top $k$ most probable tokens. However, top-p is more adaptive than top-k.
-Let me also mention the <a href="https://arxiv.org/abs/2407.01082">min-p sampling</a>. This is similar to top-p sampling, but instead
+Let us also mention <a href="https://arxiv.org/abs/2407.01082">min-p sampling</a>. This is similar to top-p sampling, but instead
 of keeping a fixed cumulative probability mass (say, 90%), it dynamically adjusts based on the model’s confidence.
 It looks at the probability of the most likely token and only keeps tokens that are at least a certain fraction, e.g. 5%, as likely.
 
@@ -69,7 +70,7 @@ For example, using a stop sequence like "\n" can prevent the model from continui
 
 Frequency and presence penalties are mechanisms that reduce repetition in LLM outputs to improve diversity and overall text quality.
 
-- Frequency penalty reduces the likelihood of generating tokens in proportion to how often they’ve already appeared.
+- Frequency penalty reduces the likelihood of generating tokens in proportion to how often they have already appeared.
 - Presence penalty discourages reuse of any token that has appeared at least once, regardless of frequency.
 
 Higher penalty values push the model toward generating new tokens instead of repeating old ones. Penalty values range from −2.0 to 2.0, with 0.5–1.0 recommended for most use cases.
@@ -86,7 +87,7 @@ It covers the main controls:
 - Output length and stop sequences: Limiting maximum output tokens and defining stop sequences helps prevent overly long, inconsistent, or off-topic responses.
 - Frequency and presence penalties: Reduce repetition by discouraging reuse of previously generated tokens, improving diversity and text quality.
 
-Overall, the note emphasizes that carefully tuning these parameters—such as using low temperature and moderate top-p for reliability—can significantly improve LLM response quality and consistency.
+Overall  carefully tuning these parameters—such as using low temperature and moderate top-p for reliability—can significantly improve LLM response quality and consistency.
 
 
 ## References

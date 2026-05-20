@@ -12,9 +12,6 @@ with information that it was not trained on.
 Specifically, I want to discuss <a href="https://en.wikipedia.org/wiki/Retrieval-augmented_generation">retrieval augmented generation</a> or RAG; its main componets and
 the typical workflow.
 
-**keywords** RAG, AI-engineering, large-language-models, LLM, retrieval-augmented-generation, 
-
-
 ## Retrieval augmented generation 
 
 
@@ -34,15 +31,15 @@ The job of the retriever is to act similar to a search engine. It searches any e
 typically a <a href="https://en.wikipedia.org/wiki/Vector_database">vector database</a>, in real-time.
 Its job is to ensure that the generator has up-to-date information that is relevant to user query.
 
-Let's discuss the typical RAG workflow
+Let's discuss the typical RAG workflow.
 
 ### The RAG pipeline
 
 The typical RAG pipeline consists of the following steps [1]:
 
-- Pre-Retrieval 
+- Pre-retrieval 
 - Retrieval, 
-- Post-Retrieval phases. 
+- Post-retrieval phases. 
 
 As its name propbaly implies, during the pre-retrieval step we collect the data that we want to use in order to enhance our model.
 This is an offline step whereby we clean the data, create embeddings, index it and store in a database. The most common type
@@ -50,12 +47,11 @@ of databases used in a RAG pipeline are <a href="https://en.wikipedia.org/wiki/V
 Although nothing is stopping us from having this step performed during the user query i.e. online, given the amount of work required it would slow things down
 considerably.
 
-During the retrieval stage, the system deals with the user query. A RAG system may not use the user prompt in its original form.
-Instead various optimizations may be applied before sending it to the model. This prompt tranformation aims at enhancing the searches; reduce irrelevant results, enhance retrieval performance [1]. 
+During the retrieval stage, the system deals with the user query. A RAG system may not use the user query in its original form.
+Instead various optimizations may be applied before sending it to the documents database. This query tranformation aims at enhancing the searches; reduce irrelevant results, enhance retrieval performance [1]. 
 
 The last step in a RAG pipeline is  post-retrieval. In this step, the retrieved documents are somehow refined before we pass these into the LLM model in order to generate a response.
 Such refinements include, see [1], prompt compression and priority re-ranking
-
 
 GraphRAG is a similar approach to RAG, however it is using knowledge graphs to back up the RAG pipeline. GraphRAG has been reported to produce
 better accuracy than the usual RAG [3]. A similar concept to RAG is CAG or Cached Augmented Generation [4].
@@ -65,8 +61,9 @@ better accuracy than the usual RAG [3]. A similar concept to RAG is CAG or Cache
 
 LLMs are powerful but limited by outdated training data and domain gaps, often leading to hallucinations when asked questions outside their knowledge scope. RAG addresses this by combining an LLM with a retriever that pulls relevant, up-to-date information, typically from a vector database, before the model generates a response. The RAG workflow has three main phases: pre-retrieval (data preparation, embedding, and indexing), retrieval (query handling and optimization), and post-retrieval (refining and re-ranking documents before passing them to the model). Variants like GraphRAG, which integrates knowledge graphs, and Cached Augmented Generation (CAG) further extend the approach, offering improvements in accuracy and efficiency.
 
-<a href="2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a> discusses further how to do indexing for RAG-based applications.
-<a href="2025-08-28-evaluate-RAG-based-system.md">qubit-note: Evaluate a RAG-based System</a> provides some hints how to evaluate a RAG-based system.
+We discuss indexing for RAG in <a href="2025-08-21-indexing-for-rag.md">Indexing for RAG</a>.
+We discuss how to evaluate a RAG-based system in 
+<a href="2025-08-28-evaluate-RAG-based-system.md">Evaluate a RAG-based System</a>.
 
 ## References
 
