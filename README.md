@@ -55,6 +55,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems | Scalability | State Machine Replication</a>
 - <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Distributed Systems | Scalability | Data Replication</a>
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Distributed Systems | Scalability | Partitioning</a>
+- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Distributed Systems | Scalability | Cold & Warm Starts</a>
 - <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Distributed Systems | Scalability | Little’s Law</a>
 - <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Distributed Systems| Communication | HTTP</a>
 - <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Distributed Systems | Communication | APIs</a>
