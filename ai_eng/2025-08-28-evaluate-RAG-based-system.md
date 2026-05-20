@@ -3,7 +3,7 @@
 ## Overview
 
 We have discussed several topics associated with RAG e.g. <a href="2025-08-21-indexing-for-rag.md">Indexing for RAG</a> discussed how to imporve indexing for RAG systems. 
-whilst - <a href="2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">Hybrid & Multi-stage Retrieval</a> discussed how the retrieval component of a RAG system can
+<a href="2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">Hybrid & Multi-stage Retrieval</a> discussed how the retrieval component of a RAG system can
 be improved. In this note we will discuss how to evaluate a RAG-based system.
 
 ## Evaluate a RAG-based system
