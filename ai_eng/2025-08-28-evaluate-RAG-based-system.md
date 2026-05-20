@@ -2,16 +2,15 @@
 
 ## Overview
 
-<a href="2025-05-03-retrieval-augmented-generation.md">quibit-note: Retrieval Augmented Generation (RAG)</a> discussed the concept of RAG, whilst 
-<a href="2025-08-21-indexing-for-rag.md">qubit-note: Indexing for RAG</a> discussed how to imporve indexing for RAG systems. In this note I want to
-discuss some ideas on how to evaluate a RAG-based system.
-
-**keywords** RAG, AI-engineering, large-language-models, LLM, retrieval-augmented-generation
+We have discussed several topics associated with RAG e.g. <a href="2025-08-21-indexing-for-rag.md">Indexing for RAG</a> discussed how to imporve indexing for RAG systems. 
+<a href="2025-09-12-weighted-fusion-multi-stage-retrieval-multi-modal-rag.md">Hybrid & Multi-stage Retrieval</a> discussed how the retrieval component of a RAG system can
+be improved. In this note we will discuss how to evaluate a RAG-based system.
 
 ## Evaluate a RAG-based system
 
 RAG based systems typically involve a number of components and this is what makes their evaluation rather involved. Let's first discuss how to evaluate the 
-retrieval step.
+retrieval step. Overall, we wil need to evaluate the retrieval step, the generation step and then the system as whole in terms of latency and/or other system
+related metrics.
 
 ### Evaluate the retrieval step
 
@@ -38,7 +37,6 @@ where $rank_i$ refers to the rank position of the first relevant document for th
 The NDCG metric evaluates the quality of recommendation and information retrieval systems. 
 Specifically, NDCG helps measure a machine learning algorithm's ability to sort items based on relevance [2]. 
 
-
 ### Evalaute generation quality
 
 After retrieving the relevant documents, the system should generate a response. This is another aspect 
@@ -53,14 +51,13 @@ If however such answers exist, we can use metrics such as <a href="https://en.wi
 <a href="https://huggingface.co/spaces/evaluate-metric/bertscore">BERTScore</a>. Another approach can be to use another model to rate factuality and faithfulness i.e. LLM-as-a-judge.
 Human evaluation can also be employed i.e. domain experts score the model's output. However, this approach may not be easy to automate.
 
-Many times task specific metrics may be more appropriate. For example for question-answering tasks metrics like F1 or ExactMatch may be more useful.
+Many times task specific metrics may be more appropriate. For example for question-answering tasks metrics like $F1$ or ExactMatch may be more useful.
 In addition, comparing RAG output with some sort of baseline e.g. the output of an older system may be of use.
 
 ### Evaluate system performance
 
-We need also to consider the overall system performance. Here things are probably more streamilined with general system evaluation metrics such as latency, cost and availability.
+We also need to consider the overall system performance. Here things are probably more streamilined with general system evaluation metrics such as latency, cost and availability.
 These metrics depend heavily on the system at hand and which of these metrics we want to prioritize/improve.
-
 
 ## Summary
 
