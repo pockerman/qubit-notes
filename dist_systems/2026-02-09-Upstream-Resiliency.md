@@ -2,8 +2,8 @@
 
 ## Overview
 
-<a href="2026-02-04-Downstream-Resiliency.md">qubit-note: Resiliency Part 2 | Downstream Resiliency</a>
-discussed various options we can employ in order to handle downstream failures i.e. failures that are caused due to a failed
+In <a href="2026-02-04-Downstream-Resiliency.md">Downstream Resiliency</a> we discussed
+various options we can employ in order to handle downstream failures i.e. failures that are caused due to a failed
 interaction with another service.
 
 In this note, we want to look into how to handle failures within our system e.g. when our server is overloaded. Specifically,
@@ -24,7 +24,7 @@ Let's start this note by discussing load shedding.
 #### Load shedding
 
 In layman's terms load shedding refers to rejecting requests when our system is overloaded. What it means for a system to be overloaded depends on
-the system at hand [1]. When a server detects that is overlaoded it can reject the incoming request by returning 503 i.e. Service Unavailable.
+the system at hand [1]. When a server detects that is overloaded it can reject the incoming request by returning 503 i.e. Service Unavailable.
 Note that load shedding cannot completely offload from the server the cost of handling the request [1]. How much handling the server has to do depends
 on how it handles the rejection process. 
 
@@ -50,7 +50,7 @@ In order for a service to be able to handle more request, it has to be scaled ou
  ---
  **Remark Differences between rate limiting, throttling and quotas**
 
- The text above uses the terms rate limiting, throttlin and quotas somehow interchangeably.
+ The text above uses the terms rate limiting, throttling and quotas somehow interchangeably.
  However, technically thes terms are different. See  <a href="../software_engineering/2026-05-06-API-Basics-Diff-Rate-Limit-Throttling-Quotas.md">Difference between Rate Limiting and Throttling and Quotas</a> for the differences between these terms.
 
  ---
@@ -63,7 +63,7 @@ In order for a service to be able to handle more request, it has to be scaled ou
 
  The bulkhead pattern partitions a shared resource behind a load balancer and assigns each user of the service  to a specific partition.
  This means that the requests of the greedy user can only utilize the resources in the partition he has been assigned to. Unavoidably, the greedy user
- will negatively affect the other users in the same partition however the pattern does not allow any furthre mitigation of the entire system.
+ will negatively affect the other users in the same partition however the pattern does not allow any further mitigation of the entire system.
 
 
  #### Health check
@@ -80,7 +80,7 @@ In order for a service to be able to handle more request, it has to be scaled ou
  A watchdog is implemented as a background thread that monitors the runnning process. It wakes up periodically and checks various aspects of the
  running process like memory consumption. When the metric is identified to exceed a configured threshold, the watchdog will restart the running
  process [1]. This approach allows the system to gain some room before failing and gives time to the engineering team to identify the bug.
- Obviously, a watchdog has to be tested thoroughly otherwise we may end restarting the process continuous.ly
+ Obviously, a watchdog has to be tested thoroughly otherwise we may end restarting the process continuously.
 
 
 ## Summary
