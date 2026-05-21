@@ -55,6 +55,8 @@ In order for a service to be able to handle more request, it has to be scaled ou
 
  ---
 
+ We will discuss more about rate limiting in  <a href="2026-05-21-Resiliency-Hands-On-Design-Rate-Limiter.md">Design a Rate Limiter</a>
+
  #### Bulkhead
 
  The bulkhead pattern, named after the partitions of a ship's hull, is to isolate a fault in one part of a service from degrading the entrire service [1].
