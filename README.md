@@ -42,6 +42,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Distributed Systems | Resiliency | Sticky Sesssions</a>
 - <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Distributed Systems | Resiliency | Global Server Load Balancing</a>
 - <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Distributed Systems | Resiliency | Load Balancing</a>
+- <a href="dist_systems/2026-05-21-Resiliency-Hands-On-Design-Rate-Limiter.md">qubit-note: Distributed Systems | Resiliency | Hands On | Design a Rate Limiter</a>
 - <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems | Resiliency | Upstream Resiliency</a>
 - <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note: Distributed Systems | Resiliency| Downstream Resiliency</a>
 - <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Distributed Systems | Resiliency | Failure Causes</a>
@@ -72,21 +73,22 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 ## Software engineering
 
 
-- <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: Architecture Series | Scalability Patterns</a>
-- <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture Series | Service Oriented Architecture Pattern</a>
-- <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture Series | Pipeline Pattern</a>
-- <a href="software_engineering/2026-05-06-API-Basics-Diff-Rate-Limit-Throttling-Quotas.md">qubit-note APIs| Difference between Rate Limiting and Throttling and Quotas</a>
+- <a href="software_engineering/2026-05-20-API-Basics-CORS.md">qubit-note: APIs | CORS</a>
+- <a href="software_engineering/2026-05-06-API-Basics-Diff-Rate-Limit-Throttling-Quotas.md">qubit-note APIs | Difference between Rate Limiting and Throttling and Quotas</a>
 - <a href="software_engineering/2026-05-05-API-Basics-gRPC-101.md">qubit-note: APIs | Hands On | gRPC </a>
 - <a href="software_engineering/2026-05-05-API-Basics-HTTP-Conditional-Requests.md">qubit-note:  APIs | HTTP Conditional Requests</a>
 - <a href="software_engineering/2026-05-16-API-Basics-API-Versioning-Backward-Compatibility.md">qubit-note: API Versioning and Backward Compatibility</a>
 - <a href="software_engineering/2026-05-04-API-Basics-API-Pagination-Strategies.md">qubit-note: APIs | API Pagination Strategies</a>
 - <a href="software_engineering/2025-08-16-some-best-practices-api-design.md">qubit-note:  APIs | Some Best Practices in API Design</a>
-- <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture Series | Semantic Caching</a>
-- <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture Series | Ports and Adapters Pattern</a>
-- <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture Series | Layers Pattern</a>
-- <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Architecture Series | Circuit Breaker Pattern</a>
-- <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture Series | Backend-for-frontend Pattern</a>
-- <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture Series | Managing Distributed Workflows</a>
+- <a href="software_engineering/2025-11-30-architecture-patterns-scalability-patterns.md">qubit-note: Architecture | Scalability Patterns</a>
+- <a href="software_engineering/2025-08-25-architecture-patterns-service-oriente-architecture-pattern.md">qubit-note: Architecture | Service Oriented Architecture Pattern</a>
+- <a href="software_engineering/2025-08-19-architecture-patterns-pipeline-pattern.md">qubit-note: Architecture | Pipeline Pattern</a>
+- <a href="software_engineering/2025-08-16-semantic-caching.md">qubit-note: Architecture | Semantic Caching</a>
+- <a href="software_engineering/2025-08-13-architecture-patterns-ports-and-adapters-pattern.md">qubit-note: Architecture | Ports and Adapters Pattern</a>
+- <a href="software_engineering/2025-08-12-architecture-patterns-layers-pattern.md">qubit-note: Architecture | Layers Pattern</a>
+- <a href="software_engineering/2025-04-30-circuit-breaker-pattern.md">qubit-note: Architecture | Circuit Breaker Pattern</a>
+- <a href="software_engineering/2025-04-22-backend-for-frontend-pattern.md">qubit-note: Architecture | Backend-for-frontend Pattern</a>
+- <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture | Managing Distributed Workflows</a>
 
 
 ## Embedded system engineering
