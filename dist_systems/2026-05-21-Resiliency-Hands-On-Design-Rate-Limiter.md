@@ -19,7 +19,7 @@ There are a number of algorithms on can implement for rate limiting [2]:
 - Sliding window log
 - Sliding window counter
 
-As a client you should try to getting rate limited as this affects the user experience. In this setting:
+As a client you should try to not getting rate limited as this affects the user experience. In this setting:
 
 - Know the limits of the external APIs you are using
 - Use caches to avoid frequent API calls
