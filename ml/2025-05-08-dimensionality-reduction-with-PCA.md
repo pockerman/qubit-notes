@@ -8,10 +8,8 @@ aspects of the computation, memory footprint, train and inference time e.t.c,  p
 to be able to explain why the model output is this or that. 
 
 Reducing the number of features or dimensions of the dataset is an approach one can
-follow and in this short note I discuss one of the available dimensionality reduction
+follow and in this short note we will discuss one of the available dimensionality reduction
 techniques i.e. <a href="https://en.wikipedia.org/wiki/Principal_component_analysis">principal component analysis</a> or PCA.
-
-**keywords:** dimensionality-reduction, PCA, data-models, machine-learning
 
 ## Dimensionality reduction with PCA
 
@@ -23,7 +21,6 @@ Thus, PCA can be viewed as a basis-change technique of a vector space. This chan
 data points onto the first few principal components. Typically, implementations of the algorithm will accept as an input
 the number of princiapl components we want to retain/use. The projection is performed such that we obtain lower-dimensional data while preserving as much of the data's variation as possible. The first principal component can equivalently be defined as a direction that maximizes the variance of the projected data. The $i-$th principal component can be taken as a direction orthogonal 
 to the first $i − 1$ principal components that maximizes the variance of the projected data [1]. 
-
 
 The following Python script use the <a href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html">PCA</a> 
 class from <a href="https://scikit-learn.org/stable/index.html">sklearn</a>.
@@ -62,8 +59,10 @@ PCA explained variance:
 The implementation of PCA uses the <a href="https://en.wikipedia.org/wiki/Singular_value_decomposition">singular value decomposition</a> or SVD.
 This is one of the most important matrix factorization techniques used in a lot fields.
 
-PCA is a versatile methodology and as a dimensionality reduction techinque, it can be used for visualization of high-dimensional data, for noise filtering, and for feature selection. 
+PCA is a versatile methodology and as a dimensionality reduction techinque, it can be used for visualizing high-dimensional data, for noise filtering, and for feature selection. 
 However, given that is looking the variation present in a feature it is sensitive to outliers.
+
+## Summary
 
 ## References
 
