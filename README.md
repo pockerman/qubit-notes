@@ -22,17 +22,17 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 ## High performance computing
 
 - <a href="hpc/2026-05-09-Asynchronous-Programming.md">qubit-note: Asynchronous Programming C++ | Promises and Futures</a>
-- <a href="how_to/2026-03-12-OpenMP-Multi-threading-Part-9.md">qubit-note: Parallel OpenMP Part 9 | Task Parallelism with OpenMP 1</a>
-- <a href="how_to/2026-03-05-OpenMP-Multi-threading-Part-8.md">qubit-note: Parallel OpenMP Part 8 | Example 2 Compute Mean Using smid</a>
-- <a href="how_to/2026-02-26-OpenMP-Multi-threading-Part-7.md">qubit-note: Parallel OpenMP Part 7 | Example 1 Compute Mean & Variance</a>
-- <a href="how_to/2026-02-20-OpenMP-Multi-threading-Part-6.md">qubit-note: Parallel OpenMP Part 6 | Function-level Parallelization</a>
-- <a href="how_to/2026-02-19-OpenMP-Multi-threading-Part-5.md">qubit-note: Parallel OpenMP Part 5 | Variable Scope</a>
-- <a href="how_to/2026-02-05-OpenMP-Multi-threading-Part-4.md">qubit-note: Parallel OpenMP Part 4 | Reduction Operations</a>
-- <a href="how_to/2026-01-29-OpenMP-Multi-threading-Part-3.md">qubit-note: Parallel OpenMP Part 3 | Parallelization of for Constructs</a>
-- <a href="how_to/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel OpenMP Part 2 | Synchronization Constructs</a>
-- <a href="how_to/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel OpenMP Part 1</a>
-- <a href="how_to/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Asynchronous Programming Python | Coroutine Chaining & Asynchronous Queues in Python</a>
-- <a href="software_engineering/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
+- <a href="hpc/2026-03-12-OpenMP-Multi-threading-Part-9.md">qubit-note: Parallel OpenMP Part 9 | Task Parallelism with OpenMP 1</a>
+- <a href="hpc/2026-03-05-OpenMP-Multi-threading-Part-8.md">qubit-note: Parallel OpenMP Part 8 | Example 2 Compute Mean Using smid</a>
+- <a href="hpc/2026-02-26-OpenMP-Multi-threading-Part-7.md">qubit-note: Parallel OpenMP Part 7 | Example 1 Compute Mean & Variance</a>
+- <a href="hpc/2026-02-20-OpenMP-Multi-threading-Part-6.md">qubit-note: Parallel OpenMP Part 6 | Function-level Parallelization</a>
+- <a href="hpc/2026-02-19-OpenMP-Multi-threading-Part-5.md">qubit-note: Parallel OpenMP Part 5 | Variable Scope</a>
+- <a href="hpc/2026-02-05-OpenMP-Multi-threading-Part-4.md">qubit-note: Parallel OpenMP Part 4 | Reduction Operations</a>
+- <a href="hpc/2026-01-29-OpenMP-Multi-threading-Part-3.md">qubit-note: Parallel OpenMP Part 3 | Parallelization of for Constructs</a>
+- <a href="hpc/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel OpenMP Part 2 | Synchronization Constructs</a>
+- <a href="hpc/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel OpenMP Part 1</a>
+- <a href="hpc/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Asynchronous Programming Python | Coroutine Chaining & Asynchronous Queues in Python</a>
+- <a href="hpc/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
 
 ## Distributed systems
 
@@ -50,10 +50,12 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Distributed Systems | Caching | Cache Replacement</a>
 - <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Distributed Systems | Caching | Cache Coherence</a>
 - <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Distributed Systems | Caching | Caching Methods</a>
+- <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note: Distributed Systems | Scalability | Message Delivery Semantics</a>
 - <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Distributed Systems | Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
 - <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems | Scalability | Data Replication  | Broadcast Protocols</a>
 - <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Distributed Systems | Scalability | Data Replication | Consensus</a>
 - <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems | Scalability | State Machine Replication</a>
+- <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Distributed Systems | Scalability | Hashing Strategies</a>
 - <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Distributed Systems | Scalability | Data Replication</a>
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Distributed Systems | Scalability | Partitioning</a>
 - <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Distributed Systems | Scalability | Cold & Warm Starts</a>
@@ -91,13 +93,19 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture | Managing Distributed Workflows</a>
 
 
-## Embedded system engineering
+## Robotics & embedded system engineering
 
 - <a href="embedded_systems/2026-03-01-Serial-Communication.md">qubit-note: Serial Communication Protocols</a>
 - <a href="embedded_systems/2026-01-24-Cross-Compilation.md">qubit-note: Cross Compiling C++ on Linux</a>
-- <a href="how_to/2025-12-31-use-raspberrypi-camera-module.md">qubit-note: RaspeberryPi Series | Use Raspberry Pi Camera Module</a>
-- <a href="how_to/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
-- <a href="how_to/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
+- <a href="robotics/2025-12-31-use-raspberrypi-camera-module.md">qubit-note: RaspeberryPi Series | Use Raspberry Pi Camera Module</a>
+- <a href="robotics/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
+- <a href="robotic/2026-06-28-RaspeberryPi-Series-Connect-Pi-SSH.md">qubit-note: cRaspeberryPi Series | Connect to RaspberryPi Using SSH</a>
+- <a href="robotics/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
+
+## Electronics
+
+- <a href="electronics/2026-02-08-Resistors.md">qubit-note: Resistors</a>
+- <a href="electronics/2026-01-25-Electronic-Circuits-101.md">qubit-note: Electronic Circuits 101</a>
 
 ## AI engineering
 
@@ -163,10 +171,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2026-05-10-Machine-Learning-Concepts-Part-2.md">qubit-note: ML Series | Machine Learning Concepts Part 2</a>
 - <a href="ml/2026-05-09-Machine-Learning-Concepts.md">qubit-note: ML Series | Machine Learning Concepts Part 1</a> 
 
-## Electronics
 
-- <a href="electronics/2026-02-08-Resistors.md">qubit-note: Resistors</a>
-- <a href="electronics/2026-01-25-Electronic-Circuits-101.md">qubit-note: Electronic Circuits 101</a>
 
 ## How to
 
