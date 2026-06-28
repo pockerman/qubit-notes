@@ -2,9 +2,9 @@
 
 ## Overview
 
-<a href="2025-05-01-detecting-data-drift.md">qubit-note: Detecting Data Drift</a> discussed why we need to cater for data drift and
-showed how to do this with <a href="https://github.com/SeldonIO/alibi">alibi</a>. In this note, I discuss the other core reason
-why an ML model in prodcution may fail namely concept drift.
+The note <a href="2025-05-01-detecting-data-drift.md">Detecting Data Drift</a> discusses why we need to cater for data drift and
+showed how to do this with <a href="https://github.com/SeldonIO/alibi">alibi</a>. In this note, we will discuss the other core reason
+why an ML model in prodcution may fail; namely concept drift.
 
 Concept drift refers to the change in the relationships between the independed and the dependent variables in the model.
 
@@ -23,7 +23,7 @@ However, with time this relationship may not be valid. Concept drift may manifes
 
 So how can we monitor model drift? Although with data drift we can compute the distributions between the train data and the production data, things may not
 be so straightforward with concept drift. The reason behind this is that typically in production we lack the ground truth. 
-There are several wasy we can tackle this. If the labels are simply delayed, we can log the model input and output and once the labels are available
+There are several ways we can tackle this. If the labels are simply delayed, we can log the model input and output and once the labels are available
 we can trigger a comparing. If the labels are not available, we can use a champion model and compare the predictions of that with the predicitions
 coming from the deployed model. This is called a shadow evaluation whereby  a second model (e.g. a previous model) is used in order to compare the two outputs and monitor divergence.
 Furthermore, when labels are not available we can use proxy signals and compare with the test set. Proxy signals include
@@ -33,19 +33,19 @@ Furthermore, when labels are not available we can use proxy signals and compare 
 - % of positive predictions
 
 If the model outputs probabilities or uncertainty estimates track entropy and confidence distribution; a sudden drop indicate a possible problem.
-Shadow evaluation using a second model (e.g. a previous model) can also be useful compare the two outputs and monitor divergence.
-
-Another approach that we always want to use, is using various business signals:
+Another approach that we always want to use, is monitoring various business signals:
 
 - Conversion rate
 - Claim rate
 - Fraud detection rate
 - Loss ratio (insurance)
 
-Business signals should always be available and if we detect that these shift then this is a strong drift signal
+Business signals should always be available and if we detect that these shift then this is a strong drift signal.
 
 All in all, model drift detection in production relies on delayed ground truth for true evaluation, combined with proxy signals 
 like prediction distribution shifts, feature drift, and business metrics to detect issues early before labels arrive.
+
+## Summary
 
 ## References
 

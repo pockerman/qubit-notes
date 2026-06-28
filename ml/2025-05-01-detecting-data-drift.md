@@ -12,14 +12,14 @@ In this note we will talk about data drift namely what it is and how to detect i
 
 ## Detecting Data Drift
 
-Let's start with by trying to give a definition of what is data drift. Machine learning models, in one way or another,
+Let's start by trying to give a definition of what is data drift. Machine learning models, in one way or another,
 use features extracted from the training data in order to make predictions. Data drift refers to the change of the
 statistical properties of the data that the models sees when deployed compared to the properties of the training data.
 As an example, consider a model trained to recommend excercises based on the age and weight of the user.
 If the model was trained on data that the weight feature  was in the range of say 65kg to 91kg, users that
 fall outside this range will automatically cause data drift.
 
-Given that when a model is dployed, we have limited to no control over the data it is passed, it is essential that we are
+Given that when a model is deployed, we have limited to no control over the data it is passed, it is essential that we are
 able to detect the drift betweeen the production data and the train data so that we are able to act timely.
 
 ----
@@ -46,9 +46,7 @@ to any data schema changes and/or new classes.
 
 In general, we can automate the training process such that a retraining job is triggered every time data drift is detected.
 Having said this ler's see  a toy example how to data drift detection using <a href="https://github.com/SeldonIO/alibi">alibi</a>.
-Once very common way to detect data drift is to somehow compare, e.g. using the <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov-Smirnov test</a>, the distributions of the
-train data and the input data. If these are statistically different, then  we claim that data drif has occurred.
-
+One very common way to detect data drift is to somehow compare, e.g. using the <a href="https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test">Kolmogorov-Smirnov test</a>, the distributions of the train data and the input data. If these are statistically different, then  we claim that data drif has occurred.
 
 ### Detecting data drift
 
@@ -61,7 +59,6 @@ We will use the <a href="https://github.com/SeldonIO/alibi">alibi</a> Python pac
 pip install alibi
 pip install alibi-detect
 ```
-
 
 ```
 # Tabular detector class: just a wrapper to alibi.TabularDrift
@@ -122,6 +119,8 @@ def test_with_drift():
 ```
 
 <a href="2025-05-01-detecting-concept-drift.md">qubit-note: Detecting Concept Drift</a> discusses how to detect model concept drift.
+
+## Summary
 
 ## References
 

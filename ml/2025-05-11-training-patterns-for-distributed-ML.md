@@ -2,7 +2,7 @@
 
 ## Overview
 
-<a href="2025-05-07-dataingestion-patterns-for-dist-ml.md">qubit-note: Data Ingestion Patterns for Distributed ML</a>
+<a href="2025-05-07-dataingestion-patterns-for-dist-ml.md">Ingestion Patterns for Distributed ML</a>
 introduces three core patterns for ingesting data into a distributed ML model training workflow.
 One of the patterns, namely sharding, assumed the existence of multiple worker nodes that each of these
 workers trains a copy of the model on a specific shard. These trained copies somehow need to be
@@ -24,13 +24,11 @@ This is the essence of distributed training. Thus, distributed model training mo
 of machines. Typically these machines will be able to communicate with
 each other over the network.
 
-
-
 ### Parameter server pattern
 
-The first pattern I am going to discuss is the parameter server pattern. Consider the scenario, where we are dealing
+The first pattern we are going to discuss is the parameter server pattern. Consider the scenario, where we are dealing
 with a large dataset that we cannot fit on a single machine. We can of course use the batching
-pattern and on a single machine fetching batches of the dataset and feed to the model. Since we cannot store
+pattern and on a single machine fetching batches of the dataset and feed these to the model. Since we cannot store
 this dataset locally, it is understandable that this process will be quite time consuming.
 
 Alternatively, we can use the sharding pattern and partition the dataset into a number of shards that we feed
@@ -58,7 +56,6 @@ Although the parameter server pattern can be used for cases where the model is l
 a single machine, it may be difficult to do so as the numbers of workers and parameter servers increase.
 This is because the cost of communication among the workers and parameter servers is becoming significant.
 This is particularly the case when multiple workers send gradient updates to one parameter server.
-
 
 Collective communication involves communication across all participating
 processes in a group, if you ever used MPI this is your ```MPI_COMM_WORLD``` variable.

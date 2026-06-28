@@ -42,15 +42,15 @@ Batching can really slow down training. This is where we can use sharding.
 
 Sharding as a concept it's not new. Indeed it is used when working with distributed databases in order to
 split data or workload across multiple machines (nodes) to improve scalability, performance, and availability.
-Sharding is simply the process of splitting a  large datasets into smaller bits that is spread across multiple nodes.
+Sharding is simply the process of splitting a  large dataset into smaller bits that are spread across multiple nodes.
 
 We can use the same idea when training ML models. Meaning we can have multiple computing nodes that each
-node has a copy of the model. At every epock, we train each copy of model on a different shard and then somehow communicate
+node has a copy of the model. At every epoch, we train each copy of model on a different shard and then somehow communicate
 the local copies of the models to all participating workers. Notice that we can also mix batching when the shard is rather large.
 
 ### Caching pattern
 
-The last pattern I want to discuss is caching. Caching is a well known technique that is used to improve the time response
+The last pattern we want to discuss is caching. Caching is a well known technique that is used to improve the time response
 of an application. It involves storing relevant data in memory rather than fetching the data from the database.
 This idea can be applied when training ML models.
 
@@ -61,6 +61,8 @@ This is however, a bit counterintuitive as we have assumed that the dataset is s
 Although caching in RAM is more popular particularly when fetching data from remote databases, we can also cache on disk.
 Examples include; ``joblib```, ```diskcache``` and ```sqlite```. As mentioned above this won't be as fast as caching in RAM,
 but definitely it improves the performance when comprated to simply fetching the batch from the disk.
+
+## Summary
 
 
 ## References
