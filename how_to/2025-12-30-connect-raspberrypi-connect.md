@@ -4,10 +4,10 @@
 
 Raspberry Pi is a very versatile small, low-cost, single-board computer originally designed to help people learn computer science. 
 Despite its tiny size (roughly the size of a credit card), it’s fully capable of running an operating system, connecting to the internet, and running software for a wide variety of tasks.
-In this qubit-note I will show you how to connect to a Raspberry Pi board using <a href="https://www.raspberrypi.com/documentation/services/connect.html">Raspberry Pi Connect</a>.
+In this note we will see you how to connect to a Raspberry Pi board using <a href="https://www.raspberrypi.com/documentation/services/connect.html">Raspberry Pi Connect</a>.
 
 
-**keywords** Programming, Raspberry-pi, Embedded-systems
+
 
 ## Connect to RaspberryPi Using Raspberry Pi Connect
 
