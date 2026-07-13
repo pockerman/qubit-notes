@@ -194,7 +194,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 
 - <a href="how_to/k8/2026-07-13-Create-Kubernetes-Cluster-Amazon.md">qubit-note: Create a Kubernetes Cluster on AWS</a>
-- <a href="how_to/k8/2026-07-13-Create-Kubernetes-Cluster-Amazon.md">qubit-note: Run Kubernetes Locally</a>
+- <a href="how_to/k8/2026-07-13-Run-Kubernetes-Locally.md">qubit-note: Run Kubernetes Locally</a>
 - <a href="how_to/k8/2023-11-15-kubernetes_101.md">qubit-note: Deploy Microservices with Kubernetes 101</a>
 
 ### Apache Spark
