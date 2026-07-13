@@ -51,6 +51,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Distributed Systems | Caching | Cache Coherence</a>
 - <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Distributed Systems | Caching | Caching Methods</a>
 - <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note: Distributed Systems | Scalability | Message Delivery Semantics</a>
+- <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">Distributed Systems | Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
 - <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Distributed Systems | Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
 - <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems | Scalability | Data Replication  | Broadcast Protocols</a>
 - <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Distributed Systems | Scalability | Data Replication | Consensus</a>
@@ -95,11 +96,12 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Robotics & embedded system engineering
 
+- <a href="robotics/2026-07-11-MQTT-101.md">qubit-note: MQTT 101</a>
 - <a href="embedded_systems/2026-03-01-Serial-Communication.md">qubit-note: Serial Communication Protocols</a>
 - <a href="embedded_systems/2026-01-24-Cross-Compilation.md">qubit-note: Cross Compiling C++ on Linux</a>
 - <a href="robotics/2025-12-31-use-raspberrypi-camera-module.md">qubit-note: RaspeberryPi Series | Use Raspberry Pi Camera Module</a>
 - <a href="robotics/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
-- <a href="robotic/2026-06-28-RaspeberryPi-Series-Connect-Pi-SSH.md">qubit-note: cRaspeberryPi Series | Connect to RaspberryPi Using SSH</a>
+- <a href="robotic/2026-06-28-RaspeberryPi-Series-Connect-Pi-SSH.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using SSH</a>
 - <a href="robotics/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
 
 ## Electronics
@@ -173,28 +175,67 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 
 
-## How to
+## Tools
 
-- <a href="how_to/2026-01-11-go-principal-tools.md">qubit-note: Go Progamming Series | Go Principal Tools</a>
-- <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
-- <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>
-- <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
-- <a href="how_to/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
-- <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series | Overview of RDDs</a>
-- <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series | Create a Toy Apache Spark Cluster With Docker</a>
-- <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series | Hello World</a>
-- <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series | Application concepts</a>
-- <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: NodeJS Series | Handle Dynamic Pages with ExpressJS</a>
-- <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: NodeJS Series |  Serving Images With ExpressJS</a>
-- <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: NodeJS Series | Hello ExpressJS</a>
-- <a href="how_to/2025-05-06-pub-sub-model-in-redis.md">qubit-note: Pub/Sub Model in Redis</a>
-- <a href="how_to/2025-05-06-callback-chaning-in-nodeJS.md">qubit-note: NodeJS Series | Callback Chaining in NodeJS</a>
-- <a href="how_to/2025-05-01-serving-ml-models-with-fastapi-ray.md">qubit-note: Ray Series | Serving ML Models With FastAPI & Ray</a>
-- <a href="how_to/2025-04-29-task-based-parallelism-with-ray.md">qubit-note: Ray Series | Task-based Parallelism With Ray Part 1</a>
-- <a href="how_to/2023-11-15-kubernetes_101.md">qubit-note: Deploy Microservices with Kubernetes 101</a>
-- <a href="how_to/2021-07-15-django-apache.md">qubit-note: Use Django with Apache</a>
-- <a href="how_to/2021-07-29-django-with-docker.md">qubit-note: Django with Docker</a>
+### MPI
+
 - <a href="how_to/2021-07-08-p2p-communication-modes-with-mpi.md">qubit-note: MPI Series | P2P Communication Modes with MPI</a>
 - <a href="how_to/2021-07-07-point-to-point-communication-with-mpi.md">qubit-note: MPI Series | Point-to-Point Communication with MPI</a>
 - <a href="how_to/2021-06-24-object-communication-with-mpi.md">qubit-note: MPI Series | Object Communication with MPI</a>
 - <a href="how_to/2021-06-13-mpi-hello-world.md">qubit-note: MPI Series | MPI Hello World</a>
+
+
+### Terraform
+
+- <a href="how_to/terraform/2026-07-13-output-values.md">qubit-note: Output Values</a>
+- <a href="how_to/terraform/2026-07-13-tfvars-File.md">qubit-note: .tfvars File</a>
+
+### Kubernetes
+
+
+- <a href="how_to/2023-11-15-kubernetes_101.md">qubit-note: Deploy Microservices with Kubernetes 101</a>
+
+### Apache Spark
+
+- <a href="how_to/2025-09-02-apache-spark-series-4-overview-of-rdds.md">qubit-note: Apache Spark Series | Overview of RDDs</a>
+- <a href="how_to/2025-08-29-apache-spark-series-3-create-toy-apache-spark-cluster-docker.md">qubit-note: Apache Spark Series | Create a Toy Apache Spark Cluster With Docker</a>
+- <a href="how_to/2025-08-29-apache-spark-series-2-hello-world.md">qubit-note: Apache Spark Series | Hello World</a>
+- <a href="how_to/2025-08-29-apache-spark-series-1-application-concepts.md">qubit-note: Apache Spark Series | Application concepts</a>
+
+### Django
+
+- <a href="how_to/2021-07-15-django-apache.md">qubit-note: Use Django with Apache</a>
+- <a href="how_to/2021-07-29-django-with-docker.md">qubit-note: Django with Docker</a>
+
+### FastAPI
+
+- <a href="how_to/2025-12-29-create-middleware-fastapi.md">qubit-note: FastAPI Series | Create a Middleware for FastAPI</a>
+
+### Ray
+
+- <a href="how_to/2025-05-01-serving-ml-models-with-fastapi-ray.md">qubit-note: Ray Series | Serving ML Models With FastAPI & Ray</a>
+- <a href="how_to/2025-04-29-task-based-parallelism-with-ray.md">qubit-note: Ray Series | Task-based Parallelism With Ray Part 1</a>
+
+### Redis
+
+- <a href="how_to/2025-05-06-pub-sub-model-in-redis.md">qubit-note: Pub/Sub Model in Redis</a>
+
+### Go Programming
+
+- <a href="how_to/2026-01-11-go-principal-tools.md">qubit-note: Go Progamming Series | Go Principal Tools</a>
+- <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
+- <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>
+
+### Python Programming
+
+- <a href="how_to/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
+
+### NodeJS
+
+- <a href="how_to/2025-05-10-handle-dynamic-pages-with-expressJS.md">qubit-note: NodeJS Series | Handle Dynamic Pages with ExpressJS</a>
+- <a href="how_to/2025-05-09-serving-images-with-expressJS.md">qubit-note: NodeJS Series |  Serving Images With ExpressJS</a>
+- <a href="how_to/2025-05-08-hello-expressJS.md">qubit-node: NodeJS Series | Hello ExpressJS</a>
+- <a href="how_to/2025-05-06-callback-chaning-in-nodeJS.md">qubit-note: NodeJS Series | Callback Chaining in NodeJS</a>
+
+
+
