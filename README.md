@@ -193,7 +193,9 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 ### Kubernetes
 
 
-- <a href="how_to/2023-11-15-kubernetes_101.md">qubit-note: Deploy Microservices with Kubernetes 101</a>
+- <a href="how_to/k8/2026-07-13-Create-Kubernetes-Cluster-Amazon.md">qubit-note: Create a Kubernetes Cluster on AWS</a>
+- <a href="how_to/k8/2026-07-13-Create-Kubernetes-Cluster-Amazon.md">qubit-note: Run Kubernetes Locally</a>
+- <a href="how_to/k8/2023-11-15-kubernetes_101.md">qubit-note: Deploy Microservices with Kubernetes 101</a>
 
 ### Apache Spark
 
@@ -228,7 +230,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### Python Programming
 
-- <a href="how_to/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
+- <a href="how_to/python/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
 
 ### NodeJS
 
