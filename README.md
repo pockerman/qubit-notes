@@ -174,6 +174,19 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="ml/2026-05-09-Machine-Learning-Concepts.md">qubit-note: ML Series | Machine Learning Concepts Part 1</a> 
 
 
+## Programming
+
+
+### Go Programming
+
+- <a href="programming/go/2026-01-11-go-principal-tools.md">qubit-note: Go Principal Tools</a>
+- <a href="programming/go/2026-01-09-go-program-app-comp-install.md">qubit-note:  Application Compilation and Installation</a>
+- <a href="programming/go/2026-01-08-create-unit-tests-in-go.md">qubit-note: Create Unit Tests in Go</a>
+
+### Python Programming
+
+- <a href="programming/python/2025-10-06-checking-code-dependencies-python.md">qubit-note: Checking Code Dependencies in Python Codebases</a>
+
 
 ## Tools
 
@@ -222,15 +235,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 - <a href="how_to/2025-05-06-pub-sub-model-in-redis.md">qubit-note: Pub/Sub Model in Redis</a>
 
-### Go Programming
 
-- <a href="how_to/2026-01-11-go-principal-tools.md">qubit-note: Go Progamming Series | Go Principal Tools</a>
-- <a href="how_to/2026-01-09-go-program-app-comp-install.md">qubit-note: Go Progamming Series | Application Compilation and Installation</a>
-- <a href="how_to/2026-01-08-create-unit-tests-in-go.md">qubit-note: Go Progamming Series | Create Unit Tests in Go</a>
-
-### Python Programming
-
-- <a href="how_to/python/2025-10-06-checking-code-dependencies-python.md">qubit-note: Python Series | Checking Code Dependencies in Python Codebases</a>
 
 ### NodeJS
 
