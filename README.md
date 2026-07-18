@@ -36,41 +36,42 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Distributed systems
 
-- <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Distributed Systems | Unique ID Generation</a>
-- <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Distributed Systems | Sharded Counters</a>
-- <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Distributed Systems | Resiliency | Liveness and Readiness Checks</a>
-- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Distributed Systems | Resiliency | Sticky Sesssions</a>
-- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Distributed Systems | Resiliency | Global Server Load Balancing</a>
-- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Distributed Systems | Resiliency | Load Balancing</a>
-- <a href="dist_systems/2026-05-21-Resiliency-Hands-On-Design-Rate-Limiter.md">qubit-note: Distributed Systems | Resiliency | Hands On | Design a Rate Limiter</a>
-- <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems | Resiliency | Upstream Resiliency</a>
-- <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note: Distributed Systems | Resiliency| Downstream Resiliency</a>
-- <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Distributed Systems | Resiliency | Failure Causes</a>
-- <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note: Distributed Systems | Caching | Negative Caching</a>
-- <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Distributed Systems | Caching | Cache Replacement</a>
-- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Distributed Systems | Caching | Cache Coherence</a>
-- <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Distributed Systems | Caching | Caching Methods</a>
-- <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note: Distributed Systems | Scalability | Message Delivery Semantics</a>
-- <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">Distributed Systems | Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
-- <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Distributed Systems | Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
-- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Distributed Systems | Scalability | Data Replication  | Broadcast Protocols</a>
-- <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Distributed Systems | Scalability | Data Replication | Consensus</a>
-- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Distributed Systems | Scalability | State Machine Replication</a>
-- <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Distributed Systems | Scalability | Hashing Strategies</a>
-- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Distributed Systems | Scalability | Data Replication</a>
-- <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Distributed Systems | Scalability | Partitioning</a>
-- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Distributed Systems | Scalability | Cold & Warm Starts</a>
-- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Distributed Systems | Scalability | Little’s Law</a>
-- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Distributed Systems| Communication | HTTP</a>
-- <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Distributed Systems | Communication | APIs</a>
-- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Distributed Systems | Communication | Domain Name System</a> 
-- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note:  Distributed Systems | Communication |  TLS 101</a>
-- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note:  Distributed Systems | Communication | TCP 101</a>
-- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Distributed Systems | Communication | Inter Process Communication</a>
-- <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">qubit-note: Distributed Systems | Design Concepts Part 2</a>
-- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">qubit-note: Distributed Systems | Design Concepts Part 1</a> 
-- <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Distributed Systems | Challenges in Distributed Systems</a>
-- <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Distributed Systems | Introduction to Distributed Systems</a>
+- <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
+- <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
+- <a href="dist_systems/2026-07-16-Security-Server-Stored-Session-vs-JWT.md">qubit-note: Distributed Systems | Security | Server‑stored Sessions vs JWTs for Authentication</a>
+- <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Resiliency | Liveness and Readiness Checks</a>
+- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Resiliency | Sticky Sesssions</a>
+- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Resiliency | Global Server Load Balancing</a>
+- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Resiliency | Load Balancing</a>
+- <a href="dist_systems/2026-05-21-Resiliency-Hands-On-Design-Rate-Limiter.md">qubit-note: Resiliency | Hands On | Design a Rate Limiter</a>
+- <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note:  Resiliency | Upstream Resiliency</a>
+- <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note: Resiliency| Downstream Resiliency</a>
+- <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Resiliency | Failure Causes</a>
+- <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note: Caching | Negative Caching</a>
+- <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Caching | Cache Replacement</a>
+- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Caching | Cache Coherence</a>
+- <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching | Caching Methods</a>
+- <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note:  Scalability | Message Delivery Semantics</a>
+- <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">qubit-note:  Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
+- <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
+- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Scalability | Data Replication  | Broadcast Protocols</a>
+- <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Scalability | Data Replication | Consensus</a>
+- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Scalability | State Machine Replication</a>
+- <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Scalability | Hashing Strategies</a>
+- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: calability | Data Replication</a>
+- <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Scalability | Partitioning</a>
+- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Scalability | Cold & Warm Starts</a>
+- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Scalability | Little’s Law</a>
+- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Communication | HTTP</a>
+- <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Communication | APIs</a>
+- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  ommunication | Domain Name System</a> 
+- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note: Communication |  TLS 101</a>
+- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: Communication | TCP 101</a>
+- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Communication | Inter Process Communication</a>
+- <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">qubit-note: Design Concepts Part 2</a>
+- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">qubit-note: Design Concepts Part 1</a> 
+- <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Challenges in Distributed Systems</a>
+- <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Introduction to Distributed Systems</a>
 
 
 ## Software engineering
@@ -176,14 +177,20 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Programming
 
+### C++
 
-### Go Programming
+- <a href="programming/cpp/2026-07-18-Symmetric-Transfer-Coroutines.md">qubit-note: Symmetric Transfer in C++ Coroutines</a>
 
+
+### Go 
+
+- <a href="programming/go/2026-07-18-Go-Packages.md">qubit-note: Go Reflection & Interfaces</a>
+- <a href="programming/go/2026-07-16-Go-Reflection-Interfaces.md">qubit-note: Go Reflection & Interfaces</a>
 - <a href="programming/go/2026-01-11-go-principal-tools.md">qubit-note: Go Principal Tools</a>
 - <a href="programming/go/2026-01-09-go-program-app-comp-install.md">qubit-note:  Application Compilation and Installation</a>
 - <a href="programming/go/2026-01-08-create-unit-tests-in-go.md">qubit-note: Create Unit Tests in Go</a>
 
-### Python Programming
+### Python 
 
 - <a href="programming/python/2025-10-06-checking-code-dependencies-python.md">qubit-note: Checking Code Dependencies in Python Codebases</a>
 
@@ -200,8 +207,10 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### Terraform
 
+- <a href="how_to/terraform/2026-07-14-Terraform-Block.md">qubit-note: Terraform Block</a>
 - <a href="how_to/terraform/2026-07-13-output-values.md">qubit-note: Output Values</a>
 - <a href="how_to/terraform/2026-07-13-tfvars-File.md">qubit-note: .tfvars File</a>
+- <a href="how_to/terraform/2026-07-14-Introduction-Terraform.md">Introduction to Terraform</a>
 
 ### Kubernetes
 

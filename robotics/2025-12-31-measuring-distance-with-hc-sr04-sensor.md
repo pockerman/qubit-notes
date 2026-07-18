@@ -37,6 +37,10 @@ The circuit for this qubit-note is taken from [1] and it shown below in two part
 |    **Figure: HC-SR04 distance sensor module. Image from [1]** | 
 
 
+The HC-SR04 measures in a cone with roughly a 15-degree field of view (FoV) across the
+middle. It will detect a reading for the nearest object in front of the sensor [2].
+
+
 Here is the Python script to run on the Pi
 
 ```
@@ -260,7 +264,7 @@ Generated      at: 2026-01-01 10:41:04
 ----
 **Remark**
 
-On the Raspberry Pi 5 the ```pigpio``` does not seem to working at least at the time of writing this post.
+On the Raspberry Pi 5 the ```pigpio``` does not seem to be working at least at the time of writing this post.
 The code block above uses ```lgpio``` you can install it on your Pi using
 
 ```
@@ -280,3 +284,4 @@ This note explains how to measure distance using the HC-SR04 ultrasonic sensor w
 ## References
 
 1. Gary Smart, _Practical Python Programming for IoT Build advanced IoT projects using a Raspberry Pi 4, MQTT, RESTful APIs, WebSockets, and Python 3_, Packt Publishing
+2. Danny Staple, _Learn Robotics_, Packt Publishing
