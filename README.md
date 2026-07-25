@@ -38,7 +38,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 - <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
 - <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
-- <a href="dist_systems/2026-07-16-Security-Server-Stored-Session-vs-JWT.md">qubit-note: Distributed Systems | Security | Server‑stored Sessions vs JWTs for Authentication</a>
+- <a href="dist_systems/2026-07-25-TLS-mTLS.md">qubit-note: Security |  TLS vs mTLS </a>
+- <a href="dist_systems/2026-07-16-Security-Server-Stored-Session-vs-JWT.md">qubit-note: Security | Server‑stored Sessions vs JWTs for Authentication</a>
 - <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Resiliency | Liveness and Readiness Checks</a>
 - <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Resiliency | Sticky Sesssions</a>
 - <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Resiliency | Global Server Load Balancing</a>
@@ -100,10 +101,12 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="robotics/2026-07-11-MQTT-101.md">qubit-note: MQTT 101</a>
 - <a href="embedded_systems/2026-03-01-Serial-Communication.md">qubit-note: Serial Communication Protocols</a>
 - <a href="embedded_systems/2026-01-24-Cross-Compilation.md">qubit-note: Cross Compiling C++ on Linux</a>
-- <a href="robotics/2025-12-31-use-raspberrypi-camera-module.md">qubit-note: RaspeberryPi Series | Use Raspberry Pi Camera Module</a>
-- <a href="robotics/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: RaspeberryPi Series | Measuring Distance With HC-SR04 Sensor</a>
-- <a href="robotic/2026-06-28-RaspeberryPi-Series-Connect-Pi-SSH.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using SSH</a>
-- <a href="robotics/2025-12-30-connect-raspberrypi-connect.md">qubit-note: RaspeberryPi Series | Connect to RaspberryPi Using Raspberry Pi Connect</a>
+- <a href="robotics/2025-12-31-use-raspberrypi-camera-module.md">qubit-note: Use Raspberry Pi Camera Module</a>
+- <a href="robotics/2026-07-19-Encoders.md">qubit-notes: Encoders</a>
+- <a href="robotics/2026-07-19-Servo-Motors.md">qubit-note: Servo Motors</a>
+- <a href="robotics/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: Measuring Distance With HC-SR04 Sensor</a>
+- <a href="robotic/2026-06-28-RaspeberryPi-Series-Connect-Pi-SSH.md">qubit-note: Connect to RaspberryPi Using SSH</a>
+- <a href="robotics/2025-12-30-connect-raspberrypi-connect.md">qubit-note: Connect to RaspberryPi Using Raspberry Pi Connect</a>
 
 ## Electronics
 
