@@ -35,7 +35,7 @@ Theoretically, therefore, the best we can hope is for linear speedup; i.e. $S_p 
 
 ----
 **Remark: Super-linear Speedup**
-Super-linear speedup is performance that's better than the ideal scaling curve fro strong scaling. This may happen because the data can
+Super-linear speedup is performance that's better than the ideal scaling curve for strong scaling. This may happen because the data can
 fit into a higher level cache resulting in better cache performance [1].
 
 ----
