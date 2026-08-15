@@ -52,7 +52,7 @@ Now that we have a theoretical understanding what speedup is let's look into two
 The theoretical ideal speedup is linear. However, this is rarely true in practice; communication and/or
 synchronization costs come into play. In addition, not all the code in our program can be parallelized.
 Amdahl's law takes into consideration the fraction of operations in a computation that must be performed sequentially and therefore
-proposes a another formula for speedup.
+proposes another formula for speedup. Thus according to Amdahl's law the maximum speedup $S_p$ is given by the following formula:
 
 $$S_p = \frac{1}{f + \frac{1-f}{p}}$$
 
