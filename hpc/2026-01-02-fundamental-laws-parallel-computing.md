@@ -110,7 +110,8 @@ The efficiency $E_p$ shows the average usage of the processors and it is defined
 
 $$E_p = \frac{S_p}{p}$$
 
-Thus, $E_p$ is between $[1/p, 1]$
+Thus, $E_p$ is between $[1/p, 1]$. If $E_p=1$ it means that our implementation (e.g. an algorithm)  parallelizes perfectly. However, this is rarely happens in practice as 
+parallel execution is limited  by factors such as thread/process creation, memory bandwidth and context switching.
 
 **Example**
 
