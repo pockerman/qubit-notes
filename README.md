@@ -53,13 +53,17 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Caching | Cache Coherence</a>
 - <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching | Caching Methods</a>
 - <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note:  Scalability | Message Delivery Semantics</a>
+
+### Data & Databases
+
+- <a href="dist_systems/2026-08-20-SQL-ISOLATION-LEVELS.md">qubit-note: SQL Isolation Levels</a>
 - <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">qubit-note:  Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
 - <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
 - <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Scalability | Data Replication  | Broadcast Protocols</a>
 - <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Scalability | Data Replication | Consensus</a>
 - <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Scalability | State Machine Replication</a>
 - <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Scalability | Hashing Strategies</a>
-- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: calability | Data Replication</a>
+- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Scalability | Data Replication</a>
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Scalability | Partitioning</a>
 - <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Scalability | Cold & Warm Starts</a>
 - <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Scalability | Little’s Law</a>
