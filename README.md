@@ -54,8 +54,9 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching | Caching Methods</a>
 - <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note:  Scalability | Message Delivery Semantics</a>
 
-### Data & Databases
+### Databases & Storage
 
+- <a href="dist_systems/2026-08-21-WRITE-AHEAD-LOG.md">qubit-note: Write Ahead Log</a>
 - <a href="dist_systems/2026-08-20-SQL-ISOLATION-LEVELS.md">qubit-note: SQL Isolation Levels</a>
 - <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">qubit-note:  Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
 - <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
@@ -102,6 +103,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Robotics & embedded system engineering
 
+- <a href="robotics/2026-08-22-ARDUINO-DC-MOTOR-CONTROL.md">qubit-note: Arduino DC Moror Control</a> 
 - <a href="robotics/2026-07-11-MQTT-101.md">qubit-note: MQTT 101</a>
 - <a href="embedded_systems/2026-03-01-Serial-Communication.md">qubit-note: Serial Communication Protocols</a>
 - <a href="embedded_systems/2026-01-24-Cross-Compilation.md">qubit-note: Cross Compiling C++ on Linux</a>
