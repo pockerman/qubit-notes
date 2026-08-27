@@ -48,29 +48,33 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note:  Resiliency | Upstream Resiliency</a>
 - <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note: Resiliency| Downstream Resiliency</a>
 - <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Resiliency | Failure Causes</a>
+
+### Scalabiltiy & Caching
+
 - <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note: Caching | Negative Caching</a>
 - <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Caching | Cache Replacement</a>
 - <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Caching | Cache Coherence</a>
 - <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching | Caching Methods</a>
 - <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note:  Scalability | Message Delivery Semantics</a>
+- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Scalability | State Machine Replication</a>
+- <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Scalability | Hashing Strategies</a>
+- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Scalability | Cold & Warm Starts</a>
+- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Scalability | Little’s Law</a>
 
 ### Databases & Storage
 
+- <a href="dist_systems/2026-08-27-SYNC-ASYNC-REPLICATION.md">qubit-note: Synchronous & Asynchronous Replication</a>
 - <a href="dist_systems/2026-08-21-WRITE-AHEAD-LOG.md">qubit-note: Write Ahead Log</a>
 - <a href="dist_systems/2026-08-20-SQL-ISOLATION-LEVELS.md">qubit-note: SQL Isolation Levels</a>
 - <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">qubit-note:  Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
 - <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
 - <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Scalability | Data Replication  | Broadcast Protocols</a>
 - <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Scalability | Data Replication | Consensus</a>
-- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Scalability | State Machine Replication</a>
-- <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Scalability | Hashing Strategies</a>
 - <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Scalability | Data Replication</a>
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Scalability | Partitioning</a>
-- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Scalability | Cold & Warm Starts</a>
-- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Scalability | Little’s Law</a>
 - <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Communication | HTTP</a>
 - <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Communication | APIs</a>
-- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  ommunication | Domain Name System</a> 
+- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Communication | Domain Name System</a> 
 - <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note: Communication |  TLS 101</a>
 - <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: Communication | TCP 101</a>
 - <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Communication | Inter Process Communication</a>
