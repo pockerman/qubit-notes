@@ -38,6 +38,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 - <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
 - <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
+- <a href="dist_systems/2026-07-30-Replay-Attack-Idempotency.md">qubit-note: Replay Attack vs Idempotency Issues</a>
 - <a href="dist_systems/2026-07-25-TLS-mTLS.md">qubit-note: Security |  TLS vs mTLS </a>
 - <a href="dist_systems/2026-07-16-Security-Server-Stored-Session-vs-JWT.md">qubit-note: Security | Server‑stored Sessions vs JWTs for Authentication</a>
 - <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Resiliency | Liveness and Readiness Checks</a>
@@ -63,10 +64,14 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Scalability | Partitioning</a>
 - <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Scalability | Cold & Warm Starts</a>
 - <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Scalability | Little’s Law</a>
-- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Communication | HTTP</a>
+
 - <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Communication | APIs</a>
 - <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  ommunication | Domain Name System</a> 
 - <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note: Communication |  TLS 101</a>
+- <a href="dist_systems/2026-08-05-HTTP-1-2-3.md">qubit-note: Networking | HTTP/1.1, HTTP/2 & HTTP/3</a>
+- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note: Networking | HTTP</a>
+- <a href="dist_systems/2026-08-04-FWD-PROXY-REVERSE-PROXY-NAT.md">qubit-note: Networking | Forward Proxy, Reverse Proxy & NAT</a>
+- <a href="dist_systems/2026-07-31-TCP-UDP-QUIC.md">qubit-note: Networking | TCP, UDP & QUIC
 - <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: Communication | TCP 101</a>
 - <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Communication | Inter Process Communication</a>
 - <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">qubit-note: Design Concepts Part 2</a>
@@ -182,11 +187,15 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### C++
 
+- <a href="programming/202-07-25-Tail-Call-Optimization.md">qubit-note: Tail Call Optimization</a>
 - <a href="programming/cpp/2026-07-18-Symmetric-Transfer-Coroutines.md">qubit-note: Symmetric Transfer in C++ Coroutines</a>
 
 
 ### Go 
 
+- <a href="programming/2026-08-06-Go-Concurrency-3.md"> qubit-note: Go Concurrency Part 3</a>
+- <a href="programming/2026-08-04-Go-Concurrency-2.md"> qubit-note: Go Concurrency Part 2</a>
+- <a href="programming/2026-07-30-Go-Concurrency-1.md"> qubit-note: Go Concurrency Part 1</a>
 - <a href="programming/go/2026-07-18-Go-Packages.md">qubit-note: Go Reflection & Interfaces</a>
 - <a href="programming/go/2026-07-16-Go-Reflection-Interfaces.md">qubit-note: Go Reflection & Interfaces</a>
 - <a href="programming/go/2026-01-11-go-principal-tools.md">qubit-note: Go Principal Tools</a>
