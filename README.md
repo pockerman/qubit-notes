@@ -32,6 +32,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="hpc/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: Parallel OpenMP Part 2 | Synchronization Constructs</a>
 - <a href="hpc/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: Parallel OpenMP Part 1</a>
 - <a href="hpc/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Asynchronous Programming Python | Coroutine Chaining & Asynchronous Queues in Python</a>
+- <a href="hpc/2026-09-09-Race-Conditions.md">Race Conditions</a>
 - <a href="hpc/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
 
 ## Distributed systems
@@ -64,10 +65,11 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### Databases & Storage
 
-- <a href="dist_systems/2026-08-27-SYNC-ASYNC-REPLICATION.md">qubit-note: Synchronous & Asynchronous Replication</a>
-- <a href="dist_systems/2026-08-21-WRITE-AHEAD-LOG.md">qubit-note: Write Ahead Log</a>
-- <a href="dist_systems/2026-08-20-SQL-ISOLATION-LEVELS.md">qubit-note: SQL Isolation Levels</a>
-- <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">qubit-note:  Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
+- <a href="dist_systems/2026-08-27-SYNC-ASYNC-REPLICATION.md">Synchronous & Asynchronous Replication</a>
+- <a href="dist_systems/2026-09-09-Multi‑Version-Concurrency-Control.md">Multi‑Version Concurrency Control</a>
+- <a href="dist_systems/2026-08-21-WRITE-AHEAD-LOG.md">Write Ahead Log</a>
+- <a href="dist_systems/2026-08-20-SQL-ISOLATION-LEVELS.md">SQL Isolation Levels</a>
+- <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
 - <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
 - <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Scalability | Data Replication  | Broadcast Protocols</a>
 - <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Scalability | Data Replication | Consensus</a>
@@ -75,6 +77,10 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Scalability | Partitioning</a>
 - <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Scalability | Cold & Warm Starts</a>
 - <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Scalability | Little’s Law</a>
+
+
+### Communication
+
 - <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Communication | HTTP</a>
 - <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Communication | APIs</a>
 - <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Communication | Domain Name System</a> 
