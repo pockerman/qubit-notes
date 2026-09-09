@@ -35,7 +35,7 @@ Theoretically, therefore, the best we can hope is for linear speedup; i.e. $S_p 
 
 ----
 **Remark: Super-linear Speedup**
-Super-linear speedup is performance that's better than the ideal scaling curve fro strong scaling. This may happen because the data can
+Super-linear speedup is performance that's better than the ideal scaling curve for strong scaling. This may happen because the data can
 fit into a higher level cache resulting in better cache performance [1].
 
 ----
@@ -52,7 +52,7 @@ Now that we have a theoretical understanding what speedup is let's look into two
 The theoretical ideal speedup is linear. However, this is rarely true in practice; communication and/or
 synchronization costs come into play. In addition, not all the code in our program can be parallelized.
 Amdahl's law takes into consideration the fraction of operations in a computation that must be performed sequentially and therefore
-proposes a another formula for speedup.
+proposes another formula for speedup. Thus according to Amdahl's law the maximum speedup $S_p$ is given by the following formula:
 
 $$S_p = \frac{1}{f + \frac{1-f}{p}}$$
 
@@ -110,7 +110,8 @@ The efficiency $E_p$ shows the average usage of the processors and it is defined
 
 $$E_p = \frac{S_p}{p}$$
 
-Thus, $E_p$ is between $[1/p, 1]$
+Thus, $E_p$ is between $[1/p, 1]$. If $E_p=1$ it means that our implementation (e.g. an algorithm)  parallelizes perfectly. However, this is rarely happens in practice as 
+parallel execution is limited  by factors such as thread/process creation, memory bandwidth and context switching.
 
 **Example**
 
