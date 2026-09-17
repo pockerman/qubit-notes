@@ -65,6 +65,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### Databases & Storage
 
+- <a href="dist_systems/2026-09-16-PATTERNS-ONLINE-SCHEMA-CHANGES.md"> Patterns for Online Schema Changes</a>
 - <a href="dist_systems/2026-08-27-SYNC-ASYNC-REPLICATION.md">Synchronous & Asynchronous Replication</a>
 - <a href="dist_systems/2026-09-09-Multi‑Version-Concurrency-Control.md">Multi‑Version Concurrency Control</a>
 - <a href="dist_systems/2026-08-21-WRITE-AHEAD-LOG.md">Write Ahead Log</a>
