@@ -56,21 +56,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: TCP 101</a>
 - <a href="dist_systems/2026-07-31-TCP-UDP-QUIC.md">qubit-note: TCP, UDP & QUIC</a>
 - <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Inter Process Communication</a>
-
-
-- <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
 - <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
-- <a href="dist_systems/2026-07-30-Replay-Attack-Idempotency.md">qubit-note: Replay Attack vs Idempotency Issues</a>
-- <a href="dist_systems/2026-07-25-TLS-mTLS.md">qubit-note: Security |  TLS vs mTLS </a>
-- <a href="dist_systems/2026-07-16-Security-Server-Stored-Session-vs-JWT.md">qubit-note: Security | Server‑stored Sessions vs JWTs for Authentication</a>
-- <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Resiliency | Liveness and Readiness Checks</a>
-- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Resiliency | Sticky Sesssions</a>
-- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Resiliency | Global Server Load Balancing</a>
-- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note: Resiliency | Load Balancing</a>
-- <a href="dist_systems/2026-05-21-Resiliency-Hands-On-Design-Rate-Limiter.md">qubit-note: Resiliency | Hands On | Design a Rate Limiter</a>
-- <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note:  Resiliency | Upstream Resiliency</a>
-- <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note: Resiliency| Downstream Resiliency</a>
-- <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Resiliency | Failure Causes</a>
+
 
 ### Scalabiltiy & Caching
 
@@ -82,8 +69,8 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note:  Scalability | Message Delivery Semantics</a>
 - <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Scalability | State Machine Replication</a>
 - <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Scalability | Hashing Strategies</a>
-- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Scalability | Cold & Warm Starts</a>
-
+- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Cold & Warm Starts</a>
+- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Broadcast Protocols</a>
 
 ### Databases & Storage
 
@@ -96,10 +83,27 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-08-20-SQL-ISOLATION-LEVELS.md">SQL Isolation Levels</a>
 - <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
 - <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
-- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Scalability | Data Replication  | Broadcast Protocols</a>
 - <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Scalability | Data Replication | Consensus</a>
 - <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Scalability | Data Replication</a>
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Scalability | Partitioning</a>
+
+### Security & Resiliency
+
+- <a href="dist_systems/2026-07-30-Replay-Attack-Idempotency.md">qubit-note: Replay Attack vs Idempotency Issues</a>
+- <a href="dist_systems/2026-07-25-TLS-mTLS.md">qubit-note: TLS vs mTLS </a>
+- <a href="dist_systems/2026-07-16-Security-Server-Stored-Session-vs-JWT.md">qubit-note: Server‑stored Sessions vs JWTs for Authentication</a>
+- <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Liveness and Readiness Checks</a>
+- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Sticky Sesssions</a>
+- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Global Server Load Balancing</a>
+- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note:Load Balancing</a>
+- <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note:  Upstream Resiliency</a>
+- <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note: Downstream Resiliency</a>
+- <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Failure Causes</a>
+
+### Designs
+
+- <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Design a Unique ID Generation System</a>
+- <a href="dist_systems/2026-05-21-Resiliency-Hands-On-Design-Rate-Limiter.md">qubit-note: Design a Rate Limiter</a>
 
 
 ## Software engineering
