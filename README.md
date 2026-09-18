@@ -37,6 +37,27 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Distributed systems
 
+### Intro
+
+- <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">qubit-note: Design Concepts Part 2</a>
+- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">qubit-note: Design Concepts Part 1</a> 
+- <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Challenges in Distributed Systems</a>
+- <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Introduction to Distributed Systems</a>
+
+
+### Networking & Communication
+
+- <a href="dist_systems/2026-08-05-HTTP-1-2-3.md">qubit-note: HTTP/1.1, HTTP/2 & HTTP/3</a>
+- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note: HTTP</a>
+- <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: APIs</a>
+- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note: Domain Name System</a> 
+- <a href="dist_systems/2026-08-04-FWD-PROXY-REVERSE-PROXY-NAT.md">qubit-note: Forward Proxy, Reverse Proxy & NAT</a>
+- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note: TLS 101</a>
+- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: TCP 101</a>
+- <a href="dist_systems/2026-07-31-TCP-UDP-QUIC.md">qubit-note: TCP, UDP & QUIC</a>
+- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Inter Process Communication</a>
+
+
 - <a href="dist_systems/2025-08-14-unique-id-generation.md">qubit-note: Unique ID Generation</a>
 - <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
 - <a href="dist_systems/2026-07-30-Replay-Attack-Idempotency.md">qubit-note: Replay Attack vs Idempotency Issues</a>
@@ -53,18 +74,21 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### Scalabiltiy & Caching
 
-- <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note: Caching | Negative Caching</a>
-- <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Caching | Cache Replacement</a>
-- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Caching | Cache Coherence</a>
-- <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching | Caching Methods</a>
+- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Little’s Law</a>
+- <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching Methods</a>
+- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Cache Coherence</a>
+- <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Cache Replacement</a>
+- <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note: Negative Caching</a>
 - <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note:  Scalability | Message Delivery Semantics</a>
 - <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Scalability | State Machine Replication</a>
 - <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Scalability | Hashing Strategies</a>
 - <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Scalability | Cold & Warm Starts</a>
-- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Scalability | Little’s Law</a>
+
 
 ### Databases & Storage
 
+- <a href="dist_systems/2026-09-18-CHECKSUMS-ETAGS.md">Checksums & Etags</a>
+- <a href="dist_systems/2026-09-17-CONTENT-STORAGE-LOCATION-STORAGE.md">Content‑Addressable Storage & Location‑Based Addressing</a>
 - <a href="dist_systems/2026-09-16-PATTERNS-ONLINE-SCHEMA-CHANGES.md"> Patterns for Online Schema Changes</a>
 - <a href="dist_systems/2026-08-27-SYNC-ASYNC-REPLICATION.md">Synchronous & Asynchronous Replication</a>
 - <a href="dist_systems/2026-09-09-Multi‑Version-Concurrency-Control.md">Multi‑Version Concurrency Control</a>
@@ -76,25 +100,6 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Scalability | Data Replication | Consensus</a>
 - <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Scalability | Data Replication</a>
 - <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Scalability | Partitioning</a>
-
-
-
-### Communication
-
-- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note:Communication | HTTP</a>
-- <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: Communication | APIs</a>
-- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note:  Communication | Domain Name System</a> 
-- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note: Communication |  TLS 101</a>
-- <a href="dist_systems/2026-08-05-HTTP-1-2-3.md">qubit-note: Networking | HTTP/1.1, HTTP/2 & HTTP/3</a>
-- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note: Networking | HTTP</a>
-- <a href="dist_systems/2026-08-04-FWD-PROXY-REVERSE-PROXY-NAT.md">qubit-note: Networking | Forward Proxy, Reverse Proxy & NAT</a>
-- <a href="dist_systems/2026-07-31-TCP-UDP-QUIC.md">qubit-note: Networking | TCP, UDP & QUIC
-- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: Communication | TCP 101</a>
-- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Communication | Inter Process Communication</a>
-- <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">qubit-note: Design Concepts Part 2</a>
-- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">qubit-note: Design Concepts Part 1</a> 
-- <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Challenges in Distributed Systems</a>
-- <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Introduction to Distributed Systems</a>
 
 
 ## Software engineering
