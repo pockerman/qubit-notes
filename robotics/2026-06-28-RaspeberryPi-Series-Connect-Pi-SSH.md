@@ -9,11 +9,12 @@ Pi Connect. In this note we will see how to connect to Raspberry Pi using SSH. T
 
 Secure Shell (SSH) enables you to access the command line of a Raspberry Pi from another computer or device on the same network. This is very handy for quickly installing software or editing configuration files. SSH is pre-installed on Linux, Mac and some Windows operating systems and can also be installed on mobile devices. SSH does not provide any visual access to the Raspberry Pi Desktop. If this is needed, I recommend to use VNC.
 
-Enable SSH on the Raspberry Pi
+### Enable SSH on the Raspberry Pi
+
 By default, SSH is disabled on the Raspberry Pi. It is however very easy to enable it, both using the Desktop and via the terminal. To enable SSH via the Desktop, go to:
 
 ```
-Sstart menu ---> Preferences ---> Raspberry Pi Configuration.
+Start menu ---> Preferences ---> Raspberry Pi Configuration.
 ```
 
 Connecting via SSH
@@ -35,11 +36,16 @@ or
 ssh [username]@[ip address]
 ```
 
-Passwordless SSH
-When using SSH, each time you connect you will be asked for the password of your Raspberry Pi. In some cases it may be preferable to access your Raspberry Pi from another computer without a password, such as to (automatically) send files using rsync (follow the guide here). To enable password-less access with SSH you will need to generate an SSH key. To do so, open a terminal window and enter:
+### Password-less ssh
 
+When using ssh, each time you connect you will be asked for the password of your Raspberry Pi. In some cases it may be preferable to access your Raspberry Pi from another computer without a password, such as to (automatically) send files using rsync (follow the guide here). To enable password-less access with ssh you will need to generate an ssh key. To do so, open a terminal window and enter:
+
+```
 ssh-keygen
-Now click Enter twice to generate and store the unique key in the default location and with the default passphrase. The private and public keys will now be stored in ~/.ssh.
+```
+
+Now click Enter twice to generate and store the unique key in the default location and with the default passphrase. 
+The private and public keys will now be stored in ``~/.ssh``.
 
 Next we need to copy the public key to your Raspberry Pi. To do so, simply enter:
 
@@ -47,22 +53,22 @@ Next we need to copy the public key to your Raspberry Pi. To do so, simply enter
 ssh-copy-id [username]@[ip address]
 ```
 
-Authenticate this step with your password and you are done. To verify the SSH key was successfully copied to the remote host, SSH to the Raspberry Pi from the host device or vice versa. No password should be required if the key was copied successfully.
+Authenticate this step with your password and you are done. To verify the ssh key was successfully copied to the remote host, ssh to the Raspberry Pi from the host device or vice versa. No password should be required if the key was copied successfully.
 
 
 ---
 **Remark Shutting down your Raspberry Pi**
 
 When you have finished your session with the Pi, shut it down with 
+
 ```
 sudo poweroff.
 ```
 
-Wait for the green light activity to stop; SSH will detect that it has disconnected. You can then
+Wait for the green light activity to stop; ssh will detect that it has disconnected. You can then
 safely disconnect the power.
 
 ---
-
 
 ## Summary
 
