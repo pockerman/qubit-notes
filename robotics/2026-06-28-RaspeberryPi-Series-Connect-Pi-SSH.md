@@ -10,8 +10,11 @@ Pi Connect. In this note we will see how to connect to Raspberry Pi using SSH. T
 Secure Shell (SSH) enables you to access the command line of a Raspberry Pi from another computer or device on the same network. This is very handy for quickly installing software or editing configuration files. SSH is pre-installed on Linux, Mac and some Windows operating systems and can also be installed on mobile devices. SSH does not provide any visual access to the Raspberry Pi Desktop. If this is needed, I recommend to use VNC.
 
 Enable SSH on the Raspberry Pi
-By default, SSH is disabled on the Raspberry Pi. It is however very easy to enable it, both using the Desktop and via the terminal. To enable SSH via the Desktop, go to the start menu > Preferences > Raspberry Pi Configuration.
+By default, SSH is disabled on the Raspberry Pi. It is however very easy to enable it, both using the Desktop and via the terminal. To enable SSH via the Desktop, go to:
 
+```
+Sstart menu ---> Preferences ---> Raspberry Pi Configuration.
+```
 
 Connecting via SSH
 Now SSH is enabled, we need to know the hostname of the Raspberry Pi or use its IP address to connect to it. To know the ip address, on your Raspbery Pi type in:
