@@ -138,7 +138,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="robotics/2026-07-19-Encoders.md">qubit-notes: Encoders</a>
 - <a href="robotics/2026-07-19-Servo-Motors.md">qubit-note: Servo Motors</a>
 - <a href="robotics/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: Measuring Distance With HC-SR04 Sensor</a>
-- <a href="robotic/2026-06-28-RaspeberryPi-Series-Connect-Pi-SSH.md">qubit-note: Connect to RaspberryPi Using SSH</a>
+- <a href="robotics/2026-06-28-RaspeberryPi-Series-Connect-Pi-SSH.md">qubit-note: Connect to RaspberryPi Using SSH</a>
 - <a href="robotics/2025-12-30-connect-raspberrypi-connect.md">qubit-note: Connect to RaspberryPi Using Raspberry Pi Connect</a>
 - <a href="robotics/2026-09-20-SET-UP-RP.md">qubit-note: Set Up Raspberry Pi</a>
 
