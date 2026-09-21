@@ -74,6 +74,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### Databases & Storage
 
+- <a href="dist_systems/2026-09-21-STORAGE-TIERS.md">Hot, Warm, Cold, and Archive Storage Tiers</a>
 - <a href="dist_systems/2026-09-18-CHECKSUMS-ETAGS.md">Checksums & Etags</a>
 - <a href="dist_systems/2026-09-17-CONTENT-STORAGE-LOCATION-STORAGE.md">Content‑Addressable Storage & Location‑Based Addressing</a>
 - <a href="dist_systems/2026-09-16-PATTERNS-ONLINE-SCHEMA-CHANGES.md"> Patterns for Online Schema Changes</a>
@@ -127,7 +128,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="software_engineering/2025-04-20-managing-distributed-workflows.md">qubit-note: Architecture | Managing Distributed Workflows</a>
 
 
-## Robotics & embedded system engineering
+## Robotics & Embedded Systems Engineering
 
 - <a href="robotics/2026-08-22-ARDUINO-DC-MOTOR-CONTROL.md">qubit-note: Arduino DC Moror Control</a> 
 - <a href="robotics/2026-07-11-MQTT-101.md">qubit-note: MQTT 101</a>
@@ -139,6 +140,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="robotics/2025-12-31-measuring-distance-with-hc-sr04-sensor.md">qubit-note: Measuring Distance With HC-SR04 Sensor</a>
 - <a href="robotic/2026-06-28-RaspeberryPi-Series-Connect-Pi-SSH.md">qubit-note: Connect to RaspberryPi Using SSH</a>
 - <a href="robotics/2025-12-30-connect-raspberrypi-connect.md">qubit-note: Connect to RaspberryPi Using Raspberry Pi Connect</a>
+- <a href="robotics/2026-09-20-SET-UP-RP.md">qubit-note: Set Up Raspberry Pi</a>
 
 ## Electronics
 
