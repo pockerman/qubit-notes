@@ -9,10 +9,10 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## Coputational & mathematical techniques
 
-- <a href="comp_techs/2026-03-01-Intro-Boundary-Conditions-PDES.md">qubit-note: The Maths Project Series | Intro to Boundary Conditions for PDEs</a>
-- <a href="comp_techs/2026-01-01-linear-time-invariant-systems.md">qubit-note: The Maths Project Series | Linear Time-Invariant Systems</a>
-- <a href="comp_techs/2026-01-01-intro-to-pdes.md">qubit-note: The Maths Project Series | Intro to PDEs</a>
-- <a href="comp_techs/2025-09-13-linear-regression-model.md">qubit-note: The Maths Project Series | Linear Regression Model</a>
+- <a href="comp_techs/2026-03-01-Intro-Boundary-Conditions-PDES.md">The Maths Project Series | Intro to Boundary Conditions for PDEs</a>
+- <a href="comp_techs/2026-01-01-linear-time-invariant-systems.md">The Maths Project Series | Linear Time-Invariant Systems</a>
+- <a href="comp_techs/2026-01-01-intro-to-pdes.md">The Maths Project Series | Intro to PDEs</a>
+- <a href="comp_techs/2025-09-13-linear-regression-model.md">The Maths Project Series | Linear Regression Model</a>
 - <a href="comp_techs/2025-08-24-K-means-image-quantization.md">qubit-note: The Maths Project Series | K-means for Image Quantization</a>
 - <a href="comp_techs/2025-05-24-stochastic-grdaient-descent.md">qubit-note: The Maths Project Series | Stochastic Grdaient Descent</a>
 - <a href="comp_techs/2025-05-17-gradient-descent.md">qubit-note: The Maths Project Series | Gradient Descent</a>
@@ -22,15 +22,15 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 ## High performance computing
 
 - <a href="hpc/2026-05-09-Asynchronous-Programming.md">qubit-note: Asynchronous Programming C++ | Promises and Futures</a>
-- <a href="hpc/2026-03-12-OpenMP-Multi-threading-Part-9.md">qubit-note: OpenMP Part 9 | Task Parallelism with OpenMP 1</a>
-- <a href="hpc/2026-03-05-OpenMP-Multi-threading-Part-8.md">qubit-note: OpenMP Part 8 | Example 2 Compute Mean Using smid</a>
-- <a href="hpc/2026-02-26-OpenMP-Multi-threading-Part-7.md">qubit-note: OpenMP Part 7 | Example 1 Compute Mean & Variance</a>
-- <a href="hpc/2026-02-20-OpenMP-Multi-threading-Part-6.md">qubit-note: OpenMP Part 6 | Function-level Parallelization</a>
-- <a href="hpc/2026-02-19-OpenMP-Multi-threading-Part-5.md">qubit-note: OpenMP Part 5 | Variable Scope</a>
-- <a href="hpc/2026-02-05-OpenMP-Multi-threading-Part-4.md">qubit-note: OpenMP Part 4 | Reduction Operations</a>
-- <a href="hpc/2026-01-29-OpenMP-Multi-threading-Part-3.md">qubit-note: OpenMP Part 3 | Parallelization of for Constructs</a>
-- <a href="hpc/2026-01-15-OpenMP-Multi-threading-Part-2.md">qubit-note: OpenMP Part 2 | Synchronization Constructs</a>
-- <a href="hpc/2026-01-10-OpenMP-Multi-threading-Part-1.md">qubit-note: OpenMP Part 1 | Introduction</a>
+- <a href="hpc/2026-03-12-OpenMP-Multi-threading-Part-9.md">OpenMP Part 9 | Task Parallelism with OpenMP 1</a>
+- <a href="hpc/2026-03-05-OpenMP-Multi-threading-Part-8.md">OpenMP Part 8 | Example 2 Compute Mean Using smid</a>
+- <a href="hpc/2026-02-26-OpenMP-Multi-threading-Part-7.md">OpenMP Part 7 | Example 1 Compute Mean & Variance</a>
+- <a href="hpc/2026-02-20-OpenMP-Multi-threading-Part-6.md">OpenMP Part 6 | Function-level Parallelization</a>
+- <a href="hpc/2026-02-19-OpenMP-Multi-threading-Part-5.md">OpenMP Part 5 | Variable Scope</a>
+- <a href="hpc/2026-02-05-OpenMP-Multi-threading-Part-4.md">OpenMP Part 4 | Reduction Operations</a>
+- <a href="hpc/2026-01-29-OpenMP-Multi-threading-Part-3.md">OpenMP Part 3 | Parallelization of for Constructs</a>
+- <a href="hpc/2026-01-15-OpenMP-Multi-threading-Part-2.md">OpenMP Part 2 | Synchronization Constructs</a>
+- <a href="hpc/2026-01-10-OpenMP-Multi-threading-Part-1.md">OpenMP Part 1 | Introduction</a>
 - <a href="hpc/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Asynchronous Programming Python | Coroutine Chaining & Asynchronous Queues in Python</a>
 - <a href="hpc/2026-09-09-Race-Conditions.md">Race Conditions</a>
 - <a href="hpc/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
@@ -39,10 +39,10 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### Intro
 
-- <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">qubit-note: Design Concepts Part 2</a>
-- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">qubit-note: Design Concepts Part 1</a> 
-- <a href="dist_systems/2026-03-09-part-2-Challenges.md">qubit-note: Challenges in Distributed Systems</a>
-- <a href="dist_systems/2026-02-24-part-1-Intro.md">qubit-note: Introduction to Distributed Systems</a>
+- <a href="dist_systems/2026-05-10-Distributed-Systems-Design-Concepts-Part-2.md">Design Concepts Part 2</a>
+- <a href="dist_systems/2026-05-09-Distributed-Systems-Design-Concepts-Part-1.md">Design Concepts Part 1</a> 
+- <a href="dist_systems/2026-03-09-part-2-Challenges.md">Challenges in Distributed Systems</a>
+- <a href="dist_systems/2026-02-24-part-1-Intro.md">Introduction to Distributed Systems</a>
 
 
 ### Networking & Communication
