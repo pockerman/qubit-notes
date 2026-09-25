@@ -21,7 +21,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ## High performance computing
 
-- <a href="hpc/2026-05-09-Asynchronous-Programming.md">qubit-note: Asynchronous Programming C++ | Promises and Futures</a>
+- <a href="hpc/2026-05-09-Asynchronous-Programming.md">Asynchronous Programming C++ | Promises and Futures</a>
 - <a href="hpc/2026-03-12-OpenMP-Multi-threading-Part-9.md">OpenMP Part 9 | Task Parallelism with OpenMP 1</a>
 - <a href="hpc/2026-03-05-OpenMP-Multi-threading-Part-8.md">OpenMP Part 8 | Example 2 Compute Mean Using smid</a>
 - <a href="hpc/2026-02-26-OpenMP-Multi-threading-Part-7.md">OpenMP Part 7 | Example 1 Compute Mean & Variance</a>
@@ -31,9 +31,9 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="hpc/2026-01-29-OpenMP-Multi-threading-Part-3.md">OpenMP Part 3 | Parallelization of for Constructs</a>
 - <a href="hpc/2026-01-15-OpenMP-Multi-threading-Part-2.md">OpenMP Part 2 | Synchronization Constructs</a>
 - <a href="hpc/2026-01-10-OpenMP-Multi-threading-Part-1.md">OpenMP Part 1 | Introduction</a>
-- <a href="hpc/2025-09-02-coroutine-chaining-asynchronous-queue.md">qubit-note: Asynchronous Programming Python | Coroutine Chaining & Asynchronous Queues in Python</a>
+- <a href="hpc/2025-09-02-coroutine-chaining-asynchronous-queue.md">Asynchronous Programming Python | Coroutine Chaining & Asynchronous Queues in Python</a>
 - <a href="hpc/2026-09-09-Race-Conditions.md">Race Conditions</a>
-- <a href="hpc/2026-01-02-fundamental-laws-parallel-computing.md">qubit-note: Parallel Computing Series | Fundamental Laws of Parallel Computing</a>
+- <a href="hpc/2026-01-02-fundamental-laws-parallel-computing.md">Fundamental Laws of Parallel Computing</a>
 
 ## Distributed systems
 
@@ -47,30 +47,30 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 
 ### Networking & Communication
 
-- <a href="dist_systems/2026-08-05-HTTP-1-2-3.md">qubit-note: HTTP/1.1, HTTP/2 & HTTP/3</a>
-- <a href="dist_systems/2026-04-09-Part-8-HTTP.md"> qubit-note: HTTP</a>
-- <a href="dist_systems/2026-04-09-Part-7-API.md">qubit-note: APIs</a>
-- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">qubit-note: Domain Name System</a> 
-- <a href="dist_systems/2026-08-04-FWD-PROXY-REVERSE-PROXY-NAT.md">qubit-note: Forward Proxy, Reverse Proxy & NAT</a>
-- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">qubit-note: TLS 101</a>
-- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">qubit-note: TCP 101</a>
-- <a href="dist_systems/2026-07-31-TCP-UDP-QUIC.md">qubit-note: TCP, UDP & QUIC</a>
-- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">qubit-note: Inter Process Communication</a>
-- <a href="dist_systems/2025-08-11-sharded-counters.md">qubit-note: Sharded Counters</a>
+- <a href="dist_systems/2026-08-05-HTTP-1-2-3.md">HTTP/1.1, HTTP/2 & HTTP/3</a>
+- <a href="dist_systems/2026-04-09-Part-8-HTTP.md">HTTP</a>
+- <a href="dist_systems/2026-04-09-Part-7-API.md">APIs</a>
+- <a href="dist_systems/2025-04-18-part-6-domain-name-system.md">Domain Name System</a> 
+- <a href="dist_systems/2026-08-04-FWD-PROXY-REVERSE-PROXY-NAT.md">Forward Proxy, Reverse Proxy & NAT</a>
+- <a href="dist_systems/2026-04-06-Part-5-TLS-101.md">TLS 101</a>
+- <a href="dist_systems/2026-03-17-part-4-TCP_101.md">TCP 101</a>
+- <a href="dist_systems/2026-07-31-TCP-UDP-QUIC.md">TCP, UDP & QUIC</a>
+- <a href="dist_systems/2026-03-16-part-3-OSI_MODEL.md">Inter Process Communication</a>
+- <a href="dist_systems/2025-08-11-sharded-counters.md">Sharded Counters</a>
 
 
 ### Scalabiltiy & Caching
 
-- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">qubit-note: Little’s Law</a>
-- <a href="dist_systems/2026-01-20-Caching.md">qubit-note: Caching Methods</a>
-- <a href="dist_systems/2026-01-21-cache-coherency.md">qubit-note: Cache Coherence</a>
-- <a href="dist_systems/2026-01-26-Cache-Replacement.md">qubit-note: Cache Replacement</a>
-- <a href="dist_systems/2026-04-28-Negative-Caching.md">qubit-note: Negative Caching</a>
-- <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">qubit-note:  Scalability | Message Delivery Semantics</a>
-- <a href="dist_systems/2025-12-30-state-machine-replication.md">qubit-note: Scalability | State Machine Replication</a>
-- <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">qubit-note: Scalability | Hashing Strategies</a>
-- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">qubit-note: Cold & Warm Starts</a>
-- <a href="dist_systems/2026-01-05-broadcast-protocols.md">qubit-note: Broadcast Protocols</a>
+- <a href="dist_systems/2026-05-18-Scalability-Little-Law.md">Little’s Law</a>
+- <a href="dist_systems/2026-01-20-Caching.md">Caching Methods</a>
+- <a href="dist_systems/2026-01-21-cache-coherency.md">Cache Coherence</a>
+- <a href="dist_systems/2026-01-26-Cache-Replacement.md">Cache Replacement</a>
+- <a href="dist_systems/2026-04-28-Negative-Caching.md">Negative Caching</a>
+- <a href="dist_systems/2026-06-08-Scalability-Message-Delivery-Semantics.md">Scalability | Message Delivery Semantics</a>
+- <a href="dist_systems/2025-12-30-state-machine-replication.md">Scalability | State Machine Replication</a>
+- <a href="dist_systems/2026-05-31-Scalability-Hashing-Strategies.md">Scalability | Hashing Strategies</a>
+- <a href="dist_systems/2026-05-20-Scalability-Cold-Warm-Starts.md">Cold & Warm Starts</a>
+- <a href="dist_systems/2026-01-05-broadcast-protocols.md">Broadcast Protocols</a>
 
 ### Databases & Storage
 
