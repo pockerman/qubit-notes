@@ -104,6 +104,7 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 ### Time & IDs
 
 - <a href="dist_systems/2026-09-22-UUID-ULID-KSUID.md">UUID, ULID, KSUID & Snowflake IDs</a>
+- <a href="dist_systems/2026-09-25-SNOWFLAKE-ID.md">Snowflake IDs</a>
 
 ### Designs
 
