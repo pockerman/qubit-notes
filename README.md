@@ -83,23 +83,23 @@ a qubit can have more than two states (i.e. on/off). Similarly, qubit-notes are 
 - <a href="dist_systems/2026-08-21-WRITE-AHEAD-LOG.md">Write Ahead Log</a>
 - <a href="dist_systems/2026-08-20-SQL-ISOLATION-LEVELS.md">SQL Isolation Levels</a>
 - <a href="dist_systems/2026-07-01-Read-Repair-Hinted-Handoff-Anti‑entropy-Eventually-Consistent-Systems.md">Data Replication | Read Repair, Hinted Handoff & Anti‑entropy In Eventually Consistent Systems?</a>
-- <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">qubit-note: Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
-- <a href="dist_systems/2025-12-31-consensus.md">qubit-note: Scalability | Data Replication | Consensus</a>
-- <a href="dist_systems/2025-04-22-data-replication.md">qubit-note: Scalability | Data Replication</a>
-- <a href="dist_systems/2025-08-04-partitioning.md">qubit-note: Scalability | Partitioning</a>
+- <a href="dist_systems/2026-01-06-paelc-cap-calm-theorems.md">Scalability | Data Replication | PACELC, CAP and CALM Theorems </a>
+- <a href="dist_systems/2025-12-31-consensus.md">Scalability | Data Replication | Consensus</a>
+- <a href="dist_systems/2025-04-22-data-replication.md">Scalability | Data Replication</a>
+- <a href="dist_systems/2025-08-04-partitioning.md">Scalability | Partitioning</a>
 
 ### Security & Resiliency
 
-- <a href="dist_systems/2026-07-30-Replay-Attack-Idempotency.md">qubit-note: Replay Attack vs Idempotency Issues</a>
-- <a href="dist_systems/2026-07-25-TLS-mTLS.md">qubit-note: TLS vs mTLS </a>
-- <a href="dist_systems/2026-07-16-Security-Server-Stored-Session-vs-JWT.md">qubit-note: Server‑stored Sessions vs JWTs for Authentication</a>
-- <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">qubit-note: Liveness and Readiness Checks</a>
-- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">qubit-note: Sticky Sesssions</a>
-- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">qubit-note: Global Server Load Balancing</a>
-- <a href="dist_systems/2025-04-21-load-balancing.md">qubit-note:Load Balancing</a>
-- <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">qubit-note:  Upstream Resiliency</a>
-- <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">qubit-note: Downstream Resiliency</a>
-- <a href="dist_systems/2026-01-28-Failure-Causes.md">qubit-note: Failure Causes</a>
+- <a href="dist_systems/2026-07-30-Replay-Attack-Idempotency.md">Replay Attack vs Idempotency Issues</a>
+- <a href="dist_systems/2026-07-25-TLS-mTLS.md">TLS vs mTLS </a>
+- <a href="dist_systems/2026-07-16-Security-Server-Stored-Session-vs-JWT.md">Server‑stored Sessions vs JWTs for Authentication</a>
+- <a href="dist_systems/2026-05-13-Liveness-Readiness-Checks.md">Liveness and Readiness Checks</a>
+- <a href="dist_systems/2026-05-11-Sticky-Sessions.md">Sticky Sesssions</a>
+- <a href="dist_systems/2026-05-14-Global-Server-Load-Balancing.md">Global Server Load Balancing</a>
+- <a href="dist_systems/2025-04-21-load-balancing.md">Load Balancing</a>
+- <a href="dist_systems/2026-02-09-Upstream-Resiliency.md">Upstream Resiliency</a>
+- <a href="dist_systems/2026-02-04-Downstream-Resiliency.md">Downstream Resiliency</a>
+- <a href="dist_systems/2026-01-28-Failure-Causes.md">Failure Causes</a>
 
 ### Time & IDs
 
