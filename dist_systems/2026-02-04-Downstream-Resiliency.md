@@ -181,11 +181,7 @@ Downstream Service
              temporarily
 ```
 
-In the next part: <a href="2026-02-09-Upstream-Resiliency.md">qubit-note: Distributed Systems Series | Resiliency Part 3 | Upstream Resiliency</a> we will see how to handle external requests that somehow push our system to its limits. 
-
-
-
-
+In the next part: <a href="2026-02-09-Upstream-Resiliency.md">Upstream Resiliency</a> we will see how to handle external requests that somehow push our system to its limits. 
 
 ## References
 
