@@ -69,6 +69,22 @@ Exponential Backoff is a network resilience strategy in which an application pro
 
 ---
 
+Here is an example of how exponential backoff will look like
+```
+Attempt 1 fails. Wait 1 second.
+Attempt 2 fails. Wait 2 seconds.
+Attempt 3 fails. Wait 4 seconds.
+Attempt 4 fails. Wait 8 seconds.
+```
+
+
+---
+**Remark**
+
+
+Retries are a superpower, but they are dangerous. If you retry a payment request, you must ensure you aren't accidentally charging the customer twice. To do this safely, you must generate a unique "Safety Key" (Idempotency Key) in your Business Layer and pass it into your service. This ensures that every retry attempt presents the exact same identity to the server, so the payment processor knows to ignore duplicates. We will see this in action in Listing 10.2.
+
+---
 
 ### Circuit breaker
 
