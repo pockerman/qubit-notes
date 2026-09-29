@@ -34,17 +34,40 @@ import requests
 response = requests.get(url='https://get-something.com', timeout=10)
 ```
 As a system designer, you should assume every network call will eventually hang, and you must assign a strict timeout to every single one.
+In fact, we can distinguish between the following phases when looking at a network request:
 
+- the handshake i.e. establishing the connection
+- Wait for the server to process and return the data
+
+Most HTTP libraries allow you to set two separate timeout values to handle these phases independently. 
+for example, Python's ``requests`` library, we can use a tuple ``timeout=(2, 8)``.
 
 The major problem with timeouts is that getting the time to wait right can be very tricky. Ideally, we should set the timeout based on the
-desired false timeout rate [1].
+desired false timeout rate [1]. Furthermore, a rule of thumb can be:
+
+- Connection Timeout (2 seconds): If the downstream server is healthy, it should "answer the door" almost instantly. If you can't even establish a connection after 2 seconds, the server is likely down, or the network is severed. Fail fast.
+- Read Timeout (8 seconds): Once connected, you might need to give the server a bit more time to query its database and generate your data payload.
+
+Where do these numbers come from?
+In a real production environment, an architect doesn't pull resilience numbers out of thin air or rely on "gut feeling." You arrive at these thresholds by analyzing historical monitoring baselines and strict Service Level Agreement (SLA) targets. For example, if your monitoring dashboard shows that 99% of healthy API requests usually finish in under 2 seconds, a 2-second connection timeout becomes a defensible, data-driven decision rather than a guess.
+
+A Service Level Agreement (SLA) is a formal, legally binding contract between a service provider (such as a payment processor or cloud platform) and its customers that defines the expected service level. It acts as the "Standard of Quality" for the relationship.
+
+While an SLA often covers things like Uptime (e.g., "The system will be online 99.9% of the time"), for an architect, the most important part is the Latency Guarantee. If an API's SLA promises that 95% of requests will be processed in under 500ms, you use that "promise" to set your timeouts. If they break that promise, your timeout triggers to protect your system. These triggered timeouts also serve as the documentable evidence you need to hold your vendors financially accountable.
 
 ### Retries
 
 There are many reasons why a request may fail. Fault tolerant applications typically don't bail out immediately but rather attempt the request again.
-However, if the downstream service is overwhelmed, retrying immediately will not have better chances to success. Retrying therefore needs to be slowed down down with 
-increasingly longer delays between individual retries [1]. In addition, we will need to set the maximum number of retries. A common approach to set the
+Indeed for example most cloud failures are transient. However, if the downstream service is overwhelmed, retrying immediately will not have better chances to success. Retrying therefore needs to be slowed down down with  increasingly longer delays between individual retries [1]. In addition, we will need to set the maximum number of retries. A common approach to set the
 delay between retries is the <a href="https://en.wikipedia.org/wiki/Exponential_backoff">exponential backoff</a> [1].
+
+
+---
+**Exponential Backoff**
+
+Exponential Backoff is a network resilience strategy in which an application progressively increases the wait time between retry attempts after a failure. Instead of immediately and repeatedly hammering a struggling service with requests (which can accidentally cause a Distributed Denial of Service attack), the system multiplies the delay after each failed attempt (e.g., waiting 1 second, then 2 seconds, then 4 seconds, then 8 seconds). This gives the overwhelmed downstream system the necessary "breathing room" to recover. It was popularized by Bob Metcalfe and David Boggs in their seminal 1976 paper "Ethernet: Distributed Packet Switching for Local Computer Networks", which you can find here: http://www.bitsavers.org/pdf/xerox/parc/techReports/CSL-75-7_Ethernet_Distributed_Packet_Switching_for_Local_Computer_Networks.pdf
+
+---
 
 
 ### Circuit breaker
