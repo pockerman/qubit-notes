@@ -2,7 +2,7 @@
 
 ## Overview
 
-<a href="software_engineering/2026-01-28-Failure-Causes.md">qubit-note: Distributed Systems Series | Resiliency Part 1 | Failure Causes</a> introduced
+<a href="software_engineering/2026-01-28-Failure-Causes.md">Failure Causes</a> introduced
 some common failures in a distrbuted system. In this note we will discuss some techniques to address these. Specifically,
 we will assume that our system interacts with another service that we don't necessarilly control. How our system should behave when this
 service is down or is slow?
