@@ -1,4 +1,4 @@
-# qubit-note: Distributed Systems Series | Resiliency Part 2 | Downstream Resiliency
+# qubit-note: Distributed Systems Series | Resiliency | Downstream Resiliency
 
 ## Overview
 
@@ -26,13 +26,15 @@ Let's briefly discuss these.
 
 One of the simplest ways to safeguard a system from not operating third party services is to use timeouts. A timout specifies the 
 duration that the a client should wait until a response from the third party service arrives. If a response has not arrived within
-the specified interval, the client abords the connection. Timeouts are very simple to implement. Typically an API that 
+the specified interval, the client aborts the connection. A timeout is essentially a hard boundary. Timeouts are very simple to implement. Typically an API that 
 handles requests will allow us to set this. Here is an example from python's ```requests``` package:
 
 ```
 import requests
 response = requests.get(url='https://get-something.com', timeout=10)
 ```
+As a system designer, you should assume every network call will eventually hang, and you must assign a strict timeout to every single one.
+
 
 The major problem with timeouts is that getting the time to wait right can be very tricky. Ideally, we should set the timeout based on the
 desired false timeout rate [1].
