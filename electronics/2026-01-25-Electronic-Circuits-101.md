@@ -89,6 +89,8 @@ $$
 So this formula says that to find the current through a circuit, divide the voltage by the resistance. This
 can be rearranged to find the voltage or the required resistor size.
 
+We will say more about resistors in the relevant note: <a href="2026-02-08-Resistors.md">Resistors</a>
+
 
 ### Breadboard
 
