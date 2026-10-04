@@ -1,8 +1,8 @@
-# qubit-note: API Basics | Some Best Practices in API Design
+# qubit-note: APIs | Some Best Practices in API Design
 
 ## Overview
 
-In the API basics  series of notes we will go over some fundamental concepts regarding API design and development.
+In the APIs  series of notes we will go over some fundamental concepts regarding API design and development.
 APIs from the connecting tissue in a distributed system and the internet. There are various API architectural approaches one can
 take see <a href="../dist_systems/2026-04-09-Part-7-API.md">qubit-note: Part 7 | Communication | APIs</a> for a review.
 Each approach has its advanatges and disadvantages. Moreover, designing APIs is not easy. In this  note we will go over some best practices regarding API design.
@@ -15,7 +15,9 @@ This article is editted from [1].
 
 APIs are a significant aspect of a distributed system as they allow the participating nodes to communicate with each other.
 In general, we want APIs that behave in a consisten and predictable manner, they are secure and easy to maintain and evolve.
-Desigining  APIs with such attributes is not necessarilly easy however following some best practices can be very helpful towards this goal [1].
+A well-designed API acts as a contract that abstracts away complex backend logic and thus allowing developers to easily integrate
+with our system(s) without needing to understand how the latter work.
+Desigining  good APIs is not necessarilly easy. However, by following some best practices can be very helpful towards this goal [1].
 
 - Naming: Use clear and concise names when building an API. Names should convey the message of what something is and/or does. Establish conventions and stick to these
 - Pagination: Not all APIs should support pagination, but as the volume of data grows most likely you need to implement it in your APIs. So its always better to be prepared for such a scenario.

@@ -1,0 +1,1 @@
+# qubit-note: Distributed Systems | Databases & Storage | Hot, Warm, Cold, and Archive Storage Tiers
