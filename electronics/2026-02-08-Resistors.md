@@ -81,6 +81,11 @@ $$
 Resistors typically come with color bands printed on them that allow us to calculate the resistance of the resistor. The following video explains this concept:
 <a href="https://www.youtube.com/watch?v=KAgU0PDcsH4&list=PLah6faXAgguOeMUIxS22ZU4w5nDvCl5gs&index=6">Beginner Electronics - 5 - Resistors</a>.
 
+### How much resistance do we need
+
+We now know how to calculate the resistance a resistor supplies as well as how to calculate the overall resistance for two common resistor configurations i.e. parallel and in series connection.
+But how can we calculate the overall resistance we our system needs? the following video explains this using an circuit that controls an LED: <a href="https://www.youtube.com/watch?v=YlqWTID1-4s&list=PLah6faXAgguOeMUIxS22ZU4w5nDvCl5gs&index=7">Beginner Electronics - 7 - How Much Resistance?</a>
+
 ## Summary
 
 The note expands on the role of resistors in electronic circuits. A resistor is a two-terminal component that converts electrical energy into heat and obeys Ohm’s law, which states that the voltage across a resistor is proportional to the current through it, with resistance as the proportionality constant. Resistance is measured in ohms $\Omega$.
