@@ -2,10 +2,9 @@
 
 ## Overview
 
-<a href="2026-01-25-Electronic-Circuits-101.md">qubit-note: Electronic Circuits 101</a> introduced resistors as an essential element of an electronic circuit.
+<a href="2026-01-25-Electronic-Circuits-101.md">Electronic Circuits 101</a> introduced resistors as an essential element of an electronic circuit.
 In this note we will dive a bit more into resistors.
 
-**keywords** electronic-circuits,  resistors
 
 ## Resistors
 
@@ -76,6 +75,11 @@ In general, for $N$ resistors we have
 $$
 \frac{1}{R} = \sum_{1}^{N} \frac{1}{R_i}
 $$
+
+### Understanding the color bands
+
+Resistors typically come with color bands printed on them that allow us to calculate the resistance of the resistor. The following video explains this concept:
+<a href="https://www.youtube.com/watch?v=KAgU0PDcsH4&list=PLah6faXAgguOeMUIxS22ZU4w5nDvCl5gs&index=6">Beginner Electronics - 5 - Resistors</a>.
 
 ## Summary
 
