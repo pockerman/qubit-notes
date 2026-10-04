@@ -6,7 +6,7 @@ In this note we will look into <a href="https://en.wikipedia.org/wiki/Electronic
 We will also going to discuss current, voltage and resistors. Finally, we will look into <a href="https://en.wikipedia.org/wiki/Breadboard">breadboards</a>.
 We will keep the discussion brief as always.
 
-**keywords** electronic-circuits, current, voltage, resistors
+
 
 
 ## Electronic circuits 101
@@ -25,6 +25,16 @@ allowing current to flow around the circuit, and the buzzer will sound. When the
 a gap between the connections inside the switch preventing the current flow and causing the buzzer to stop.
 
 We have two types of circuits; analog and digital that we will discuss in another note.
+
+----
+**Open vs closed circuits**
+
+In addition to analog and digital circuits, we distinguish between open and closed circuits.
+In very simple terms, open and closed circuits are defined by the continuity of their electrical path and the resulting flow of current.  
+A closed circuit provides a complete, unbroken loop allowing current to flow from the power source through the load and back, enabling devices to function.  
+In contrast, an open circuit contains a break or gap in the path, which stops current flow and leaves the load de-energized
+
+----
 
 Let's now look into three fundamental concepts regarding electronic circuits; current, voltage and resistors.
 We will see that there is a relationship among them expressed by <a href="https://en.wikipedia.org/wiki/Ohm%27s_law">Ohm’s law</a>
@@ -47,6 +57,15 @@ on how much charge is in the battery and what load is connected to it
 
 A voltmeter is an instrument used to measure the electric potential difference, or voltage, between two points in an electrical circuit.  
 It is always connected in parallel with the component or circuit section being measured to avoid disrupting the current flow.
+
+----
+
+----
+**Forward Voltage**
+
+When designing and building circuits, one factor you need to consider is forward voltage (Vf). 
+Forward voltage is the minimum amount of voltage that is required to allow an electrical component to turn on.
+For more on this topic see <a href="https://42electronics.com/blogs/learn-more/what-is-forward-voltage">What is Forward Voltage?</a>
 
 ----
 
