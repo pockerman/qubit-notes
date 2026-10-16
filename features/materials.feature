@@ -37,6 +37,11 @@ Feature: Study materials
       When I upload the file "empty.txt" to "aeronautics/numerical-methods/finite-elements" with no content
       Then the upload is rejected as empty
 
+    @gogi
+    Scenario: A file too large to send in one piece is uploaded
+      When I upload a 10 MB file "lecture-notes.pdf" to "aeronautics/numerical-methods/finite-elements"
+      Then the upload is accepted for processing
+
     Scenario: A file larger than the upload limit is rejected
       Given the upload limit is 1 MB
       When I upload a 2 MB file "lecture-notes.pdf" to "aeronautics/numerical-methods/finite-elements"
