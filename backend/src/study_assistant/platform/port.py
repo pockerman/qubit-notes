@@ -5,8 +5,13 @@ from pydantic import BaseModel
 
 class PlatformHealth(BaseModel):
     reachable: bool
-    providers: list[str] = []
+    # service name to its status, e.g. {"gateway": "SERVING", "llms": "NOT_SERVING"}
+    services: dict[str, str] = {}
     error: str | None = None
+
+    @property
+    def serving(self) -> bool:
+        return self.reachable and all(status == "SERVING" for status in self.services.values())
 
 
 class StudyPlatform(Protocol):

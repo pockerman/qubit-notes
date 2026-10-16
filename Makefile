@@ -22,7 +22,7 @@ lint:
 	cd $(FRONTEND) && npm run lint
 
 dev-backend:
-	cd $(BACKEND) && $(UV) run uvicorn study_assistant.app:create_app --factory --reload --port 8000
+	cd $(BACKEND) && $(UV) run uvicorn study_assistant.app:create_app --factory --reload --port 8001
 
 dev-frontend:
 	cd $(FRONTEND) && npm run dev

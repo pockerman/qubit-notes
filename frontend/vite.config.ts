@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': process.env.STUDY_ASSISTANT_API_URL ?? 'http://localhost:8000',
+      '/api': process.env.STUDY_ASSISTANT_API_URL ?? 'http://localhost:8001',
     },
   },
 })

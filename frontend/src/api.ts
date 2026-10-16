@@ -1,6 +1,7 @@
 export type Health = {
   status: 'ok' | 'degraded'
-  providers: string[]
+  // platform service name to its status, e.g. SERVING or NOT_SERVING
+  services: Record<string, string>
   error: string | null
 }
 

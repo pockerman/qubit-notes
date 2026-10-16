@@ -23,7 +23,7 @@ Each capability starts as a `.feature` file in `features/`. Its steps live in `b
 
 ```bash
 make install            # backend venv (uv) and frontend packages
-make dev-backend        # http://localhost:8000/api/health
+make dev-backend        # http://localhost:8001/api/health (gogi's chromadb takes 8000)
 make dev-frontend       # http://localhost:5173, forwards /api to the backend
 make lint
 ```

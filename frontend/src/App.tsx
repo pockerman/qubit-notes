@@ -11,10 +11,14 @@ function PlatformStatus() {
 
   if (error) return <p role="status">Backend unreachable: {error}</p>
   if (!health) return <p role="status">Checking the platform…</p>
+  if (health.status === 'ok') return <p role="status">Platform connected</p>
+
+  const notServing = Object.entries(health.services)
+    .filter(([, status]) => status !== 'SERVING')
+    .map(([name]) => name)
   return (
     <p role="status">
-      Platform {health.status === 'ok' ? 'connected' : `degraded: ${health.error}`}
-      {health.providers.length > 0 && ` · providers: ${health.providers.join(', ')}`}
+      Platform degraded: {health.error ?? `not serving: ${notServing.join(', ')}`}
     </p>
   )
 }

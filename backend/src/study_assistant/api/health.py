@@ -7,7 +7,8 @@ router = APIRouter()
 
 class HealthResponse(BaseModel):
     status: str
-    providers: list[str]
+    # platform service name to its status
+    services: dict[str, str]
     error: str | None = None
 
 
@@ -15,7 +16,7 @@ class HealthResponse(BaseModel):
 async def health(request: Request) -> HealthResponse:
     platform_health = await run_in_threadpool(request.app.state.platform.health)
     return HealthResponse(
-        status="ok" if platform_health.reachable else "degraded",
-        providers=platform_health.providers,
+        status="ok" if platform_health.serving else "degraded",
+        services=platform_health.services,
         error=platform_health.error,
     )
