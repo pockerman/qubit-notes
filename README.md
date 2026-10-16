@@ -6,7 +6,8 @@ study sessions with memory, generates quizzes and flashcards, and schedules revi
 
 - `backend/`: FastAPI app. The domain talks to gogi only through the `StudyPlatform` port
   (`backend/src/study_assistant/platform/port.py`). `GogiPlatform` implements the port with the SDK.
-- `frontend/`: React + TypeScript (Vite).
+- `frontend/`: React + TypeScript (Vite). Students sign in by name (there is no authentication yet), manage their
+  courses' material by subject and topic, and share courses with classmates.
 - `features/`: Gherkin specs. They drive development of both the backend and the UI.
 
 ## Behaviour-driven development
@@ -14,7 +15,8 @@ study sessions with memory, generates quizzes and flashcards, and schedules revi
 Each capability starts as a `.feature` file in `features/`. Its steps live in `backend/tests/bdd/steps/`.
 
 - `make bdd` runs every scenario against `FakePlatform`, an in-memory platform. It needs no gogi stack and no API
-  keys.
+  keys. Scenarios tagged `@ui` build the frontend, serve it from the backend and drive it in headless Chromium with
+  Playwright. `make bdd-ui` runs only those.
 - `make bdd-gogi` runs only the scenarios tagged `@gogi`, against a running gogi gateway
   (`STUDY_ASSISTANT_GATEWAY_URL`, default `localhost:50051`). When one of these fails because of the platform, the
   fix goes into gogi or gogi-python.
@@ -22,7 +24,8 @@ Each capability starts as a `.feature` file in `features/`. Its steps live in `b
 ## Development
 
 ```bash
-make install            # backend venv (uv) and frontend packages
+make install            # backend venv (uv), Playwright's Chromium and frontend packages
+make serve              # build the frontend and serve it with the backend on http://localhost:8001
 make dev-backend        # http://localhost:8001/api/health (gogi's chromadb takes 8000)
 make dev-frontend       # http://localhost:5173, forwards /api to the backend
 make lint

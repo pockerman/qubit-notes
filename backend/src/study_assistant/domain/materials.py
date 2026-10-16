@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from study_assistant.domain.courses import Course, Courses, Location
 from study_assistant.domain.errors import InvalidRequest, NotFound
 from study_assistant.domain.memory import StudentMemory
-from study_assistant.platform.port import IngestJob, StudyPlatform
+from study_assistant.platform.port import IngestJob, IngestStatus, StudyPlatform
 
 CONTENT_TYPES = {".txt": "text/plain", ".md": "text/markdown", ".pdf": "application/pdf"}
 
@@ -16,6 +16,7 @@ class Material(BaseModel):
     subject: str
     topic: str
     filename: str
+    status: IngestStatus
 
 
 class Upload(BaseModel):
@@ -69,6 +70,7 @@ class Materials:
                 subject=document.metadata.get("subject", ""),
                 topic=document.metadata.get("topic", ""),
                 filename=document.filename,
+                status=document.status,
             )
             for document in self._platform.list_documents(found.id, metadata_filter or None)
         ]

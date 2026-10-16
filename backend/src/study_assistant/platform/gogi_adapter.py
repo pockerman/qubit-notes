@@ -120,6 +120,7 @@ class GogiPlatform:
                 index_name=document.index_name,
                 filename=document.filename,
                 metadata=document.custom_metadata or {},
+                status=_STATUSES.get(document.status or "", IngestStatus.PENDING),
             )
             for document in self._gogi.documents.list_documents(index_name, metadata_filter=metadata_filter)
         ]

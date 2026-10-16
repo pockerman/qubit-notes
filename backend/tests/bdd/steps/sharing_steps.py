@@ -12,6 +12,12 @@ def share(students, context, course, name, role):
     assert context["response"].status_code == 200, context["response"].text
 
 
+@given(parsers.parse('the student "{name}" has shared the course "{course}" with "{other}" as {role}'))
+def student_has_shared(students, name, course, other, role):
+    response = students.share(course, other, ROLE[role], name=name)
+    assert response.status_code == 200, response.text
+
+
 @when(parsers.parse('the student "{name}" shares the course "{course}" with "{other}" as {role}'))
 def student_shares(students, context, name, course, other, role):
     context["response"] = students.share(course, other, ROLE[role], name=name)

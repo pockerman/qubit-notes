@@ -70,7 +70,13 @@ class FakePlatform:
         self, index_name: str, filename: str, content: bytes, content_type: str, metadata: dict[str, str]
     ) -> IngestJob:
         document_id = uuid.uuid4().hex
-        document = DocumentInfo(document_id=document_id, index_name=index_name, filename=filename, metadata=metadata)
+        document = DocumentInfo(
+            document_id=document_id,
+            index_name=index_name,
+            filename=filename,
+            metadata=metadata,
+            status=IngestStatus.COMPLETED,
+        )
         self.documents[index_name][document_id] = (document, content.decode(errors="ignore"))
         job = IngestJob(job_id=uuid.uuid4().hex, document_id=document_id, status=IngestStatus.COMPLETED)
         self.jobs[job.job_id] = job

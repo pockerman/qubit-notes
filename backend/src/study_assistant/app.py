@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from study_assistant.api import courses, health, materials
 from study_assistant.api.errors import add_error_handlers
@@ -27,4 +28,6 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     add_error_handlers(app)
     for router in (health.router, courses.router, materials.router):
         app.include_router(router, prefix="/api")
+    if settings.frontend_dir:
+        app.mount("/", StaticFiles(directory=settings.frontend_dir, html=True), name="frontend")
     return app

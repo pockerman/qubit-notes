@@ -47,6 +47,8 @@ class DocumentInfo(BaseModel):
     index_name: str
     filename: str
     metadata: dict[str, str] = {}
+    # the status of the document's ingestion
+    status: IngestStatus = IngestStatus.PENDING
 
 
 class Chunk(BaseModel):
