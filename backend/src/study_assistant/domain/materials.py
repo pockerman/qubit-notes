@@ -3,10 +3,11 @@ from pathlib import PurePosixPath
 from pydantic import BaseModel
 
 from study_assistant.domain.courses import Course, Courses, Location
-from study_assistant.domain.errors import InvalidRequest, NotFound
+from study_assistant.domain.errors import InvalidRequest, NotFound, TooLarge
 from study_assistant.domain.memory import StudentMemory
 from study_assistant.platform.port import IngestJob, IngestStatus, StudyPlatform
 
+MB = 1024 * 1024
 CONTENT_TYPES = {".txt": "text/plain", ".md": "text/markdown", ".pdf": "application/pdf"}
 
 
@@ -30,10 +31,11 @@ class Materials:
     """Uploading, listing and deleting study material. Material is a document in its course's index, with its
     subject and topic as metadata."""
 
-    def __init__(self, platform: StudyPlatform, courses: Courses, memory: StudentMemory):
+    def __init__(self, platform: StudyPlatform, courses: Courses, memory: StudentMemory, max_upload_mb: float):
         self._platform = platform
         self._courses = courses
         self._memory = memory
+        self.max_upload_mb = max_upload_mb
 
     def upload(self, student: str, location: str, filename: str, content: bytes) -> Upload:
         where = Location.parse(location)
@@ -42,6 +44,8 @@ class Materials:
             raise InvalidRequest(f"unsupported file type {filename!r}: upload {', '.join(CONTENT_TYPES)} files")
         if not content:
             raise InvalidRequest(f"{filename!r} is empty")
+        if len(content) > self.max_upload_mb * MB:
+            raise TooLarge(f"{filename!r} is {len(content) / MB:.1f} MB; the limit is {self.max_upload_mb:g} MB")
 
         course = self._courses.get_or_create(student, where.course)
         self._courses.require_owner(student, course)

@@ -16,3 +16,7 @@ class InvalidRequest(StudyAssistantError):
 
 class Conflict(StudyAssistantError):
     pass
+
+
+class TooLarge(StudyAssistantError):
+    pass

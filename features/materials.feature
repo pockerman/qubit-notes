@@ -37,6 +37,12 @@ Feature: Study materials
       When I upload the file "empty.txt" to "aeronautics/numerical-methods/finite-elements" with no content
       Then the upload is rejected as empty
 
+    Scenario: A file larger than the upload limit is rejected
+      Given the upload limit is 1 MB
+      When I upload a 2 MB file "lecture-notes.pdf" to "aeronautics/numerical-methods/finite-elements"
+      Then the upload is rejected as too large
+      And I am told the limit is 1 MB
+
     Scenario Outline: Material must be uploaded to a course, a subject and a topic
       When I upload the file "notes.txt" to "<location>"
       Then the upload is rejected as having an invalid location

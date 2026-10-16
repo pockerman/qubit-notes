@@ -15,6 +15,15 @@ class PlatformHealth(BaseModel):
         return self.reachable and all(status == "SERVING" for status in self.services.values())
 
 
+class PlatformError(Exception):
+    """The platform failed a request, e.g. it was unreachable or rejected it."""
+
+    def __init__(self, code: str, details: str):
+        super().__init__(f"{code}: {details}")
+        self.code = code
+        self.details = details
+
+
 class MemberRole(StrEnum):
     OWNER = "owner"
     READER = "reader"

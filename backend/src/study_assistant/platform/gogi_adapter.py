@@ -1,3 +1,4 @@
+import functools
 from typing import Any
 
 import grpc
@@ -15,6 +16,7 @@ from study_assistant.platform.port import (
     IngestJob,
     IngestStatus,
     MemberRole,
+    PlatformError,
     PlatformHealth,
 )
 from study_assistant.settings import Settings
@@ -32,6 +34,26 @@ def _not_found(error: grpc.RpcError) -> bool:
     return error.code() == grpc.StatusCode.NOT_FOUND
 
 
+def _platform_errors(cls):
+    """Turns the gRPC errors of every public method into ``PlatformError``s, so callers need not know gRPC."""
+
+    def wrap(method):
+        @functools.wraps(method)
+        def wrapper(*args, **kwargs):
+            try:
+                return method(*args, **kwargs)
+            except grpc.RpcError as e:
+                raise PlatformError(e.code().name, e.details() or "") from e
+
+        return wrapper
+
+    for name, method in list(vars(cls).items()):
+        if callable(method) and not name.startswith("_"):
+            setattr(cls, name, wrap(method))
+    return cls
+
+
+@_platform_errors
 class GogiPlatform:
     """``StudyPlatform`` implemented with the gogi-python SDK."""
 

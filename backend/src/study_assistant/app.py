@@ -23,7 +23,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.settings = settings
     app.state.memory = StudentMemory(platform)
     app.state.courses = Courses(platform)
-    app.state.materials = Materials(platform, app.state.courses, app.state.memory)
+    app.state.materials = Materials(platform, app.state.courses, app.state.memory, settings.max_upload_mb)
 
     add_error_handlers(app)
     for router in (health.router, courses.router, materials.router):

@@ -51,6 +51,21 @@ def have_uploaded_these(students, datatable):
         students.wait_until_ingested(response)
 
 
+@given(parsers.parse("the upload limit is {size:d} MB"))
+def upload_limit(client, size):
+    client.app.state.materials.max_upload_mb = size
+
+
+@when(parsers.parse('I upload a {size:d} MB file "{filename}" to "{location}"'))
+def upload_sized(students, context, size, filename, location):
+    context["response"] = students.upload(location, filename, b"%PDF-" + b"0" * (size * 1024 * 1024))
+
+
+@then(parsers.parse("I am told the limit is {size:d} MB"))
+def told_limit(context, size):
+    assert f"the limit is {size} MB" in context["response"].json()["detail"]
+
+
 @then("the upload is accepted for processing")
 def accepted(context):
     assert context["response"].status_code == 202, context["response"].text
@@ -59,9 +74,14 @@ def accepted(context):
 @then(parsers.parse("the upload is rejected as {reason}"))
 def rejected(context, reason):
     response = context["response"]
-    assert response.status_code == 422, response.text
-    expected = {"unsupported": "unsupported", "empty": "empty", "having an invalid location": "invalid location"}
-    assert expected[reason] in response.json()["detail"], response.text
+    status, text = {
+        "unsupported": (422, "unsupported"),
+        "empty": (422, "empty"),
+        "having an invalid location": (422, "invalid location"),
+        "too large": (413, "the limit is"),
+    }[reason]
+    assert response.status_code == status, response.text
+    assert text in response.json()["detail"], response.text
 
 
 @then(parsers.parse('the material "{filename}" is eventually ready'))
