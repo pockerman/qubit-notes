@@ -7,3 +7,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="STUDY_ASSISTANT_", env_file=".env", extra="ignore")
 
     gateway_url: str = "localhost:50051"
+
+    # how material is embedded; the default runs in gogi's worker and needs no API key
+    embeddings_client: str = "sentence-transformer"
+    embeddings_model: str = "clip"
+    chunk_strategy: str = "fixed"

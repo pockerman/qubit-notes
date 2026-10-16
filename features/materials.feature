@@ -5,6 +5,7 @@ Feature: Study materials
 
   Material lives at a location "<course>/<subject>/<topic>",
   e.g. "aeronautics/numerical-methods/finite-elements".
+  Uploading to a course I don't have yet creates it, with me as its owner.
 
   Background:
     Given I am the student "maria"
@@ -99,6 +100,7 @@ Feature: Study materials
     @gogi
     Scenario: Delete a material
       Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+      And searching "aeronautics" for "finite element" finds "fe-basics.txt"
       When I delete the material "fe-basics.txt" from "aeronautics/numerical-methods/finite-elements"
       Then the materials of "aeronautics/numerical-methods/finite-elements" are empty
       And searching "aeronautics" for "finite element" finds nothing from "fe-basics.txt"

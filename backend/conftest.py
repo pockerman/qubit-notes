@@ -6,7 +6,12 @@ scenarios tagged ``@gogi``, against the gogi gateway at ``STUDY_ASSISTANT_GATEWA
 
 import pytest
 
-pytest_plugins = ["tests.bdd.steps.common_steps", "tests.bdd.steps.health_steps"]
+pytest_plugins = [
+    "tests.bdd.steps.common_steps",
+    "tests.bdd.steps.health_steps",
+    "tests.bdd.steps.materials_steps",
+    "tests.bdd.steps.sharing_steps",
+]
 
 
 def pytest_addoption(parser):
