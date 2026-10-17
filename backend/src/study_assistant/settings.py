@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     # the largest file a student may upload; gogi refuses files larger than its own limit, 100 MB by default
     max_upload_mb: float = 100.0
 
+    # the model that writes summaries and quizzes, through gogi's model service
+    llm_provider: str = "anthropic"
+    llm_model: str = "claude-sonnet-5-5"
+    llm_max_tokens: int = 4000
+
     # how material is embedded; the default runs in gogi's worker and needs no API key
     embeddings_client: str = "sentence-transformer"
     embeddings_model: str = "clip"

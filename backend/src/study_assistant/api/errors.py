@@ -11,9 +11,18 @@ from study_assistant.domain.errors import (
     StudyAssistantError,
     TooLarge,
 )
+from study_assistant.domain.quizzes import AIFailed
 from study_assistant.platform.port import PlatformError
 
-STATUS = {InvalidRequest: 422, NotAllowed: 403, NotFound: 404, Conflict: 409, TooLarge: 413, OutOfRange: 416}
+STATUS = {
+    InvalidRequest: 422,
+    NotAllowed: 403,
+    NotFound: 404,
+    Conflict: 409,
+    TooLarge: 413,
+    OutOfRange: 416,
+    AIFailed: 502,
+}
 
 
 def add_error_handlers(app: FastAPI) -> None:

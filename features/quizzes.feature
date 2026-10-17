@@ -1,4 +1,4 @@
-@wip
+@ai
 Feature: Quizzes
   As a student
   I want the assistant to quiz me on a section, a whole document or a whole topic

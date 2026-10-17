@@ -208,3 +208,48 @@ def see_my_note(page, text):
 @then(parsers.parse('the passage "{passage}" is highlighted'))
 def passage_highlighted(page, passage):
     expect(page.get_by_role("article", name="Section text").locator("mark", has_text=passage)).to_be_visible()
+
+
+# summaries and quizzes
+
+
+@when("I ask for a summary of this section")
+@when("I ask for a summary of this topic")
+def ask_for_summary(page):
+    page.get_by_role("region", name="Summary").get_by_role("button", name="Summarise").click()
+
+
+@then(parsers.parse('I see a summary drawn from "{title}"'))
+def see_summary(page, title):
+    summary = page.get_by_role("region", name="Summary")
+    expect(summary.locator(".markdown")).not_to_be_empty()
+    summary.get_by_text(re.compile(r"^From \d+ sections?$")).click()
+    expect(summary.get_by_role("listitem").filter(has_text=title)).to_be_visible()
+
+
+@when(parsers.parse("I ask for a quiz of {count:d} questions on the whole document"))
+def ask_for_quiz_on_document(page, count):
+    page.get_by_role("group", name="Study what").get_by_role("button", name="Whole document").click()
+    quiz = page.get_by_role("region", name="Quiz")
+    quiz.get_by_label("Questions").fill(str(count))
+    quiz.get_by_role("button", name="Quiz me").click()
+    expect(quiz.get_by_role("group")).to_have_count(count)
+
+
+@when("I answer every question with its first choice")
+def answer_first_choices(page):
+    quiz = page.get_by_role("region", name="Quiz")
+    for question in quiz.get_by_role("group").all():
+        question.get_by_role("radio").first.check()
+    quiz.get_by_role("button", name="Check my answers").click()
+
+
+@then(parsers.parse("I see that I scored {score:d} out of {total:d}"))
+def see_score(page, score, total):
+    expect(page.get_by_role("status").filter(has_text="You scored")).to_have_text(f"You scored {score} out of {total}")
+
+
+@when(parsers.parse('I study the topic "{topic}"'))
+def study_topic(page, topic):
+    page.get_by_role("region", name=re.compile(f"› {topic}$")).get_by_role("button", name="Study this topic").click()
+    expect(page.get_by_role("heading", name=re.compile(f"› {topic}$"), level=2)).to_be_visible()

@@ -158,6 +158,9 @@ class StudyPlatform(Protocol):
         self, index_name: str, query: str, top_k: int, metadata_filter: dict[str, str] | None = None
     ) -> list[Chunk]: ...
 
+    # the AI: an answer to the prompt, following the system prompt; with a JSON schema, a JSON object matching it
+    def complete(self, system: str, prompt: str, json_schema: dict[str, Any] | None = None) -> str: ...
+
     # a user's long-term memories, key to a JSON-serialisable value
     def save_memory(self, user: str, key: str, value: dict[str, Any]) -> None: ...
 

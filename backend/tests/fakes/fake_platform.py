@@ -1,3 +1,4 @@
+import json
 import re
 import uuid
 from io import BytesIO
@@ -41,6 +42,8 @@ class FakePlatform:
         self.files: dict[str, tuple[bytes, list[SectionText]]] = {}
         # new ingestions stay pending while set
         self.hold_ingestion = False
+        # what the AI was asked, so scenarios can tell whether something new was written
+        self.completions: list[str] = []
 
     def health(self) -> PlatformHealth:
         if not self.reachable:
@@ -175,6 +178,29 @@ class FakePlatform:
                     )
                 )
         return sorted(hits, key=lambda chunk: -chunk.score)[:top_k]
+
+    # the AI
+
+    def complete(self, system: str, prompt: str, json_schema: dict[str, Any] | None = None) -> str:
+        """A deterministic stand-in: each answer is numbered, so no two are alike. A quiz has the questions the
+        prompt asks for, each from one of the sections the prompt gives, in turn, with the first choice correct."""
+        self.completions.append(prompt)
+        number = len(self.completions)
+        if json_schema is None:
+            titles = re.findall(r"^## (.+)$", prompt, re.MULTILINE)
+            return f"Summary {number} of {', '.join(titles) or 'the summaries'}."
+        count = int(re.search(r"quiz of (\d+) questions", prompt).group(1))
+        references = re.findall(r"^\[(S\d+)\] (.+)$", prompt, re.MULTILINE)
+        questions = [
+            {
+                "question": f"Question {i + 1} of quiz {number}, on {references[i % len(references)][1]}?",
+                "choices": ["right", "wrong", "also wrong", "still wrong"],
+                "answer": 0,
+                "source": references[i % len(references)][0],
+            }
+            for i in range(count)
+        ]
+        return json.dumps({"questions": questions})
 
     # memories
 

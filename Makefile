@@ -3,7 +3,7 @@ UV ?= uv
 BACKEND := backend
 FRONTEND := frontend
 
-.PHONY: install bdd bdd-ui bdd-gogi lint serve dev-backend dev-frontend
+.PHONY: install bdd bdd-ui bdd-gogi bdd-gogi-ai lint serve dev-backend dev-frontend
 
 install:
 	cd $(BACKEND) && $(UV) sync --extra dev && $(UV) run playwright install chromium
@@ -20,6 +20,10 @@ bdd-ui:
 # the @gogi scenarios, against a running gogi stack (STUDY_ASSISTANT_GATEWAY_URL, default localhost:50051)
 bdd-gogi:
 	cd $(BACKEND) && $(UV) run pytest --platform=gogi
+
+# the @gogi scenarios including those that need the AI: gogi needs a model provider's API key
+bdd-gogi-ai:
+	cd $(BACKEND) && $(UV) run pytest --platform=gogi --with-ai
 
 lint:
 	cd $(BACKEND) && $(UV) run ruff check . && $(UV) run ruff format --check .

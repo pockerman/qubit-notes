@@ -3,6 +3,7 @@ import { StudyApi, type Course, type Material } from './api'
 import { CourseView } from './components/CourseView'
 import { PlatformStatus } from './components/PlatformStatus'
 import { Reader } from './components/Reader'
+import { StudyTools } from './components/StudyTools'
 import { SignIn } from './components/SignIn'
 import { UploadForm } from './components/UploadForm'
 
@@ -33,6 +34,8 @@ function Courses({ api }: { api: StudyApi }) {
   const [version, setVersion] = useState(0)
   // the material being read, if any
   const [reading, setReading] = useState<Material | null>(null)
+  // the topic being studied, if any
+  const [studying, setStudying] = useState<{ subject: string; topic: string } | null>(null)
 
   const load = useCallback(() => {
     api.courses().then(setCourses, (e: Error) => setError(e.message))
@@ -64,6 +67,7 @@ function Courses({ api }: { api: StudyApi }) {
                   onClick={() => {
                     setSelected(c.id)
                     setReading(null)
+                    setStudying(null)
                   }}
                 >
                   {c.name}
@@ -96,6 +100,24 @@ function Courses({ api }: { api: StudyApi }) {
             documentId={reading.document_id}
             onClose={() => setReading(null)}
           />
+        ) : course && studying ? (
+          <section className="topic-study" aria-labelledby="topic-study-title">
+            <header className="reader-header">
+              <button type="button" className="link" onClick={() => setStudying(null)}>
+                ← Back
+              </button>
+              <h2 id="topic-study-title">
+                {studying.subject} › {studying.topic}
+              </h2>
+              <span className="note">every text of the topic</span>
+            </header>
+            <StudyTools
+              key={`${course.id}/${studying.subject}/${studying.topic}`}
+              api={api}
+              scope={{ course_id: course.id, subject: studying.subject, topic: studying.topic }}
+              label={`${studying.subject} › ${studying.topic}`}
+            />
+          </section>
         ) : course ? (
           <CourseView
             key={course.id}
@@ -104,6 +126,7 @@ function Courses({ api }: { api: StudyApi }) {
             version={version}
             onChanged={load}
             onOpen={setReading}
+            onStudyTopic={(subject, topic) => setStudying({ subject, topic })}
           />
         ) : (
           <p className="note">Choose a course.</p>

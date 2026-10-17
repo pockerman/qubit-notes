@@ -344,3 +344,104 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+.study {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+
+.study header h3 {
+  margin: 0;
+}
+
+.toggle button[aria-pressed='true'] {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.study-tools {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.study-card h4 {
+  margin-top: 0;
+}
+
+.questions {
+  padding-left: 1.25rem;
+}
+
+.questions fieldset {
+  border: none;
+  padding: 0;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.questions legend {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+  margin: 0.15rem 0;
+}
+
+.choice input {
+  width: auto;
+}
+
+.questions li.right legend {
+  color: var(--good);
+}
+
+.questions li.wrong legend {
+  color: var(--bad);
+}
+
+.choice.correct {
+  font-weight: 600;
+}
+
+.score {
+  font-weight: 600;
+}
+
+.warning {
+  border-left: 3px solid var(--bad);
+  padding-left: 0.6rem;
+  color: var(--muted);
+}
+
+.cited ul {
+  margin: 0.25rem 0;
+}
+
+label.inline {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+label.inline input {
+  width: 4.5rem;
+}
+
+.topic-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 0.9rem 0 0.3rem;
+}

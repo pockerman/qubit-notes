@@ -1,4 +1,4 @@
-@wip
+@ai
 Feature: Summaries
   As a student
   I want the assistant to summarise a section, a whole document or a whole topic

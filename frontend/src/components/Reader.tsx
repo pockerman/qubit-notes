@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { NewNote, Note, OpenedMaterial, SectionText, StudyApi } from '../api'
 import { formatMoment } from '../moments'
 import { NotesPanel } from './NotesPanel'
+import { StudyTools } from './StudyTools'
 
 type Props = {
   api: StudyApi
@@ -94,6 +95,8 @@ export function Reader({ api, courseId, documentId, onClose }: Props) {
   // where the video is, for the "Add note at" button
   const [playhead, setPlayhead] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  // what the summaries and quizzes are of: the section being read, or the whole document
+  const [studying, setStudying] = useState<'section' | 'document'>('section')
   const video = useRef<HTMLVideoElement>(null)
 
   const loadNotes = useCallback(() => {
@@ -273,6 +276,46 @@ export function Reader({ api, courseId, documentId, onClose }: Props) {
                 onCancel={() => setSelection(null)}
               />
             )}
+
+            <section className="study" aria-labelledby="study-title">
+              <header className="actions">
+                <h3 id="study-title">Study</h3>
+                <div role="group" aria-label="Study what" className="toggle">
+                  <button
+                    type="button"
+                    aria-pressed={studying === 'section'}
+                    onClick={() => setStudying('section')}
+                  >
+                    This section
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={studying === 'document'}
+                    onClick={() => setStudying('document')}
+                  >
+                    Whole document
+                  </button>
+                </div>
+              </header>
+              {studying === 'section' && position !== null ? (
+                <StudyTools
+                  key={`section-${position}`}
+                  api={api}
+                  scope={{ course_id: courseId, document_id: documentId, section: position }}
+                  label={sectionLabel(
+                    material.sections.find((s) => s.position === position)?.title ?? '',
+                    material.filename,
+                  )}
+                />
+              ) : (
+                <StudyTools
+                  key="document"
+                  api={api}
+                  scope={{ course_id: courseId, document_id: documentId }}
+                  label={material.filename}
+                />
+              )}
+            </section>
           </div>
 
           {panel}

@@ -1,4 +1,5 @@
 import functools
+import json
 from typing import Any
 
 import grpc
@@ -6,6 +7,10 @@ from gogi.gogi import Gogi
 from gogi.models import DeleteLLMSessionMemoryRequest, GetLLMSessionMemoryRequest, SaveLLMSessionMemoryRequest
 from gogi.models.gogi_index import GogiIndex, IndexRole
 from gogi.models.ingest_document import IngestDocumentRequest
+from gogi.models.llm.llm_message import LLMMessage
+from gogi.models.llm.llm_response_format import LLMResponseFormat
+from gogi.models.llm.llm_run_request_config import LLMRunRequestConfig
+from gogi.models.llm.requests.llm_run_request import LLMRunRequest
 from gogi.models.search_documents import SearchDocumentsRequest
 from loguru import logger
 
@@ -244,6 +249,24 @@ class GogiPlatform:
         ]
 
     # memories
+
+    def complete(self, system: str, prompt: str, json_schema: dict[str, Any] | None = None) -> str:
+        response = self._gogi.llm_clients.run(
+            LLMRunRequest(
+                config=LLMRunRequestConfig(
+                    provider=self._settings.llm_provider,
+                    model=self._settings.llm_model,
+                    max_tokens=self._settings.llm_max_tokens,
+                ),
+                messages=[LLMMessage(role="system", content=system), LLMMessage(role="user", content=prompt)],
+                response_format=(
+                    LLMResponseFormat(response_type="json_schema", response_schema_json=json.dumps(json_schema))
+                    if json_schema
+                    else None
+                ),
+            )
+        )
+        return response.content
 
     def save_memory(self, user: str, key: str, value: dict[str, Any]) -> None:
         self._gogi.llm_session.save_memory(SaveLLMSessionMemoryRequest(user_id=user, key=key, value=value))

@@ -31,9 +31,10 @@ type Props = {
   // the course list changed, e.g. after an upload
   onChanged: () => void
   onOpen: (material: Material) => void
+  onStudyTopic: (subject: string, topic: string) => void
 }
 
-export function CourseView({ api, course, version, onChanged, onOpen }: Props) {
+export function CourseView({ api, course, version, onChanged, onOpen, onStudyTopic }: Props) {
   const [materials, setMaterials] = useState<Material[]>([])
   const [error, setError] = useState<string | null>(null)
   const isOwner = course.role === 'owner'
@@ -80,7 +81,14 @@ export function CourseView({ api, course, version, onChanged, onOpen }: Props) {
             <h3>{subject}</h3>
             {topics.map(([topic, items]) => (
               <section key={topic} className="topic" aria-label={`${subject} › ${topic}`}>
-                <h4>{topic}</h4>
+                <header className="topic-header">
+                  <h4>{topic}</h4>
+                  {items.some((m) => m.kind === 'text' && m.status === 'completed') && (
+                    <button type="button" className="link" onClick={() => onStudyTopic(subject, topic)}>
+                      Study this topic
+                    </button>
+                  )}
+                </header>
                 <ul>
                   {items.map((material) => (
                     <li key={material.document_id}>

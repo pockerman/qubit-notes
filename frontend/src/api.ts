@@ -95,6 +95,70 @@ export type NewNote = { text: string } & (
   | { at_seconds: number }
 )
 
+/** What a summary or quiz is about: a section of a document, a whole document, or a topic. */
+export type Scope = {
+  course_id: string
+  document_id?: string | null
+  section?: number | null
+  subject?: string | null
+  topic?: string | null
+}
+
+export type Source = {
+  document_id: string
+  filename: string
+  section: number
+  title: string
+}
+
+export type OutOfDate = { added: string[]; removed: string[] }
+
+export type Summary = {
+  id: string
+  scope: Scope
+  content: string
+  sources: Source[]
+  created_at: string
+  out_of_date: OutOfDate | null
+}
+
+export type Question = {
+  question: string
+  choices: string[]
+  source: Source
+}
+
+export type Quiz = {
+  id: string
+  scope: Scope
+  questions: Question[]
+  sources: Source[]
+  created_at: string
+  out_of_date: OutOfDate | null
+}
+
+export type QuestionResult = {
+  question: string
+  chosen: number | null
+  correct: boolean
+  correct_choice: number
+  source: Source
+}
+
+export type Attempt = {
+  id: string
+  quiz_id: string
+  score: number
+  total: number
+  results: QuestionResult[]
+  created_at: string
+}
+
+function scopeQuery(scope: Scope): string {
+  const entries = Object.entries(scope).filter(([, value]) => value !== null && value !== undefined)
+  return new URLSearchParams(entries.map(([key, value]) => [key, String(value)])).toString()
+}
+
 export class ApiError extends Error {
   readonly status: number
 
@@ -170,6 +234,40 @@ export class StudyApi {
 
   async deleteNote(noteId: string): Promise<void> {
     await this.fetch(`/notes/${encodeURIComponent(noteId)}`, { method: 'DELETE' })
+  }
+
+  /** The newest saved summary of the scope, or a new one if there's none or `fresh`. */
+  summary(scope: Scope, fresh = false): Promise<Summary> {
+    return this.request('/summaries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...scope, new: fresh }),
+    })
+  }
+
+  summaries(scope: Scope): Promise<Summary[]> {
+    return this.request(`/summaries?${scopeQuery(scope)}`)
+  }
+
+  /** The newest saved quiz of the scope and size, or a new one if there's none or `fresh`. */
+  quiz(scope: Scope, questions: number, fresh = false): Promise<Quiz> {
+    return this.request('/quizzes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...scope, questions, new: fresh }),
+    })
+  }
+
+  takeQuiz(quizId: string, answers: (number | null)[]): Promise<Attempt> {
+    return this.request(`/quizzes/${encodeURIComponent(quizId)}/attempts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers }),
+    })
+  }
+
+  attempts(quizId: string): Promise<Attempt[]> {
+    return this.request(`/quizzes/${encodeURIComponent(quizId)}/attempts`)
   }
 
   /** The uploaded file; the student's header can't go on a plain link, so it's fetched. */
