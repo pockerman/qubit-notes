@@ -67,6 +67,18 @@ class Reading:
             raise NotFound(f"no material {document_id!r}")
         return downloaded
 
+    def contents(self, student: str, course_id: str, document_id: str) -> list[SectionText]:
+        """every section of the document with its own text, reading each top section with its subsections"""
+        course, document = self._readable(student, course_id, document_id)
+        parts, read = [], set()
+        for section in self._platform.list_sections(course.id, document.document_id):
+            if section.position in read:
+                continue
+            for part in self._platform.read_section(course.id, document.document_id, section.position) or []:
+                read.add(part.section.position)
+                parts.append(part)
+        return parts
+
     def section_content(self, student: str, course_id: str, document_id: str, position: int) -> str:
         """the section's own text, without its subsections'"""
         return self.read(student, course_id, document_id, position)[0].content

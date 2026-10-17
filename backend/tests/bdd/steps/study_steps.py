@@ -183,10 +183,9 @@ def quizzes_newest_first(students, context, count, title, filename):
     assert len(history) == count
 
 
-@then(parsers.parse('But I am told it is out of date, as "{filename}" was added since'))
-@then(parsers.parse('I am told it is out of date, as "{filename}" was added since'))
-def out_of_date(context, filename):
-    assert filename in (_got(context)["out_of_date"] or {}).get("added", [])
+@then(parsers.parse('I am told it is out of date, as "{filename}" was {change} since'))
+def out_of_date(context, filename, change):
+    assert filename in (_got(context)["out_of_date"] or {}).get(change, [])
 
 
 @then("I am told there is no material to summarise")

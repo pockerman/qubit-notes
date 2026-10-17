@@ -60,6 +60,8 @@ class DocumentInfo(BaseModel):
     status: IngestStatus = IngestStatus.PENDING
     content_type: str = ""
     size_bytes: int = 0
+    # changes when the document's content is replaced: the id of the job that ingested its current content
+    version: str = ""
 
 
 class Section(BaseModel):
@@ -131,6 +133,18 @@ class StudyPlatform(Protocol):
         store_only: bool = False,
     ) -> IngestJob:
         """ingest the document; with store_only, keep the file without ingesting it, e.g. a video"""
+        ...
+
+    def replace_document(
+        self,
+        index_name: str,
+        document_id: str,
+        filename: str,
+        content: bytes,
+        content_type: str,
+        metadata: dict[str, str],
+    ) -> IngestJob:
+        """give the document new content, e.g. after it was edited; it's ingested again"""
         ...
 
     def get_ingest_job(self, job_id: str) -> IngestJob | None: ...

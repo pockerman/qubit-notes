@@ -10,6 +10,8 @@ from study_assistant.platform.port import IngestJob, IngestStatus, StudyPlatform
 
 MB = 1024 * 1024
 TEXT_TYPES = {".txt": "text/plain", ".md": "text/markdown", ".pdf": "application/pdf"}
+# the material whose text can be edited
+EDITABLE_TYPES = {"text/plain", "text/markdown"}
 CONTENT_TYPES = {**TEXT_TYPES, **VIDEO_TYPES}
 
 
@@ -48,6 +50,11 @@ class Materials:
         self.max_upload_mb = max_upload_mb
         # what else is forgotten with a material, e.g. its notes; each is called with its document id
         self._on_delete = []
+        # called with the course id, subject and topic of every upload, so the topic is kept
+        self._on_upload = []
+
+    def on_upload(self, keep) -> None:
+        self._on_upload.append(keep)
 
     def on_delete(self, forget) -> None:
         self._on_delete.append(forget)
@@ -72,6 +79,8 @@ class Materials:
         job = self._platform.ingest_document(
             course.id, filename, content, content_type, metadata=metadata, store_only=video
         )
+        for keep in self._on_upload:
+            keep(course.id, where.subject, where.topic)
         return Upload(job_id=job.job_id, document_id=job.document_id, course_id=course.id, status=job.status)
 
     def ingestion(self, job_id: str) -> IngestJob:
@@ -98,6 +107,46 @@ class Materials:
             for document in self._platform.list_documents(found.id, metadata_filter or None)
         ]
         return sorted(materials, key=lambda m: (m.subject, m.topic, m.filename))
+
+    def text(self, student: str, course_id: str, document_id: str) -> str:
+        """the text of a Markdown or text material, to edit"""
+        course, document = self._editable(student, course_id, document_id)
+        downloaded = self._platform.download_document(course.id, document.document_id)
+        if downloaded is None:
+            raise NotFound(f"no material {document_id!r}")
+        return downloaded.content.decode("utf-8", errors="replace")
+
+    def edit(self, student: str, course_id: str, document_id: str, text: str) -> Upload:
+        """gives a Markdown or text material new text, which is processed again"""
+        course, document = self._editable(student, course_id, document_id)
+        if not text.strip():
+            raise InvalidRequest("the material cannot be empty")
+        content = text.encode()
+        if len(content) > self.max_upload_mb * MB:
+            raise TooLarge(
+                f"{document.filename!r} is {len(content) / MB:.1f} MB; the limit is {self.max_upload_mb:g} MB"
+            )
+        job = self._platform.replace_document(
+            course.id,
+            document.document_id,
+            document.filename,
+            content,
+            document.content_type,
+            metadata={**document.metadata, "edited_by": student},
+        )
+        return Upload(job_id=job.job_id, document_id=job.document_id, course_id=course.id, status=job.status)
+
+    def _editable(self, student: str, course_id: str, document_id: str):
+        course = self._courses.get_by_id(student, course_id)
+        self._courses.require_owner(student, course)
+        document = self._platform.get_document(course.id, document_id)
+        if document is None:
+            raise NotFound(f"no material {document_id!r} in {course.name!r}")
+        if document.content_type not in EDITABLE_TYPES:
+            raise InvalidRequest(
+                f"{document.filename!r} cannot be edited: only Markdown and text material can be edited"
+            )
+        return course, document
 
     def delete(self, student: str, location: str, filename: str) -> Material:
         where = Location.parse(location)

@@ -7,6 +7,16 @@ from sqlalchemy.pool import StaticPool
 
 metadata = MetaData()
 
+# a course's topics, each in a subject: they stay when all their material is deleted
+topics = Table(
+    "topics",
+    metadata,
+    Column("course_id", String, primary_key=True),
+    Column("subject", String, primary_key=True),
+    Column("topic", String, primary_key=True),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
 notes = Table(
     "notes",
     metadata,

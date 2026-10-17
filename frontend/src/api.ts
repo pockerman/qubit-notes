@@ -33,6 +33,13 @@ export type Material = {
   duration_seconds: number | null
 }
 
+export type Topic = {
+  subject: string
+  topic: string
+  // how many materials it has
+  materials: number
+}
+
 export type Upload = {
   job_id: string
   document_id: string
@@ -281,6 +288,41 @@ export class StudyApi {
 
   courses(): Promise<Course[]> {
     return this.request('/courses')
+  }
+
+  createCourse(name: string): Promise<Course> {
+    return this.request('/courses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    })
+  }
+
+  topics(course: string): Promise<Topic[]> {
+    return this.request(`/courses/${encodeURIComponent(course)}/topics`)
+  }
+
+  createTopic(course: string, subject: string, topic: string): Promise<Topic> {
+    return this.request(`/courses/${encodeURIComponent(course)}/topics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subject, topic }),
+    })
+  }
+
+  /** The text of a Markdown or text material, to edit. */
+  async materialText(courseId: string, documentId: string): Promise<string> {
+    const body: { text: string } = await this.request(`${this.materialPath(courseId, documentId)}/text`)
+    return body.text
+  }
+
+  /** Gives the material new text, which is processed again. */
+  editMaterial(courseId: string, documentId: string, text: string): Promise<Upload> {
+    return this.request(`${this.materialPath(courseId, documentId)}/text`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
   }
 
   materials(course: string): Promise<Material[]> {

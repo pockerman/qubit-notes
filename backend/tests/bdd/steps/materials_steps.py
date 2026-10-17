@@ -98,8 +98,9 @@ def list_courses(students, context):
 
 
 @then("I see the courses:")
-def see_courses(context, datatable):
-    assert [course["name"] for course in context["courses"]] == [row["course"] for row in _rows(datatable)]
+def see_courses(students, context, datatable):
+    courses = context.get("courses") or students.courses()
+    assert [course["name"] for course in courses] == [row["course"] for row in _rows(datatable)]
 
 
 @when(parsers.parse('I list the materials of the course "{course}"'))
@@ -159,6 +160,7 @@ def _found_filenames(platform, students, course: str, query: str) -> list[str]:
 
 
 @given(parsers.parse('searching "{course}" for "{query}" finds "{filename}"'))
+@then(parsers.parse('searching "{course}" for "{query}" finds "{filename}"'))
 def search_finds(platform, students, course, query, filename):
     assert filename in _found_filenames(platform, students, course, query)
 
@@ -194,3 +196,10 @@ def no_longer_remembers(client, students, text):
 @then(parsers.parse('the assistant still remembers "{text}"'))
 def still_remembers(client, students, text):
     assert text in _remembered(client, students)
+
+
+@then(parsers.parse('searching "{course}" no longer finds the text "{text}"'))
+def no_longer_finds_text(platform, students, course, text):
+    found = next(c for c in students.courses() if c["name"] == course)
+    # a similarity search always returns the closest chunks: what matters is that none of them says it
+    assert all(text not in chunk.content for chunk in platform.search(found["id"], text, top_k=10))

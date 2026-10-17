@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { StudyApi, type Course, type Material } from './api'
-import { CourseView } from './components/CourseView'
+import { useEffect, useMemo, useState } from 'react'
+import { StudyApi, type Course } from './api'
 import { PlatformStatus } from './components/PlatformStatus'
 import { Reader } from './components/Reader'
-import { StudyTools } from './components/StudyTools'
 import { SignIn } from './components/SignIn'
-import { UploadForm } from './components/UploadForm'
+import { AddMaterialPage } from './pages/AddMaterialPage'
+import { CoursePage } from './pages/CoursePage'
+import { CoursesPage } from './pages/CoursesPage'
+import { TopicPage } from './pages/TopicPage'
+import { href, navigate, useRoute } from './router'
 
 const STUDENT_KEY = 'study-assistant.student'
 
@@ -26,114 +28,37 @@ function storeStudent(student: string | null) {
   }
 }
 
-function Courses({ api }: { api: StudyApi }) {
-  const [courses, setCourses] = useState<Course[]>([])
-  const [selected, setSelected] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  // bumped when material changes outside the open course's view, so it reloads
-  const [version, setVersion] = useState(0)
-  // the material being read, if any
-  const [reading, setReading] = useState<Material | null>(null)
-  // the topic being studied, if any
-  const [studying, setStudying] = useState<{ subject: string; topic: string } | null>(null)
-
-  const load = useCallback(() => {
-    api.courses().then(setCourses, (e: Error) => setError(e.message))
-  }, [api])
-
-  useEffect(load, [load])
-
-  const course = courses.find((c) => c.id === selected) ?? null
-
+/** A material opened for reading, with whether the student may edit it. */
+function MaterialPage({ api, courseId, documentId }: { api: StudyApi; courseId: string; documentId: string }) {
+  const [course, setCourse] = useState<Course | null>(null)
+  useEffect(() => {
+    api.courses().then((courses) => setCourse(courses.find((c) => c.id === courseId) ?? null))
+  }, [api, courseId])
   return (
-    <div className="layout">
-      <nav aria-label="Courses" className="sidebar">
-        <h2>Courses</h2>
-        {error && (
-          <p role="alert" className="error">
-            {error}
-          </p>
-        )}
-        {courses.length === 0 ? (
-          <p className="note">No courses yet</p>
-        ) : (
-          <ul>
-            {courses.map((c) => (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  className={c.id === selected ? 'course-link selected' : 'course-link'}
-                  aria-current={c.id === selected ? 'page' : undefined}
-                  onClick={() => {
-                    setSelected(c.id)
-                    setReading(null)
-                    setStudying(null)
-                  }}
-                >
-                  {c.name}
-                  {c.owner !== api.student && <small> · {c.owner}</small>}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <section className="card" aria-labelledby="add-material-title">
-          <h3 id="add-material-title">Add material</h3>
-          <UploadForm
-            api={api}
-            onUploaded={(courseId) => {
-              load()
-              setSelected(courseId)
-              setVersion((v) => v + 1)
-            }}
-          />
-        </section>
-      </nav>
-
-      <main>
-        {course && reading ? (
-          <Reader
-            key={reading.document_id}
-            api={api}
-            courseId={reading.course_id}
-            documentId={reading.document_id}
-            onClose={() => setReading(null)}
-          />
-        ) : course && studying ? (
-          <section className="topic-study" aria-labelledby="topic-study-title">
-            <header className="reader-header">
-              <button type="button" className="link" onClick={() => setStudying(null)}>
-                ← Back
-              </button>
-              <h2 id="topic-study-title">
-                {studying.subject} › {studying.topic}
-              </h2>
-              <span className="note">every text of the topic</span>
-            </header>
-            <StudyTools
-              key={`${course.id}/${studying.subject}/${studying.topic}`}
-              api={api}
-              scope={{ course_id: course.id, subject: studying.subject, topic: studying.topic }}
-              label={`${studying.subject} › ${studying.topic}`}
-            />
-          </section>
-        ) : course ? (
-          <CourseView
-            key={course.id}
-            api={api}
-            course={course}
-            version={version}
-            onChanged={load}
-            onOpen={setReading}
-            onStudyTopic={(subject, topic) => setStudying({ subject, topic })}
-          />
-        ) : (
-          <p className="note">Choose a course.</p>
-        )}
-      </main>
-    </div>
+    <Reader
+      api={api}
+      courseId={courseId}
+      documentId={documentId}
+      canEdit={course?.role === 'owner'}
+      onClose={() => navigate({ page: 'course', courseId })}
+    />
   )
+}
+
+function Pages({ api }: { api: StudyApi }) {
+  const route = useRoute()
+  switch (route.page) {
+    case 'courses':
+      return <CoursesPage api={api} />
+    case 'course':
+      return <CoursePage key={route.courseId} api={api} courseId={route.courseId} />
+    case 'add':
+      return <AddMaterialPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
+    case 'material':
+      return <MaterialPage key={route.documentId} api={api} courseId={route.courseId} documentId={route.documentId} />
+    case 'topic':
+      return <TopicPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
+  }
 }
 
 export default function App() {
@@ -143,23 +68,27 @@ export default function App() {
   function signIn(name: string | null) {
     storeStudent(name)
     setStudent(name)
+    navigate({ page: 'courses' })
   }
 
   return (
     <div className="app">
       <header className="topbar">
-        <h1>Study Assistant</h1>
+        <h1>
+          <a href={href({ page: 'courses' })}>Study Assistant</a>
+        </h1>
         {api && (
-          <div className="session">
+          <nav className="session" aria-label="Session">
+            <a href={href({ page: 'courses' })}>My courses</a>
             <PlatformStatus api={api} />
             <span>Signed in as {api.student}</span>
             <button type="button" className="link" onClick={() => signIn(null)}>
               Sign out
             </button>
-          </div>
+          </nav>
         )}
       </header>
-      {api ? <Courses key={api.student} api={api} /> : <SignIn onSignIn={signIn} />}
+      <main>{api ? <Pages key={api.student} api={api} /> : <SignIn onSignIn={signIn} />}</main>
     </div>
   )
 }

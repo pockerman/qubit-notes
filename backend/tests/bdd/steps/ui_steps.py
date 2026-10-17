@@ -16,6 +16,47 @@ def _topic(page: Page, subject: str, topic: str):
     return page.get_by_role("region", name=f"{subject} › {topic}")
 
 
+def slug(name: str) -> str:
+    """a name as the app stores it, e.g. "Computer Science" as computer-science"""
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
+def go_to_courses(page: Page) -> None:
+    # reloaded, as courses may have been created since the page was loaded
+    page.goto("/#/")
+    page.reload()
+    expect(page.get_by_role("heading", name="My courses", level=2)).to_be_visible()
+
+
+def open_course_page(page: Page, course: str) -> None:
+    go_to_courses(page)
+    page.get_by_role("list", name="Courses").get_by_role("link", name=re.compile(f"^{course}\\b")).click()
+    expect(page.get_by_role("heading", name=course, level=2)).to_be_visible()
+
+
+def create_course_in_browser(page: Page, name: str) -> None:
+    go_to_courses(page)
+    page.get_by_role("button", name="Create new course").click()
+    form = page.get_by_role("form", name="New course")
+    form.get_by_label("Course name").fill(name)
+    form.get_by_role("button", name="Create course").click()
+    expect(page.get_by_role("heading", name=slug(name), level=2)).to_be_visible()
+
+
+def upload_on_add_page(page: Page, filename: str, subject: str | None, topic: str | None) -> None:
+    """on the Add material page, which may have the topic filled in already"""
+    expect(page.get_by_role("heading", name=re.compile("^Add material"), level=2)).to_be_visible()
+    form = page.get_by_role("form", name=re.compile("^Upload to "))
+    if subject is not None:
+        form.get_by_label("Subject").fill(subject)
+    if topic is not None:
+        form.get_by_label("Topic").fill(topic)
+    form.get_by_label("File").set_input_files(
+        {"name": filename, "mimeType": "text/plain", "buffer": f"Notes on {topic or 'the topic'}.".encode()}
+    )
+    form.get_by_role("button", name="Upload").click()
+
+
 @when("I open the study assistant")
 def open_app(page):
     page.goto("/")
@@ -43,44 +84,46 @@ def see_connected(page):
 
 @then("I see that I have no courses yet")
 def see_no_courses(page):
-    expect(page.get_by_role("navigation", name="Courses").get_by_text("No courses yet")).to_be_visible()
+    expect(page.get_by_text("You have no courses yet.")).to_be_visible()
 
 
 @when(parsers.parse('I upload "{filename}" to the course "{course}", subject "{subject}", topic "{topic}"'))
-def upload_in_browser(page, filename, course, subject, topic):
-    form = page.get_by_role("form", name="Add material")
-    form.get_by_label("Course").fill(course)
-    form.get_by_label("Subject").fill(subject)
-    form.get_by_label("Topic").fill(topic)
-    form.get_by_label("File").set_input_files(
-        {"name": filename, "mimeType": "text/plain", "buffer": f"Notes on {topic}.".encode()}
-    )
-    form.get_by_role("button", name="Upload").click()
-    # processing takes a while on a real platform
-    expect(form.get_by_role("status")).to_have_text(f"{filename} is ready", timeout=120_000)
+def upload_in_browser(page, context, filename, course, subject, topic):
+    context["course"] = slug(course)
+    go_to_courses(page)
+    if page.get_by_role("list", name="Courses").get_by_role("link", name=re.compile(f"^{slug(course)}\\b")).count():
+        open_course_page(page, slug(course))
+    else:
+        create_course_in_browser(page, course)
+    page.get_by_role("link", name="Add material", exact=True).click()
+    upload_on_add_page(page, filename, subject, topic)
+    # back in the course, where the material shows as ready once processed; that takes a while on gogi
+    expect(page.get_by_role("listitem").filter(has_text=filename)).to_contain_text("ready", timeout=120_000)
 
 
 @then(parsers.parse('I see the course "{course}" in my courses'))
 def see_course(page, course):
-    expect(page.get_by_role("navigation", name="Courses").get_by_role("button", name=course)).to_be_visible()
+    go_to_courses(page)
+    cards = page.get_by_role("list", name="Courses")
+    expect(cards.get_by_role("link", name=re.compile(f"^{course}\\b"))).to_be_visible()
 
 
 @when(parsers.parse('I open the course "{course}"'))
 def open_course(page, course):
-    # the course may have been created after the page was loaded
-    page.reload()
-    page.get_by_role("navigation", name="Courses").get_by_role("button", name=re.compile(f"^{course}")).click()
-    expect(page.get_by_role("heading", name=course, level=2)).to_be_visible()
+    open_course_page(page, course)
 
 
 @then(parsers.parse('I see "{filename}" under "{subject}" › "{topic}"'))
-def see_under(page, filename, subject, topic):
+def see_under(page, context, filename, subject, topic):
+    # the scenario may have looked at its courses since, which are on a page of their own
+    if context.get("course") and page.get_by_role("heading", name="My courses", level=2).count():
+        open_course_page(page, context["course"])
     expect(_topic(page, subject, topic).get_by_text(filename)).to_be_visible()
 
 
 @then(parsers.parse('I see that "{filename}" is ready'))
 def see_ready(page, filename):
-    expect(page.get_by_role("listitem").filter(has_text=filename)).to_contain_text("ready")
+    expect(page.get_by_role("listitem").filter(has_text=filename)).to_contain_text("ready", timeout=120_000)
 
 
 @then(parsers.parse('I see the subjects "{subjects}"'))
@@ -123,7 +166,7 @@ def see_shared(page, students, owner, role):
 def cannot_change(page):
     course = page.get_by_role("main")
     expect(course.get_by_role("button", name=re.compile("^Delete "))).to_have_count(0)
-    expect(course.get_by_text(re.compile("^Upload to "))).to_have_count(0)
+    expect(course.get_by_role("link", name=re.compile("^Add material"))).to_have_count(0)
     expect(course.get_by_role("form", name="Share this course")).to_have_count(0)
 
 
@@ -132,7 +175,7 @@ def cannot_change(page):
 
 @when(parsers.parse('I open "{filename}" to read it'))
 def open_to_read(page, filename):
-    page.get_by_role("button", name=filename, exact=True).click()
+    page.get_by_role("link", name=filename, exact=True).click()
     expect(page.get_by_role("heading", name=filename, level=2)).to_be_visible()
 
 
@@ -251,5 +294,72 @@ def see_score(page, score, total):
 
 @when(parsers.parse('I study the topic "{topic}"'))
 def study_topic(page, topic):
-    page.get_by_role("region", name=re.compile(f"› {topic}$")).get_by_role("button", name="Study this topic").click()
+    page.get_by_role("region", name=re.compile(f"› {topic}$")).get_by_role("link", name="Study this topic").click()
     expect(page.get_by_role("heading", name=re.compile(f"› {topic}$"), level=2)).to_be_visible()
+
+
+# courses and topics
+
+
+@then("I am offered to create a new course")
+def offered_to_create(page):
+    expect(page.get_by_role("button", name="Create new course")).to_be_visible()
+
+
+@then(parsers.parse('I am in the course "{course}"'))
+@then(parsers.parse('I am back in the course "{course}"'))
+def in_course(page, course):
+    expect(page.get_by_role("heading", name=course, level=2)).to_be_visible()
+
+
+@then("I see that it has no material yet")
+def no_material_yet(page):
+    expect(page.get_by_text("This course has no material yet.")).to_be_visible()
+
+
+@when("I go to my courses")
+def go_to_my_courses(page):
+    go_to_courses(page)
+
+
+@then(parsers.parse('I see the courses "{courses}"'))
+def see_courses_listed(page, courses):
+    cards = page.get_by_role("list", name="Courses").get_by_role("link")
+    expect(cards.locator("strong")).to_have_text([course.strip() for course in courses.split(",")])
+
+
+@when(parsers.parse('I add "{filename}" to the subject "{subject}", topic "{topic}"'))
+def add_to_subject_topic(page, filename, subject, topic):
+    page.get_by_role("link", name="Add material", exact=True).click()
+    upload_on_add_page(page, filename, subject, topic)
+
+
+@when(parsers.parse('I add "{filename}" to the topic "{topic}"'))
+def add_to_topic(page, filename, topic):
+    page.get_by_role("link", name=f"Add material to {topic}").click()
+    # the topic is filled in already
+    upload_on_add_page(page, filename, None, None)
+
+
+@then(parsers.parse('I still see the topic "{subject}" › "{topic}", with no material'))
+def topic_without_material(page, subject, topic):
+    expect(_topic(page, subject, topic).get_by_text("No material yet")).to_be_visible()
+
+
+@when(parsers.parse('I create the topic "{topic}" in the subject "{subject}"'))
+def create_topic_in_browser(page, topic, subject):
+    page.get_by_role("button", name="New topic").click()
+    form = page.get_by_role("form", name="New topic")
+    form.get_by_label("Subject").fill(subject)
+    form.get_by_label("Topic").fill(topic)
+    form.get_by_role("button", name="Create topic").click()
+
+
+@when("I edit its text to:")
+def edit_text_in_browser(page, docstring):
+    page.get_by_role("button", name="Edit", exact=True).click()
+    form = page.get_by_role("form", name="Edit material")
+    form.get_by_label("Text").fill(docstring)
+    form.get_by_role("button", name="Save").click()
+    # once processed, the reader shows the material again
+    expect(page.get_by_role("button", name="Edit", exact=True)).to_be_visible(timeout=120_000)

@@ -107,6 +107,25 @@ class FakePlatform:
         self.documents[index_name][document_id] = (document, text)
         self.files[document_id] = (content, sections)
         job = IngestJob(job_id=uuid.uuid4().hex, document_id=document_id, status=status)
+        document.version = job.job_id
+        self.jobs[job.job_id] = job
+        return job
+
+    def replace_document(
+        self,
+        index_name: str,
+        document_id: str,
+        filename: str,
+        content: bytes,
+        content_type: str,
+        metadata: dict[str, str],
+    ) -> IngestJob:
+        document, _ = self.documents[index_name][document_id]
+        sections = _sections(filename, content)
+        self.documents[index_name][document_id] = (document, "\n\n".join(part.content for part in sections))
+        self.files[document_id] = (content, sections)
+        job = IngestJob(job_id=uuid.uuid4().hex, document_id=document_id, status=IngestStatus.COMPLETED)
+        document.version, document.size_bytes, document.metadata = job.job_id, len(content), metadata
         self.jobs[job.job_id] = job
         return job
 
@@ -163,10 +182,11 @@ class FakePlatform:
     def search(
         self, index_name: str, query: str, top_k: int, metadata_filter: dict[str, str] | None = None
     ) -> list[Chunk]:
-        words = set(query.lower().split())
+        words = set(re.findall(r"\w+", query.lower()))
         hits = []
         for document, text in self.documents.get(index_name, {}).values():
-            score = sum(word in text.lower() for word in words)
+            # whole words, so "a" doesn't match every text
+            score = len(words & set(re.findall(r"\w+", text.lower())))
             if score and _matches(document.metadata, metadata_filter):
                 hits.append(
                     Chunk(

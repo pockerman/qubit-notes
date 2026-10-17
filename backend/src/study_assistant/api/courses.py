@@ -24,6 +24,10 @@ class MemberResponse(BaseModel):
     role: MemberRole
 
 
+class NewCourse(BaseModel):
+    name: str
+
+
 class ShareRequest(BaseModel):
     student: str
     role: MemberRole
@@ -40,6 +44,11 @@ def _members(course: Course) -> list[MemberResponse]:
 @router.get("", response_model=list[CourseResponse])
 async def list_courses(student: Student, catalog: CoursesDep) -> list[CourseResponse]:
     return [_course(course, student) for course in await run_in_threadpool(catalog.list, student)]
+
+
+@router.post("", response_model=CourseResponse, status_code=201)
+async def create_course(body: NewCourse, student: Student, catalog: CoursesDep) -> CourseResponse:
+    return _course(await run_in_threadpool(catalog.create, student, body.name), student)
 
 
 @router.get("/{course}/members", response_model=list[MemberResponse])

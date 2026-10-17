@@ -12,6 +12,7 @@ from study_assistant.domain.quizzes import Quizzes
 from study_assistant.domain.reading import Reading
 from study_assistant.domain.sources import Sources
 from study_assistant.domain.summaries import Summaries
+from study_assistant.domain.topics import Topics
 from study_assistant.platform.port import StudyPlatform
 from study_assistant.settings import Settings
 
@@ -33,6 +34,8 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.reading = Reading(platform, app.state.courses)
     app.state.database = storage.connect(settings.database_url)
     app.state.notes = Notes(app.state.database, app.state.reading)
+    app.state.topics = Topics(app.state.database, platform, app.state.courses)
+    app.state.materials.on_upload(app.state.topics.ensure)
     sources = Sources(platform, app.state.courses, app.state.reading)
     app.state.summaries = Summaries(app.state.database, platform, sources)
     app.state.quizzes = Quizzes(app.state.database, platform, sources)

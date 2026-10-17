@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import type { NewNote, Note, OpenedMaterial, SectionText, StudyApi } from '../api'
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { waitForUpload, type NewNote, type Note, type OpenedMaterial, type SectionText, type StudyApi } from '../api'
 import { formatMoment } from '../moments'
 import { NotesPanel } from './NotesPanel'
 import { StudyTools } from './StudyTools'
@@ -8,7 +8,79 @@ type Props = {
   api: StudyApi
   courseId: string
   documentId: string
+  // whether the student may edit the material: they own the course
+  canEdit: boolean
   onClose: () => void
+}
+
+// the material whose text can be edited
+const EDITABLE = ['text/plain', 'text/markdown']
+
+type EditorProps = {
+  api: StudyApi
+  courseId: string
+  documentId: string
+  onSaved: () => void
+  onCancel: () => void
+}
+
+/** Edits the text of a Markdown or text material; once saved, it's processed again. */
+function Editor({ api, courseId, documentId, onSaved, onCancel }: EditorProps) {
+  const [text, setText] = useState<string | null>(null)
+  const [saving, setSaving] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    api.materialText(courseId, documentId).then(setText, (e: Error) => setError(e.message))
+  }, [api, courseId, documentId])
+
+  async function save(event: FormEvent) {
+    event.preventDefault()
+    if (text === null) return
+    setError(null)
+    try {
+      setSaving('Saving…')
+      const upload = await api.editMaterial(courseId, documentId, text)
+      setSaving('Processing your changes…')
+      const job = await waitForUpload(api, upload.job_id)
+      if (job.status === 'failed') throw new Error(`Processing failed: ${job.error}`)
+      onSaved()
+    } catch (e) {
+      setError((e as Error).message)
+      setSaving(null)
+    }
+  }
+
+  return (
+    <form className="editor" aria-label="Edit material" onSubmit={save}>
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      {text === null ? (
+        <p className="note">Opening…</p>
+      ) : (
+        <label>
+          Text
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={24} spellCheck />
+        </label>
+      )}
+      <div className="actions">
+        <button type="submit" disabled={text === null || saving !== null}>
+          Save
+        </button>
+        <button type="button" className="link" onClick={onCancel} disabled={saving !== null}>
+          Cancel
+        </button>
+        {saving && (
+          <span role="status" className="note">
+            {saving}
+          </span>
+        )}
+      </div>
+    </form>
+  )
 }
 
 function sectionLabel(title: string, filename: string): string {
@@ -84,7 +156,7 @@ function NoteForm({ label, onSave, onCancel }: NoteFormProps) {
   )
 }
 
-export function Reader({ api, courseId, documentId, onClose }: Props) {
+export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
   const [material, setMaterial] = useState<OpenedMaterial | null>(null)
   const [position, setPosition] = useState<number | null>(null)
   const [parts, setParts] = useState<SectionText[]>([])
@@ -97,6 +169,9 @@ export function Reader({ api, courseId, documentId, onClose }: Props) {
   const [error, setError] = useState<string | null>(null)
   // what the summaries and quizzes are of: the section being read, or the whole document
   const [studying, setStudying] = useState<'section' | 'document'>('section')
+  const [editing, setEditing] = useState(false)
+  // bumped when the material was edited, so it's opened again
+  const [version, setVersion] = useState(0)
   const video = useRef<HTMLVideoElement>(null)
 
   const loadNotes = useCallback(() => {
@@ -112,12 +187,12 @@ export function Reader({ api, courseId, documentId, onClose }: Props) {
       },
       (e: Error) => setError(e.message),
     )
-  }, [api, courseId, documentId, loadNotes])
+  }, [api, courseId, documentId, loadNotes, version])
 
   useEffect(() => {
     if (position === null) return
     api.readSection(courseId, documentId, position).then(setParts, (e: Error) => setError(e.message))
-  }, [api, courseId, documentId, position])
+  }, [api, courseId, documentId, position, version])
 
   async function download() {
     if (!material) return
@@ -188,6 +263,11 @@ export function Reader({ api, courseId, documentId, onClose }: Props) {
             <span className="note">
               {material.subject} › {material.topic}
             </span>
+            {canEdit && EDITABLE.includes(material.content_type) && !editing && (
+              <button type="button" onClick={() => setEditing(true)}>
+                Edit
+              </button>
+            )}
             <button type="button" onClick={download}>
               Download
             </button>
@@ -201,7 +281,20 @@ export function Reader({ api, courseId, documentId, onClose }: Props) {
         </p>
       )}
 
-      {material?.kind === 'video' && (
+      {editing && (
+        <Editor
+          api={api}
+          courseId={courseId}
+          documentId={documentId}
+          onCancel={() => setEditing(false)}
+          onSaved={() => {
+            setEditing(false)
+            setVersion((v) => v + 1)
+          }}
+        />
+      )}
+
+      {!editing && material?.kind === 'video' && (
         <div className="reader-body video">
           <div>
             <video
@@ -228,7 +321,7 @@ export function Reader({ api, courseId, documentId, onClose }: Props) {
         </div>
       )}
 
-      {material?.kind === 'text' && (
+      {!editing && material?.kind === 'text' && (
         <div className="reader-body">
           <nav aria-label="Sections" className="outline">
             <ol>

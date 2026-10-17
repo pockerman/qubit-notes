@@ -1,69 +1,48 @@
 import { useState, type FormEvent } from 'react'
-import { waitForUpload, type StudyApi } from '../api'
+import type { StudyApi, Upload } from '../api'
 import { slug } from '../names'
 
 type Props = {
   api: StudyApi
-  // uploads to this course when set; otherwise the student names the course
-  course?: string
-  // called with the id of the course uploaded to, once the upload is accepted and again once it is processed
-  onUploaded: (courseId: string) => void
+  // the name of the course uploaded to
+  course: string
+  // the topic to upload to, which the student can change
+  subject?: string
+  topic?: string
+  // called once the upload is accepted; it's processed after
+  onUploaded: (upload: Upload) => void
 }
 
-export function UploadForm({ api, course, onUploaded }: Props) {
-  const [courseName, setCourseName] = useState('')
-  const [subject, setSubject] = useState('')
-  const [topic, setTopic] = useState('')
+export function UploadForm({ api, course, subject: initialSubject = '', topic: initialTopic = '', onUploaded }: Props) {
+  const [subject, setSubject] = useState(initialSubject)
+  const [topic, setTopic] = useState(initialTopic)
   const [file, setFile] = useState<File | null>(null)
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
 
-  // the location as it's stored, e.g. "computer-science/distributed-systems-design/introduction"
-  const names = [course ?? slug(courseName), slug(subject), slug(topic)]
-  const location = names.join('/')
-  const typed = [course ?? courseName.trim(), subject.trim(), topic.trim()].join('/')
+  // the topic as it's stored, e.g. "distributed-systems/introduction"
+  const names = [slug(subject), slug(topic)]
+  const typed = `${subject.trim()}/${topic.trim()}`
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!file) return
     if (names.some((name) => !name)) {
-      setMessage({ text: 'Course, subject and topic each need at least one letter or digit', error: true })
+      setMessage({ text: 'Subject and topic each need at least one letter or digit', error: true })
       return
     }
-    const form = event.currentTarget
     setBusy(true)
     setMessage({ text: `Uploading ${file.name}…` })
     try {
-      const upload = await api.upload(location, file)
-      setMessage({ text: `Processing ${file.name}…` })
-      onUploaded(upload.course_id)
-      const job = await waitForUpload(api, upload.job_id)
-      setMessage(
-        job.status === 'completed'
-          ? { text: `${file.name} is ready` }
-          : { text: `${file.name} failed: ${job.error}`, error: true },
-      )
-      onUploaded(upload.course_id)
-      setFile(null)
-      setSubject('')
-      setTopic('')
-      if (course === undefined) setCourseName('')
-      form.reset()
+      onUploaded(await api.upload(`${course}/${names.join('/')}`, file))
     } catch (e) {
       setMessage({ text: (e as Error).message, error: true })
-    } finally {
       setBusy(false)
     }
   }
 
   return (
-    <form className="upload" onSubmit={submit} aria-label={course ? `Upload to ${course}` : 'Add material'}>
-      {course === undefined && (
-        <label>
-          Course
-          <input value={courseName} onChange={(e) => setCourseName(e.target.value)} placeholder="Aeronautics" required />
-        </label>
-      )}
+    <form className="upload" onSubmit={submit} aria-label={`Upload to ${course}`}>
       <label>
         Subject
         <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Numerical methods" required />
@@ -81,9 +60,9 @@ export function UploadForm({ api, course, onUploaded }: Props) {
           required
         />
       </label>
-      {names.every(Boolean) && location !== typed && (
+      {names.every(Boolean) && names.join('/') !== typed && (
         <p className="note" aria-live="polite">
-          Saved as <code>{location}</code>
+          Saved as <code>{`${course}/${names.join('/')}`}</code>
         </p>
       )}
       <button type="submit" disabled={busy}>

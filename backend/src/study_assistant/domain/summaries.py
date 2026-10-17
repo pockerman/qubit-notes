@@ -83,7 +83,7 @@ class Summaries:
             "id": uuid.uuid4().hex,
             **scope_values(student, scope),
             "sources": [source.model_dump() for source in sources],
-            "documents": gathered.documents,
+            "documents": {d: ref.model_dump() for d, ref in gathered.documents.items()},
             "content": content,
             "created_at": now(),
         }

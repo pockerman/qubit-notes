@@ -1,0 +1,231 @@
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import type { Course, Material, StudyApi, Topic } from '../api'
+import { Members } from '../components/Members'
+import { slug } from '../names'
+import { href } from '../router'
+
+const STATUS_LABEL: Record<Material['status'], string> = {
+  pending: 'processing',
+  running: 'processing',
+  completed: 'ready',
+  failed: 'failed',
+}
+
+// subject to its topics, each with its materials, all sorted. Topics stay when their material is deleted
+function group(topics: Topic[], materials: Material[]): [string, [string, Material[]][]][] {
+  const subjects = new Map<string, Map<string, Material[]>>()
+  const topicOf = (subject: string, topic: string) => {
+    const of = subjects.get(subject) ?? new Map<string, Material[]>()
+    subjects.set(subject, of)
+    if (!of.has(topic)) of.set(topic, [])
+    return of.get(topic)!
+  }
+  for (const t of topics) topicOf(t.subject, t.topic)
+  for (const material of materials) topicOf(material.subject, material.topic).push(material)
+  return [...subjects.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([subject, of]) => [subject, [...of.entries()].sort(([a], [b]) => a.localeCompare(b))])
+}
+
+function NewTopicForm({ api, course, onCreated }: { api: StudyApi; course: Course; onCreated: () => void }) {
+  const [subject, setSubject] = useState('')
+  const [topic, setTopic] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  async function submit(event: FormEvent) {
+    event.preventDefault()
+    if (!slug(subject) || !slug(topic)) {
+      setError('Subject and topic each need at least one letter or digit')
+      return
+    }
+    try {
+      await api.createTopic(course.name, slug(subject), slug(topic))
+      onCreated()
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  return (
+    <form className="card" aria-label="New topic" onSubmit={submit}>
+      <label>
+        Subject
+        <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Distributed systems" required />
+      </label>
+      <label>
+        Topic
+        <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Introduction" required />
+      </label>
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      <button type="submit">Create topic</button>
+    </form>
+  )
+}
+
+export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string }) {
+  const [course, setCourse] = useState<Course | null | undefined>(undefined)
+  const [materials, setMaterials] = useState<Material[]>([])
+  const [topics, setTopics] = useState<Topic[]>([])
+  const [addingTopic, setAddingTopic] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    api.courses().then(
+      (courses) => setCourse(courses.find((c) => c.id === courseId) ?? null),
+      (e: Error) => setError(e.message),
+    )
+  }, [api, courseId])
+
+  const load = useCallback(() => {
+    if (!course) return
+    Promise.all([api.materials(course.name), api.topics(course.name)]).then(([m, t]) => {
+      setMaterials(m)
+      setTopics(t)
+    }, (e: Error) => setError(e.message))
+  }, [api, course])
+
+  useEffect(load, [load])
+
+  // material being processed is shown as ready once it is
+  const processing = materials.some((m) => m.status === 'pending' || m.status === 'running')
+  useEffect(() => {
+    if (!processing) return
+    const timer = setInterval(load, 1500)
+    return () => clearInterval(timer)
+  }, [processing, load])
+
+  if (course === undefined) return <p className="note">Opening…</p>
+  if (course === null) {
+    return (
+      <p role="alert" className="error">
+        There's no such course. <a href={href({ page: 'courses' })}>Back to my courses</a>
+      </p>
+    )
+  }
+
+  const isOwner = course.role === 'owner'
+
+  async function remove(material: Material) {
+    try {
+      await api.deleteMaterial(material)
+      load()
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  const grouped = group(topics, materials)
+
+  return (
+    <section className="course" aria-labelledby="course-title">
+      <header className="page-header">
+        <a className="link" href={href({ page: 'courses' })}>
+          ← My courses
+        </a>
+        <h2 id="course-title">{course.name}</h2>
+        {course.owner !== api.student && (
+          <p className="note">
+            Shared with you by {course.owner} as {course.role === 'owner' ? 'an owner' : 'a reader'}
+          </p>
+        )}
+        {isOwner && (
+          <div className="actions page-actions">
+            <a className="button" href={href({ page: 'add', courseId: course.id, subject: '', topic: '' })}>
+              Add material
+            </a>
+            <button type="button" className="link" onClick={() => setAddingTopic(!addingTopic)}>
+              New topic
+            </button>
+          </div>
+        )}
+      </header>
+
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+
+      {addingTopic && (
+        <NewTopicForm
+          api={api}
+          course={course}
+          onCreated={() => {
+            setAddingTopic(false)
+            load()
+          }}
+        />
+      )}
+
+      {grouped.length === 0 ? (
+        <p className="note">This course has no material yet.</p>
+      ) : (
+        grouped.map(([subject, of]) => (
+          <section key={subject} className="subject" aria-label={subject}>
+            <h3>{subject}</h3>
+            {of.map(([topic, items]) => (
+              <section key={topic} className="topic" aria-label={`${subject} › ${topic}`}>
+                <header className="topic-header">
+                  <h4>{topic}</h4>
+                  {isOwner && (
+                    <a
+                      className="link"
+                      href={href({ page: 'add', courseId: course.id, subject, topic })}
+                      aria-label={`Add material to ${topic}`}
+                    >
+                      Add material
+                    </a>
+                  )}
+                  {items.some((m) => m.kind === 'text' && m.status === 'completed') && (
+                    <a className="link" href={href({ page: 'topic', courseId: course.id, subject, topic })}>
+                      Study this topic
+                    </a>
+                  )}
+                </header>
+                {items.length === 0 ? (
+                  <p className="note">No material yet</p>
+                ) : (
+                  <ul>
+                    {items.map((material) => (
+                      <li key={material.document_id}>
+                        {material.status === 'completed' ? (
+                          <a
+                            className="filename"
+                            href={href({ page: 'material', courseId: course.id, documentId: material.document_id })}
+                          >
+                            {material.filename}
+                          </a>
+                        ) : (
+                          <span className="filename">{material.filename}</span>
+                        )}
+                        <span className={`badge ${material.status === 'failed' ? 'bad' : ''}`}>
+                          {STATUS_LABEL[material.status]}
+                        </span>
+                        {isOwner && (
+                          <button
+                            type="button"
+                            className="link"
+                            aria-label={`Delete ${material.filename}`}
+                            onClick={() => remove(material)}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            ))}
+          </section>
+        ))
+      )}
+
+      <Members api={api} course={course} />
+    </section>
+  )
+}

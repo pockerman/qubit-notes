@@ -48,17 +48,24 @@ class SourceText(Source):
     content: str
 
 
+class DocumentRef(BaseModel):
+    filename: str
+    # changes when the material is edited
+    version: str = ""
+
+
 class Gathered(BaseModel):
     sources: list[SourceText]
-    # every material drawn on, document id to filename: a topic's material can change after
-    documents: dict[str, str]
+    # every material drawn on, by document id: it can be edited after, and a topic's can be added to or removed
+    documents: dict[str, DocumentRef]
 
 
 class OutOfDate(BaseModel):
-    """how a topic's material changed since a summary or quiz was written from it"""
+    """how the material changed since a summary or quiz was written from it"""
 
-    added: list[str]
-    removed: list[str]
+    added: list[str] = []
+    removed: list[str] = []
+    edited: list[str] = []
 
 
 class Sources:
@@ -79,10 +86,11 @@ class Sources:
             opened = self._reading.open(student, scope.course_id, scope.document_id)
             if opened.kind == "video":
                 raise InvalidRequest(f"{opened.filename!r} is a video: only texts are summarised and quizzed")
-            documents = {opened.document_id: opened.filename}
+            documents = self._current(course.id, scope)
 
         sources = []
-        for document_id, filename in documents.items():
+        for document_id, ref in documents.items():
+            filename = ref.filename
             if scope.kind == "section":
                 parts = self._reading.read(student, scope.course_id, document_id, scope.section)
                 sources += [_source(document_id, filename, part) for part in parts]
@@ -90,20 +98,44 @@ class Sources:
                 sources += self._whole(student, scope.course_id, document_id, filename)
         return Gathered(sources=sources, documents=documents)
 
-    def out_of_date(self, student: str, scope: Scope, documents: dict[str, str]) -> OutOfDate | None:
-        """how the topic's material changed since it was ``documents``; None if it hasn't, or for a document"""
-        if scope.kind != "topic":
-            return None
+    def out_of_date(self, student: str, scope: Scope, documents: dict) -> OutOfDate | None:
+        """how the material changed since it was ``documents``: edited, or, for a topic, added or removed;
+        None if it hasn't"""
+        written = {d: ref if isinstance(ref, dict) else {"filename": ref} for d, ref in documents.items()}
         course = self._courses.get_by_id(student, scope.course_id)
-        current = self._topic_documents(course.id, scope)
-        added = sorted(current[d] for d in current.keys() - documents.keys())
-        removed = sorted(documents[d] for d in documents.keys() - current.keys())
-        return OutOfDate(added=added, removed=removed) if added or removed else None
+        current = self._current(course.id, scope, completed_only=False)
+        added = sorted(current[d].filename for d in current.keys() - written.keys()) if scope.kind == "topic" else []
+        removed = (
+            sorted(written[d]["filename"] for d in written.keys() - current.keys()) if scope.kind == "topic" else []
+        )
+        edited = sorted(
+            current[d].filename
+            for d in current.keys() & written.keys()
+            if written[d].get("version") and current[d].version != written[d]["version"]
+        )
+        return OutOfDate(added=added, removed=removed, edited=edited) if added or removed or edited else None
 
-    def _topic_documents(self, course_id: str, scope: Scope) -> dict[str, str]:
+    def _current(self, course_id: str, scope: Scope, completed_only: bool = True) -> dict[str, DocumentRef]:
+        if scope.kind == "topic":
+            return self._topic_documents(course_id, scope, completed_only)
+        document = self._platform.get_document(course_id, scope.document_id)
+        return (
+            {document.document_id: DocumentRef(filename=document.filename, version=document.version)}
+            if document
+            else {}
+        )
+
+    def _topic_documents(self, course_id: str, scope: Scope, completed_only: bool = True) -> dict[str, DocumentRef]:
         found = self._platform.list_documents(course_id, {"subject": scope.subject, "topic": scope.topic})
-        texts = [d for d in found if not is_video(d.content_type) and d.status == IngestStatus.COMPLETED]
-        return {d.document_id: d.filename for d in sorted(texts, key=lambda d: d.filename)}
+        texts = [
+            d
+            for d in found
+            if not is_video(d.content_type) and (d.status == IngestStatus.COMPLETED or not completed_only)
+        ]
+        return {
+            d.document_id: DocumentRef(filename=d.filename, version=d.version)
+            for d in sorted(texts, key=lambda d: d.filename)
+        }
 
     def _whole(self, student: str, course_id: str, document_id: str, filename: str) -> list[SourceText]:
         """every section of the document, reading each top section with its subsections"""

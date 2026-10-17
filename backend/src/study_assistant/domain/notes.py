@@ -23,6 +23,8 @@ class Note(BaseModel):
     text: str
     created_at: datetime
     updated_at: datetime
+    # the passage is no longer in the material, which was edited since the note was taken
+    detached: bool = False
 
 
 def format_moment(seconds: float) -> str:
@@ -90,15 +92,42 @@ class Notes:
         return Note(**note)
 
     def of_material(self, student: str, course_id: str, document_id: str) -> list[Note]:
-        """the student's notes on the material, in the order of the material"""
-        self._reading.open(student, course_id, document_id)
+        """the student's notes on the material, in the order of the material. A text may have been edited since
+        a note was taken: the note is shown where its passage is now, or as detached if it's gone"""
+        opened = self._reading.open(student, course_id, document_id)
         notes = storage.notes
         query = (
             select(notes)
             .where(notes.c.student == student, notes.c.document_id == document_id)
-            .order_by(notes.c.section, notes.c.passage_start, notes.c.at_seconds, notes.c.created_at)
+            .order_by(notes.c.at_seconds, notes.c.created_at)
         )
-        return self._select(query)
+        with self._engine.connect() as connection:
+            rows = connection.execute(query).all()
+        if opened.kind == "video":
+            return [Note(**row._mapping) for row in rows]
+
+        parts = self._reading.contents(student, course_id, document_id)
+        placed = [self._place(row, parts) for row in rows]
+        # detached notes last, then in the order of the text
+        placed.sort(key=lambda p: (p[0].detached, p[0].section or 0, p[1], p[0].created_at))
+        return [note for note, _ in placed]
+
+    @staticmethod
+    def _place(row, parts) -> tuple[Note, int]:
+        """the note where its passage is now: in its section if it's still there, else in the section of the same
+        title, else anywhere; with where the passage starts in that section"""
+        note = Note(**row._mapping)
+        candidates = sorted(
+            parts,
+            key=lambda part: (part.section.position != row.section, part.section.title != row.section_title),
+        )
+        for part in candidates:
+            start = part.content.find(row.passage or "")
+            if row.passage and start >= 0:
+                note.section, note.section_title = part.section.position, part.section.title
+                return note, start
+        note.detached = True
+        return note, 0
 
     def all(self, student: str) -> list[Note]:
         notes = storage.notes

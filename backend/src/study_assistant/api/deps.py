@@ -8,6 +8,7 @@ from study_assistant.domain.notes import Notes
 from study_assistant.domain.quizzes import Quizzes
 from study_assistant.domain.reading import Reading
 from study_assistant.domain.summaries import Summaries
+from study_assistant.domain.topics import Topics
 
 
 def courses(request: Request) -> Courses:
@@ -24,6 +25,10 @@ def reading(request: Request) -> Reading:
 
 def notes(request: Request) -> Notes:
     return request.app.state.notes
+
+
+def topics(request: Request) -> Topics:
+    return request.app.state.topics
 
 
 def summaries(request: Request) -> Summaries:

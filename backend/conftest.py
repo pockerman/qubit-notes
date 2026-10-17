@@ -11,6 +11,8 @@ pytest_plugins = [
     "tests.bdd.steps.reading_steps",
     "tests.bdd.steps.notes_steps",
     "tests.bdd.steps.study_steps",
+    "tests.bdd.steps.courses_steps",
+    "tests.bdd.steps.editing_steps",
     "tests.bdd.steps.health_steps",
     "tests.bdd.steps.materials_steps",
     "tests.bdd.steps.sharing_steps",

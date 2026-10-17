@@ -90,6 +90,16 @@ class Courses:
             raise NotAllowed(f"{course.name!r} is not shared with you")
         return course
 
+    def create(self, student: str, name: str) -> Course:
+        """a new course of the student's, of which they're the owner"""
+        if not SLUG.match(name):
+            raise InvalidRequest(
+                f"invalid course name {name!r}: use lowercase words joined by hyphens, e.g. computer-science"
+            )
+        if any(course.name == name and course.owner == student for course in self.list(student)):
+            raise Conflict(f"you already have the course {name!r}")
+        return Course.from_index(self._platform.create_index(index_name(student, name), owner=student))
+
     def get_or_create(self, student: str, name: str) -> Course:
         course = self.find(student, name)
         if course is None:

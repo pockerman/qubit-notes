@@ -138,6 +138,31 @@ class GogiPlatform:
         )
         return IngestJob(job_id=job.job_id, document_id=job.document_id or "", status=_STATUSES[job.status])
 
+    def replace_document(
+        self,
+        index_name: str,
+        document_id: str,
+        filename: str,
+        content: bytes,
+        content_type: str,
+        metadata: dict[str, str],
+    ) -> IngestJob:
+        job = self._gogi.documents.ingest_document(
+            IngestDocumentRequest(
+                index_name=index_name,
+                document_id=document_id,
+                filename=filename,
+                content=content,
+                content_type=content_type,
+                metadata=metadata,
+                chunk_strategy=self._settings.chunk_strategy,
+                embeddings_model=self._settings.embeddings_model,
+                embeddings_client=self._settings.embeddings_client,
+                replace=True,
+            )
+        )
+        return IngestJob(job_id=job.job_id, document_id=job.document_id or "", status=_STATUSES[job.status])
+
     def get_ingest_job(self, job_id: str) -> IngestJob | None:
         try:
             job = self._gogi.documents.get_document_ingest_job(job_id)
@@ -162,6 +187,7 @@ class GogiPlatform:
             status=_STATUSES.get(document.status or "", IngestStatus.PENDING),
             content_type=document.content_type or "",
             size_bytes=document.size_bytes,
+            version=document.job_id or "",
         )
 
     def list_documents(self, index_name: str, metadata_filter: dict[str, str] | None = None) -> list[DocumentInfo]:
