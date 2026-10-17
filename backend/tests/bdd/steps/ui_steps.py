@@ -125,3 +125,28 @@ def cannot_change(page):
     expect(course.get_by_role("button", name=re.compile("^Delete "))).to_have_count(0)
     expect(course.get_by_text(re.compile("^Upload to "))).to_have_count(0)
     expect(course.get_by_role("form", name="Share this course")).to_have_count(0)
+
+
+# reading
+
+
+@when(parsers.parse('I open "{filename}" to read it'))
+def open_to_read(page, filename):
+    page.get_by_role("button", name=filename, exact=True).click()
+    expect(page.get_by_role("heading", name=filename, level=2)).to_be_visible()
+
+
+@then(parsers.parse('I see its sections "{titles}"'))
+def see_its_sections(page, titles):
+    outline = page.get_by_role("navigation", name="Sections")
+    expect(outline.get_by_role("button")).to_have_text([title.strip() for title in titles.split(",")])
+
+
+@when(parsers.parse('I choose the section "{title}"'))
+def choose_section(page, title):
+    page.get_by_role("navigation", name="Sections").get_by_role("button", name=title, exact=True).click()
+
+
+@then(parsers.parse('I see the text "{text}"'))
+def see_text(page, text):
+    expect(page.get_by_role("article", name="Section text")).to_contain_text(text)

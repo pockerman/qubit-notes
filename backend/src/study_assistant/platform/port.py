@@ -58,6 +58,32 @@ class DocumentInfo(BaseModel):
     metadata: dict[str, str] = {}
     # the status of the document's ingestion
     status: IngestStatus = IngestStatus.PENDING
+    content_type: str = ""
+
+
+class Section(BaseModel):
+    """A section of a document: a chapter or a heading within one, or a page of a PDF without an outline"""
+
+    # 1-based, in the order of the document; identifies the section within its document
+    position: int
+    # empty for text before a document's first heading
+    title: str = ""
+    # 1 for a chapter, 2 for a heading within it, and so on
+    level: int = 1
+    page_start: int | None = None
+    page_end: int | None = None
+
+
+class SectionText(BaseModel):
+    section: Section
+    # the section's own text, without its subsections'
+    content: str
+
+
+class DownloadedFile(BaseModel):
+    filename: str
+    content_type: str
+    content: bytes
 
 
 class Chunk(BaseModel):
@@ -100,7 +126,18 @@ class StudyPlatform(Protocol):
 
     def list_documents(self, index_name: str, metadata_filter: dict[str, str] | None = None) -> list[DocumentInfo]: ...
 
+    def get_document(self, index_name: str, document_id: str) -> DocumentInfo | None: ...
+
     def delete_document(self, index_name: str, document_id: str) -> bool: ...
+
+    # reading: a document has no sections until its ingestion has completed
+    def list_sections(self, index_name: str, document_id: str) -> list[Section]: ...
+
+    def read_section(self, index_name: str, document_id: str, position: int) -> list[SectionText] | None:
+        """the section at the position followed by its subsections, or None if there's no such section"""
+        ...
+
+    def download_document(self, index_name: str, document_id: str) -> DownloadedFile | None: ...
 
     def search(
         self, index_name: str, query: str, top_k: int, metadata_filter: dict[str, str] | None = None

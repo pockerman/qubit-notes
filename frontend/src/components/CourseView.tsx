@@ -30,9 +30,10 @@ type Props = {
   version: number
   // the course list changed, e.g. after an upload
   onChanged: () => void
+  onOpen: (material: Material) => void
 }
 
-export function CourseView({ api, course, version, onChanged }: Props) {
+export function CourseView({ api, course, version, onChanged, onOpen }: Props) {
   const [materials, setMaterials] = useState<Material[]>([])
   const [error, setError] = useState<string | null>(null)
   const isOwner = course.role === 'owner'
@@ -83,7 +84,13 @@ export function CourseView({ api, course, version, onChanged }: Props) {
                 <ul>
                   {items.map((material) => (
                     <li key={material.document_id}>
-                      <span className="filename">{material.filename}</span>
+                      {material.status === 'completed' ? (
+                        <button type="button" className="link filename" onClick={() => onOpen(material)}>
+                          {material.filename}
+                        </button>
+                      ) : (
+                        <span className="filename">{material.filename}</span>
+                      )}
                       <span className={`badge ${material.status === 'failed' ? 'bad' : ''}`}>
                         {STATUS_LABEL[material.status]}
                       </span>

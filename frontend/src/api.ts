@@ -24,6 +24,7 @@ export type IngestStatus = 'pending' | 'running' | 'completed' | 'failed'
 export type Material = {
   document_id: string
   course: string
+  course_id: string
   subject: string
   topic: string
   filename: string
@@ -44,6 +45,31 @@ export type IngestJob = {
   error: string | null
 }
 
+export type Section = {
+  position: number
+  // empty for text before a document's first heading
+  title: string
+  // 1 for a chapter, 2 for a heading within it, and so on
+  level: number
+  page_start: number | null
+  page_end: number | null
+}
+
+export type SectionText = {
+  section: Section
+  // the section's own text, without its subsections'
+  content: string
+}
+
+export type OpenedMaterial = {
+  course_id: string
+  document_id: string
+  filename: string
+  subject: string
+  topic: string
+  sections: Section[]
+}
+
 export class ApiError extends Error {
   readonly status: number
 
@@ -61,7 +87,7 @@ export class StudyApi {
     this.student = student
   }
 
-  private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  private async fetch(path: string, init: RequestInit = {}): Promise<Response> {
     const response = await fetch(`/api${path}`, {
       ...init,
       headers: { 'X-Student-Id': this.student, ...init.headers },
@@ -71,7 +97,29 @@ export class StudyApi {
       const detail = typeof body.detail === 'string' ? body.detail : response.statusText
       throw new ApiError(response.status, detail)
     }
-    return response.json()
+    return response
+  }
+
+  private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
+    return (await this.fetch(path, init)).json()
+  }
+
+  private materialPath(courseId: string, documentId: string): string {
+    return `/courses/${encodeURIComponent(courseId)}/materials/${encodeURIComponent(documentId)}`
+  }
+
+  openMaterial(courseId: string, documentId: string): Promise<OpenedMaterial> {
+    return this.request(this.materialPath(courseId, documentId))
+  }
+
+  /** The section at the position, followed by its subsections. */
+  readSection(courseId: string, documentId: string, position: number): Promise<SectionText[]> {
+    return this.request(`${this.materialPath(courseId, documentId)}/sections/${position}`)
+  }
+
+  /** The uploaded file; the student's header can't go on a plain link, so it's fetched. */
+  async download(courseId: string, documentId: string): Promise<Blob> {
+    return (await this.fetch(`${this.materialPath(courseId, documentId)}/file`)).blob()
   }
 
   health(): Promise<Health> {

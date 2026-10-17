@@ -1,14 +1,21 @@
+import re
 import uuid
+from io import BytesIO
 from typing import Any
+
+from pypdf import PdfReader
 
 from study_assistant.platform.port import (
     Chunk,
     DocumentInfo,
+    DownloadedFile,
     IndexInfo,
     IngestJob,
     IngestStatus,
     MemberRole,
     PlatformHealth,
+    Section,
+    SectionText,
 )
 
 SERVICES = ("gateway", "documents", "indexes", "llms", "prompts", "llm-sessions", "llm-tools", "guardrails")
@@ -17,7 +24,9 @@ SERVICES = ("gateway", "documents", "indexes", "llms", "prompts", "llm-sessions"
 class FakePlatform:
     """In-memory ``StudyPlatform`` for fast scenarios that need no gogi stack or API keys.
 
-    Ingestion completes at once, and search ranks a document's text by how many query words it contains.
+    Ingestion completes at once, unless ``hold_ingestion`` is set, and search ranks a document's text by how many
+    query words it contains. Documents are divided into sections the way gogi divides them: a Markdown file by its
+    headings, a PDF by its pages (the fake ignores outlines), and a plain text file into a single section.
     """
 
     def __init__(self):
@@ -28,6 +37,10 @@ class FakePlatform:
         self.documents: dict[str, dict[str, tuple[DocumentInfo, str]]] = {}
         self.jobs: dict[str, IngestJob] = {}
         self.memories: dict[str, dict[str, Any]] = {}
+        # document id to (its uploaded file, its sections with their own text)
+        self.files: dict[str, tuple[bytes, list[SectionText]]] = {}
+        # new ingestions stay pending while set
+        self.hold_ingestion = False
 
     def health(self) -> PlatformHealth:
         if not self.reachable:
@@ -70,15 +83,20 @@ class FakePlatform:
         self, index_name: str, filename: str, content: bytes, content_type: str, metadata: dict[str, str]
     ) -> IngestJob:
         document_id = uuid.uuid4().hex
+        status = IngestStatus.PENDING if self.hold_ingestion else IngestStatus.COMPLETED
         document = DocumentInfo(
             document_id=document_id,
             index_name=index_name,
             filename=filename,
             metadata=metadata,
-            status=IngestStatus.COMPLETED,
+            status=status,
+            content_type=content_type,
         )
-        self.documents[index_name][document_id] = (document, content.decode(errors="ignore"))
-        job = IngestJob(job_id=uuid.uuid4().hex, document_id=document_id, status=IngestStatus.COMPLETED)
+        sections = _sections(filename, content)
+        text = "\n\n".join(part.content for part in sections)
+        self.documents[index_name][document_id] = (document, text)
+        self.files[document_id] = (content, sections)
+        job = IngestJob(job_id=uuid.uuid4().hex, document_id=document_id, status=status)
         self.jobs[job.job_id] = job
         return job
 
@@ -92,8 +110,41 @@ class FakePlatform:
             if _matches(document.metadata, metadata_filter)
         ]
 
+    def get_document(self, index_name: str, document_id: str) -> DocumentInfo | None:
+        found = self.documents.get(index_name, {}).get(document_id)
+        return found[0] if found else None
+
     def delete_document(self, index_name: str, document_id: str) -> bool:
+        self.files.pop(document_id, None)
         return self.documents.get(index_name, {}).pop(document_id, None) is not None
+
+    # reading
+
+    def _ready_sections(self, index_name: str, document_id: str) -> list[SectionText]:
+        document = self.get_document(index_name, document_id)
+        if document is None or document.status != IngestStatus.COMPLETED:
+            return []
+        return self.files[document_id][1]
+
+    def list_sections(self, index_name: str, document_id: str) -> list[Section]:
+        return [part.section for part in self._ready_sections(index_name, document_id)]
+
+    def read_section(self, index_name: str, document_id: str, position: int) -> list[SectionText] | None:
+        sections = self._ready_sections(index_name, document_id)
+        start = next((i for i, part in enumerate(sections) if part.section.position == position), None)
+        if start is None:
+            return None
+        level = sections[start].section.level
+        end = next((i for i in range(start + 1, len(sections)) if sections[i].section.level <= level), len(sections))
+        return sections[start:end]
+
+    def download_document(self, index_name: str, document_id: str) -> DownloadedFile | None:
+        document = self.get_document(index_name, document_id)
+        if document is None:
+            return None
+        return DownloadedFile(
+            filename=document.filename, content_type=document.content_type, content=self.files[document_id][0]
+        )
 
     def search(
         self, index_name: str, query: str, top_k: int, metadata_filter: dict[str, str] | None = None
@@ -128,3 +179,36 @@ class FakePlatform:
 
 def _matches(metadata: dict[str, str], metadata_filter: dict[str, str] | None) -> bool:
     return all(metadata.get(key) == value for key, value in (metadata_filter or {}).items())
+
+
+HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
+
+
+def _sections(filename: str, content: bytes) -> list[SectionText]:
+    def section(position: int, title: str, level: int, text: str, page: int | None = None) -> SectionText:
+        return SectionText(
+            section=Section(position=position, title=title, level=level, page_start=page, page_end=page),
+            content=text.strip(),
+        )
+
+    if content.startswith(b"%PDF-"):
+        try:
+            pages = [(page.extract_text() or "") for page in PdfReader(BytesIO(content)).pages]
+        except Exception:
+            return []
+        return [section(n, f"Page {n}", 1, text, n) for n, text in enumerate(pages, start=1)]
+
+    text = content.decode(errors="ignore")
+    if not filename.lower().endswith(".md"):
+        return [section(1, "", 1, text)] if text.strip() else []
+
+    sections, title, level, lines = [], None, 1, []
+    for line in text.splitlines() + ["# end"]:
+        match = HEADING.match(line)
+        if not match:
+            lines.append(line)
+            continue
+        if title is not None or "".join(lines).strip():
+            sections.append(section(len(sections) + 1, title or "", level, "\n".join(lines)))
+        title, level, lines = match.group(2), len(match.group(1)), []
+    return sections

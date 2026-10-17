@@ -223,3 +223,63 @@ button.link {
 .error {
   color: var(--bad);
 }
+
+.reader-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.reader-header h2 {
+  margin: 0;
+}
+
+.reader-header button[type='button']:not(.link) {
+  margin-left: auto;
+}
+
+.reader-body {
+  display: grid;
+  grid-template-columns: minmax(12rem, 16rem) 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.outline ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.section-link {
+  background: none;
+  border: none;
+  padding: 0.25rem 0.4rem;
+  text-align: left;
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.section-link.selected,
+.section-link:hover {
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.section-text {
+  max-width: 46rem;
+  line-height: 1.6;
+}
+
+.section-text h3 {
+  margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  .reader-body {
+    grid-template-columns: 1fr;
+  }
+}

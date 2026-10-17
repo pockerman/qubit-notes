@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { StudyApi, type Course } from './api'
+import { StudyApi, type Course, type Material } from './api'
 import { CourseView } from './components/CourseView'
 import { PlatformStatus } from './components/PlatformStatus'
+import { Reader } from './components/Reader'
 import { SignIn } from './components/SignIn'
 import { UploadForm } from './components/UploadForm'
 
@@ -30,6 +31,8 @@ function Courses({ api }: { api: StudyApi }) {
   const [error, setError] = useState<string | null>(null)
   // bumped when material changes outside the open course's view, so it reloads
   const [version, setVersion] = useState(0)
+  // the material being read, if any
+  const [reading, setReading] = useState<Material | null>(null)
 
   const load = useCallback(() => {
     api.courses().then(setCourses, (e: Error) => setError(e.message))
@@ -58,7 +61,10 @@ function Courses({ api }: { api: StudyApi }) {
                   type="button"
                   className={c.id === selected ? 'course-link selected' : 'course-link'}
                   aria-current={c.id === selected ? 'page' : undefined}
-                  onClick={() => setSelected(c.id)}
+                  onClick={() => {
+                    setSelected(c.id)
+                    setReading(null)
+                  }}
                 >
                   {c.name}
                   {c.owner !== api.student && <small> · {c.owner}</small>}
@@ -82,8 +88,23 @@ function Courses({ api }: { api: StudyApi }) {
       </nav>
 
       <main>
-        {course ? (
-          <CourseView key={course.id} api={api} course={course} version={version} onChanged={load} />
+        {course && reading ? (
+          <Reader
+            key={reading.document_id}
+            api={api}
+            courseId={reading.course_id}
+            documentId={reading.document_id}
+            onClose={() => setReading(null)}
+          />
+        ) : course ? (
+          <CourseView
+            key={course.id}
+            api={api}
+            course={course}
+            version={version}
+            onChanged={load}
+            onOpen={setReading}
+          />
         ) : (
           <p className="note">Choose a course.</p>
         )}

@@ -82,3 +82,30 @@ class Students:
         return self.client.delete(
             f"/api/courses/{course}/materials/{subject}/{topic}/{filename}", headers=self.headers(name)
         )
+
+    # reading
+
+    def find_material(self, filename: str, *, name: str | None = None) -> dict:
+        """the material called filename in any course the student can see"""
+        for course in self.courses(name=name):
+            for material in self.materials(course["name"], name=name):
+                if material["filename"] == filename:
+                    return material
+        raise AssertionError(f"no material {filename!r}")
+
+    def open(self, material: dict, *, name: str | None = None) -> Response:
+        return self.client.get(
+            f"/api/courses/{material['course_id']}/materials/{material['document_id']}", headers=self.headers(name)
+        )
+
+    def read_section(self, material: dict, position: int, *, name: str | None = None) -> Response:
+        return self.client.get(
+            f"/api/courses/{material['course_id']}/materials/{material['document_id']}/sections/{position}",
+            headers=self.headers(name),
+        )
+
+    def download(self, material: dict, *, name: str | None = None) -> Response:
+        return self.client.get(
+            f"/api/courses/{material['course_id']}/materials/{material['document_id']}/file",
+            headers=self.headers(name),
+        )

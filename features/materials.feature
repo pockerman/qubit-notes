@@ -27,11 +27,21 @@ Feature: Study materials
       Then the upload is <outcome>
 
       Examples:
-        | filename    | outcome                 |
-        | notes.txt   | accepted for processing |
-        | notes.md    | accepted for processing |
-        | lecture.pdf | accepted for processing |
-        | song.mp3    | rejected as unsupported |
+        | filename     | outcome                 |
+        | notes.txt    | accepted for processing |
+        | notes.md     | accepted for processing |
+        | lecture.pdf  | accepted for processing |
+        | song.mp3     | rejected as unsupported |
+
+    @wip
+    Scenario Outline: Videos are accepted
+      When I upload the file "<filename>" to "aeronautics/numerical-methods/finite-elements"
+      Then the upload is accepted for processing
+
+      Examples:
+        | filename     |
+        | lecture.mp4  |
+        | lecture.webm |
 
     Scenario: An empty file is rejected
       When I upload the file "empty.txt" to "aeronautics/numerical-methods/finite-elements" with no content

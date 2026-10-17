@@ -80,6 +80,16 @@ class Courses:
             raise NotFound(f"no course {name!r}")
         return course
 
+    def get_by_id(self, student: str, course_id: str) -> Course:
+        """The course with the id, which ``student`` must be a member of"""
+        index = self._platform.get_index(course_id)
+        if index is None:
+            raise NotFound(f"no course {course_id!r}")
+        course = Course.from_index(index)
+        if course.role_of(student) is None:
+            raise NotAllowed(f"{course.name!r} is not shared with you")
+        return course
+
     def get_or_create(self, student: str, name: str) -> Course:
         course = self.find(student, name)
         if course is None:

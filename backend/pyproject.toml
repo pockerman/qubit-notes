@@ -19,6 +19,8 @@ dev = [
     "httpx>=0.27",
     "playwright>=1.47",
     "ruff>=0.14.0",
+    # the fake platform reads PDFs, and the tests write them
+    "pypdf>=5.0",
 ]
 
 [build-system]
@@ -41,6 +43,7 @@ bdd_features_base_dir = "../features"
 markers = [
     "gogi: the scenario also runs against the real gogi platform (--platform=gogi)",
     "ui: the scenario drives the React UI with Playwright",
+    "wip: written and reviewed, but not built yet; skipped",
 ]
 
 [tool.ruff]

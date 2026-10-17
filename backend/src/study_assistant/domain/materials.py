@@ -14,6 +14,7 @@ CONTENT_TYPES = {".txt": "text/plain", ".md": "text/markdown", ".pdf": "applicat
 class Material(BaseModel):
     document_id: str
     course: str
+    course_id: str
     subject: str
     topic: str
     filename: str
@@ -71,6 +72,7 @@ class Materials:
             Material(
                 document_id=document.document_id,
                 course=found.name,
+                course_id=found.id,
                 subject=document.metadata.get("subject", ""),
                 topic=document.metadata.get("topic", ""),
                 filename=document.filename,

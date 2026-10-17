@@ -12,12 +12,15 @@ from loguru import logger
 from study_assistant.platform.port import (
     Chunk,
     DocumentInfo,
+    DownloadedFile,
     IndexInfo,
     IngestJob,
     IngestStatus,
     MemberRole,
     PlatformError,
     PlatformHealth,
+    Section,
+    SectionText,
 )
 from study_assistant.settings import Settings
 
@@ -27,6 +30,8 @@ _STATUSES = {
     "RUNNING": IngestStatus.RUNNING,
     "COMPLETED": IngestStatus.COMPLETED,
     "FAILED": IngestStatus.FAILED,
+    # the document was deleted during its ingestion
+    "CANCELLED": IngestStatus.FAILED,
 }
 
 
@@ -135,17 +140,65 @@ class GogiPlatform:
             error=job.error_message,
         )
 
+    @staticmethod
+    def _document(document) -> DocumentInfo:
+        return DocumentInfo(
+            document_id=document.document_id,
+            index_name=document.index_name,
+            filename=document.filename,
+            metadata=document.custom_metadata or {},
+            status=_STATUSES.get(document.status or "", IngestStatus.PENDING),
+            content_type=document.content_type or "",
+        )
+
     def list_documents(self, index_name: str, metadata_filter: dict[str, str] | None = None) -> list[DocumentInfo]:
         return [
-            DocumentInfo(
-                document_id=document.document_id,
-                index_name=document.index_name,
-                filename=document.filename,
-                metadata=document.custom_metadata or {},
-                status=_STATUSES.get(document.status or "", IngestStatus.PENDING),
-            )
+            self._document(document)
             for document in self._gogi.documents.list_documents(index_name, metadata_filter=metadata_filter)
         ]
+
+    def get_document(self, index_name: str, document_id: str) -> DocumentInfo | None:
+        try:
+            return self._document(self._gogi.documents.get_document(index_name, document_id))
+        except grpc.RpcError as e:
+            if _not_found(e):
+                return None
+            raise
+
+    @staticmethod
+    def _section(section) -> Section:
+        return Section(
+            position=section.position,
+            title=section.title,
+            level=section.level,
+            page_start=section.page_start,
+            page_end=section.page_end,
+        )
+
+    def list_sections(self, index_name: str, document_id: str) -> list[Section]:
+        return [self._section(section) for section in self._gogi.documents.list_sections(index_name, document_id)]
+
+    def read_section(self, index_name: str, document_id: str, position: int) -> list[SectionText] | None:
+        try:
+            parts = self._gogi.documents.get_section(index_name, document_id, position, include_subsections=True)
+        except grpc.RpcError as e:
+            if _not_found(e):
+                return None
+            raise
+        return [SectionText(section=self._section(part.section), content=part.content) for part in parts]
+
+    def download_document(self, index_name: str, document_id: str) -> DownloadedFile | None:
+        try:
+            document, content = self._gogi.documents.download_document(index_name, document_id)
+        except grpc.RpcError as e:
+            if _not_found(e):
+                return None
+            raise
+        return DownloadedFile(
+            filename=document.filename,
+            content_type=document.content_type or "application/octet-stream",
+            content=content,
+        )
 
     def delete_document(self, index_name: str, document_id: str) -> bool:
         try:
