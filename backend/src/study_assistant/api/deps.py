@@ -4,6 +4,7 @@ from fastapi import Header, Request
 
 from study_assistant.domain.courses import Courses
 from study_assistant.domain.materials import Materials
+from study_assistant.domain.notes import Notes
 from study_assistant.domain.reading import Reading
 
 
@@ -17,6 +18,10 @@ def materials(request: Request) -> Materials:
 
 def reading(request: Request) -> Reading:
     return request.app.state.reading
+
+
+def notes(request: Request) -> Notes:
+    return request.app.state.notes
 
 
 # the student making the request. There is no authentication yet: the client says who it is

@@ -29,6 +29,8 @@ export type Material = {
   topic: string
   filename: string
   status: IngestStatus
+  kind: 'text' | 'video'
+  duration_seconds: number | null
 }
 
 export type Upload = {
@@ -67,8 +69,31 @@ export type OpenedMaterial = {
   filename: string
   subject: string
   topic: string
+  kind: 'text' | 'video'
+  content_type: string
+  duration_seconds: number | null
   sections: Section[]
 }
+
+export type Note = {
+  id: string
+  course_id: string
+  document_id: string
+  // on a text
+  section: number | null
+  section_title: string | null
+  passage: string | null
+  // on a video
+  at_seconds: number | null
+  text: string
+  created_at: string
+  updated_at: string
+}
+
+export type NewNote = { text: string } & (
+  | { section: number; passage: string }
+  | { at_seconds: number }
+)
 
 export class ApiError extends Error {
   readonly status: number
@@ -115,6 +140,36 @@ export class StudyApi {
   /** The section at the position, followed by its subsections. */
   readSection(courseId: string, documentId: string, position: number): Promise<SectionText[]> {
     return this.request(`${this.materialPath(courseId, documentId)}/sections/${position}`)
+  }
+
+  /** The file's address for a <video> element, which can't send the student's header. */
+  fileUrl(courseId: string, documentId: string): string {
+    const query = new URLSearchParams({ student: this.student, inline: 'true' })
+    return `/api${this.materialPath(courseId, documentId)}/file?${query}`
+  }
+
+  notes(courseId: string, documentId: string): Promise<Note[]> {
+    return this.request(`${this.materialPath(courseId, documentId)}/notes`)
+  }
+
+  addNote(courseId: string, documentId: string, note: NewNote): Promise<Note> {
+    return this.request(`${this.materialPath(courseId, documentId)}/notes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(note),
+    })
+  }
+
+  changeNote(noteId: string, text: string): Promise<Note> {
+    return this.request(`/notes/${encodeURIComponent(noteId)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
+  }
+
+  async deleteNote(noteId: string): Promise<void> {
+    await this.fetch(`/notes/${encodeURIComponent(noteId)}`, { method: 'DELETE' })
   }
 
   /** The uploaded file; the student's header can't go on a plain link, so it's fetched. */

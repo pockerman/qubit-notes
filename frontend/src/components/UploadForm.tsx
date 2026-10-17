@@ -64,7 +64,7 @@ export function UploadForm({ api, course, onUploaded }: Props) {
         File
         <input
           type="file"
-          accept=".txt,.md,.pdf"
+          accept=".txt,.md,.pdf,.mp4,.webm"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           required
         />

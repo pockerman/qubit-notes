@@ -150,3 +150,61 @@ def choose_section(page, title):
 @then(parsers.parse('I see the text "{text}"'))
 def see_text(page, text):
     expect(page.get_by_role("article", name="Section text")).to_contain_text(text)
+
+
+# notes
+
+SELECT_PASSAGE = """(passage) => {
+    const article = document.querySelector('article[aria-label="Section text"]')
+    const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT)
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const at = node.textContent.indexOf(passage)
+        if (at < 0) continue
+        const range = document.createRange()
+        range.setStart(node, at)
+        range.setEnd(node, at + passage.length)
+        const selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+        article.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+        return true
+    }
+    return false
+}"""
+
+
+def _save_note(page: Page, text: str) -> None:
+    form = page.get_by_role("form", name="New note")
+    form.get_by_label("Note").fill(text)
+    form.get_by_role("button", name="Save note").click()
+
+
+@when(parsers.parse('I select "{passage}" and note "{text}"'))
+def select_and_note(page, passage, text):
+    expect(page.get_by_role("article", name="Section text")).to_contain_text(passage)
+    assert page.evaluate(SELECT_PASSAGE, passage), f"{passage!r} is not in the text"
+    _save_note(page, text)
+
+
+@when(parsers.parse('I note "{text}" at the current moment of the video'))
+def note_at_current_moment(page, text):
+    page.get_by_role("button", name=re.compile(r"^Add note at")).click()
+    _save_note(page, text)
+
+
+@then(parsers.parse('I see my note "{text}" at {moment}'))
+def see_my_note_at(page, text, moment):
+    note = page.get_by_role("complementary", name="My notes").get_by_role("listitem", name=f"Note: {text}")
+    expect(note.get_by_role("button", name=moment)).to_be_visible()
+
+
+@then(parsers.parse('I see my note "{text}"'))
+def see_my_note(page, text):
+    expect(
+        page.get_by_role("complementary", name="My notes").get_by_role("listitem", name=f"Note: {text}")
+    ).to_be_visible()
+
+
+@then(parsers.parse('the passage "{passage}" is highlighted'))
+def passage_highlighted(page, passage):
+    expect(page.get_by_role("article", name="Section text").locator("mark", has_text=passage)).to_be_visible()

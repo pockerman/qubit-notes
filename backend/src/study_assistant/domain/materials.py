@@ -5,10 +5,16 @@ from pydantic import BaseModel
 from study_assistant.domain.courses import Course, Courses, Location
 from study_assistant.domain.errors import InvalidRequest, NotFound, TooLarge
 from study_assistant.domain.memory import StudentMemory
+from study_assistant.domain.videos import VIDEO_TYPES, duration_seconds
 from study_assistant.platform.port import IngestJob, IngestStatus, StudyPlatform
 
 MB = 1024 * 1024
-CONTENT_TYPES = {".txt": "text/plain", ".md": "text/markdown", ".pdf": "application/pdf"}
+TEXT_TYPES = {".txt": "text/plain", ".md": "text/markdown", ".pdf": "application/pdf"}
+CONTENT_TYPES = {**TEXT_TYPES, **VIDEO_TYPES}
+
+
+def is_video(content_type: str) -> bool:
+    return content_type.startswith("video/")
 
 
 class Material(BaseModel):
@@ -19,6 +25,9 @@ class Material(BaseModel):
     topic: str
     filename: str
     status: IngestStatus
+    # "text" (read by section, summarised and quizzed) or "video" (watched, with notes at moments)
+    kind: str = "text"
+    duration_seconds: float | None = None
 
 
 class Upload(BaseModel):
@@ -37,6 +46,11 @@ class Materials:
         self._courses = courses
         self._memory = memory
         self.max_upload_mb = max_upload_mb
+        # what else is forgotten with a material, e.g. its notes; each is called with its document id
+        self._on_delete = []
+
+    def on_delete(self, forget) -> None:
+        self._on_delete.append(forget)
 
     def upload(self, student: str, location: str, filename: str, content: bytes) -> Upload:
         where = Location.parse(location)
@@ -50,12 +64,13 @@ class Materials:
 
         course = self._courses.get_or_create(student, where.course)
         self._courses.require_owner(student, course)
+        metadata = {"subject": where.subject, "topic": where.topic, "filename": filename, "uploaded_by": student}
+        video = is_video(content_type)
+        if video and (duration := duration_seconds(content)) is not None:
+            metadata["duration_seconds"] = f"{duration:.3f}"
+        # a video has no text to process: gogi keeps it as it is
         job = self._platform.ingest_document(
-            course.id,
-            filename,
-            content,
-            content_type,
-            metadata={"subject": where.subject, "topic": where.topic, "filename": filename, "uploaded_by": student},
+            course.id, filename, content, content_type, metadata=metadata, store_only=video
         )
         return Upload(job_id=job.job_id, document_id=job.document_id, course_id=course.id, status=job.status)
 
@@ -77,6 +92,8 @@ class Materials:
                 topic=document.metadata.get("topic", ""),
                 filename=document.filename,
                 status=document.status,
+                kind="video" if is_video(document.content_type) else "text",
+                duration_seconds=duration_of(document.metadata),
             )
             for document in self._platform.list_documents(found.id, metadata_filter or None)
         ]
@@ -98,6 +115,13 @@ class Materials:
         return material
 
     def _forget(self, course: Course, document_id: str) -> None:
+        for forget in self._on_delete:
+            forget(document_id)
         # anyone who studied the course may have notes learned from the material
         for member in course.members:
             self._memory.forget_source(member, document_id)
+
+
+def duration_of(metadata: dict[str, str]) -> float | None:
+    value = metadata.get("duration_seconds")
+    return float(value) if value else None

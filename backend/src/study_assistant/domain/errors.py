@@ -20,3 +20,7 @@ class Conflict(StudyAssistantError):
 
 class TooLarge(StudyAssistantError):
     pass
+
+
+class OutOfRange(StudyAssistantError):
+    pass

@@ -1,7 +1,7 @@
 from typing import Annotated
 from urllib.parse import quote
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Header, Response
 from fastapi.concurrency import run_in_threadpool
 
 from study_assistant.api.deps import Student, reading
@@ -26,11 +26,42 @@ async def read_section(
     return await run_in_threadpool(service.read, student, course_id, document_id, position)
 
 
+def _byte_range(header: str | None) -> tuple[int, int] | None:
+    """the (offset, length) of a "bytes=start-[end]" Range header; length 0 means to the end"""
+    if not header or not header.startswith("bytes=") or "," in header:
+        return None
+    start, _, end = header.removeprefix("bytes=").partition("-")
+    if not start.isdigit() or (end and not end.isdigit()):
+        return None
+    offset = int(start)
+    return offset, (int(end) - offset + 1 if end else 0)
+
+
 @router.get("/file")
-async def download(course_id: str, document_id: str, student: Student, service: ReadingDep) -> Response:
-    downloaded = await run_in_threadpool(service.download, student, course_id, document_id)
-    return Response(
-        content=downloaded.content,
-        media_type=downloaded.content_type,
-        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(downloaded.filename)}"},
-    )
+async def download(
+    course_id: str,
+    document_id: str,
+    service: ReadingDep,
+    x_student_id: Annotated[str | None, Header()] = None,
+    student: str | None = None,
+    range: Annotated[str | None, Header()] = None,
+    inline: bool = False,
+) -> Response:
+    """The uploaded file. A <video> element can't send the student's header, so the student may come as a query
+    parameter instead, and it asks for parts of the file with a Range header to seek."""
+    who = x_student_id or student
+    if not who:
+        return Response(status_code=401, content="say who you are with X-Student-Id or ?student=")
+    byte_range = _byte_range(range)
+    offset, length = byte_range or (0, 0)
+    downloaded = await run_in_threadpool(service.download, who, course_id, document_id, offset, length)
+    disposition = "inline" if inline else "attachment"
+    headers = {
+        "Content-Disposition": f"{disposition}; filename*=UTF-8''{quote(downloaded.filename)}",
+        "Accept-Ranges": "bytes",
+    }
+    if byte_range is None:
+        return Response(content=downloaded.content, media_type=downloaded.content_type, headers=headers)
+    end = offset + len(downloaded.content) - 1
+    headers["Content-Range"] = f"bytes {offset}-{end}/{downloaded.size}"
+    return Response(content=downloaded.content, status_code=206, media_type=downloaded.content_type, headers=headers)

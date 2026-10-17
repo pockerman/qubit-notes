@@ -33,7 +33,6 @@ Feature: Study materials
         | lecture.pdf  | accepted for processing |
         | song.mp3     | rejected as unsupported |
 
-    @wip
     Scenario Outline: Videos are accepted
       When I upload the file "<filename>" to "aeronautics/numerical-methods/finite-elements"
       Then the upload is accepted for processing

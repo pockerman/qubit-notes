@@ -9,6 +9,7 @@ import pytest
 pytest_plugins = [
     "tests.bdd.steps.common_steps",
     "tests.bdd.steps.reading_steps",
+    "tests.bdd.steps.notes_steps",
     "tests.bdd.steps.health_steps",
     "tests.bdd.steps.materials_steps",
     "tests.bdd.steps.sharing_steps",

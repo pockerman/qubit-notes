@@ -10,6 +10,8 @@ dependencies = [
     "python-multipart>=0.0.9",
     "loguru>=0.7.3",
     "gogi-python",
+    # the app's own data: notes, summaries, quizzes
+    "sqlalchemy>=2.0",
 ]
 
 [project.optional-dependencies]

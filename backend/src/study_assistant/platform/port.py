@@ -59,6 +59,7 @@ class DocumentInfo(BaseModel):
     # the status of the document's ingestion
     status: IngestStatus = IngestStatus.PENDING
     content_type: str = ""
+    size_bytes: int = 0
 
 
 class Section(BaseModel):
@@ -84,6 +85,8 @@ class DownloadedFile(BaseModel):
     filename: str
     content_type: str
     content: bytes
+    # the size of the whole file, when content is part of it
+    size: int = 0
 
 
 class Chunk(BaseModel):
@@ -119,8 +122,16 @@ class StudyPlatform(Protocol):
 
     # documents
     def ingest_document(
-        self, index_name: str, filename: str, content: bytes, content_type: str, metadata: dict[str, str]
-    ) -> IngestJob: ...
+        self,
+        index_name: str,
+        filename: str,
+        content: bytes,
+        content_type: str,
+        metadata: dict[str, str],
+        store_only: bool = False,
+    ) -> IngestJob:
+        """ingest the document; with store_only, keep the file without ingesting it, e.g. a video"""
+        ...
 
     def get_ingest_job(self, job_id: str) -> IngestJob | None: ...
 
@@ -137,7 +148,11 @@ class StudyPlatform(Protocol):
         """the section at the position followed by its subsections, or None if there's no such section"""
         ...
 
-    def download_document(self, index_name: str, document_id: str) -> DownloadedFile | None: ...
+    def download_document(
+        self, index_name: str, document_id: str, offset: int = 0, length: int = 0
+    ) -> DownloadedFile | None:
+        """the uploaded file, or length bytes of it from offset (to its end if length is 0)"""
+        ...
 
     def search(
         self, index_name: str, query: str, top_k: int, metadata_filter: dict[str, str] | None = None

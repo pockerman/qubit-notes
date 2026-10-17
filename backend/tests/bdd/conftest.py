@@ -43,7 +43,7 @@ def frontend_dir() -> str:
 def app(request, platform):
     # only the UI scenarios need the frontend, and building it takes a moment
     frontend = request.getfixturevalue("frontend_dir") if "ui" in request.keywords else None
-    return create_app(platform=platform, settings=Settings(frontend_dir=frontend))
+    return create_app(platform=platform, settings=Settings(frontend_dir=frontend, database_url="sqlite://"))
 
 
 @pytest.fixture

@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 
 from study_assistant.domain.courses import Course, Courses
-from study_assistant.domain.errors import Conflict, NotFound
+from study_assistant.domain.errors import Conflict, NotFound, OutOfRange
+from study_assistant.domain.materials import duration_of, is_video
 from study_assistant.platform.port import (
     DocumentInfo,
     DownloadedFile,
@@ -18,6 +19,10 @@ class OpenedMaterial(BaseModel):
     filename: str
     subject: str
     topic: str
+    # "text", read by section, or "video", which has no sections
+    kind: str
+    content_type: str
+    duration_seconds: float | None = None
     sections: list[Section]
 
 
@@ -36,7 +41,10 @@ class Reading:
             filename=document.filename,
             subject=document.metadata.get("subject", ""),
             topic=document.metadata.get("topic", ""),
-            sections=self._platform.list_sections(course.id, document.document_id),
+            kind="video" if is_video(document.content_type) else "text",
+            content_type=document.content_type,
+            duration_seconds=duration_of(document.metadata),
+            sections=[] if is_video(document.content_type) else self._platform.list_sections(course.id, document_id),
         )
 
     def read(self, student: str, course_id: str, document_id: str, position: int) -> list[SectionText]:
@@ -47,12 +55,21 @@ class Reading:
             raise NotFound(f"{document.filename!r} has no section {position}")
         return parts
 
-    def download(self, student: str, course_id: str, document_id: str) -> DownloadedFile:
+    def download(
+        self, student: str, course_id: str, document_id: str, offset: int = 0, length: int = 0
+    ) -> DownloadedFile:
+        """the uploaded file, or length bytes of it from offset (to its end if length is 0)"""
         course, document = self._material(student, course_id, document_id)
-        downloaded = self._platform.download_document(course.id, document.document_id)
+        if offset and offset >= document.size_bytes:
+            raise OutOfRange(f"{document.filename!r} is {document.size_bytes} bytes")
+        downloaded = self._platform.download_document(course.id, document.document_id, offset, length)
         if downloaded is None:
             raise NotFound(f"no material {document_id!r}")
         return downloaded
+
+    def section_content(self, student: str, course_id: str, document_id: str, position: int) -> str:
+        """the section's own text, without its subsections'"""
+        return self.read(student, course_id, document_id, position)[0].content
 
     def _material(self, student: str, course_id: str, document_id: str) -> tuple[Course, DocumentInfo]:
         course = self._courses.get_by_id(student, course_id)

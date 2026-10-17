@@ -80,10 +80,16 @@ class FakePlatform:
     # documents
 
     def ingest_document(
-        self, index_name: str, filename: str, content: bytes, content_type: str, metadata: dict[str, str]
+        self,
+        index_name: str,
+        filename: str,
+        content: bytes,
+        content_type: str,
+        metadata: dict[str, str],
+        store_only: bool = False,
     ) -> IngestJob:
         document_id = uuid.uuid4().hex
-        status = IngestStatus.PENDING if self.hold_ingestion else IngestStatus.COMPLETED
+        status = IngestStatus.PENDING if self.hold_ingestion and not store_only else IngestStatus.COMPLETED
         document = DocumentInfo(
             document_id=document_id,
             index_name=index_name,
@@ -91,8 +97,9 @@ class FakePlatform:
             metadata=metadata,
             status=status,
             content_type=content_type,
+            size_bytes=len(content),
         )
-        sections = _sections(filename, content)
+        sections = [] if store_only else _sections(filename, content)
         text = "\n\n".join(part.content for part in sections)
         self.documents[index_name][document_id] = (document, text)
         self.files[document_id] = (content, sections)
@@ -138,12 +145,16 @@ class FakePlatform:
         end = next((i for i in range(start + 1, len(sections)) if sections[i].section.level <= level), len(sections))
         return sections[start:end]
 
-    def download_document(self, index_name: str, document_id: str) -> DownloadedFile | None:
+    def download_document(
+        self, index_name: str, document_id: str, offset: int = 0, length: int = 0
+    ) -> DownloadedFile | None:
         document = self.get_document(index_name, document_id)
         if document is None:
             return None
+        content = self.files[document_id][0]
+        part = content[offset : offset + length] if length else content[offset:]
         return DownloadedFile(
-            filename=document.filename, content_type=document.content_type, content=self.files[document_id][0]
+            filename=document.filename, content_type=document.content_type, content=part, size=len(content)
         )
 
     def search(

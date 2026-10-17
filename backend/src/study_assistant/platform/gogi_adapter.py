@@ -110,7 +110,13 @@ class GogiPlatform:
     # documents
 
     def ingest_document(
-        self, index_name: str, filename: str, content: bytes, content_type: str, metadata: dict[str, str]
+        self,
+        index_name: str,
+        filename: str,
+        content: bytes,
+        content_type: str,
+        metadata: dict[str, str],
+        store_only: bool = False,
     ) -> IngestJob:
         job = self._gogi.documents.ingest_document(
             IngestDocumentRequest(
@@ -122,6 +128,7 @@ class GogiPlatform:
                 chunk_strategy=self._settings.chunk_strategy,
                 embeddings_model=self._settings.embeddings_model,
                 embeddings_client=self._settings.embeddings_client,
+                store_only=store_only,
             )
         )
         return IngestJob(job_id=job.job_id, document_id=job.document_id or "", status=_STATUSES[job.status])
@@ -149,6 +156,7 @@ class GogiPlatform:
             metadata=document.custom_metadata or {},
             status=_STATUSES.get(document.status or "", IngestStatus.PENDING),
             content_type=document.content_type or "",
+            size_bytes=document.size_bytes,
         )
 
     def list_documents(self, index_name: str, metadata_filter: dict[str, str] | None = None) -> list[DocumentInfo]:
@@ -187,9 +195,11 @@ class GogiPlatform:
             raise
         return [SectionText(section=self._section(part.section), content=part.content) for part in parts]
 
-    def download_document(self, index_name: str, document_id: str) -> DownloadedFile | None:
+    def download_document(
+        self, index_name: str, document_id: str, offset: int = 0, length: int = 0
+    ) -> DownloadedFile | None:
         try:
-            document, content = self._gogi.documents.download_document(index_name, document_id)
+            document, content = self._gogi.documents.download_document(index_name, document_id, offset, length)
         except grpc.RpcError as e:
             if _not_found(e):
                 return None
@@ -198,6 +208,7 @@ class GogiPlatform:
             filename=document.filename,
             content_type=document.content_type or "application/octet-stream",
             content=content,
+            size=document.size_bytes,
         )
 
     def delete_document(self, index_name: str, document_id: str) -> bool:
