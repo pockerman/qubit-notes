@@ -54,3 +54,9 @@ Feature: Managing materials and sharing in the browser
     Then I see that the course is shared with me by "maria" as a reader
     And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
     But I cannot upload, delete or share in this course
+
+  Scenario: Names are written as lowercase words joined by hyphens
+    Given I am signed in as "maria"
+    When I upload "intro.txt" to the course "Computer Science", subject "Distributed Systems Design", topic "Introduction"
+    Then I see the course "computer-science" in my courses
+    And I see "intro.txt" under "distributed-systems-design" › "introduction"
