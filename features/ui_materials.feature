@@ -42,8 +42,29 @@ Feature: Managing materials and sharing in the browser
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
+    And I open its members
     And I share it with "tom" as a reader
     Then I see "tom" as a reader of the course
+
+  Scenario: Members are on a page of their own
+    Given I am signed in as "maria"
+    And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    And I have shared the course "aeronautics" with "tom" as a reader
+    When I open the course "aeronautics"
+    Then I do not see the members on the course page
+    When I open its members
+    Then I see "tom" as a reader of the course
+    And I can go back to the course "aeronautics"
+
+  Scenario: A reader sees who else is in a shared course
+    Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    And the student "maria" has shared the course "aeronautics" with "tom" as a reader
+    And I am signed in as "tom"
+    When I open the course "aeronautics"
+    And I open its members
+    Then I see "maria" as an owner of the course
+    And I see "tom" as a reader of the course
+    But I am not offered to share the course
 
   @gogi
   Scenario: A reader sees a shared course but cannot change it

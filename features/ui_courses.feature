@@ -69,3 +69,18 @@ Feature: Courses in the browser
     When I open the course "computer-science"
     And I create the topic "Introduction" in the subject "Distributed Systems"
     Then I still see the topic "distributed-systems" › "introduction", with no material
+
+  Scenario: Add a topic to a subject the course already has
+    Given I am signed in as "maria"
+    And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    When I open the course "aeronautics"
+    And I add the topic "Finite Volumes" to the subject "numerical-methods"
+    Then I still see the topic "numerical-methods" › "finite-volumes", with no material
+    And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
+
+  Scenario: A reader of a shared course is not offered to create topics
+    Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    And the student "maria" has shared the course "aeronautics" with "tom" as a reader
+    And I am signed in as "tom"
+    When I open the course "aeronautics"
+    Then I am not offered to create a topic

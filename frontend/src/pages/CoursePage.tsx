@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { Course, Material, StudyApi, Topic } from '../api'
-import { Members } from '../components/Members'
 import { slug } from '../names'
 import { href } from '../router'
 
@@ -27,8 +26,19 @@ function group(topics: Topic[], materials: Material[]): [string, [string, Materi
     .map(([subject, of]) => [subject, [...of.entries()].sort(([a], [b]) => a.localeCompare(b))])
 }
 
-function NewTopicForm({ api, course, onCreated }: { api: StudyApi; course: Course; onCreated: () => void }) {
-  const [subject, setSubject] = useState('')
+// a topic in a subject the student names, or in `inSubject` when the course has it already
+function NewTopicForm({
+  api,
+  course,
+  inSubject,
+  onCreated,
+}: {
+  api: StudyApi
+  course: Course
+  inSubject?: string
+  onCreated: () => void
+}) {
+  const [subject, setSubject] = useState(inSubject ?? '')
   const [topic, setTopic] = useState('')
   const [error, setError] = useState<string | null>(null)
 
@@ -47,11 +57,18 @@ function NewTopicForm({ api, course, onCreated }: { api: StudyApi; course: Cours
   }
 
   return (
-    <form className="card" aria-label="New topic" onSubmit={submit}>
-      <label>
-        Subject
-        <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Distributed systems" required />
-      </label>
+    <form className="card" aria-label={inSubject ? `New topic in ${inSubject}` : 'New topic'} onSubmit={submit}>
+      {!inSubject && (
+        <label>
+          Subject
+          <input
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="Distributed systems"
+            required
+          />
+        </label>
+      )}
       <label>
         Topic
         <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Introduction" required />
@@ -71,6 +88,8 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
   const [materials, setMaterials] = useState<Material[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
   const [addingTopic, setAddingTopic] = useState(false)
+  // the subject a topic is being added to, from its own section
+  const [addingTo, setAddingTo] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -132,16 +151,21 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
             Shared with you by {course.owner} as {course.role === 'owner' ? 'an owner' : 'a reader'}
           </p>
         )}
-        {isOwner && (
-          <div className="actions page-actions">
-            <a className="button" href={href({ page: 'add', courseId: course.id, subject: '', topic: '' })}>
-              Add material
-            </a>
-            <button type="button" className="link" onClick={() => setAddingTopic(!addingTopic)}>
-              New topic
-            </button>
-          </div>
-        )}
+        <div className="actions page-actions">
+          {isOwner && (
+            <>
+              <a className="button" href={href({ page: 'add', courseId: course.id, subject: '', topic: '' })}>
+                Add material
+              </a>
+              <button type="button" className="link" onClick={() => setAddingTopic(!addingTopic)}>
+                New topic
+              </button>
+            </>
+          )}
+          <a className="link" href={href({ page: 'members', courseId: course.id })}>
+            Members
+          </a>
+        </div>
       </header>
 
       {error && (
@@ -166,7 +190,30 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
       ) : (
         grouped.map(([subject, of]) => (
           <section key={subject} className="subject" aria-label={subject}>
-            <h3>{subject}</h3>
+            <header className="topic-header">
+              <h3>{subject}</h3>
+              {isOwner && (
+                <button
+                  type="button"
+                  className="link"
+                  aria-label={`Add a topic to ${subject}`}
+                  onClick={() => setAddingTo(addingTo === subject ? null : subject)}
+                >
+                  Add topic
+                </button>
+              )}
+            </header>
+            {addingTo === subject && (
+              <NewTopicForm
+                api={api}
+                course={course}
+                inSubject={subject}
+                onCreated={() => {
+                  setAddingTo(null)
+                  load()
+                }}
+              />
+            )}
             {of.map(([topic, items]) => (
               <section key={topic} className="topic" aria-label={`${subject} › ${topic}`}>
                 <header className="topic-header">
@@ -224,8 +271,6 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
           </section>
         ))
       )}
-
-      <Members api={api} course={course} />
     </section>
   )
 }

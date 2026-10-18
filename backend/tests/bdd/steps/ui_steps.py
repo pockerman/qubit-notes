@@ -128,7 +128,7 @@ def see_ready(page, filename):
 
 @then(parsers.parse('I see the subjects "{subjects}"'))
 def see_subjects(page, subjects):
-    expect(page.get_by_role("main").get_by_role("heading", level=3).filter(has_not_text="Members")).to_have_text(
+    expect(page.get_by_role("main").get_by_role("heading", level=3)).to_have_text(
         [subject.strip() for subject in subjects.split(",")]
     )
 
@@ -155,6 +155,30 @@ def share_in_browser(page, students, name, role):
 def see_member(page, students, name, role):
     member = page.get_by_role("list", name="Members").get_by_role("listitem").filter(has_text=students.id(name))
     expect(member).to_contain_text({"a reader": "reader", "an owner": "owner"}[role])
+
+
+@when("I open its members")
+def open_members(page):
+    page.get_by_role("link", name="Members", exact=True).click()
+    expect(page.get_by_role("heading", name=re.compile("^Members of "), level=2)).to_be_visible()
+
+
+@then("I do not see the members on the course page")
+def no_members_on_course_page(page):
+    expect(page.get_by_role("list", name="Members")).to_have_count(0)
+    expect(page.get_by_role("form", name="Share this course")).to_have_count(0)
+
+
+@then(parsers.parse('I can go back to the course "{course}"'))
+def back_to_course(page, course):
+    page.get_by_role("link", name=f"← {course}").click()
+    expect(page.get_by_role("heading", name=course, level=2)).to_be_visible()
+
+
+@then("I am not offered to share the course")
+def not_offered_to_share(page):
+    expect(page.get_by_role("list", name="Members")).to_be_visible()
+    expect(page.get_by_role("form", name="Share this course")).to_have_count(0)
 
 
 @then(parsers.parse('I see that the course is shared with me by "{owner}" as {role}'))
@@ -462,6 +486,24 @@ def create_topic_in_browser(page, topic, subject):
     form.get_by_label("Subject").fill(subject)
     form.get_by_label("Topic").fill(topic)
     form.get_by_role("button", name="Create topic").click()
+
+
+@when(parsers.parse('I add the topic "{topic}" to the subject "{subject}"'))
+def add_topic_to_subject(page, topic, subject):
+    page.get_by_role("button", name=f"Add a topic to {subject}").click()
+    form = page.get_by_role("form", name=f"New topic in {subject}")
+    # the subject is the one the topic is added to, not asked again
+    expect(form.get_by_label("Subject")).to_have_count(0)
+    form.get_by_label("Topic").fill(topic)
+    form.get_by_role("button", name="Create topic").click()
+
+
+@then("I am not offered to create a topic")
+def not_offered_to_create_topic(page):
+    course = page.get_by_role("main")
+    expect(course.get_by_role("heading", level=3).first).to_be_visible()
+    expect(course.get_by_role("button", name="New topic")).to_have_count(0)
+    expect(course.get_by_role("button", name=re.compile("^Add a topic to "))).to_have_count(0)
 
 
 @when("I edit its text to:")
