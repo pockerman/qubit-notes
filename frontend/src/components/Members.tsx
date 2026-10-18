@@ -31,8 +31,7 @@ export function Members({ api, course }: { api: StudyApi; course: Course }) {
   }
 
   return (
-    <section className="members" aria-labelledby="members-title">
-      <h3 id="members-title">Members</h3>
+    <section className="members card">
       <ul aria-label="Members">
         {members.map((member) => (
           <li key={member.student}>

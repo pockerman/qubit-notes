@@ -2,12 +2,12 @@ import uuid
 from datetime import datetime
 
 from pydantic import BaseModel
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from sqlalchemy.engine import Engine
 
 from study_assistant import storage
 from study_assistant.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
-from study_assistant.domain.written import forget_document, now, of_scope, scope_of, scope_values
+from study_assistant.domain.written import forget_course_rows, forget_document, now, of_scope, scope_of, scope_values
 from study_assistant.platform.port import StudyPlatform
 
 SYSTEM = """You help a student revise. You write summaries of their study material: clear, accurate and concise,
@@ -65,9 +65,20 @@ class Summaries:
             rows = connection.execute(of_scope(storage.summaries, student, scope)).all()
         return [self._summary(student, row) for row in rows]
 
+    def by_id(self, student: str, summary_id: str) -> Summary | None:
+        """the student's summary, or None if it was deleted with its material"""
+        table = storage.summaries
+        with self._engine.connect() as connection:
+            row = connection.execute(select(table).where(table.c.id == summary_id, table.c.student == student)).first()
+        return self._summary(student, row) if row else None
+
     def forget_material(self, document_id: str) -> None:
         with self._engine.begin() as connection:
             forget_document(connection, storage.summaries, document_id)
+
+    def forget_course(self, course_id: str) -> None:
+        with self._engine.begin() as connection:
+            forget_course_rows(connection, storage.summaries, course_id)
 
     def _write(self, student: str, scope: Scope) -> Summary:
         gathered = self._sources.gather(student, scope)

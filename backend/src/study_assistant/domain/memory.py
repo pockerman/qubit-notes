@@ -34,9 +34,13 @@ class StudentMemory:
 
     def forget_source(self, student: str, document_id: str) -> int:
         """Forget everything learned from the document; returns how many notes were forgotten."""
+        return self.forget_sources(student, {document_id})
+
+    def forget_sources(self, student: str, document_ids: set[str]) -> int:
+        """Forget everything learned from any of the documents; returns how many notes were forgotten."""
         forgotten = 0
         for note in self.notes(student):
-            if document_id in note.sources:
+            if document_ids.intersection(note.sources):
                 self._platform.delete_memory(student, note.key)
                 forgotten += 1
         return forgotten

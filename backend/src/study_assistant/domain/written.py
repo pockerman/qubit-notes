@@ -42,6 +42,13 @@ def scope_of(row) -> Scope:
     )
 
 
+def forget_course_rows(connection, table: Table, course_id: str) -> list[str]:
+    """deletes the rows about anything in the deleted course; returns their ids"""
+    ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.course_id == course_id))]
+    connection.execute(delete(table).where(table.c.course_id == course_id))
+    return ids
+
+
 def forget_document(connection, table: Table, document_id: str) -> list[str]:
     """deletes the rows about the deleted document (its sections and itself, not its topic); returns their ids"""
     ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.document_id == document_id))]

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
  *   #/                                     my courses
  *   #/courses/<id>                         a course
  *   #/courses/<id>/add?subject=…&topic=…   adding material to it
+ *   #/courses/<id>/members                 who it is shared with
  *   #/courses/<id>/materials/<document>    reading a material
  *   #/courses/<id>/topics/<subject>/<topic> studying a topic
  */
@@ -13,6 +14,7 @@ export type Route =
   | { page: 'courses' }
   | { page: 'course'; courseId: string }
   | { page: 'add'; courseId: string; subject: string; topic: string }
+  | { page: 'members'; courseId: string }
   | { page: 'material'; courseId: string; documentId: string }
   | { page: 'topic'; courseId: string; subject: string; topic: string }
 
@@ -25,6 +27,7 @@ export function parse(hash: string): Route {
   if (parts[2] === 'add') {
     return { page: 'add', courseId, subject: params.get('subject') ?? '', topic: params.get('topic') ?? '' }
   }
+  if (parts[2] === 'members') return { page: 'members', courseId }
   if (parts[2] === 'materials' && parts[3]) return { page: 'material', courseId, documentId: parts[3] }
   if (parts[2] === 'topics' && parts[3] && parts[4]) {
     return { page: 'topic', courseId, subject: parts[3], topic: parts[4] }
@@ -43,6 +46,8 @@ export function href(route: Route): string {
       const query = new URLSearchParams({ subject: route.subject, topic: route.topic })
       return `${course(route.courseId)}/add?${query}`
     }
+    case 'members':
+      return `${course(route.courseId)}/members`
     case 'material':
       return `${course(route.courseId)}/materials/${encodeURIComponent(route.documentId)}`
     case 'topic':

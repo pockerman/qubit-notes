@@ -163,6 +163,13 @@ class Materials:
         self._forget(course, material.document_id)
         return material
 
+    def forget_course(self, course: Course) -> None:
+        """what the assistant learned from a deleted course's material, for anyone who studied it"""
+        document_ids = {document.document_id for document in self._platform.list_documents(course.id)}
+        if document_ids:
+            for member in course.members:
+                self._memory.forget_sources(member, document_ids)
+
     def _forget(self, course: Course, document_id: str) -> None:
         for forget in self._on_delete:
             forget(document_id)

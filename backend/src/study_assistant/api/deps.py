@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Header, Request
 
+from study_assistant.domain.assistant import Assistant
 from study_assistant.domain.courses import Courses
 from study_assistant.domain.materials import Materials
 from study_assistant.domain.notes import Notes
@@ -37,6 +38,10 @@ def summaries(request: Request) -> Summaries:
 
 def quizzes(request: Request) -> Quizzes:
     return request.app.state.quizzes
+
+
+def assistant(request: Request) -> Assistant:
+    return request.app.state.assistant
 
 
 # the student making the request. There is no authentication yet: the client says who it is

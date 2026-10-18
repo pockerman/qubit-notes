@@ -179,6 +179,36 @@ button.link {
   padding: 0;
 }
 
+/* deleting something that can't be undone */
+button.danger {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--bad);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+button.link.danger {
+  padding: 0;
+  background: none;
+  color: var(--bad);
+}
+
+.move {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.move button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.confirm p {
+  margin: 0 0 8px;
+}
+
 .share {
   grid-template-columns: 1fr auto auto;
   align-items: end;
@@ -235,15 +265,34 @@ button.link {
   margin: 0;
 }
 
-.reader-header button[type='button']:not(.link) {
+.reader-actions {
+  display: flex;
+  gap: 0.5rem;
   margin-left: auto;
 }
 
+.reader-actions button[aria-pressed='true'] {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* the reader uses the whole width of the screen, so the text can be wide */
+.app:has(.reader),
+main:has(.reader) {
+  max-width: none;
+}
+
 .reader-body {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(12rem, 16rem) 1fr minmax(14rem, 18rem);
-  gap: 1.5rem;
+  grid-template-columns: 11rem minmax(0, 1fr) 16rem;
+  gap: 1.25rem;
   margin-top: 1rem;
+}
+
+.reader-body.with-assistant {
+  grid-template-columns: 11rem minmax(0, 1fr) minmax(22rem, 30rem);
 }
 
 .outline ol {
@@ -270,8 +319,49 @@ button.link {
 }
 
 .section-text {
-  max-width: 46rem;
+  min-width: 0;
   line-height: 1.6;
+}
+
+.markdown table {
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+}
+
+.markdown th,
+.markdown td {
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown th {
+  background: var(--surface);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.markdown pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  overflow-x: auto;
+}
+
+.markdown code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.markdown blockquote {
+  border-left: 3px solid var(--border);
+  margin: 0.75rem 0;
+  padding-left: 0.8rem;
+  color: var(--muted);
 }
 
 .section-text h3 {
@@ -279,7 +369,11 @@ button.link {
 }
 
 .reader-body.video {
-  grid-template-columns: 1fr minmax(14rem, 18rem);
+  grid-template-columns: minmax(0, 1fr) 16rem;
+}
+
+.reader-body.video.with-assistant {
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
 }
 
 .reader-body video {
@@ -327,6 +421,77 @@ button.link {
   margin-top: 1rem;
 }
 
+/* a note on a passage opens beside it, over the sections, to the left of the text */
+.note-form.beside {
+  position: absolute;
+  left: 0;
+  width: 11rem;
+  margin: 0;
+  z-index: 2;
+  background: var(--bg);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 18%);
+  box-sizing: border-box;
+}
+
+.note-form.beside .actions {
+  flex-wrap: wrap;
+}
+
+.assistant {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
+  min-width: 0;
+}
+
+.assistant-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.assistant-header h3 {
+  margin: 0;
+}
+
+.assistant-header .note {
+  margin-right: auto;
+  overflow-wrap: anywhere;
+}
+
+.turns {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.turn .asked {
+  margin: 0 0 0.4rem auto;
+  width: fit-content;
+  max-width: 85%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.35rem 0.7rem;
+  white-space: pre-wrap;
+}
+
+.turn .not-covered {
+  color: var(--muted);
+}
+
+.ask {
+  display: grid;
+  gap: 0.4rem;
+}
+
 textarea {
   font: inherit;
   width: 100%;
@@ -340,8 +505,20 @@ textarea {
 
 @media (max-width: 960px) {
   .reader-body,
-  .reader-body.video {
-    grid-template-columns: 1fr;
+  .reader-body.video,
+  .reader-body.with-assistant,
+  .reader-body.video.with-assistant {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .note-form.beside {
+    position: static;
+    width: auto;
+  }
+
+  .assistant {
+    border-left: none;
+    padding-left: 0;
   }
 }
 

@@ -63,6 +63,11 @@ class Courses:
 
     def __init__(self, platform: StudyPlatform):
         self._platform = platform
+        # called with every deleted course, before its index is, to forget what was in it
+        self._on_delete = []
+
+    def on_delete(self, forget) -> None:
+        self._on_delete.append(forget)
 
     def list(self, student: str) -> list[Course]:
         courses = [Course.from_index(index) for index in self._platform.list_member_indexes(student)]
@@ -111,6 +116,16 @@ class Courses:
     def require_owner(self, student: str, course: Course) -> None:
         if course.role_of(student) != MemberRole.OWNER:
             raise NotAllowed(f"only the owners of {course.name!r} can do that")
+
+    def delete(self, student: str, name: str) -> Course:
+        """deletes the course and everything in it, for every member; only its creator can"""
+        course = self.get(student, name)
+        if course.owner != student:
+            raise NotAllowed(f"only {course.owner}, who created {course.name!r}, can delete it")
+        for forget in self._on_delete:
+            forget(course)
+        self._platform.delete_index(course.id)
+        return course
 
     def share(self, student: str, name: str, with_student: str, role: MemberRole) -> Course:
         course = self.get(student, name)

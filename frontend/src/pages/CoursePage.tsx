@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { Course, Material, StudyApi, Topic } from '../api'
-import { Members } from '../components/Members'
 import { slug } from '../names'
-import { href } from '../router'
+import { href, navigate } from '../router'
 
 const STATUS_LABEL: Record<Material['status'], string> = {
   pending: 'processing',
@@ -11,7 +10,8 @@ const STATUS_LABEL: Record<Material['status'], string> = {
   failed: 'failed',
 }
 
-// subject to its topics, each with its materials, all sorted. Topics stay when their material is deleted
+// subject to its topics, each with its materials: subjects sorted, topics in the order they're meant to be read, as
+// listed. Topics stay when their material is deleted
 function group(topics: Topic[], materials: Material[]): [string, [string, Material[]][]][] {
   const subjects = new Map<string, Map<string, Material[]>>()
   const topicOf = (subject: string, topic: string) => {
@@ -24,11 +24,22 @@ function group(topics: Topic[], materials: Material[]): [string, [string, Materi
   for (const material of materials) topicOf(material.subject, material.topic).push(material)
   return [...subjects.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([subject, of]) => [subject, [...of.entries()].sort(([a], [b]) => a.localeCompare(b))])
+    .map(([subject, of]) => [subject, [...of.entries()]])
 }
 
-function NewTopicForm({ api, course, onCreated }: { api: StudyApi; course: Course; onCreated: () => void }) {
-  const [subject, setSubject] = useState('')
+// a topic in a subject the student names, or in `inSubject` when the course has it already
+function NewTopicForm({
+  api,
+  course,
+  inSubject,
+  onCreated,
+}: {
+  api: StudyApi
+  course: Course
+  inSubject?: string
+  onCreated: () => void
+}) {
+  const [subject, setSubject] = useState(inSubject ?? '')
   const [topic, setTopic] = useState('')
   const [error, setError] = useState<string | null>(null)
 
@@ -47,11 +58,18 @@ function NewTopicForm({ api, course, onCreated }: { api: StudyApi; course: Cours
   }
 
   return (
-    <form className="card" aria-label="New topic" onSubmit={submit}>
-      <label>
-        Subject
-        <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Distributed systems" required />
-      </label>
+    <form className="card" aria-label={inSubject ? `New topic in ${inSubject}` : 'New topic'} onSubmit={submit}>
+      {!inSubject && (
+        <label>
+          Subject
+          <input
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="Distributed systems"
+            required
+          />
+        </label>
+      )}
       <label>
         Topic
         <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Introduction" required />
@@ -71,6 +89,9 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
   const [materials, setMaterials] = useState<Material[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
   const [addingTopic, setAddingTopic] = useState(false)
+  // the subject a topic is being added to, from its own section
+  const [addingTo, setAddingTo] = useState<string | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -108,6 +129,31 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
   }
 
   const isOwner = course.role === 'owner'
+  // only the student who created the course can delete it
+  const isCreator = course.owner === api.student
+
+  async function deleteCourse() {
+    if (!course) return
+    try {
+      await api.deleteCourse(course.name)
+      navigate({ page: 'courses' })
+    } catch (e) {
+      setConfirmingDelete(false)
+      setError((e as Error).message)
+    }
+  }
+
+  // moves a topic one place up (-1) or down (+1) among its subject's topics
+  async function move(subject: string, topics: string[], index: number, by: -1 | 1) {
+    if (!course) return
+    const order = [...topics]
+    ;[order[index], order[index + by]] = [order[index + by], order[index]]
+    try {
+      setTopics(await api.orderTopics(course.name, subject, order))
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
 
   async function remove(material: Material) {
     try {
@@ -132,14 +178,40 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
             Shared with you by {course.owner} as {course.role === 'owner' ? 'an owner' : 'a reader'}
           </p>
         )}
-        {isOwner && (
-          <div className="actions page-actions">
-            <a className="button" href={href({ page: 'add', courseId: course.id, subject: '', topic: '' })}>
-              Add material
-            </a>
-            <button type="button" className="link" onClick={() => setAddingTopic(!addingTopic)}>
-              New topic
+        <div className="actions page-actions">
+          {isOwner && (
+            <>
+              <a className="button" href={href({ page: 'add', courseId: course.id, subject: '', topic: '' })}>
+                Add material
+              </a>
+              <button type="button" className="link" onClick={() => setAddingTopic(!addingTopic)}>
+                New topic
+              </button>
+            </>
+          )}
+          <a className="link" href={href({ page: 'members', courseId: course.id })}>
+            Members
+          </a>
+          {isCreator && !confirmingDelete && (
+            <button type="button" className="link danger" onClick={() => setConfirmingDelete(true)}>
+              Delete course
             </button>
+          )}
+        </div>
+        {confirmingDelete && (
+          <div className="card confirm" role="alertdialog" aria-label="Delete this course">
+            <p>
+              Delete {course.name} and everything in it? Its material, topics, notes, summaries, quizzes and
+              conversations go for every member, and this cannot be undone.
+            </p>
+            <div className="actions">
+              <button type="button" className="danger" onClick={deleteCourse}>
+                Yes, delete {course.name}
+              </button>
+              <button type="button" className="link" onClick={() => setConfirmingDelete(false)}>
+                Cancel
+              </button>
+            </div>
           </div>
         )}
       </header>
@@ -166,11 +238,56 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
       ) : (
         grouped.map(([subject, of]) => (
           <section key={subject} className="subject" aria-label={subject}>
-            <h3>{subject}</h3>
-            {of.map(([topic, items]) => (
+            <header className="topic-header">
+              <h3>{subject}</h3>
+              {isOwner && (
+                <button
+                  type="button"
+                  className="link"
+                  aria-label={`Add a topic to ${subject}`}
+                  onClick={() => setAddingTo(addingTo === subject ? null : subject)}
+                >
+                  Add topic
+                </button>
+              )}
+            </header>
+            {addingTo === subject && (
+              <NewTopicForm
+                api={api}
+                course={course}
+                inSubject={subject}
+                onCreated={() => {
+                  setAddingTo(null)
+                  load()
+                }}
+              />
+            )}
+            {of.map(([topic, items], index) => (
               <section key={topic} className="topic" aria-label={`${subject} › ${topic}`}>
                 <header className="topic-header">
                   <h4>{topic}</h4>
+                  {isOwner && of.length > 1 && (
+                    <span className="move">
+                      <button
+                        type="button"
+                        className="link"
+                        aria-label={`Move ${topic} up`}
+                        disabled={index === 0}
+                        onClick={() => move(subject, of.map(([t]) => t), index, -1)}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        className="link"
+                        aria-label={`Move ${topic} down`}
+                        disabled={index === of.length - 1}
+                        onClick={() => move(subject, of.map(([t]) => t), index, 1)}
+                      >
+                        ↓
+                      </button>
+                    </span>
+                  )}
                   {isOwner && (
                     <a
                       className="link"
@@ -224,8 +341,6 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
           </section>
         ))
       )}
-
-      <Members api={api} course={course} />
     </section>
   )
 }

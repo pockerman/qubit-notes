@@ -19,6 +19,10 @@ class NewTopic(BaseModel):
     topic: str
 
 
+class TopicOrder(BaseModel):
+    topics: list[str]
+
+
 class Text(BaseModel):
     text: str
 
@@ -56,6 +60,14 @@ async def list_topics(course: str, student: Student, service: TopicsDep) -> list
 @router.post("/courses/{course}/topics", response_model=Topic, status_code=201)
 async def create_topic(course: str, body: NewTopic, student: Student, service: TopicsDep) -> Topic:
     return await run_in_threadpool(service.create, student, course, body.subject, body.topic)
+
+
+@router.put("/courses/{course}/subjects/{subject}/topic-order", response_model=list[Topic])
+async def order_topics(
+    course: str, subject: str, body: TopicOrder, student: Student, service: TopicsDep
+) -> list[Topic]:
+    """puts the subject's topics in the order they're meant to be read"""
+    return await run_in_threadpool(service.order, student, course, subject, body.topics)
 
 
 @router.get("/courses/{course_id}/materials/{document_id}/text", response_model=Text)

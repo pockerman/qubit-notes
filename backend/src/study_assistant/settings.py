@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     llm_provider: str = "anthropic"
     llm_model: str = "claude-sonnet-5-5"
     llm_max_tokens: int = 4000
+    # how much of a conversation with the assistant the model is given, in estimated tokens: its most recent messages
+    conversation_tokens: int = 4000
 
     # how material is embedded; the default runs in gogi's worker and needs no API key
     embeddings_client: str = "sentence-transformer"

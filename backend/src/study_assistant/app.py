@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from study_assistant import storage
-from study_assistant.api import courses, health, materials, notes, reading, study
+from study_assistant.api import assistant, courses, health, materials, notes, reading, study
 from study_assistant.api.errors import add_error_handlers
+from study_assistant.domain.assistant import Assistant
 from study_assistant.domain.courses import Courses
 from study_assistant.domain.materials import Materials
 from study_assistant.domain.memory import StudentMemory
@@ -39,12 +40,27 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     sources = Sources(platform, app.state.courses, app.state.reading)
     app.state.summaries = Summaries(app.state.database, platform, sources)
     app.state.quizzes = Quizzes(app.state.database, platform, sources)
-    # deleting a material deletes everyone's notes, summaries and quizzes on it
-    for service in (app.state.notes, app.state.summaries, app.state.quizzes):
+    app.state.assistant = Assistant(
+        app.state.database, platform, app.state.courses, app.state.reading, app.state.summaries, app.state.quizzes
+    )
+    # deleting a material deletes everyone's notes, summaries, quizzes and conversations on it
+    for service in (app.state.notes, app.state.summaries, app.state.quizzes, app.state.assistant):
         app.state.materials.on_delete(service.forget_material)
+    # deleting a course deletes all of that, its topics, and what the assistant learned from its material
+    app.state.courses.on_delete(app.state.materials.forget_course)
+    for service in (app.state.notes, app.state.summaries, app.state.quizzes, app.state.assistant, app.state.topics):
+        app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 
     add_error_handlers(app)
-    for router in (health.router, courses.router, materials.router, reading.router, notes.router, study.router):
+    for router in (
+        health.router,
+        courses.router,
+        materials.router,
+        reading.router,
+        notes.router,
+        study.router,
+        assistant.router,
+    ):
         app.include_router(router, prefix="/api")
     if settings.frontend_dir:
         app.mount("/", StaticFiles(directory=settings.frontend_dir, html=True), name="frontend")
