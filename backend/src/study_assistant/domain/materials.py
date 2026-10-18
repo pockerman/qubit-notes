@@ -1,9 +1,11 @@
+import re
+import unicodedata
 from pathlib import PurePosixPath
 
 from pydantic import BaseModel
 
 from study_assistant.domain.courses import Course, Courses, Location
-from study_assistant.domain.errors import InvalidRequest, NotFound, TooLarge
+from study_assistant.domain.errors import Conflict, InvalidRequest, NotFound, TooLarge
 from study_assistant.domain.memory import StudentMemory
 from study_assistant.domain.videos import VIDEO_TYPES, duration_seconds
 from study_assistant.platform.port import IngestJob, IngestStatus, StudyPlatform
@@ -82,6 +84,20 @@ class Materials:
         for keep in self._on_upload:
             keep(course.id, where.subject, where.topic)
         return Upload(job_id=job.job_id, document_id=job.document_id, course_id=course.id, status=job.status)
+
+    def write(self, student: str, location: str, name: str, text: str) -> Upload:
+        """a Markdown material the student wrote, saved under a filename made from its name"""
+        where = Location.parse(location)
+        filename = markdown_filename(name)
+        if filename is None:
+            raise InvalidRequest("the material needs a name with at least one letter or digit")
+        if not text.strip():
+            raise InvalidRequest("the material needs some text")
+        course = self._courses.get(student, where.course)
+        self._courses.require_owner(student, course)
+        if any(m.filename == filename for m in self.list(student, where.course, where.subject, where.topic)):
+            raise Conflict(f"the topic already has {filename!r}; edit it, or give this one another name")
+        return self.upload(student, location, filename, text.encode())
 
     def ingestion(self, job_id: str) -> IngestJob:
         job = self._platform.get_ingest_job(job_id)
@@ -176,6 +192,17 @@ class Materials:
         # anyone who studied the course may have notes learned from the material
         for member in course.members:
             self._memory.forget_source(member, document_id)
+
+
+def markdown_filename(name: str) -> str | None:
+    """the filename of a written material: "Shape functions" is "shape-functions.md"; None if it has no letters or
+    digits"""
+    stem = name.strip()
+    if stem.lower().endswith(".md"):
+        stem = stem[:-3]
+    stem = "".join(c for c in unicodedata.normalize("NFKD", stem) if not unicodedata.combining(c)).lower()
+    stem = re.sub(r"[^a-z0-9]+", "-", stem).strip("-")
+    return f"{stem}.md" if stem else None
 
 
 def duration_of(metadata: dict[str, str]) -> float | None:

@@ -7,6 +7,11 @@ from pytest_bdd import given, parsers, then, when
 def _sign_in(page: Page, students, name: str) -> None:
     students.me = name
     page.goto("/")
+    # another student of the scenario may be signed in already
+    sign_out = page.get_by_role("button", name="Sign out")
+    expect(page.get_by_label("Your name").or_(sign_out)).to_be_visible()
+    if sign_out.is_visible():
+        sign_out.click()
     page.get_by_label("Your name").fill(students.id(name))
     page.get_by_role("button", name="Sign in").click()
     expect(page.get_by_text(f"Signed in as {students.id(name)}")).to_be_visible()
@@ -227,7 +232,8 @@ def text_width(page, percent):
 
 
 def _section_text(page: Page):
-    return page.get_by_role("article", name="Section text")
+    # the text being read, or the preview of the text being written
+    return page.get_by_role("article", name=re.compile("^(Section text|Preview)$"))
 
 
 @then(parsers.parse('I see a table with the columns "{columns}"'))
@@ -566,3 +572,57 @@ def edit_text_in_browser(page, docstring):
     form.get_by_role("button", name="Save").click()
     # once processed, the reader shows the material again
     expect(page.get_by_role("button", name="Edit", exact=True)).to_be_visible(timeout=120_000)
+
+
+# writing material
+
+
+@when(parsers.parse('I write material in the topic "{topic}"'))
+def write_material_in_topic(page, topic):
+    page.get_by_role("link", name=f"Write material in {topic}").click()
+    expect(page.get_by_role("form", name="Write material")).to_be_visible()
+
+
+@when(parsers.parse('I name it "{name}"'))
+def name_it(page, name):
+    page.get_by_role("form", name="Write material").get_by_label("Name").fill(name)
+
+
+@when("I type:")
+def type_text(page, context, docstring):
+    page.get_by_role("form", name="Write material").get_by_label("Text").fill(docstring)
+    context["typed"] = docstring
+
+
+@when("I save it")
+def save_it(page):
+    page.get_by_role("form", name="Write material").get_by_role("button", name="Save").click()
+
+
+@when("I preview it")
+def preview_it(page):
+    page.get_by_role("tab", name="Preview").click()
+
+
+@when("I go back to writing")
+def back_to_writing(page):
+    page.get_by_role("tab", name="Write").click()
+
+
+@then("the text I typed is still there")
+def typed_text_still_there(page, context):
+    expect(page.get_by_role("form", name="Write material").get_by_label("Text")).to_have_value(context["typed"])
+
+
+@when("I cancel, but choose to keep writing")
+def cancel_but_keep_writing(page):
+    form = page.get_by_role("form", name="Write material")
+    form.get_by_role("button", name="Cancel").click()
+    page.get_by_role("alertdialog", name="Leave without saving").get_by_role("button", name="Keep writing").click()
+    expect(page.get_by_role("alertdialog")).to_have_count(0)
+
+
+@then("I am not offered to write material")
+def not_offered_to_write(page):
+    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
+    expect(page.get_by_role("link", name=re.compile("^Write material"))).to_have_count(0)

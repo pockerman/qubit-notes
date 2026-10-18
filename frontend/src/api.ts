@@ -347,6 +347,16 @@ export class StudyApi {
     return this.request(`/courses/${encodeURIComponent(course)}/materials`)
   }
 
+  /** a Markdown material the student wrote in a topic; it's processed like an upload */
+  writeMaterial(course: string, subject: string, topic: string, name: string, text: string): Promise<Upload> {
+    const [c, s, t] = [course, subject, topic].map(encodeURIComponent)
+    return this.request(`/courses/${c}/subjects/${s}/topics/${t}/materials`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, text }),
+    })
+  }
+
   upload(location: string, file: File): Promise<Upload> {
     const form = new FormData()
     form.append('location', location)

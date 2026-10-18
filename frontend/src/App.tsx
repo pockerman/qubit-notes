@@ -8,6 +8,7 @@ import { CoursePage } from './pages/CoursePage'
 import { CoursesPage } from './pages/CoursesPage'
 import { MembersPage } from './pages/MembersPage'
 import { TopicPage } from './pages/TopicPage'
+import { WriteMaterialPage } from './pages/WriteMaterialPage'
 import { href, navigate, useRoute } from './router'
 
 const STUDENT_KEY = 'study-assistant.student'
@@ -55,6 +56,8 @@ function Pages({ api }: { api: StudyApi }) {
       return <CoursePage key={route.courseId} api={api} courseId={route.courseId} />
     case 'add':
       return <AddMaterialPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
+    case 'write':
+      return <WriteMaterialPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
     case 'members':
       return <MembersPage key={route.courseId} api={api} courseId={route.courseId} />
     case 'material':
