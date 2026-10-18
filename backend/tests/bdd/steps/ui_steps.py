@@ -190,6 +190,51 @@ def choose_section(page, title):
     page.get_by_role("navigation", name="Sections").get_by_role("button", name=title, exact=True).click()
 
 
+@given(parsers.parse("my screen is {width:d} pixels wide"))
+def screen_width(page, width):
+    page.set_viewport_size({"width": width, "height": 900})
+
+
+@then(parsers.parse("the text is at least {percent:d}% of the page wide"))
+def text_width(page, percent):
+    text = page.get_by_role("article", name="Section text")
+    expect(text).to_be_visible()
+    assert text.bounding_box()["width"] >= page.viewport_size["width"] * percent / 100, text.bounding_box()
+
+
+def _section_text(page: Page):
+    return page.get_by_role("article", name="Section text")
+
+
+@then(parsers.parse('I see a table with the columns "{columns}"'))
+def see_table(page, columns):
+    table = _section_text(page).get_by_role("table")
+    expect(table.get_by_role("columnheader")).to_have_text([column.strip() for column in columns.split(",")])
+
+
+@then("the table has the rows:")
+def table_rows(page, datatable):
+    rows = _section_text(page).get_by_role("table").get_by_role("row")
+    expect(rows).to_have_count(len(datatable))
+    for row, cells in zip(rows.all(), datatable):
+        expect(row.get_by_role("columnheader").or_(row.get_by_role("cell"))).to_have_text(cells)
+
+
+@then(parsers.parse('"{label}" links to "{href}"'))
+def links_to(page, label, href):
+    expect(_section_text(page).get_by_role("link", name=label)).to_have_attribute("href", href)
+
+
+@then(parsers.parse('"{text}" is in bold'))
+def in_bold(page, text):
+    expect(_section_text(page).locator("strong", has_text=text)).to_be_visible()
+
+
+@then(parsers.parse('"{text}" is shown as code'))
+def as_code(page, text):
+    expect(_section_text(page).locator("pre code", has_text=text)).to_be_visible()
+
+
 @then(parsers.parse('I see the text "{text}"'))
 def see_text(page, text):
     expect(page.get_by_role("article", name="Section text")).to_contain_text(text)
@@ -229,6 +274,40 @@ def select_and_note(page, passage, text):
     _save_note(page, text)
 
 
+@when(parsers.parse('I select the passage "{passage}"'))
+def select_passage(page, passage):
+    expect(page.get_by_role("article", name="Section text")).to_contain_text(passage)
+    assert page.evaluate(SELECT_PASSAGE, passage), f"{passage!r} is not in the text"
+
+
+PASSAGE_BOX = """(passage) => {
+    const article = document.querySelector('article[aria-label="Section text"]')
+    const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT)
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const at = node.textContent.indexOf(passage)
+        if (at < 0) continue
+        const range = document.createRange()
+        range.setStart(node, at)
+        range.setEnd(node, at + passage.length)
+        const box = range.getBoundingClientRect()
+        return { top: box.top, bottom: box.bottom }
+    }
+    return null
+}"""
+
+
+@then(parsers.parse('the new note opens to the left of the text, level with "{passage}"'))
+def note_opens_beside(page, passage):
+    form = page.get_by_role("form", name="New note")
+    expect(form).to_be_visible()
+    note = form.bounding_box()
+    text = page.get_by_role("article", name="Section text").bounding_box()
+    words = page.evaluate(PASSAGE_BOX, passage)
+    assert note["x"] + note["width"] <= text["x"], (note, text)
+    # the note starts on the passage's line
+    assert words["top"] - 4 <= note["y"] <= words["bottom"] + 4, (note, words)
+
+
 @when(parsers.parse('I note "{text}" at the current moment of the video'))
 def note_at_current_moment(page, text):
     page.get_by_role("button", name=re.compile(r"^Add note at")).click()
@@ -253,35 +332,53 @@ def passage_highlighted(page, passage):
     expect(page.get_by_role("article", name="Section text").locator("mark", has_text=passage)).to_be_visible()
 
 
-# summaries and quizzes
+# the assistant
 
 
-@when("I ask for a summary of this section")
-@when("I ask for a summary of this topic")
-def ask_for_summary(page):
-    page.get_by_role("region", name="Summary").get_by_role("button", name="Summarise").click()
+def _assistant(page: Page):
+    return page.get_by_role("complementary", name="Assistant")
+
+
+@when("I open the assistant")
+def open_assistant(page):
+    page.get_by_role("button", name="AI", exact=True).click()
+    expect(_assistant(page)).to_be_visible()
+
+
+@when(parsers.parse('I ask "{question}"'))
+def ask(page, question):
+    assistant = _assistant(page)
+    turns = assistant.get_by_role("list", name="Conversation").locator("li.turn")
+    before = turns.count()
+    assistant.get_by_role("textbox", name="Ask the assistant").fill(question)
+    assistant.get_by_role("button", name="Ask", exact=True).click()
+    # the AI may take minutes on a local model
+    expect(assistant.get_by_text("Thinking…")).to_have_count(0, timeout=600_000)
+    expect(turns).to_have_count(before + 1)
+
+
+def _cites(reply, title: str) -> None:
+    reply.get_by_text(re.compile(r"^From \d+ sections?$")).click()
+    expect(reply.get_by_role("listitem").filter(has_text=title)).to_be_visible()
+
+
+@then(parsers.parse('I see an answer that cites "{title}"'))
+def see_answer(page, title):
+    answer = _assistant(page).get_by_role("region", name="Answer").last
+    expect(answer.locator(".markdown")).not_to_be_empty()
+    _cites(answer, title)
 
 
 @then(parsers.parse('I see a summary drawn from "{title}"'))
 def see_summary(page, title):
-    summary = page.get_by_role("region", name="Summary")
+    summary = _assistant(page).get_by_role("region", name="Summary").last
     expect(summary.locator(".markdown")).not_to_be_empty()
-    summary.get_by_text(re.compile(r"^From \d+ sections?$")).click()
-    expect(summary.get_by_role("listitem").filter(has_text=title)).to_be_visible()
-
-
-@when(parsers.parse("I ask for a quiz of {count:d} questions on the whole document"))
-def ask_for_quiz_on_document(page, count):
-    page.get_by_role("group", name="Study what").get_by_role("button", name="Whole document").click()
-    quiz = page.get_by_role("region", name="Quiz")
-    quiz.get_by_label("Questions").fill(str(count))
-    quiz.get_by_role("button", name="Quiz me").click()
-    expect(quiz.get_by_role("group")).to_have_count(count)
+    _cites(summary, title)
 
 
 @when("I answer every question with its first choice")
 def answer_first_choices(page):
-    quiz = page.get_by_role("region", name="Quiz")
+    quiz = _assistant(page).get_by_role("region", name="Quiz").last
     for question in quiz.get_by_role("group").all():
         question.get_by_role("radio").first.check()
     quiz.get_by_role("button", name="Check my answers").click()
@@ -290,6 +387,18 @@ def answer_first_choices(page):
 @then(parsers.parse("I see that I scored {score:d} out of {total:d}"))
 def see_score(page, score, total):
     expect(page.get_by_role("status").filter(has_text="You scored")).to_have_text(f"You scored {score} out of {total}")
+
+
+@then(parsers.parse('I see the buttons "{first}", "{second}" and "{third}" together'))
+def see_buttons_together(page, first, second, third):
+    actions = page.get_by_role("group", name="Material actions")
+    expect(actions.get_by_role("button")).to_have_text([first, second, third])
+
+
+@then(parsers.parse('I see no "{first}" or "{second}" button'))
+def see_no_buttons(page, first, second):
+    for name in (first, second):
+        expect(page.get_by_role("button", name=name)).to_have_count(0)
 
 
 @when(parsers.parse('I study the topic "{topic}"'))

@@ -11,6 +11,12 @@ from gogi.models.llm.llm_message import LLMMessage
 from gogi.models.llm.llm_response_format import LLMResponseFormat
 from gogi.models.llm.llm_run_request_config import LLMRunRequestConfig
 from gogi.models.llm.requests.llm_run_request import LLMRunRequest
+from gogi.models.llm.requests.llm_session.add_messages_to_llm_session_request import AddMessagesToLLMSessionRequest
+from gogi.models.llm.requests.llm_session.create_llm_session_request import CreateLLMSessionRequest
+from gogi.models.llm.requests.llm_session.delete_llm_session_request import DeleteLLMSessionRequest
+from gogi.models.llm.requests.llm_session.get_messages_from_llm_session_request import (
+    GetMessagesFromLLMSessionRequest,
+)
 from gogi.models.search_documents import SearchDocumentsRequest
 from loguru import logger
 
@@ -22,6 +28,7 @@ from study_assistant.platform.port import (
     IngestJob,
     IngestStatus,
     MemberRole,
+    Message,
     PlatformError,
     PlatformHealth,
     Section,
@@ -274,9 +281,15 @@ class GogiPlatform:
             for chunk in response.chunks
         ]
 
-    # memories
+    # the AI
 
-    def complete(self, system: str, prompt: str, json_schema: dict[str, Any] | None = None) -> str:
+    def complete(
+        self,
+        system: str,
+        prompt: str,
+        json_schema: dict[str, Any] | None = None,
+        history: list[Message] | None = None,
+    ) -> str:
         response = self._gogi.llm_clients.run(
             LLMRunRequest(
                 config=LLMRunRequestConfig(
@@ -284,7 +297,11 @@ class GogiPlatform:
                     model=self._settings.llm_model,
                     max_tokens=self._settings.llm_max_tokens,
                 ),
-                messages=[LLMMessage(role="system", content=system), LLMMessage(role="user", content=prompt)],
+                messages=[
+                    LLMMessage(role="system", content=system),
+                    *(LLMMessage(role=message.role, content=message.content) for message in history or []),
+                    LLMMessage(role="user", content=prompt),
+                ],
                 response_format=(
                     LLMResponseFormat(response_type="json_schema", response_schema_json=json.dumps(json_schema))
                     if json_schema
@@ -293,6 +310,41 @@ class GogiPlatform:
             )
         )
         return response.content
+
+    # conversations: gogi's sessions
+
+    def start_conversation(self, user: str, conversation_id: str) -> None:
+        self._gogi.llm_session.get_or_create_session(CreateLLMSessionRequest(user_id=user, session_id=conversation_id))
+
+    def add_to_conversation(self, conversation_id: str, messages: list[Message]) -> None:
+        self._gogi.llm_session.add_messages_to_session(
+            AddMessagesToLLMSessionRequest(
+                session_id=conversation_id,
+                messages=[LLMMessage(role=message.role, content=message.content) for message in messages],
+            )
+        )
+
+    def conversation_context(self, conversation_id: str) -> list[Message]:
+        response = self._gogi.llm_session.get_messages(
+            GetMessagesFromLLMSessionRequest(
+                session_id=conversation_id, strategy="truncate", token_budget=self._settings.conversation_tokens
+            )
+        )
+        return [
+            Message(role=message.role, content=message.content or "")
+            for message in response.messages
+            if message.role in ("user", "assistant")
+        ]
+
+    def end_conversation(self, conversation_id: str) -> bool:
+        try:
+            return self._gogi.llm_session.delete_session(DeleteLLMSessionRequest(session_id=conversation_id)).success
+        except grpc.RpcError as e:
+            if _not_found(e):
+                return False
+            raise
+
+    # memories
 
     def save_memory(self, user: str, key: str, value: dict[str, Any]) -> None:
         self._gogi.llm_session.save_memory(SaveLLMSessionMemoryRequest(user_id=user, key=key, value=value))

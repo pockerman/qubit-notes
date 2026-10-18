@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from pydantic import BaseModel
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from sqlalchemy.engine import Engine
 
 from study_assistant import storage
@@ -64,6 +64,13 @@ class Summaries:
         with self._engine.connect() as connection:
             rows = connection.execute(of_scope(storage.summaries, student, scope)).all()
         return [self._summary(student, row) for row in rows]
+
+    def by_id(self, student: str, summary_id: str) -> Summary | None:
+        """the student's summary, or None if it was deleted with its material"""
+        table = storage.summaries
+        with self._engine.connect() as connection:
+            row = connection.execute(select(table).where(table.c.id == summary_id, table.c.student == student)).first()
+        return self._summary(student, row) if row else None
 
     def forget_material(self, document_id: str) -> None:
         with self._engine.begin() as connection:

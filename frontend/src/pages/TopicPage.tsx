@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import type { StudyApi } from '../api'
-import { StudyTools } from '../components/StudyTools'
+import { Assistant } from '../components/Assistant'
 import { href } from '../router'
 
 type Props = { api: StudyApi; courseId: string; subject: string; topic: string }
 
-/** Summaries and quizzes of every text of a topic. */
+/** Studying every text of a topic with the assistant. */
 export function TopicPage({ api, courseId, subject, topic }: Props) {
+  const [assistant, setAssistant] = useState(false)
   return (
     <section className="topic-study" aria-labelledby="topic-study-title">
       <header className="page-header">
@@ -16,13 +18,23 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
           {subject} › {topic}
         </h2>
         <span className="note">every text of the topic</span>
+        <div role="group" aria-label="Topic actions" className="reader-actions">
+          <button type="button" aria-pressed={assistant} onClick={() => setAssistant(!assistant)}>
+            AI
+          </button>
+        </div>
       </header>
-      <StudyTools
-        key={`${courseId}/${subject}/${topic}`}
-        api={api}
-        scope={{ course_id: courseId, subject, topic }}
-        label={`${subject} › ${topic}`}
-      />
+      {assistant ? (
+        <Assistant
+          key={`${courseId}/${subject}/${topic}`}
+          api={api}
+          where={{ course_id: courseId, subject, topic }}
+          label={`${subject} › ${topic}`}
+          onClose={() => setAssistant(false)}
+        />
+      ) : (
+        <p className="note">Open the assistant to ask about the topic, or for a summary or a quiz of it.</p>
+      )}
     </section>
   )
 }

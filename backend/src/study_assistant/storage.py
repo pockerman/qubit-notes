@@ -1,7 +1,7 @@
 """The app's own data: what students make while studying (notes, summaries, quizzes), as opposed to their
 material, which lives in gogi."""
 
-from sqlalchemy import JSON, Column, DateTime, Float, Integer, MetaData, String, Table, Text, create_engine
+from sqlalchemy import JSON, Boolean, Column, DateTime, Float, Integer, MetaData, String, Table, Text, create_engine
 from sqlalchemy.engine import Engine
 from sqlalchemy.pool import StaticPool
 
@@ -80,6 +80,38 @@ quiz_attempts = Table(
     Column("answers", JSON, nullable=False),
     Column("score", Integer, nullable=False),
     Column("total", Integer, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
+
+# a student's conversation with the assistant on a material or a topic; its id is also the platform's, which keeps
+# what the AI is given of it
+conversations = Table(
+    "conversations",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("student", String, nullable=False, index=True),
+    Column("course_id", String, nullable=False),
+    Column("document_id", String, index=True),
+    Column("subject", String),
+    Column("topic", String),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
+# what the student asked in a conversation and what the assistant replied: an answer citing sections, or a summary or
+# a quiz, which are saved with the others
+conversation_turns = Table(
+    "conversation_turns",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("conversation_id", String, nullable=False, index=True),
+    Column("question", Text, nullable=False),
+    Column("kind", String, nullable=False),
+    Column("answer", Text, nullable=False),
+    Column("covered", Boolean, nullable=False),
+    Column("sources", JSON, nullable=False),
+    Column("summary_id", String),
+    Column("quiz_id", String),
     Column("created_at", DateTime(timezone=True), nullable=False),
 )
 

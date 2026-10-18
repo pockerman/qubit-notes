@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { waitForUpload, type NewNote, type Note, type OpenedMaterial, type SectionText, type StudyApi } from '../api'
 import { formatMoment } from '../moments'
+import { Assistant } from './Assistant'
+import { Markdown } from './Markdown'
 import { NotesPanel } from './NotesPanel'
-import { StudyTools } from './StudyTools'
 
 type Props = {
   api: StudyApi
@@ -87,10 +88,10 @@ function sectionLabel(title: string, filename: string): string {
   return title || filename
 }
 
-// the words selected in one section of the text, to take a note on
-type Selection = { section: number; passage: string }
+// the words selected in one section of the text, to take a note on, and how far down the reader they are
+type Selection = { section: number; passage: string; top: number }
 
-function selectedPassage(): Selection | null {
+function selectedPassage(body: HTMLElement | null): Selection | null {
   const selection = window.getSelection()
   const passage = selection?.toString().trim()
   if (!selection || !passage || selection.rangeCount === 0) return null
@@ -99,7 +100,8 @@ function selectedPassage(): Selection | null {
   const start = sectionOf(selection.anchorNode)
   // a note is on the words of a single section
   if (!start || start !== sectionOf(selection.focusNode)) return null
-  return { section: Number(start.dataset.section), passage }
+  const top = selection.getRangeAt(0).getBoundingClientRect().top - (body?.getBoundingClientRect().top ?? 0)
+  return { section: Number(start.dataset.section), passage, top: Math.max(0, top) }
 }
 
 /** The paragraph, with the passages that have notes marked. */
@@ -128,13 +130,16 @@ type NoteFormProps = {
   label: string
   onSave: (text: string) => Promise<void>
   onCancel: () => void
+  // how far down the reader to open it, beside the passage, to the left of the text
+  top?: number
 }
 
-function NoteForm({ label, onSave, onCancel }: NoteFormProps) {
+function NoteForm({ label, onSave, onCancel, top }: NoteFormProps) {
   const [text, setText] = useState('')
   return (
     <form
-      className="note-form card"
+      className={top === undefined ? 'note-form card' : 'note-form card beside'}
+      style={top === undefined ? undefined : { top }}
       aria-label="New note"
       onSubmit={async (e) => {
         e.preventDefault()
@@ -167,12 +172,13 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
   // where the video is, for the "Add note at" button
   const [playhead, setPlayhead] = useState(0)
   const [error, setError] = useState<string | null>(null)
-  // what the summaries and quizzes are of: the section being read, or the whole document
-  const [studying, setStudying] = useState<'section' | 'document'>('section')
   const [editing, setEditing] = useState(false)
+  // the assistant takes the place of the notes beside the text while it's open
+  const [assistant, setAssistant] = useState(false)
   // bumped when the material was edited, so it's opened again
   const [version, setVersion] = useState(0)
   const video = useRef<HTMLVideoElement>(null)
+  const body = useRef<HTMLDivElement>(null)
 
   const loadNotes = useCallback(() => {
     api.notes(courseId, documentId).then(setNotes, (e: Error) => setError(e.message))
@@ -249,7 +255,18 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
     }
   }
 
-  const panel = <NotesPanel notes={notes} onGoTo={goTo} onChange={changeNote} onDelete={deleteNote} />
+  const beside = assistant ? (
+    <Assistant
+      key={documentId}
+      api={api}
+      where={{ course_id: courseId, document_id: documentId, section: material?.kind === 'text' ? position : null }}
+      label={material?.filename ?? ''}
+      onClose={() => setAssistant(false)}
+    />
+  ) : (
+    <NotesPanel notes={notes} onGoTo={goTo} onChange={changeNote} onDelete={deleteNote} />
+  )
+  const markdown = material?.content_type === 'text/markdown'
 
   return (
     <section className="reader" aria-labelledby="reader-title">
@@ -263,14 +280,19 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
             <span className="note">
               {material.subject} › {material.topic}
             </span>
-            {canEdit && EDITABLE.includes(material.content_type) && !editing && (
-              <button type="button" onClick={() => setEditing(true)}>
-                Edit
+            <div role="group" aria-label="Material actions" className="reader-actions">
+              {canEdit && EDITABLE.includes(material.content_type) && !editing && (
+                <button type="button" onClick={() => setEditing(true)}>
+                  Edit
+                </button>
+              )}
+              <button type="button" onClick={download}>
+                Download
               </button>
-            )}
-            <button type="button" onClick={download}>
-              Download
-            </button>
+              <button type="button" aria-pressed={assistant} onClick={() => setAssistant(!assistant)}>
+                AI
+              </button>
+            </div>
           </>
         )}
       </header>
@@ -295,7 +317,7 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
       )}
 
       {!editing && material?.kind === 'video' && (
-        <div className="reader-body video">
+        <div className={assistant ? 'reader-body video with-assistant' : 'reader-body video'}>
           <div>
             <video
               ref={video}
@@ -317,12 +339,12 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
               />
             )}
           </div>
-          {panel}
+          {beside}
         </div>
       )}
 
       {!editing && material?.kind === 'text' && (
-        <div className="reader-body">
+        <div ref={body} className={assistant ? 'reader-body with-assistant' : 'reader-body'}>
           <nav aria-label="Sections" className="outline">
             <ol>
               {material.sections.map((section) => (
@@ -340,78 +362,40 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
             </ol>
           </nav>
 
-          <div>
-            <article
-              className="section-text"
-              aria-label="Section text"
-              onMouseUp={() => setSelection(selectedPassage())}
-            >
-              {parts.map(({ section, content }, i) => {
-                const Heading = i === 0 ? 'h3' : 'h4'
-                const passages = notes.filter((note) => note.section === section.position)
-                return (
-                  <section key={section.position} data-section={section.position}>
-                    <Heading>{sectionLabel(section.title, material.filename)}</Heading>
-                    {content
+          <article
+            className="section-text"
+            aria-label="Section text"
+            onMouseUp={() => setSelection(selectedPassage(body.current))}
+          >
+            {parts.map(({ section, content }, i) => {
+              const Heading = i === 0 ? 'h3' : 'h4'
+              const passages = notes.filter((note) => note.section === section.position)
+              return (
+                <section key={section.position} data-section={section.position}>
+                  <Heading>{sectionLabel(section.title, material.filename)}</Heading>
+                  {markdown ? (
+                    <Markdown text={content} headingOffset={3} mark={(text) => highlight(text, passages)} />
+                  ) : (
+                    content
                       .split(/\n\s*\n/)
                       .filter((paragraph) => paragraph.trim())
-                      .map((paragraph, j) => (
-                        <p key={j}>{highlight(paragraph, passages)}</p>
-                      ))}
-                  </section>
-                )
-              })}
-            </article>
-            {selection && (
-              <NoteForm
-                label={`On “${selection.passage}”`}
-                onSave={(text) => addNote({ text, ...selection })}
-                onCancel={() => setSelection(null)}
-              />
-            )}
-
-            <section className="study" aria-labelledby="study-title">
-              <header className="actions">
-                <h3 id="study-title">Study</h3>
-                <div role="group" aria-label="Study what" className="toggle">
-                  <button
-                    type="button"
-                    aria-pressed={studying === 'section'}
-                    onClick={() => setStudying('section')}
-                  >
-                    This section
-                  </button>
-                  <button
-                    type="button"
-                    aria-pressed={studying === 'document'}
-                    onClick={() => setStudying('document')}
-                  >
-                    Whole document
-                  </button>
-                </div>
-              </header>
-              {studying === 'section' && position !== null ? (
-                <StudyTools
-                  key={`section-${position}`}
-                  api={api}
-                  scope={{ course_id: courseId, document_id: documentId, section: position }}
-                  label={sectionLabel(
-                    material.sections.find((s) => s.position === position)?.title ?? '',
-                    material.filename,
+                      .map((paragraph, j) => <p key={j}>{highlight(paragraph, passages)}</p>)
                   )}
-                />
-              ) : (
-                <StudyTools
-                  key="document"
-                  api={api}
-                  scope={{ course_id: courseId, document_id: documentId }}
-                  label={material.filename}
-                />
-              )}
-            </section>
-          </div>
+                </section>
+              )
+            })}
+          </article>
 
-          {panel}
+          {beside}
+
+          {selection && (
+            <NoteForm
+              label={`On “${selection.passage}”`}
+              top={selection.top}
+              onSave={(text) => addNote({ text, section: selection.section, passage: selection.passage })}
+              onCancel={() => setSelection(null)}
+            />
+          )}
         </div>
       )}
     </section>

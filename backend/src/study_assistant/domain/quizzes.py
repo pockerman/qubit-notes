@@ -103,6 +103,13 @@ class Quizzes:
     def history(self, student: str, scope: Scope) -> list[Quiz]:
         return [self._quiz(student, row) for row in self._rows(student, scope)]
 
+    def by_id(self, student: str, quiz_id: str) -> Quiz | None:
+        """the student's quiz, or None if it was deleted with its material"""
+        try:
+            return self._quiz(student, self._row(student, quiz_id))
+        except NotFound:
+            return None
+
     def answers(self, student: str, quiz_id: str) -> list[int]:
         """the index of each question's correct choice"""
         return [question["answer"] for question in self._row(student, quiz_id).questions]

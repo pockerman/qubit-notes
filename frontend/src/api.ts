@@ -118,7 +118,7 @@ export type Source = {
   title: string
 }
 
-export type OutOfDate = { added: string[]; removed: string[] }
+export type OutOfDate = { added: string[]; removed: string[]; edited: string[] }
 
 export type Summary = {
   id: string
@@ -159,6 +159,27 @@ export type Attempt = {
   total: number
   results: QuestionResult[]
   created_at: string
+}
+
+/** What the student asked the assistant, and its reply: an answer citing sections, a summary or a quiz. */
+export type Turn = {
+  id: string
+  question: string
+  kind: 'answer' | 'summary' | 'quiz'
+  // an answer's text; for a summary or a quiz, what the assistant says of it
+  answer: string
+  // whether the material covers the question
+  covered: boolean
+  sources: Source[]
+  // null once deleted with their material
+  summary: Summary | null
+  quiz: Quiz | null
+  created_at: string
+}
+
+export type Conversation = {
+  id: string | null
+  turns: Turn[]
 }
 
 function scopeQuery(scope: Scope): string {
@@ -243,26 +264,23 @@ export class StudyApi {
     await this.fetch(`/notes/${encodeURIComponent(noteId)}`, { method: 'DELETE' })
   }
 
-  /** The newest saved summary of the scope, or a new one if there's none or `fresh`. */
-  summary(scope: Scope, fresh = false): Promise<Summary> {
-    return this.request('/summaries', {
+  /** Asks the assistant, while reading `where`: a section of a material, or a topic. */
+  ask(where: Scope, question: string): Promise<Turn> {
+    return this.request('/assistant/requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...scope, new: fresh }),
+      body: JSON.stringify({ ...where, question }),
     })
   }
 
-  summaries(scope: Scope): Promise<Summary[]> {
-    return this.request(`/summaries?${scopeQuery(scope)}`)
+  /** The conversation with the assistant on the material or the topic of `where`. */
+  conversation(where: Scope): Promise<Conversation> {
+    return this.request(`/assistant/conversation?${scopeQuery(where)}`)
   }
 
-  /** The newest saved quiz of the scope and size, or a new one if there's none or `fresh`. */
-  quiz(scope: Scope, questions: number, fresh = false): Promise<Quiz> {
-    return this.request('/quizzes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...scope, questions, new: fresh }),
-    })
+  /** Forgets the conversation, so the next question starts a new one. */
+  startAgain(where: Scope): Promise<Conversation> {
+    return this.request(`/assistant/conversation?${scopeQuery(where)}`, { method: 'DELETE' })
   }
 
   takeQuiz(quizId: string, answers: (number | null)[]): Promise<Attempt> {

@@ -92,8 +92,9 @@ def page(browser, live_url):
 def students(client, platform, on_gogi):
     students = Students(client, ingest_timeout_seconds=180 if on_gogi else 1)
     yield students
-    # the scenario's courses would otherwise stay on the gogi platform
+    # the scenario's courses and conversations would otherwise stay on the gogi platform
     for student_id in students.seen:
+        client.app.state.assistant.forget_student(student_id)
         for index in platform.list_member_indexes(student_id):
             if index.owner == student_id:
                 platform.delete_index(index.name)

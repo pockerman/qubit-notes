@@ -14,6 +14,7 @@ from study_assistant.platform.port import (
     IngestJob,
     IngestStatus,
     MemberRole,
+    Message,
     PlatformHealth,
     Section,
     SectionText,
@@ -42,8 +43,12 @@ class FakePlatform:
         self.files: dict[str, tuple[bytes, list[SectionText]]] = {}
         # new ingestions stay pending while set
         self.hold_ingestion = False
-        # what the AI was asked, so scenarios can tell whether something new was written
+        # what the AI was asked, so scenarios can tell whether something new was written, and the conversation it
+        # was given with each prompt
         self.completions: list[str] = []
+        self.histories: list[list[Message]] = []
+        # conversation id to (its user, its messages)
+        self.conversations: dict[str, tuple[str, list[Message]]] = {}
 
     def health(self) -> PlatformHealth:
         if not self.reachable:
@@ -182,33 +187,51 @@ class FakePlatform:
     def search(
         self, index_name: str, query: str, top_k: int, metadata_filter: dict[str, str] | None = None
     ) -> list[Chunk]:
+        """a chunk per section, as gogi never lets a chunk span two sections, carrying the section in its metadata"""
         words = set(re.findall(r"\w+", query.lower()))
         hits = []
-        for document, text in self.documents.get(index_name, {}).values():
-            # whole words, so "a" doesn't match every text
-            score = len(words & set(re.findall(r"\w+", text.lower())))
-            if score and _matches(document.metadata, metadata_filter):
-                hits.append(
-                    Chunk(
-                        chunk_id=f"{document.document_id}-0",
-                        document_id=document.document_id,
-                        content=text,
-                        score=float(score),
-                        metadata=document.metadata,
+        for document, _ in self.documents.get(index_name, {}).values():
+            if not _matches(document.metadata, metadata_filter):
+                continue
+            for part in self._ready_sections(index_name, document.document_id):
+                # whole words, so "a" doesn't match every text
+                score = len(words & set(re.findall(r"\w+", part.content.lower())))
+                if score:
+                    hits.append(
+                        Chunk(
+                            chunk_id=f"{document.document_id}-{part.section.position}",
+                            document_id=document.document_id,
+                            content=part.content,
+                            score=float(score),
+                            metadata={
+                                **document.metadata,
+                                "section": str(part.section.position),
+                                "section_title": part.section.title,
+                            },
+                        )
                     )
-                )
         return sorted(hits, key=lambda chunk: -chunk.score)[:top_k]
 
     # the AI
 
-    def complete(self, system: str, prompt: str, json_schema: dict[str, Any] | None = None) -> str:
+    def complete(
+        self,
+        system: str,
+        prompt: str,
+        json_schema: dict[str, Any] | None = None,
+        history: list[Message] | None = None,
+    ) -> str:
         """A deterministic stand-in: each answer is numbered, so no two are alike. A quiz has the questions the
-        prompt asks for, each from one of the sections the prompt gives, in turn, with the first choice correct."""
+        prompt asks for, each from one of the sections the prompt gives, in turn, with the first choice correct.
+        The assistant understands a request by its words (see ``_understand``)."""
         self.completions.append(prompt)
+        self.histories.append(list(history or []))
         number = len(self.completions)
         if json_schema is None:
             titles = re.findall(r"^## (.+)$", prompt, re.MULTILINE)
             return f"Summary {number} of {', '.join(titles) or 'the summaries'}."
+        if "request" in json_schema.get("properties", {}):
+            return json.dumps(_understand(prompt, number))
         count = int(re.search(r"quiz of (\d+) questions", prompt).group(1))
         references = re.findall(r"^\[(S\d+)\] (.+)$", prompt, re.MULTILINE)
         questions = [
@@ -222,6 +245,20 @@ class FakePlatform:
         ]
         return json.dumps({"questions": questions})
 
+    # conversations
+
+    def start_conversation(self, user: str, conversation_id: str) -> None:
+        self.conversations.setdefault(conversation_id, (user, []))
+
+    def add_to_conversation(self, conversation_id: str, messages: list[Message]) -> None:
+        self.conversations[conversation_id][1].extend(messages)
+
+    def conversation_context(self, conversation_id: str) -> list[Message]:
+        return list(self.conversations.get(conversation_id, ("", []))[1])
+
+    def end_conversation(self, conversation_id: str) -> bool:
+        return self.conversations.pop(conversation_id, None) is not None
+
     # memories
 
     def save_memory(self, user: str, key: str, value: dict[str, Any]) -> None:
@@ -232,6 +269,63 @@ class FakePlatform:
 
     def delete_memory(self, user: str, key: str) -> bool:
         return self.memories.get(user, {}).pop(key, None) is not None
+
+
+# words too common to tell whether a passage answers a question
+COMMON = {
+    "what",
+    "which",
+    "does",
+    "that",
+    "this",
+    "with",
+    "from",
+    "into",
+    "about",
+    "have",
+    "there",
+    "their",
+    "when",
+    "where",
+    "whom",
+    "whose",
+    "they",
+    "them",
+    "then",
+    "than",
+    "your",
+    "mine",
+}
+
+
+def _content_words(text: str) -> set[str]:
+    return {word for word in re.findall(r"\w+", text.lower()) if len(word) > 3 and word not in COMMON}
+
+
+def _understand(prompt: str, number: int) -> dict:
+    """The fake assistant's reading of the student's words, the last part of the prompt: "quiz" asks for a quiz,
+    "summar..." for a summary, of the "topic", the "document" or else the section, "new" for a new one, "N questions"
+    for its size. Anything else is a question, answered from the passages that share a word with it."""
+    words = prompt.rsplit("The student says:", 1)[-1].strip()
+    lowered = words.lower()
+    request = "quiz" if "quiz" in lowered else "summary" if "summar" in lowered else "question"
+    of = "topic" if "topic" in lowered else "document" if "document" in lowered else "section"
+    count = re.search(r"(\d+) questions", lowered)
+    cited = []
+    if request == "question":
+        passages = re.findall(
+            r"^\[(P\d+)\] [^\n]+\n(.*?)(?=^\[P\d+\] |^The student says:)", prompt, re.MULTILINE | re.DOTALL
+        )
+        cited = [reference for reference, text in passages if _content_words(words) & _content_words(text)]
+    return {
+        "request": request,
+        "of": of,
+        "new": bool(re.search(r"\bnew\b", lowered)),
+        "questions": int(count.group(1)) if count else 0,
+        "answer": f"Answer {number}, from {', '.join(cited)}." if cited else "Your material does not cover this.",
+        "covered": bool(cited) or request != "question",
+        "cited": cited,
+    }
 
 
 def _matches(metadata: dict[str, str], metadata_filter: dict[str, str] | None) -> bool:

@@ -1,5 +1,5 @@
 from enum import StrEnum
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel
 
@@ -99,6 +99,13 @@ class Chunk(BaseModel):
     metadata: dict[str, str] = {}
 
 
+class Message(BaseModel):
+    """a message of a conversation with the AI"""
+
+    role: Literal["user", "assistant"]
+    content: str
+
+
 class StudyPlatform(Protocol):
     """The slice of the gogi platform the study assistant needs.
 
@@ -172,8 +179,28 @@ class StudyPlatform(Protocol):
         self, index_name: str, query: str, top_k: int, metadata_filter: dict[str, str] | None = None
     ) -> list[Chunk]: ...
 
-    # the AI: an answer to the prompt, following the system prompt; with a JSON schema, a JSON object matching it
-    def complete(self, system: str, prompt: str, json_schema: dict[str, Any] | None = None) -> str: ...
+    # the AI: an answer to the prompt, following the system prompt; with a JSON schema, a JSON object matching it.
+    # The history is the conversation so far, oldest first, given to the AI before the prompt
+    def complete(
+        self,
+        system: str,
+        prompt: str,
+        json_schema: dict[str, Any] | None = None,
+        history: list[Message] | None = None,
+    ) -> str: ...
+
+    # conversations with the AI, kept by the platform; a conversation's id is the caller's
+    def start_conversation(self, user: str, conversation_id: str) -> None: ...
+
+    def add_to_conversation(self, conversation_id: str, messages: list[Message]) -> None: ...
+
+    def conversation_context(self, conversation_id: str) -> list[Message]:
+        """the recent messages of the conversation, oldest first, as many as the AI is given"""
+        ...
+
+    def end_conversation(self, conversation_id: str) -> bool:
+        """forgets the conversation; returns whether there was one"""
+        ...
 
     # a user's long-term memories, key to a JSON-serialisable value
     def save_memory(self, user: str, key: str, value: dict[str, Any]) -> None: ...
