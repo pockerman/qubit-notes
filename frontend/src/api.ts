@@ -196,6 +196,12 @@ export class ApiError extends Error {
   }
 }
 
+/** The images a Markdown material refers to, by the paths it refers to them by. */
+export type MaterialImages = {
+  images: string[]
+  missing: string[]
+}
+
 /** Calls the backend as a student; there is no authentication yet, the student says who they are. */
 export class StudyApi {
   readonly student: string
@@ -345,6 +351,28 @@ export class StudyApi {
 
   materials(course: string): Promise<Material[]> {
     return this.request(`/courses/${encodeURIComponent(course)}/materials`)
+  }
+
+  private imagesPath(courseId: string, documentId: string): string {
+    return `${this.materialPath(courseId, documentId)}/images`
+  }
+
+  /** the images a Markdown material refers to: those it has, and those still to be added */
+  images(courseId: string, documentId: string): Promise<MaterialImages> {
+    return this.request(this.imagesPath(courseId, documentId))
+  }
+
+  /** keeps an image with a material, under `path` or the path the material refers to by the image's file name */
+  addImage(courseId: string, documentId: string, file: File, path?: string): Promise<MaterialImages> {
+    const form = new FormData()
+    form.append('file', file)
+    if (path) form.append('path', path)
+    return this.request(this.imagesPath(courseId, documentId), { method: 'POST', body: form })
+  }
+
+  async image(courseId: string, documentId: string, path: string): Promise<Blob> {
+    const encoded = path.split('/').map(encodeURIComponent).join('/')
+    return (await this.fetch(`${this.imagesPath(courseId, documentId)}/${encoded}`)).blob()
   }
 
   /** a Markdown material the student wrote in a topic; it's processed like an upload */

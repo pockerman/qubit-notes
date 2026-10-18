@@ -11,6 +11,7 @@ from sqlalchemy.engine import Engine
 from study_assistant import storage
 from study_assistant.domain.courses import SLUG, Course, Courses
 from study_assistant.domain.errors import InvalidRequest, NotFound
+from study_assistant.domain.images import is_image
 from study_assistant.platform.port import StudyPlatform
 
 
@@ -91,6 +92,8 @@ class Topics:
                 positions[(row.subject, row.topic)] = row.position
         # material uploaded before topics were kept has a topic all the same
         for document in self._platform.list_documents(course.id):
+            if is_image(document):
+                continue
             key = (document.metadata.get("subject", ""), document.metadata.get("topic", ""))
             counts[key] = counts.get(key, 0) + 1
 

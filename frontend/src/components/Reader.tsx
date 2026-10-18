@@ -1,8 +1,17 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { waitForUpload, type NewNote, type Note, type OpenedMaterial, type SectionText, type StudyApi } from '../api'
+import {
+  waitForUpload,
+  type MaterialImages,
+  type NewNote,
+  type Note,
+  type OpenedMaterial,
+  type SectionText,
+  type StudyApi,
+} from '../api'
 import { formatMoment } from '../moments'
 import { Assistant } from './Assistant'
-import { Markdown } from './Markdown'
+import { Markdown, type ImageRenderer } from './Markdown'
+import { MaterialImage } from './MaterialImage'
 import { NotesPanel } from './NotesPanel'
 
 type Props = {
@@ -16,6 +25,35 @@ type Props = {
 
 // the material whose text can be edited
 const EDITABLE = ['text/plain', 'text/markdown']
+
+/** Shows a material's images where its Markdown refers to them; images on the web as they are. */
+function materialImages(
+  api: StudyApi,
+  courseId: string,
+  documentId: string,
+  images: MaterialImages | null,
+  onAdd?: (images: MaterialImages) => void,
+): ImageRenderer {
+  return (src, alt, key) =>
+    /^https:/i.test(src) ? (
+      <img key={key} className="material-image" src={src} alt={alt} loading="lazy" referrerPolicy="no-referrer" />
+    ) : images === null ? (
+      <span key={key} className="note">
+        Loading image…
+      </span>
+    ) : (
+      <MaterialImage
+        key={`${key}:${src}`}
+        api={api}
+        courseId={courseId}
+        documentId={documentId}
+        path={src}
+        alt={alt}
+        missing={!images.images.includes(src)}
+        onAdd={onAdd}
+      />
+    )
+}
 
 type EditorProps = {
   api: StudyApi
@@ -177,6 +215,8 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
   const [assistant, setAssistant] = useState(false)
   // bumped when the material was edited, so it's opened again
   const [version, setVersion] = useState(0)
+  // the images a Markdown material refers to, which it has or is missing
+  const [images, setImages] = useState<MaterialImages | null>(null)
   const video = useRef<HTMLVideoElement>(null)
   const body = useRef<HTMLDivElement>(null)
 
@@ -194,6 +234,11 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
       (e: Error) => setError(e.message),
     )
   }, [api, courseId, documentId, loadNotes, version])
+
+  useEffect(() => {
+    if (material?.content_type !== 'text/markdown') return
+    api.images(courseId, documentId).then(setImages, (e: Error) => setError(e.message))
+  }, [api, courseId, documentId, material, version])
 
   useEffect(() => {
     if (position === null) return
@@ -374,7 +419,12 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
                 <section key={section.position} data-section={section.position}>
                   <Heading>{sectionLabel(section.title, material.filename)}</Heading>
                   {markdown ? (
-                    <Markdown text={content} headingOffset={3} mark={(text) => highlight(text, passages)} />
+                    <Markdown
+                      text={content}
+                      headingOffset={3}
+                      mark={(text) => highlight(text, passages)}
+                      image={materialImages(api, courseId, documentId, images, canEdit ? setImages : undefined)}
+                    />
                   ) : (
                     content
                       .split(/\n\s*\n/)

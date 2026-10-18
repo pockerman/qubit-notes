@@ -525,7 +525,8 @@ def add_to_subject_topic(page, filename, subject, topic):
     upload_on_add_page(page, filename, subject, topic)
 
 
-@when(parsers.parse('I add "{filename}" to the topic "{topic}"'))
+# names without quotes, so it doesn't also match 'I add "…" and the image "…" to the topic "…"'
+@when(parsers.re(r'I add "(?P<filename>[^"]+)" to the topic "(?P<topic>[^"]+)"'))
 def add_to_topic(page, filename, topic):
     page.get_by_role("link", name=f"Add material to {topic}").click()
     # the topic is filled in already
@@ -626,3 +627,63 @@ def cancel_but_keep_writing(page):
 def not_offered_to_write(page):
     expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
     expect(page.get_by_role("link", name=re.compile("^Write material"))).to_have_count(0)
+
+
+# images
+
+
+def _png_file(name: str) -> dict:
+    from tests.images import make_png
+
+    return {"name": name, "mimeType": "image/png", "buffer": make_png()}
+
+
+@given(parsers.parse('I have the file "{filename}" with the content:'))
+def have_file(context, filename, docstring):
+    context.setdefault("files", {})[filename] = docstring
+
+
+@when(parsers.parse('I add "{filename}" and the image "{image}" to the topic "{topic}"'))
+def add_markdown_with_image(page, context, filename, image, topic):
+    page.get_by_role("link", name=f"Add material to {topic}").click()
+    form = page.get_by_role("form", name=re.compile("^Upload to "))
+    content = context["files"][filename].encode()
+    form.get_by_label("File").set_input_files({"name": filename, "mimeType": "text/markdown", "buffer": content})
+    form.get_by_label("Images").set_input_files(_png_file(image))
+    form.get_by_role("button", name="Upload").click()
+    expect(page.get_by_role("heading", name=re.compile("^Add material"), level=2)).to_have_count(0)
+
+
+@then(parsers.parse('I see the image "{alt}"'))
+def see_image(page, alt):
+    image = page.get_by_role("main").get_by_role("img", name=alt, exact=True)
+    expect(image).to_be_visible()
+    # shown, not just in the page: the browser has its pixels
+    page.wait_for_function("image => image.complete && image.naturalWidth > 0", arg=image.element_handle())
+
+
+@when(parsers.parse('I add the image "{name}" with the caption "{caption}"'))
+def add_image_while_writing(page, name, caption):
+    page.get_by_role("button", name="Add image").click()
+    group = page.get_by_role("group", name="Add an image")
+    group.get_by_label("Image").set_input_files(_png_file(name))
+    group.get_by_label("Caption").fill(caption)
+    group.get_by_role("button", name="Insert").click()
+
+
+@then(parsers.parse('I see that the image "{path}" is missing'))
+def see_missing_image(page, path):
+    expect(page.get_by_role("group", name=f"Missing image {path}")).to_be_visible()
+
+
+@when(parsers.parse('I add the missing image "{path}" from "{name}"'))
+def add_missing_image(page, path, name):
+    missing = page.get_by_role("group", name=f"Missing image {path}")
+    expect(missing.get_by_role("button", name="Add the missing image")).to_be_visible()
+    # the button opens the file picker; the file is given to its input
+    missing.get_by_label(f"Image for {path}").set_input_files(_png_file(name))
+
+
+@then("I am not offered to add it")
+def not_offered_to_add_image(page):
+    expect(page.get_by_role("button", name="Add the missing image")).to_have_count(0)

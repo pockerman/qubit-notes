@@ -2,10 +2,11 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from study_assistant import storage
-from study_assistant.api import assistant, courses, health, materials, notes, reading, study
+from study_assistant.api import assistant, courses, health, images, materials, notes, reading, study
 from study_assistant.api.errors import add_error_handlers
 from study_assistant.domain.assistant import Assistant
 from study_assistant.domain.courses import Courses
+from study_assistant.domain.images import Images
 from study_assistant.domain.materials import Materials
 from study_assistant.domain.memory import StudentMemory
 from study_assistant.domain.notes import Notes
@@ -33,6 +34,9 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.courses = Courses(platform)
     app.state.materials = Materials(platform, app.state.courses, app.state.memory, settings.max_upload_mb)
     app.state.reading = Reading(platform, app.state.courses)
+    app.state.images = Images(platform, app.state.courses)
+    # a deleted material's images go with it
+    app.state.materials.on_delete_in_course(app.state.images.forget)
     app.state.database = storage.connect(settings.database_url)
     app.state.notes = Notes(app.state.database, app.state.reading)
     app.state.topics = Topics(app.state.database, platform, app.state.courses)
@@ -56,6 +60,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         health.router,
         courses.router,
         materials.router,
+        images.router,
         reading.router,
         notes.router,
         study.router,
