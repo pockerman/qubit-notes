@@ -87,6 +87,18 @@ pool's keys, issuer, app client and expiry, and the student is the token's usern
 (`?access_token=`), as a `<video>` can't send headers. The tests stand in for Cognito with
 `backend/tests/fakes/fake_cognito.py`.
 
+## The container image
+
+One image serves the API and the built frontend on port 8000. gogi-python comes in as a build context of its own:
+
+```bash
+docker build --build-context gogi-python=../gogi-python -t qubit-notes .
+docker run -p 8000:8000 -e QUBIT_NOTES_DATABASE_URL=postgresql+psycopg://... -e QUBIT_NOTES_GATEWAY_URL=... qubit-notes
+```
+
+It runs as a non-root user, migrates its database when it starts, and is healthy once `/api/config` answers. CI builds
+it for every PR and pushes `ghcr.io/pockerman/qubit-notes:main` from main; a release pushes `:<version>` and `:latest`.
+
 ## Contributing and releases
 
 Pull requests are squash-merged, and the squash commit takes the PR's title as its message. So the title must be a
