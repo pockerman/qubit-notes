@@ -1,7 +1,7 @@
 [project]
-name = "study-assistant"
+name = "qubit-notes"
 version = "0.1.0"
-description = "A study assistant built on the gogi platform"
+description = "Study your own material with notes, summaries, quizzes and an AI assistant, on the gogi platform"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-study-assistant = "study_assistant.cli:main"
+qubit-notes = "qubit_notes.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -63,4 +63,4 @@ line-length = 120
 select = ["E", "F", "I", "C4"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["study_assistant"]
+known-first-party = ["qubit_notes"]

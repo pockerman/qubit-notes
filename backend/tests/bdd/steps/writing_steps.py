@@ -2,7 +2,7 @@
 
 from pytest_bdd import given, parsers, then, when
 
-from study_assistant.domain.materials import markdown_filename
+from qubit_notes.domain.materials import markdown_filename
 
 
 def _write(students, context, name: str, location: str, text: str, student: str | None = None):

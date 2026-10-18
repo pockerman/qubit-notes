@@ -62,7 +62,7 @@ def upload_on_add_page(page: Page, filename: str, subject: str | None, topic: st
     form.get_by_role("button", name="Upload").click()
 
 
-@when("I open the study assistant")
+@when("I open qubit-notes")
 def open_app(page):
     page.goto("/")
 

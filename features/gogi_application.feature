@@ -5,12 +5,12 @@ Feature: The app as an application of gogi
 
   Where gogi serves many applications, the app is registered with gogi by gogi's operator
   (gogi-admin register qubit-notes) and run with the key it is given
-  (STUDY_ASSISTANT_GOGI_API_KEY); every call the app makes to gogi carries it. Where gogi has a
+  (QUBIT_NOTES_GOGI_API_KEY); every call the app makes to gogi carries it. Where gogi has a
   certificate authority of its own, as without a domain, the app is given its certificate
-  (STUDY_ASSISTANT_GOGI_CA_FILE). The app's summaries, quizzes and answers are written with its
+  (QUBIT_NOTES_GOGI_CA_FILE). The app's summaries, quizzes and answers are written with its
   own Anthropic key, which is stored in gogi once, as the app's credential "anthropic":
 
-    study-assistant store-provider-key anthropic   (the key is read from standard input)
+    qubit-notes store-provider-key anthropic   (the key is read from standard input)
 
   Run against a gogi without keys, as in development, the app needs no key.
 
@@ -39,7 +39,7 @@ Feature: The app as an application of gogi
     And it reports that gogi does not take the app's key
 
   Scenario: The health check tells when the platform does not take the app's key
-    Given the study assistant is running
+    Given qubit-notes is running
     And the platform does not take the app's key
     When I check its health
     Then it reports that it is degraded

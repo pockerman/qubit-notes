@@ -1,7 +1,7 @@
 """Top-level pytest hooks: the --platform option and the step libraries the scenarios share.
 
 ``--platform=fake`` (the default) runs every scenario against ``FakePlatform``. ``--platform=gogi`` runs only the
-scenarios tagged ``@gogi``, against the gogi gateway at ``STUDY_ASSISTANT_GATEWAY_URL``.
+scenarios tagged ``@gogi``, against the gogi gateway at ``QUBIT_NOTES_GATEWAY_URL``.
 """
 
 import pytest

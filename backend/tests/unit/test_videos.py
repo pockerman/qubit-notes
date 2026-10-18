@@ -1,6 +1,6 @@
 import pytest
 
-from study_assistant.domain.videos import duration_seconds
+from qubit_notes.domain.videos import duration_seconds
 from tests.videos import make_mp4, make_webm
 
 

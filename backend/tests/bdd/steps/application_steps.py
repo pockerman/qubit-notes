@@ -6,8 +6,8 @@ import uuid
 import pytest
 from pytest_bdd import given, parsers, then, when
 
-from study_assistant import cli
-from study_assistant.domain.courses import index_name
+from qubit_notes import cli
+from qubit_notes.domain.courses import index_name
 
 
 @given(parsers.parse('gogi requires keys and the app runs with the key of the application "{application}"'))
@@ -30,8 +30,8 @@ def platform_does_not_take_the_key(platform):
 
 @then(parsers.parse('another application of gogi does not see the course "{course}" of "{student}"'))
 def another_application_does_not_see(gogi_applications, students, course, student):
-    from study_assistant.platform.gogi_adapter import GogiPlatform
-    from study_assistant.settings import Settings
+    from qubit_notes.platform.gogi_adapter import GogiPlatform
+    from qubit_notes.settings import Settings
     from tests.bdd.conftest import KEYS_GATEWAY
 
     other = GogiPlatform(Settings(gateway_url=KEYS_GATEWAY, gogi_api_key=gogi_applications.register("xact-marine")))

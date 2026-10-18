@@ -1,7 +1,7 @@
 from pytest_bdd import given, parsers, then, when
 from sqlalchemy import select
 
-from study_assistant import storage
+from qubit_notes import storage
 
 
 def _rows(datatable) -> list[dict]:

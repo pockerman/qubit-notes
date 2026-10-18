@@ -14,8 +14,8 @@ import pytest
 import uvicorn
 from fastapi.testclient import TestClient
 
-from study_assistant.app import create_app
-from study_assistant.settings import Settings
+from qubit_notes.app import create_app
+from qubit_notes.settings import Settings
 from tests.bdd.students import Students
 from tests.fakes.fake_cognito import CLIENT_ID, FakeCognito
 from tests.fakes.fake_platform import FakePlatform
@@ -29,8 +29,8 @@ def on_gogi(request) -> bool:
 
 
 # where gogi requires keys: the gateway that requires them, and gogi's tool for registering applications
-KEYS_GATEWAY = os.environ.get("STUDY_ASSISTANT_TEST_KEYS_GATEWAY", "localhost:50050")
-GOGI_ADMIN = os.environ.get("STUDY_ASSISTANT_TEST_GOGI_ADMIN", "docker exec gogi-gateway-applications /root/gogi-admin")
+KEYS_GATEWAY = os.environ.get("QUBIT_NOTES_TEST_KEYS_GATEWAY", "localhost:50050")
+GOGI_ADMIN = os.environ.get("QUBIT_NOTES_TEST_GOGI_ADMIN", "docker exec gogi-gateway-applications /root/gogi-admin")
 
 
 class GogiApplications:
@@ -70,7 +70,7 @@ def platform(request, on_gogi):
     if not on_gogi:
         return FakePlatform()
 
-    from study_assistant.platform.gogi_adapter import GogiPlatform
+    from qubit_notes.platform.gogi_adapter import GogiPlatform
 
     if "gogi_keys" in request.keywords:
         key = request.getfixturevalue("gogi_applications").register("qubit-notes")
