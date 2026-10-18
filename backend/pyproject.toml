@@ -13,6 +13,8 @@ dependencies = [
     # the app's own data: notes, summaries, quizzes
     "sqlalchemy>=2.0",
     "pyjwt[crypto]>=2.9",
+    "alembic>=1.13",
+    "psycopg[binary]>=3.2",
 ]
 
 [project.scripts]

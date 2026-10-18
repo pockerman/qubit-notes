@@ -65,6 +65,18 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    # the app's own database, as deployed
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: qubit
+          POSTGRES_PASSWORD: qubit
+          POSTGRES_DB: qubit_notes
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U qubit" --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -101,8 +113,17 @@ jobs:
         working-directory: qubit-notes/frontend
         run: npm ci
 
-      # every scenario against the in-memory platform; the @ui ones build the frontend and drive it in Chromium.
-      # The @gogi runs need a gogi stack and stay local (make bdd-gogi)
+      # every scenario against the in-memory platform, with the app's data in Postgres; the @ui ones build the
+      # frontend and drive it in Chromium. The migrations are checked on SQLite and Postgres. The @gogi runs need a
+      # gogi stack and stay local (make bdd-gogi)
       - name: Run the scenarios
         working-directory: qubit-notes/backend
-        run: uv run pytest
+        env:
+          QUBIT_NOTES_TEST_DATABASE_URL: postgresql+psycopg://qubit:qubit@localhost:5432/qubit_notes
+        run: uv run pytest --ignore=tests/unit/test_migrations.py
+
+      - name: Check the migrations
+        working-directory: qubit-notes/backend
+        env:
+          QUBIT_NOTES_TEST_POSTGRES_URL: postgresql+psycopg://qubit:qubit@localhost:5432/qubit_notes
+        run: uv run pytest tests/unit/test_migrations.py

@@ -34,6 +34,22 @@ make lint
 The backend needs Python 3.12+ and installs gogi-python from `../../gogi-python` in editable mode. Build its
 protobuf code first (`gogi-python/install.sh` or `uv run python scripts/build_protos.py`).
 
+## The app's database
+
+The app keeps what students make (notes, summaries, quizzes, conversations, topics) in its own database:
+SQLite by default (`backend/qubit-notes.db`), Postgres where it's deployed:
+
+```bash
+export QUBIT_NOTES_DATABASE_URL=postgresql+psycopg://qubit:...@db.example.org:5432/qubit_notes
+uv run qubit-notes migrate      # a deployment runs it before the new version serves; the app also migrates when it starts
+```
+
+The tables are made and changed by the Alembic migrations in `backend/src/qubit_notes/migrations/versions`. A change
+to `storage.py` needs one: from `backend/`, `uv run alembic revision --autogenerate -m "..."`, then check what it
+wrote. `tests/unit/test_migrations.py` fails if `storage.py` and the migrations differ; with
+`QUBIT_NOTES_TEST_POSTGRES_URL` set it checks Postgres too, and `QUBIT_NOTES_TEST_DATABASE_URL` runs the scenarios
+against a database of your choosing, as CI does with Postgres.
+
 ## Running on a gogi that serves many applications
 
 Where gogi serves many applications, gogi's operator registers the app (`gogi-admin register qubit-notes`) and gives

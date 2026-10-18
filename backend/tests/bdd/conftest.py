@@ -28,6 +28,9 @@ def on_gogi(request) -> bool:
     return request.config.getoption("--platform") == "gogi"
 
 
+# the app's own database: in memory, or e.g. Postgres, as deployed, shared by the scenarios
+TEST_DATABASE_URL = os.environ.get("QUBIT_NOTES_TEST_DATABASE_URL", "sqlite://")
+
 # where gogi requires keys: the gateway that requires them, and gogi's tool for registering applications
 KEYS_GATEWAY = os.environ.get("QUBIT_NOTES_TEST_KEYS_GATEWAY", "localhost:50050")
 GOGI_ADMIN = os.environ.get("QUBIT_NOTES_TEST_GOGI_ADMIN", "docker exec gogi-gateway-applications /root/gogi-admin")
@@ -119,7 +122,7 @@ def cognito():
 def app(request, platform):
     # only the UI scenarios need the frontend, and building it takes a moment
     frontend = request.getfixturevalue("frontend_dir") if "ui" in request.keywords else None
-    settings = Settings(frontend_dir=frontend, database_url="sqlite://")
+    settings = Settings(frontend_dir=frontend, database_url=TEST_DATABASE_URL)
     if "cognito" in request.keywords:
         cognito = request.getfixturevalue("cognito")
         settings = settings.model_copy(
