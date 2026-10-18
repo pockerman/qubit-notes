@@ -1,0 +1,18 @@
+name: PR title
+
+# pull requests are squash-merged with their title as the commit message, so the title is what release-please reads:
+# it must be a conventional commit, e.g. "feat: delete a course" or "fix(reader): keep the section on reload"
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  conventional-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
