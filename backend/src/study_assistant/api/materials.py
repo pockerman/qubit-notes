@@ -27,10 +27,24 @@ class Text(BaseModel):
     text: str
 
 
+class WrittenMaterial(BaseModel):
+    # what the student calls it; it is saved as a Markdown filename made from it
+    name: str
+    text: str
+
+
 @router.post("/materials", response_model=Upload, status_code=202)
 async def upload(student: Student, service: MaterialsDep, file: UploadFile, location: Annotated[str, Form()]) -> Upload:
     content = await file.read()
     return await run_in_threadpool(service.upload, student, location, file.filename or "", content)
+
+
+@router.post("/courses/{course}/subjects/{subject}/topics/{topic}/materials", response_model=Upload, status_code=202)
+async def write_material(
+    course: str, subject: str, topic: str, body: WrittenMaterial, student: Student, service: MaterialsDep
+) -> Upload:
+    """a Markdown material the student wrote in the topic; processed like an upload"""
+    return await run_in_threadpool(service.write, student, f"{course}/{subject}/{topic}", body.name, body.text)
 
 
 @router.get("/uploads/{job_id}", response_model=IngestJob)

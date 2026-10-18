@@ -289,13 +289,22 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
                     </span>
                   )}
                   {isOwner && (
-                    <a
-                      className="link"
-                      href={href({ page: 'add', courseId: course.id, subject, topic })}
-                      aria-label={`Add material to ${topic}`}
-                    >
-                      Add material
-                    </a>
+                    <>
+                      <a
+                        className="link"
+                        href={href({ page: 'add', courseId: course.id, subject, topic })}
+                        aria-label={`Add material to ${topic}`}
+                      >
+                        Add material
+                      </a>
+                      <a
+                        className="link"
+                        href={href({ page: 'write', courseId: course.id, subject, topic })}
+                        aria-label={`Write material in ${topic}`}
+                      >
+                        Write material
+                      </a>
+                    </>
                   )}
                   {items.some((m) => m.kind === 'text' && m.status === 'completed') && (
                     <a className="link" href={href({ page: 'topic', courseId: course.id, subject, topic })}>
