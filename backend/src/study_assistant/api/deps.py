@@ -4,6 +4,7 @@ from fastapi import Header, Request
 
 from study_assistant.domain.assistant import Assistant
 from study_assistant.domain.courses import Courses
+from study_assistant.domain.images import Images
 from study_assistant.domain.materials import Materials
 from study_assistant.domain.notes import Notes
 from study_assistant.domain.quizzes import Quizzes
@@ -14,6 +15,10 @@ from study_assistant.domain.topics import Topics
 
 def courses(request: Request) -> Courses:
     return request.app.state.courses
+
+
+def images(request: Request) -> Images:
+    return request.app.state.images
 
 
 def materials(request: Request) -> Materials:

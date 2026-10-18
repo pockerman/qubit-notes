@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from study_assistant.domain.courses import Course, Courses, Location
 from study_assistant.domain.errors import Conflict, InvalidRequest, NotFound, TooLarge
+from study_assistant.domain.images import is_image
 from study_assistant.domain.memory import StudentMemory
 from study_assistant.domain.videos import VIDEO_TYPES, duration_seconds
 from study_assistant.platform.port import IngestJob, IngestStatus, StudyPlatform
@@ -52,6 +53,7 @@ class Materials:
         self.max_upload_mb = max_upload_mb
         # what else is forgotten with a material, e.g. its notes; each is called with its document id
         self._on_delete = []
+        self._on_delete_in_course = []
         # called with the course id, subject and topic of every upload, so the topic is kept
         self._on_upload = []
 
@@ -60,6 +62,10 @@ class Materials:
 
     def on_delete(self, forget) -> None:
         self._on_delete.append(forget)
+
+    def on_delete_in_course(self, forget) -> None:
+        """``forget`` is called with the course id and the document id of every deleted material"""
+        self._on_delete_in_course.append(forget)
 
     def upload(self, student: str, location: str, filename: str, content: bytes) -> Upload:
         where = Location.parse(location)
@@ -121,6 +127,8 @@ class Materials:
                 duration_seconds=duration_of(document.metadata),
             )
             for document in self._platform.list_documents(found.id, metadata_filter or None)
+            # a Markdown material's images are kept beside it, but are not materials of their own
+            if not is_image(document)
         ]
         return sorted(materials, key=lambda m: (m.subject, m.topic, m.filename))
 
@@ -189,6 +197,8 @@ class Materials:
     def _forget(self, course: Course, document_id: str) -> None:
         for forget in self._on_delete:
             forget(document_id)
+        for forget in self._on_delete_in_course:
+            forget(course.id, document_id)
         # anyone who studied the course may have notes learned from the material
         for member in course.members:
             self._memory.forget_source(member, document_id)

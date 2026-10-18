@@ -5,30 +5,55 @@ export type Highlighter = (text: string) => ReactNode
 
 const plain: Highlighter = (text) => text
 
+// shows an image the text refers to, e.g. one kept with the material; `src` is as written in the Markdown
+export type ImageRenderer = (src: string, alt: string, key: number) => ReactNode
+
+/** Images on the web are shown as they are; others are only shown by an ImageRenderer that knows where they are. */
+const webOnly: ImageRenderer = (src, alt, key) =>
+  /^https:/i.test(src) ? (
+    <img key={key} src={src} alt={alt} loading="lazy" referrerPolicy="no-referrer" />
+  ) : (
+    <span key={key} className="image-missing" role="img" aria-label={`${alt} (not shown)`}>
+      {alt || src}
+    </span>
+  )
+
+/** the path of an image as written, without the title or angle brackets Markdown allows, or a leading ./ */
+function imageSource(target: string): string {
+  return target
+    .replace(/\s+"[^"]*"\s*$/, '')
+    .trim()
+    .replace(/^<(.*)>$/, '$1')
+    .replace(/^\.\//, '')
+}
+
 /** Links to the web only, so a material can't link to a script. */
 function safeHref(href: string): string | undefined {
   return /^(https?:|mailto:)/i.test(href) ? href : undefined
 }
 
 /** Inline **bold**, *italic*, `code` and [links](https://…), as React elements. */
-function inline(text: string, mark: Highlighter): ReactNode[] {
+function inline(text: string, mark: Highlighter, image: ImageRenderer): ReactNode[] {
   const parts: ReactNode[] = []
-  const pattern = /(\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`|\[[^\]]+\]\([^)\s]+\))/g
+  const pattern = /(!\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`|\[[^\]]+\]\([^)\s]+\))/g
   let cursor = 0
   for (const match of text.matchAll(pattern)) {
     const at = match.index ?? 0
     parts.push(mark(text.slice(cursor, at)))
     const token = match[0]
-    if (token.startsWith('**')) parts.push(<strong key={at}>{inline(token.slice(2, -2), mark)}</strong>)
+    if (token.startsWith('![')) {
+      const [, alt, target] = token.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)!
+      parts.push(image(imageSource(target), alt, at))
+    } else if (token.startsWith('**')) parts.push(<strong key={at}>{inline(token.slice(2, -2), mark, image)}</strong>)
     else if (token.startsWith('`')) parts.push(<code key={at}>{token.slice(1, -1)}</code>)
     else if (token.startsWith('[')) {
       const [, label, href] = token.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/)!
       parts.push(
         <a key={at} href={safeHref(href)} target="_blank" rel="noreferrer">
-          {inline(label, mark)}
+          {inline(label, mark, image)}
         </a>,
       )
-    } else parts.push(<em key={at}>{inline(token.slice(1, -1), mark)}</em>)
+    } else parts.push(<em key={at}>{inline(token.slice(1, -1), mark, image)}</em>)
     cursor = at + token.length
   }
   parts.push(mark(text.slice(cursor)))
@@ -51,10 +76,11 @@ type Props = {
   // how much to lower headings, so they sit below the page's own; # becomes h(1 + headingOffset)
   headingOffset?: number
   mark?: Highlighter
+  image?: ImageRenderer
 }
 
 /** Markdown: headings, paragraphs, bullet and numbered lists, tables, code blocks, quotes and rules. */
-export function Markdown({ text, headingOffset = 3, mark = plain }: Props) {
+export function Markdown({ text, headingOffset = 3, mark = plain, image = webOnly }: Props) {
   const blocks: ReactNode[] = []
   let list: { ordered: boolean; items: string[] } | null = null
   let paragraph: string[] = []
@@ -62,16 +88,16 @@ export function Markdown({ text, headingOffset = 3, mark = plain }: Props) {
 
   const flush = () => {
     if (paragraph.length) {
-      blocks.push(<p key={blocks.length}>{inline(paragraph.join(' '), mark)}</p>)
+      blocks.push(<p key={blocks.length}>{inline(paragraph.join(' '), mark, image)}</p>)
       paragraph = []
     }
     if (list) {
-      const items = list.items.map((item, i) => <li key={i}>{inline(item, mark)}</li>)
+      const items = list.items.map((item, i) => <li key={i}>{inline(item, mark, image)}</li>)
       blocks.push(list.ordered ? <ol key={blocks.length}>{items}</ol> : <ul key={blocks.length}>{items}</ul>)
       list = null
     }
     if (quote.length) {
-      blocks.push(<blockquote key={blocks.length}>{inline(quote.join(' '), mark)}</blockquote>)
+      blocks.push(<blockquote key={blocks.length}>{inline(quote.join(' '), mark, image)}</blockquote>)
       quote = []
     }
   }
@@ -103,7 +129,7 @@ export function Markdown({ text, headingOffset = 3, mark = plain }: Props) {
             <thead>
               <tr>
                 {header.map((cell, j) => (
-                  <th key={j}>{inline(cell, mark)}</th>
+                  <th key={j}>{inline(cell, mark, image)}</th>
                 ))}
               </tr>
             </thead>
@@ -111,7 +137,7 @@ export function Markdown({ text, headingOffset = 3, mark = plain }: Props) {
               {rows.map((row, r) => (
                 <tr key={r}>
                   {header.map((_, j) => (
-                    <td key={j}>{inline(row[j] ?? '', mark)}</td>
+                    <td key={j}>{inline(row[j] ?? '', mark, image)}</td>
                   ))}
                 </tr>
               ))}
@@ -130,7 +156,7 @@ export function Markdown({ text, headingOffset = 3, mark = plain }: Props) {
       flush()
       const level = Math.min(heading[1].length + headingOffset, 6)
       const Tag = `h${level}` as 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-      blocks.push(<Tag key={blocks.length}>{inline(heading[2], mark)}</Tag>)
+      blocks.push(<Tag key={blocks.length}>{inline(heading[2], mark, image)}</Tag>)
     } else if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) {
       flush()
       blocks.push(<hr key={blocks.length} />)
