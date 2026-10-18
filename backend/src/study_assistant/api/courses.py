@@ -51,6 +51,11 @@ async def create_course(body: NewCourse, student: Student, catalog: CoursesDep) 
     return _course(await run_in_threadpool(catalog.create, student, body.name), student)
 
 
+@router.delete("/{course}", status_code=204)
+async def delete_course(course: str, student: Student, catalog: CoursesDep) -> None:
+    await run_in_threadpool(catalog.delete, student, course)
+
+
 @router.get("/{course}/members", response_model=list[MemberResponse])
 async def list_members(course: str, student: Student, catalog: CoursesDep) -> list[MemberResponse]:
     return _members(await run_in_threadpool(catalog.get, student, course))

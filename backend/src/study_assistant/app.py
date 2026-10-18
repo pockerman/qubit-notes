@@ -46,6 +46,10 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     # deleting a material deletes everyone's notes, summaries, quizzes and conversations on it
     for service in (app.state.notes, app.state.summaries, app.state.quizzes, app.state.assistant):
         app.state.materials.on_delete(service.forget_material)
+    # deleting a course deletes all of that, its topics, and what the assistant learned from its material
+    app.state.courses.on_delete(app.state.materials.forget_course)
+    for service in (app.state.notes, app.state.summaries, app.state.quizzes, app.state.assistant, app.state.topics):
+        app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 
     add_error_handlers(app)
     for router in (

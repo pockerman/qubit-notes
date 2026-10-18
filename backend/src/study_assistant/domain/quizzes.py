@@ -10,7 +10,7 @@ from sqlalchemy.engine import Engine
 from study_assistant import storage
 from study_assistant.domain.errors import InvalidRequest, NotFound, StudyAssistantError
 from study_assistant.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
-from study_assistant.domain.written import forget_document, now, of_scope, scope_of, scope_values
+from study_assistant.domain.written import forget_course_rows, forget_document, now, of_scope, scope_of, scope_values
 from study_assistant.platform.port import StudyPlatform
 
 MIN_QUESTIONS, MAX_QUESTIONS = 1, 20
@@ -157,6 +157,12 @@ class Quizzes:
     def forget_material(self, document_id: str) -> None:
         with self._engine.begin() as connection:
             ids = forget_document(connection, storage.quizzes, document_id)
+            if ids:
+                connection.execute(delete(storage.quiz_attempts).where(storage.quiz_attempts.c.quiz_id.in_(ids)))
+
+    def forget_course(self, course_id: str) -> None:
+        with self._engine.begin() as connection:
+            ids = forget_course_rows(connection, storage.quizzes, course_id)
             if ids:
                 connection.execute(delete(storage.quiz_attempts).where(storage.quiz_attempts.c.quiz_id.in_(ids)))
 

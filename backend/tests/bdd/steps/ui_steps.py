@@ -445,6 +445,33 @@ def in_course(page, course):
     expect(page.get_by_role("heading", name=course, level=2)).to_be_visible()
 
 
+@when("I delete the course, and confirm it")
+def delete_course_confirmed(page):
+    page.get_by_role("button", name="Delete course").click()
+    page.get_by_role("alertdialog", name="Delete this course").get_by_role(
+        "button", name=re.compile("^Yes, delete ")
+    ).click()
+
+
+@when("I delete the course, but cancel")
+def delete_course_cancelled(page):
+    page.get_by_role("button", name="Delete course").click()
+    page.get_by_role("alertdialog", name="Delete this course").get_by_role("button", name="Cancel").click()
+    expect(page.get_by_role("alertdialog")).to_have_count(0)
+
+
+@then("I am in my courses")
+def in_my_courses(page):
+    expect(page.get_by_role("heading", name="My courses", level=2)).to_be_visible()
+
+
+@then("I am not offered to delete the course")
+def not_offered_to_delete(page):
+    # an owner who didn't create the course still manages its material
+    expect(page.get_by_role("link", name="Add material", exact=True)).to_be_visible()
+    expect(page.get_by_role("button", name="Delete course")).to_have_count(0)
+
+
 @then("I see that it has no material yet")
 def no_material_yet(page):
     expect(page.get_by_text("This course has no material yet.")).to_be_visible()

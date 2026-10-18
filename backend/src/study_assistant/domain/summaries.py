@@ -7,7 +7,7 @@ from sqlalchemy.engine import Engine
 
 from study_assistant import storage
 from study_assistant.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
-from study_assistant.domain.written import forget_document, now, of_scope, scope_of, scope_values
+from study_assistant.domain.written import forget_course_rows, forget_document, now, of_scope, scope_of, scope_values
 from study_assistant.platform.port import StudyPlatform
 
 SYSTEM = """You help a student revise. You write summaries of their study material: clear, accurate and concise,
@@ -75,6 +75,10 @@ class Summaries:
     def forget_material(self, document_id: str) -> None:
         with self._engine.begin() as connection:
             forget_document(connection, storage.summaries, document_id)
+
+    def forget_course(self, course_id: str) -> None:
+        with self._engine.begin() as connection:
+            forget_course_rows(connection, storage.summaries, course_id)
 
     def _write(self, student: str, scope: Scope) -> Summary:
         gathered = self._sources.gather(student, scope)

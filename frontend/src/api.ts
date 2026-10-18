@@ -363,6 +363,10 @@ export class StudyApi {
     return this.request(`/courses/${path[0]}/materials/${path.slice(1).join('/')}`, { method: 'DELETE' })
   }
 
+  async deleteCourse(course: string): Promise<void> {
+    await this.fetch(`/courses/${encodeURIComponent(course)}`, { method: 'DELETE' })
+  }
+
   members(course: string): Promise<Member[]> {
     return this.request(`/courses/${encodeURIComponent(course)}/members`)
   }

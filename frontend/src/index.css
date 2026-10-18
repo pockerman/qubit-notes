@@ -179,6 +179,26 @@ button.link {
   padding: 0;
 }
 
+/* deleting something that can't be undone */
+button.danger {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--bad);
+  color: #ffffff;
+  cursor: pointer;
+}
+
+button.link.danger {
+  padding: 0;
+  background: none;
+  color: var(--bad);
+}
+
+.confirm p {
+  margin: 0 0 8px;
+}
+
 .share {
   grid-template-columns: 1fr auto auto;
   align-items: end;

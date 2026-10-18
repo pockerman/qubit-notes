@@ -197,6 +197,13 @@ class Assistant:
             ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.document_id == document_id))]
         self._forget(ids)
 
+    def forget_course(self, course_id: str) -> None:
+        """forgets every student's conversations in the deleted course"""
+        table = storage.conversations
+        with self._engine.connect() as connection:
+            ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.course_id == course_id))]
+        self._forget(ids)
+
     def forget_student(self, student: str) -> None:
         table = storage.conversations
         with self._engine.connect() as connection:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.engine import Engine
@@ -50,6 +50,10 @@ class Topics:
 
     def list(self, student: str, course_name: str) -> list[Topic]:
         return self.of_course(self._courses.get(student, course_name))
+
+    def forget_course(self, course_id: str) -> None:
+        with self._engine.begin() as connection:
+            connection.execute(delete(storage.topics).where(storage.topics.c.course_id == course_id))
 
     def of_course(self, course: Course) -> list[Topic]:
         counts: dict[tuple[str, str], int] = {}

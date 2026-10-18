@@ -78,6 +78,29 @@ Feature: Courses in the browser
     Then I still see the topic "numerical-methods" › "finite-volumes", with no material
     And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
 
+  Scenario: Delete a course
+    Given I am signed in as "maria"
+    And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    And I have uploaded "rome.txt" to "history/ancient-history/rome"
+    When I open the course "aeronautics"
+    And I delete the course, and confirm it
+    Then I am in my courses
+    And I see the courses "history"
+
+  Scenario: Deleting a course asks first
+    Given I am signed in as "maria"
+    And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    When I open the course "aeronautics"
+    And I delete the course, but cancel
+    Then I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
+
+  Scenario: Only the creator is offered to delete a course
+    Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    And the student "maria" has shared the course "aeronautics" with "tom" as an owner
+    And I am signed in as "tom"
+    When I open the course "aeronautics"
+    Then I am not offered to delete the course
+
   Scenario: A reader of a shared course is not offered to create topics
     Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     And the student "maria" has shared the course "aeronautics" with "tom" as a reader

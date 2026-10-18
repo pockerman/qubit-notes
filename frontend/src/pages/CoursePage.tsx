@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { Course, Material, StudyApi, Topic } from '../api'
 import { slug } from '../names'
-import { href } from '../router'
+import { href, navigate } from '../router'
 
 const STATUS_LABEL: Record<Material['status'], string> = {
   pending: 'processing',
@@ -90,6 +90,7 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
   const [addingTopic, setAddingTopic] = useState(false)
   // the subject a topic is being added to, from its own section
   const [addingTo, setAddingTo] = useState<string | null>(null)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -127,6 +128,19 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
   }
 
   const isOwner = course.role === 'owner'
+  // only the student who created the course can delete it
+  const isCreator = course.owner === api.student
+
+  async function deleteCourse() {
+    if (!course) return
+    try {
+      await api.deleteCourse(course.name)
+      navigate({ page: 'courses' })
+    } catch (e) {
+      setConfirmingDelete(false)
+      setError((e as Error).message)
+    }
+  }
 
   async function remove(material: Material) {
     try {
@@ -165,7 +179,28 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
           <a className="link" href={href({ page: 'members', courseId: course.id })}>
             Members
           </a>
+          {isCreator && !confirmingDelete && (
+            <button type="button" className="link danger" onClick={() => setConfirmingDelete(true)}>
+              Delete course
+            </button>
+          )}
         </div>
+        {confirmingDelete && (
+          <div className="card confirm" role="alertdialog" aria-label="Delete this course">
+            <p>
+              Delete {course.name} and everything in it? Its material, topics, notes, summaries, quizzes and
+              conversations go for every member, and this cannot be undone.
+            </p>
+            <div className="actions">
+              <button type="button" className="danger" onClick={deleteCourse}>
+                Yes, delete {course.name}
+              </button>
+              <button type="button" className="link" onClick={() => setConfirmingDelete(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
       {error && (

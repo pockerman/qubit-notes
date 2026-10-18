@@ -160,6 +160,11 @@ class Notes:
         with self._engine.begin() as connection:
             connection.execute(delete(storage.notes).where(storage.notes.c.document_id == document_id))
 
+    def forget_course(self, course_id: str) -> None:
+        """every student's notes in a deleted course"""
+        with self._engine.begin() as connection:
+            connection.execute(delete(storage.notes).where(storage.notes.c.course_id == course_id))
+
     def _select(self, query) -> list[Note]:
         with self._engine.connect() as connection:
             return [Note(**row._mapping) for row in connection.execute(query)]
