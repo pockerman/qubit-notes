@@ -363,6 +363,15 @@ export class StudyApi {
     return this.request(`/courses/${path[0]}/materials/${path.slice(1).join('/')}`, { method: 'DELETE' })
   }
 
+  /** puts the subject's topics in the order they're meant to be read; returns the course's topics */
+  orderTopics(course: string, subject: string, topics: string[]): Promise<Topic[]> {
+    return this.request(`/courses/${encodeURIComponent(course)}/subjects/${encodeURIComponent(subject)}/topic-order`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topics }),
+    })
+  }
+
   async deleteCourse(course: string): Promise<void> {
     await this.fetch(`/courses/${encodeURIComponent(course)}`, { method: 'DELETE' })
   }

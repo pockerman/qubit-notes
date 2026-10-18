@@ -445,6 +445,31 @@ def in_course(page, course):
     expect(page.get_by_role("heading", name=course, level=2)).to_be_visible()
 
 
+@when(parsers.parse('I move the topic "{topic}" {direction}'))
+def move_topic(page, topic, direction):
+    page.get_by_role("button", name=f"Move {topic} {direction}").click()
+
+
+@then(parsers.parse('the topics of "{subject}" are shown in the order "{topics}"'))
+def topics_shown_in_order(page, context, subject, topics):
+    order = [topic.strip() for topic in topics.split(",")]
+    expect(page.get_by_role("region", name=subject, exact=True).get_by_role("heading", level=4)).to_have_text(order)
+    context["topic order"] = (subject, order)
+
+
+@then("they are still in that order when I open the course again")
+def still_in_order(page, context):
+    subject, order = context["topic order"]
+    page.reload()
+    expect(page.get_by_role("region", name=subject, exact=True).get_by_role("heading", level=4)).to_have_text(order)
+
+
+@then("I am not offered to move topics")
+def not_offered_to_move(page):
+    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
+    expect(page.get_by_role("button", name=re.compile(r"^Move .* (up|down)$"))).to_have_count(0)
+
+
 @when("I delete the course, and confirm it")
 def delete_course_confirmed(page):
     page.get_by_role("button", name="Delete course").click()

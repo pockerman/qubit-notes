@@ -17,6 +17,16 @@ topics = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
 )
 
+# where the owners put a topic among its subject's topics, 0 first; topics without one come after, oldest first
+topic_order = Table(
+    "topic_order",
+    metadata,
+    Column("course_id", String, primary_key=True),
+    Column("subject", String, primary_key=True),
+    Column("topic", String, primary_key=True),
+    Column("position", Integer, nullable=False),
+)
+
 notes = Table(
     "notes",
     metadata,

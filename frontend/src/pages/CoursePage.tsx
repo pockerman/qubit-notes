@@ -10,7 +10,8 @@ const STATUS_LABEL: Record<Material['status'], string> = {
   failed: 'failed',
 }
 
-// subject to its topics, each with its materials, all sorted. Topics stay when their material is deleted
+// subject to its topics, each with its materials: subjects sorted, topics in the order they're meant to be read, as
+// listed. Topics stay when their material is deleted
 function group(topics: Topic[], materials: Material[]): [string, [string, Material[]][]][] {
   const subjects = new Map<string, Map<string, Material[]>>()
   const topicOf = (subject: string, topic: string) => {
@@ -23,7 +24,7 @@ function group(topics: Topic[], materials: Material[]): [string, [string, Materi
   for (const material of materials) topicOf(material.subject, material.topic).push(material)
   return [...subjects.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([subject, of]) => [subject, [...of.entries()].sort(([a], [b]) => a.localeCompare(b))])
+    .map(([subject, of]) => [subject, [...of.entries()]])
 }
 
 // a topic in a subject the student names, or in `inSubject` when the course has it already
@@ -142,6 +143,18 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
     }
   }
 
+  // moves a topic one place up (-1) or down (+1) among its subject's topics
+  async function move(subject: string, topics: string[], index: number, by: -1 | 1) {
+    if (!course) return
+    const order = [...topics]
+    ;[order[index], order[index + by]] = [order[index + by], order[index]]
+    try {
+      setTopics(await api.orderTopics(course.name, subject, order))
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
   async function remove(material: Material) {
     try {
       await api.deleteMaterial(material)
@@ -249,10 +262,32 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
                 }}
               />
             )}
-            {of.map(([topic, items]) => (
+            {of.map(([topic, items], index) => (
               <section key={topic} className="topic" aria-label={`${subject} › ${topic}`}>
                 <header className="topic-header">
                   <h4>{topic}</h4>
+                  {isOwner && of.length > 1 && (
+                    <span className="move">
+                      <button
+                        type="button"
+                        className="link"
+                        aria-label={`Move ${topic} up`}
+                        disabled={index === 0}
+                        onClick={() => move(subject, of.map(([t]) => t), index, -1)}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        className="link"
+                        aria-label={`Move ${topic} down`}
+                        disabled={index === of.length - 1}
+                        onClick={() => move(subject, of.map(([t]) => t), index, 1)}
+                      >
+                        ↓
+                      </button>
+                    </span>
+                  )}
                   {isOwner && (
                     <a
                       className="link"

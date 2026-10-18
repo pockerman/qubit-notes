@@ -78,6 +78,27 @@ Feature: Courses in the browser
     Then I still see the topic "numerical-methods" › "finite-volumes", with no material
     And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
 
+  Scenario: Move a topic up or down
+    Given I am signed in as "maria"
+    And I have created the course "computer-science"
+    And I have created the topic "distributed-systems/introduction" in "computer-science"
+    And I have created the topic "distributed-systems/consensus" in "computer-science"
+    And I have created the topic "distributed-systems/replication" in "computer-science"
+    When I open the course "computer-science"
+    And I move the topic "replication" up
+    Then the topics of "distributed-systems" are shown in the order "introduction, replication, consensus"
+    When I move the topic "introduction" down
+    Then the topics of "distributed-systems" are shown in the order "replication, introduction, consensus"
+    And they are still in that order when I open the course again
+
+  Scenario: A reader of a shared course is not offered to reorder topics
+    Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    And the student "maria" has uploaded "fd-schemes.txt" to "aeronautics/numerical-methods/finite-differences"
+    And the student "maria" has shared the course "aeronautics" with "tom" as a reader
+    And I am signed in as "tom"
+    When I open the course "aeronautics"
+    Then I am not offered to move topics
+
   Scenario: Delete a course
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"

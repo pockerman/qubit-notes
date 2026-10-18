@@ -141,3 +141,52 @@ def nothing_written(students):
             assert connection.execute(select(table).where(table.c.student == me)).fetchall() == [], table.name
         turns = connection.execute(select(storage.conversation_turns)).fetchall()
         assert turns == []
+
+
+# the order of topics
+
+
+def _topics_of(students, subject: str, course: str, name: str | None = None) -> list[str]:
+    response = students.client.get(f"/api/courses/{course}/topics", headers=students.headers(name))
+    assert response.status_code == 200, response.text
+    return [t["topic"] for t in response.json() if t["subject"] == subject]
+
+
+def _order(students, subject: str, course: str, datatable, name: str | None = None):
+    topics = [row["topic"] for row in _rows(datatable)]
+    return students.client.put(
+        f"/api/courses/{course}/subjects/{subject}/topic-order", headers=students.headers(name), json={"topics": topics}
+    )
+
+
+@when(parsers.parse('I put the topics of "{subject}" in "{course}" in the order:'))
+def put_in_order(students, context, subject, course, datatable):
+    context["response"] = _order(students, subject, course, datatable)
+
+
+@given(parsers.parse('I have put the topics of "{subject}" in "{course}" in the order:'))
+def have_put_in_order(students, subject, course, datatable):
+    response = _order(students, subject, course, datatable)
+    assert response.status_code == 200, response.text
+
+
+@when(parsers.parse('the student "{name}" puts the topics of "{subject}" in "{course}" in the order:'))
+def student_puts_in_order(students, context, name, subject, course, datatable):
+    context["response"] = _order(students, subject, course, datatable, name)
+
+
+@then(parsers.parse('the topics of "{subject}" in "{course}" are, in order:'))
+def topics_in_order(students, subject, course, datatable):
+    assert _topics_of(students, subject, course) == [row["topic"] for row in _rows(datatable)]
+
+
+@then(parsers.parse('the student "{name}" sees the topics of "{subject}" in "{course}" in the order:'))
+def student_sees_topics_in_order(students, name, subject, course, datatable):
+    assert _topics_of(students, subject, course, name) == [row["topic"] for row in _rows(datatable)]
+
+
+@then(parsers.parse('I am told the order must have each of the topics of "{subject}" once'))
+def order_invalid(context, subject):
+    response = context["response"]
+    assert response.status_code == 422, response.text
+    assert f"each of the topics of {subject!r} once" in response.json()["detail"]

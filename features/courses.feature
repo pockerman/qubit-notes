@@ -63,6 +63,79 @@ Feature: Courses
       When the student "tom" creates the topic "networks/routing" in "computer-science"
       Then the student "tom" is not allowed to do that
 
+  Rule: The topics of a subject are in the order they are meant to be read
+
+    A subject's topics are listed in the order its owners set, the same for every member.
+    A new topic goes after the subject's other topics. Subjects stay in alphabetical order.
+
+    Background:
+      Given I have created the course "computer-science"
+      And I have created the topic "distributed-systems/introduction" in "computer-science"
+      And I have created the topic "distributed-systems/consensus" in "computer-science"
+      And I have created the topic "distributed-systems/replication" in "computer-science"
+
+    Scenario: New topics go after the others
+      Then the topics of "distributed-systems" in "computer-science" are, in order:
+        | topic        |
+        | introduction |
+        | consensus    |
+        | replication  |
+
+    Scenario: Set the order of a subject's topics
+      When I put the topics of "distributed-systems" in "computer-science" in the order:
+        | topic        |
+        | introduction |
+        | replication  |
+        | consensus    |
+      Then the topics of "distributed-systems" in "computer-science" are, in order:
+        | topic        |
+        | introduction |
+        | replication  |
+        | consensus    |
+
+    Scenario: The order is the same for every member
+      Given I have shared the course "computer-science" with "tom" as a reader
+      When I put the topics of "distributed-systems" in "computer-science" in the order:
+        | topic        |
+        | replication  |
+        | consensus    |
+        | introduction |
+      Then the student "tom" sees the topics of "distributed-systems" in "computer-science" in the order:
+        | topic        |
+        | replication  |
+        | consensus    |
+        | introduction |
+
+    Scenario: A topic keeps its place when its material comes and goes
+      Given I have uploaded "consensus.txt" to "computer-science/distributed-systems/consensus"
+      And I have put the topics of "distributed-systems" in "computer-science" in the order:
+        | topic        |
+        | consensus    |
+        | introduction |
+        | replication  |
+      When I delete the material "consensus.txt" from "computer-science/distributed-systems/consensus"
+      Then the topics of "distributed-systems" in "computer-science" are, in order:
+        | topic        |
+        | consensus    |
+        | introduction |
+        | replication  |
+
+    Scenario: An order must have each of the subject's topics once
+      When I put the topics of "distributed-systems" in "computer-science" in the order:
+        | topic        |
+        | replication  |
+        | introduction |
+      Then I am told the order must have each of the topics of "distributed-systems" once
+
+    Scenario: A reader cannot change the order
+      Given I have shared the course "computer-science" with "tom" as a reader
+      When the student "tom" puts the topics of "distributed-systems" in "computer-science" in the order:
+        | topic        |
+        | replication  |
+        | consensus    |
+        | introduction |
+      Then the student "tom" is not allowed to do that
+
   Rule: Deleting a course removes it and everything in it, for every member
 
     Only the student who created a course can delete it; other owners and readers cannot.

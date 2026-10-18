@@ -195,6 +195,16 @@ button.link.danger {
   color: var(--bad);
 }
 
+.move {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.move button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
 .confirm p {
   margin: 0 0 8px;
 }
