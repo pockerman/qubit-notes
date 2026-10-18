@@ -63,3 +63,23 @@ Feature: Images in the browser
     And I open "fem-notes.md" to read it
     Then I see that the image "figures/mesh.png" is missing
     But I am not offered to add it
+
+  Scenario: Add an image while editing a material
+    Given I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
+      """
+      # 1 Meshing
+      The domain is divided into triangles.
+      """
+    When I open the course "aeronautics"
+    And I open "fem-notes.md" to read it
+    And I start editing it
+    And I add the image "mesh.png" with the caption "A mesh of triangles"
+    And I save my changes
+    Then I see the image "A mesh of triangles"
+
+  Scenario: Plain text material is not offered images while editing
+    Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    When I open the course "aeronautics"
+    And I open "fe-basics.txt" to read it
+    And I start editing it
+    Then I am not offered to add an image

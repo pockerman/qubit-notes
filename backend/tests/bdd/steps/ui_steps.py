@@ -687,3 +687,21 @@ def add_missing_image(page, path, name):
 @then("I am not offered to add it")
 def not_offered_to_add_image(page):
     expect(page.get_by_role("button", name="Add the missing image")).to_have_count(0)
+
+
+@when("I start editing it")
+def start_editing(page):
+    page.get_by_role("button", name="Edit", exact=True).click()
+    expect(page.get_by_role("form", name="Edit material").get_by_label("Text")).to_be_visible()
+
+
+@when("I save my changes")
+def save_my_changes(page):
+    page.get_by_role("form", name="Edit material").get_by_role("button", name="Save").click()
+    # once processed and its images added, the reader shows the material again
+    expect(page.get_by_role("button", name="Edit", exact=True)).to_be_visible(timeout=120_000)
+
+
+@then("I am not offered to add an image")
+def not_offered_an_image(page):
+    expect(page.get_by_role("button", name="Add image")).to_have_count(0)

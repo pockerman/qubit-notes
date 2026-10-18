@@ -8,7 +8,9 @@ import {
   type SectionText,
   type StudyApi,
 } from '../api'
+import { useImageDrafts } from '../imageDrafts'
 import { formatMoment } from '../moments'
+import { AddImage } from './AddImage'
 import { Assistant } from './Assistant'
 import { Markdown, type ImageRenderer } from './Markdown'
 import { MaterialImage } from './MaterialImage'
@@ -59,15 +61,19 @@ type EditorProps = {
   api: StudyApi
   courseId: string
   documentId: string
+  // Markdown material can have images added as it's edited
+  markdown: boolean
   onSaved: () => void
   onCancel: () => void
 }
 
 /** Edits the text of a Markdown or text material; once saved, it's processed again. */
-function Editor({ api, courseId, documentId, onSaved, onCancel }: EditorProps) {
+function Editor({ api, courseId, documentId, markdown, onSaved, onCancel }: EditorProps) {
   const [text, setText] = useState<string | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const textarea = useRef<HTMLTextAreaElement>(null)
+  const images = useImageDrafts({ text: text ?? '', setText, textarea, setError })
 
   useEffect(() => {
     api.materialText(courseId, documentId).then(setText, (e: Error) => setError(e.message))
@@ -83,6 +89,8 @@ function Editor({ api, courseId, documentId, onSaved, onCancel }: EditorProps) {
       setSaving('Processing your changes…')
       const job = await waitForUpload(api, upload.job_id)
       if (job.status === 'failed') throw new Error(`Processing failed: ${job.error}`)
+      const failed = await images.keepWith(api, upload.course_id, upload.document_id, text)
+      if (failed.length) throw new Error(`Your changes were saved, but not all the images: ${failed.join('; ')}`)
       onSaved()
     } catch (e) {
       setError((e as Error).message)
@@ -102,9 +110,18 @@ function Editor({ api, courseId, documentId, onSaved, onCancel }: EditorProps) {
       ) : (
         <label>
           Text
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={24} spellCheck />
+          <textarea
+            ref={textarea}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onPaste={markdown ? (e) => images.pasteOrDrop(e.clipboardData?.files, e) : undefined}
+            onDrop={markdown ? (e) => images.pasteOrDrop(e.dataTransfer?.files, e) : undefined}
+            rows={24}
+            spellCheck
+          />
         </label>
       )}
+      {markdown && text !== null && <AddImage onInsert={images.insert} />}
       <div className="actions">
         <button type="submit" disabled={text === null || saving !== null}>
           Save
@@ -353,6 +370,7 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
           api={api}
           courseId={courseId}
           documentId={documentId}
+          markdown={material?.content_type === 'text/markdown'}
           onCancel={() => setEditing(false)}
           onSaved={() => {
             setEditing(false)
