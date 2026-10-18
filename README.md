@@ -99,6 +99,65 @@ docker run -p 8000:8000 -e QUBIT_NOTES_DATABASE_URL=postgresql+psycopg://... -e 
 It runs as a non-root user, migrates its database when it starts, and is healthy once `/api/config` answers. CI builds
 it for every PR and pushes `ghcr.io/pockerman/qubit-notes:main` from main; a release pushes `:<version>` and `:latest`.
 
+## Deploying on AWS
+
+[`deploy/aws`](deploy/aws) is the Terraform for the app on AWS, as one of the applications of a gogi deployment
+(gogi's `docs/deployment.md`):
+
+| | |
+|---|---|
+| Address | CloudFront, at `https://<id>.cloudfront.net` while there's no domain; it reaches the server privately, through a VPC origin |
+| Server | one EC2 instance (`t3.small`), Amazon Linux 2023, running the image as `qubit-notes.service`; reached with SSM Session Manager, not SSH |
+| Sign-in | a Cognito user pool, with its own sign-in pages at an `amazoncognito.com` address |
+| Data | RDS for PostgreSQL 16 (`db.t4g.micro`), in private subnets, backed up for a week; the materials' files are kept in gogi |
+| Secrets | Secrets Manager: the database's password, and the key gogi gave the app |
+
+This costs about $40 a month in eu-west-2 at on-demand prices. The server keeps nothing of its own, so it can be
+replaced at any time.
+
+1. Deploy gogi first. Keep this state somewhere private too, as it holds the database's password: copy
+   `backend.tf.example` to `backend.tf` and name an S3 bucket of your own.
+2. Give the app gogi's address and certificate authority, e.g. in `terraform.tfvars`, and apply:
+
+   ```hcl
+   gogi_gateway_url    = "203.0.113.9:443"   # gogi's gateway_address output
+   gogi_ca_certificate = file("gogi-ca.pem")  # gogi's ca_certificate output
+   ```
+
+   ```bash
+   cd deploy/aws
+   terraform init
+   terraform apply
+   ```
+
+3. Let the app's server into gogi: add `terraform output -raw server_public_ip`, as `<ip>/32`, to gogi's
+   `client_cidrs`, and apply gogi.
+4. Register the app with gogi (`gogi-admin register qubit-notes` on gogi's server), and put its key where the app's
+   server reads it. If the image is private, put a token that can read it in `qubit-notes/registry` too, as
+   `{"username": "...", "token": "..."}`.
+
+   ```bash
+   aws secretsmanager put-secret-value --secret-id qubit-notes/gogi-api-key --secret-string 'gogi_...'
+   ```
+
+5. On the app's server, restart the app and store its Anthropic key in gogi:
+
+   ```bash
+   aws ssm start-session --target "$(terraform output -raw instance_id)"
+   sudo systemctl restart qubit-notes
+   read -rs ANTHROPIC_API_KEY && echo "$ANTHROPIC_API_KEY" | sudo docker exec -i qubit-notes qubit-notes store-provider-key anthropic
+   ```
+
+6. Make the students' accounts; Cognito emails each their temporary password:
+
+   ```bash
+   aws cognito-idp admin-create-user --user-pool-id "$(terraform output -raw user_pool_id)" \
+     --username maria --user-attributes Name=email,Value=maria@example.org Name=email_verified,Value=true
+   ```
+
+Then open `terraform output -raw url`. To run another image, set `image_tag`, apply, and restart the app; the app's
+other settings go in `app_settings`, e.g. `{ QUBIT_NOTES_LLM_MODEL = "..." }`.
+
 ## Contributing and releases
 
 Pull requests are squash-merged, and the squash commit takes the PR's title as its message. So the title must be a
