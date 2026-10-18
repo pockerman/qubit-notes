@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      gogi-python-ref:
+        description: "gogi-python branch, tag or commit to test against"
+        default: main
+
+# the backend installs gogi-python from ../../gogi-python, so both repositories are checked out side by side:
+#   $GITHUB_WORKSPACE/study-assistant and $GITHUB_WORKSPACE/gogi-python
+env:
+  GOGI_PYTHON_REF: ${{ inputs.gogi-python-ref || 'main' }}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: study-assistant
+
+      - uses: actions/checkout@v4
+        with:
+          repository: pockerman/gogi-python
+          ref: ${{ env.GOGI_PYTHON_REF }}
+          path: gogi-python
+          submodules: recursive
+
+      - uses: astral-sh/setup-uv@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: study-assistant/frontend/package-lock.json
+
+      - name: Install backend
+        working-directory: study-assistant/backend
+        run: uv sync --extra dev
+
+      - name: Lint backend
+        working-directory: study-assistant/backend
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Install frontend
+        working-directory: study-assistant/frontend
+        run: npm ci
+
+      - name: Lint and type-check frontend
+        working-directory: study-assistant/frontend
+        run: |
+          npm run lint
+          npx tsc -b --noEmit
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: study-assistant
+
+      - uses: actions/checkout@v4
+        with:
+          repository: pockerman/gogi-python
+          ref: ${{ env.GOGI_PYTHON_REF }}
+          path: gogi-python
+          submodules: recursive
+
+      - uses: astral-sh/setup-uv@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: study-assistant/frontend/package-lock.json
+
+      - name: Generate gogi-python's protobuf code
+        working-directory: gogi-python
+        run: |
+          uv sync --extra dev
+          uv run python scripts/build_protos.py
+
+      - name: Install backend and Chromium
+        working-directory: study-assistant/backend
+        run: |
+          uv sync --extra dev
+          uv run playwright install --with-deps chromium
+
+      - name: Install frontend
+        working-directory: study-assistant/frontend
+        run: npm ci
+
+      # every scenario against the in-memory platform; the @ui ones build the frontend and drive it in Chromium.
+      # The @gogi runs need a gogi stack and stay local (make bdd-gogi)
+      - name: Run the scenarios
+        working-directory: study-assistant/backend
+        run: uv run pytest

@@ -33,3 +33,19 @@ make lint
 
 The backend needs Python 3.12+ and installs gogi-python from `../../gogi-python` in editable mode. Build its
 protobuf code first (`gogi-python/install.sh` or `uv run python scripts/build_protos.py`).
+
+## Contributing and releases
+
+Pull requests are squash-merged, and the squash commit takes the PR's title as its message. So the title must be a
+[conventional commit](https://www.conventionalcommits.org/): `feat: delete a course`,
+`fix(reader): keep the section on reload`, `docs: …`, `ci: …`. The `PR title` check enforces it. Commits inside a PR
+can be anything, since they are squashed away.
+
+- **CI** (`.github/workflows/ci.yml`) runs on every PR and on `main`: ruff, ESLint and TypeScript, then every
+  scenario on the in-memory platform, the `@ui` ones in Chromium. It checks out gogi-python's `main` next to this
+  repository; to test against another gogi-python branch, run the workflow by hand with `gogi-python-ref`. The
+  `@gogi` scenarios need a gogi stack, so they run locally only (`make bdd-gogi`).
+- **Releases** (`.github/workflows/release.yml`): release-please keeps a release PR open with the next version and
+  `CHANGELOG.md`, from the `feat` and `fix` commits on `main`. Merging it tags `vX.Y.Z` and publishes a GitHub
+  release. The version is kept in `backend/pyproject.toml` and `frontend/package.json`. Before 1.0, a `feat` bumps
+  the minor version, as does a breaking change (`feat!: …`).
