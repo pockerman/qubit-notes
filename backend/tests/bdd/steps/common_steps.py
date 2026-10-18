@@ -1,8 +1,8 @@
 from pytest_bdd import given, parsers, then
 
 
-@given("the study assistant is running")
-def study_assistant_running(client):
+@given("qubit-notes is running")
+def qubit_notes_running(client):
     return client
 
 

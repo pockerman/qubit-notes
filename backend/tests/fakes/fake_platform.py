@@ -6,7 +6,7 @@ from typing import Any
 
 from pypdf import PdfReader
 
-from study_assistant.platform.port import (
+from qubit_notes.platform.port import (
     Chunk,
     DocumentInfo,
     DownloadedFile,

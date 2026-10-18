@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': process.env.STUDY_ASSISTANT_API_URL ?? 'http://localhost:8001',
+      '/api': process.env.QUBIT_NOTES_API_URL ?? 'http://localhost:8001',
     },
   },
 })

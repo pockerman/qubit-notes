@@ -4,7 +4,7 @@ from pathlib import PurePosixPath
 
 from pytest_bdd import given, parsers, then, when
 
-from study_assistant.domain.images import MB
+from qubit_notes.domain.images import MB
 from tests.images import make_image, make_png
 
 

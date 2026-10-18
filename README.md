@@ -1,11 +1,11 @@
-# Study Assistant
+# Qubit Notes
 
-A study assistant built on the [gogi](../gogi) platform with the [gogi-python](../gogi-python) SDK. Students upload
+Qubit Notes is a study app built on the [gogi](../gogi) platform with the [gogi-python](../gogi-python) SDK. Students upload
 their study material, ask questions about it, and get answers that cite their sources. The assistant also keeps
 study sessions with memory, generates quizzes and flashcards, and schedules reviews.
 
 - `backend/`: FastAPI app. The domain talks to gogi only through the `StudyPlatform` port
-  (`backend/src/study_assistant/platform/port.py`). `GogiPlatform` implements the port with the SDK.
+  (`backend/src/qubit_notes/platform/port.py`). `GogiPlatform` implements the port with the SDK.
 - `frontend/`: React + TypeScript (Vite). Students sign in by name (there is no authentication yet), manage their
   courses' material by subject and topic, and share courses with classmates.
 - `features/`: Gherkin specs. They drive development of both the backend and the UI.
@@ -18,7 +18,7 @@ Each capability starts as a `.feature` file in `features/`. Its steps live in `b
   keys. Scenarios tagged `@ui` build the frontend, serve it from the backend and drive it in headless Chromium with
   Playwright. `make bdd-ui` runs only those.
 - `make bdd-gogi` runs only the scenarios tagged `@gogi`, against a running gogi gateway
-  (`STUDY_ASSISTANT_GATEWAY_URL`, default `localhost:50051`). When one of these fails because of the platform, the
+  (`QUBIT_NOTES_GATEWAY_URL`, default `localhost:50051`). When one of these fails because of the platform, the
   fix goes into gogi or gogi-python.
 
 ## Development
@@ -40,10 +40,10 @@ Where gogi serves many applications, gogi's operator registers the app (`gogi-ad
 it a key. Run the app with it, and store the app's Anthropic key in gogi once, as the app's own:
 
 ```bash
-export STUDY_ASSISTANT_GATEWAY_URL=gogi.example.org:443
-export STUDY_ASSISTANT_GOGI_API_KEY=gogi_...
-export STUDY_ASSISTANT_GOGI_CA_FILE=/etc/qubit-notes/gogi-ca.pem   # only where gogi has a certificate authority of its own
-echo "$ANTHROPIC_API_KEY" | uv run study-assistant store-provider-key anthropic
+export QUBIT_NOTES_GATEWAY_URL=gogi.example.org:443
+export QUBIT_NOTES_GOGI_API_KEY=gogi_...
+export QUBIT_NOTES_GOGI_CA_FILE=/etc/qubit-notes/gogi-ca.pem   # only where gogi has a certificate authority of its own
+echo "$ANTHROPIC_API_KEY" | uv run qubit-notes store-provider-key anthropic
 ```
 
 `/api/health` reports the app as degraded if gogi does not take its key. Against a gogi without keys, as in
@@ -59,11 +59,11 @@ client secret), with the authorization code grant, the `openid` scope, and the a
 `https://notes.example.org/`, as both its callback and its sign-out URL; and a domain for its sign-in pages.
 
 ```bash
-export STUDY_ASSISTANT_AUTH=cognito
-export STUDY_ASSISTANT_COGNITO_REGION=eu-west-2
-export STUDY_ASSISTANT_COGNITO_USER_POOL_ID=eu-west-2_AbC123
-export STUDY_ASSISTANT_COGNITO_CLIENT_ID=...
-export STUDY_ASSISTANT_COGNITO_DOMAIN=https://qubit-notes.auth.eu-west-2.amazoncognito.com
+export QUBIT_NOTES_AUTH=cognito
+export QUBIT_NOTES_COGNITO_REGION=eu-west-2
+export QUBIT_NOTES_COGNITO_USER_POOL_ID=eu-west-2_AbC123
+export QUBIT_NOTES_COGNITO_CLIENT_ID=...
+export QUBIT_NOTES_COGNITO_DOMAIN=https://qubit-notes.auth.eu-west-2.amazoncognito.com
 ```
 
 The browser signs in with PKCE and sends the access token with every request; the backend checks it against the

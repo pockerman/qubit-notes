@@ -103,7 +103,7 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <h1>
-          <a href={href({ page: 'courses' })}>Study Assistant</a>
+          <a href={href({ page: 'courses' })}>Qubit Notes</a>
         </h1>
         {api && (
           <nav className="session" aria-label="Session">

@@ -17,7 +17,7 @@ bdd:
 bdd-ui:
 	cd $(BACKEND) && $(UV) run pytest -m ui
 
-# the @gogi scenarios, against a running gogi stack (STUDY_ASSISTANT_GATEWAY_URL, default localhost:50051)
+# the @gogi scenarios, against a running gogi stack (QUBIT_NOTES_GATEWAY_URL, default localhost:50051)
 bdd-gogi:
 	cd $(BACKEND) && $(UV) run pytest --platform=gogi
 
@@ -32,10 +32,10 @@ lint:
 # the built frontend served by the backend, as in production: http://localhost:8001
 serve:
 	cd $(FRONTEND) && npm run build
-	cd $(BACKEND) && STUDY_ASSISTANT_FRONTEND_DIR=../$(FRONTEND)/dist $(UV) run uvicorn study_assistant.app:create_app --factory --port 8001
+	cd $(BACKEND) && QUBIT_NOTES_FRONTEND_DIR=../$(FRONTEND)/dist $(UV) run uvicorn qubit_notes.app:create_app --factory --port 8001
 
 dev-backend:
-	cd $(BACKEND) && $(UV) run uvicorn study_assistant.app:create_app --factory --reload --port 8001
+	cd $(BACKEND) && $(UV) run uvicorn qubit_notes.app:create_app --factory --reload --port 8001
 
 dev-frontend:
 	cd $(FRONTEND) && npm run dev

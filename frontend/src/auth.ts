@@ -17,9 +17,9 @@ export interface Identity {
   signOut(): void
 }
 
-const STUDENT_KEY = 'study-assistant.student'
-const TOKENS_KEY = 'study-assistant.cognito'
-const PENDING_KEY = 'study-assistant.cognito-pending'
+const STUDENT_KEY = 'qubit-notes.student'
+const TOKENS_KEY = 'qubit-notes.cognito'
+const PENDING_KEY = 'qubit-notes.cognito-pending'
 // a token is refreshed this long before it expires
 const REFRESH_MARGIN_SECONDS = 60
 

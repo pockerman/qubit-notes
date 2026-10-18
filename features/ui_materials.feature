@@ -5,7 +5,7 @@ Feature: Managing materials and sharing in the browser
   So that I can organise what I study without any tooling
 
   Scenario: Sign in and see the platform status
-    When I open the study assistant
+    When I open qubit-notes
     And I sign in as "maria"
     Then I see that I am signed in as "maria"
     And I see that the platform is connected
