@@ -34,6 +34,23 @@ make lint
 The backend needs Python 3.12+ and installs gogi-python from `../../gogi-python` in editable mode. Build its
 protobuf code first (`gogi-python/install.sh` or `uv run python scripts/build_protos.py`).
 
+## Running on a gogi that serves many applications
+
+Where gogi serves many applications, gogi's operator registers the app (`gogi-admin register qubit-notes`) and gives
+it a key. Run the app with it, and store the app's Anthropic key in gogi once, as the app's own:
+
+```bash
+export STUDY_ASSISTANT_GATEWAY_URL=gogi.example.org:443
+export STUDY_ASSISTANT_GOGI_API_KEY=gogi_...
+export STUDY_ASSISTANT_GOGI_CA_FILE=/etc/qubit-notes/gogi-ca.pem   # only where gogi has a certificate authority of its own
+echo "$ANTHROPIC_API_KEY" | uv run study-assistant store-provider-key anthropic
+```
+
+`/api/health` reports the app as degraded if gogi does not take its key. Against a gogi without keys, as in
+development, none of this is needed. The `@gogi` scenarios of `features/gogi_application.feature` run through gogi's
+gateway that requires keys (`localhost:50050`), registering applications with `docker exec gogi-gateway-applications
+/root/gogi-admin`.
+
 ## Contributing and releases
 
 Pull requests are squash-merged, and the squash commit takes the PR's title as its message. So the title must be a

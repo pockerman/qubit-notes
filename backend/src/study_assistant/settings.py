@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="STUDY_ASSISTANT_", env_file=".env", extra="ignore")
 
     gateway_url: str = "localhost:50051"
+    # the key gogi gave the app, where gogi serves many applications; not needed where gogi runs without keys
+    gogi_api_key: str | None = None
+    # the certificate authority to check gogi's gateway against, e.g. where gogi has no domain; else the system's
+    gogi_ca_file: str | None = None
     # the app's own data (notes, summaries, quizzes); any SQLAlchemy URL, e.g. postgresql+psycopg://...
     database_url: str = "sqlite:///study-assistant.db"
     # the built frontend (frontend/dist), served at /; not served if unset

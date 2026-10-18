@@ -14,6 +14,9 @@ dependencies = [
     "sqlalchemy>=2.0",
 ]
 
+[project.scripts]
+study-assistant = "study_assistant.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",
@@ -47,6 +50,8 @@ markers = [
     "ui: the scenario drives the React UI with Playwright",
     "wip: written and reviewed, but not built yet; skipped",
     "ai: the scenario needs the AI; on gogi it runs only with --with-ai",
+    "gogi_keys: on gogi, the app runs as a registered application of gogi, through the gateway that requires keys",
+    "gogi_wrong_key: on gogi, the app runs with a key gogi did not give, through the gateway that requires keys",
 ]
 
 [tool.ruff]

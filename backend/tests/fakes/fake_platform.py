@@ -34,6 +34,10 @@ class FakePlatform:
     def __init__(self):
         self.reachable = True
         self.down: set[str] = set()
+        # whether the platform takes the app's key
+        self.takes_key = True
+        # the app's credentials, name to value
+        self.credentials: dict[str, str] = {}
         self.indexes: dict[str, IndexInfo] = {}
         # index name to document id to (document, text)
         self.documents: dict[str, dict[str, tuple[DocumentInfo, str]]] = {}
@@ -56,7 +60,15 @@ class FakePlatform:
         return PlatformHealth(
             reachable=True,
             services={name: "NOT_SERVING" if name in self.down else "SERVING" for name in SERVICES},
+            authenticated=self.takes_key,
+            error=None if self.takes_key else "gogi does not take the app's key: UNAUTHENTICATED",
         )
+
+    def store_credential(self, name: str, value: str) -> None:
+        self.credentials[name] = value
+
+    def list_credentials(self) -> list[str]:
+        return sorted(self.credentials)
 
     # indexes
 

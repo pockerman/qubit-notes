@@ -1,9 +1,12 @@
 """Fixtures for the BDD scenarios: the platform the app runs against, the app client and the scenario's students."""
 
+import os
+import shlex
 import socket
 import subprocess
 import threading
 import time
+import uuid
 from pathlib import Path
 
 import pytest
@@ -23,13 +26,56 @@ def on_gogi(request) -> bool:
     return request.config.getoption("--platform") == "gogi"
 
 
-@pytest.fixture
-def platform(on_gogi):
-    if on_gogi:
-        from study_assistant.platform.gogi_adapter import GogiPlatform
+# where gogi requires keys: the gateway that requires them, and gogi's tool for registering applications
+KEYS_GATEWAY = os.environ.get("STUDY_ASSISTANT_TEST_KEYS_GATEWAY", "localhost:50050")
+GOGI_ADMIN = os.environ.get("STUDY_ASSISTANT_TEST_GOGI_ADMIN", "docker exec gogi-gateway-applications /root/gogi-admin")
 
-        return GogiPlatform(Settings())
-    return FakePlatform()
+
+class GogiApplications:
+    """The applications a scenario registers with gogi, as gogi's operator does; deleted after the scenario."""
+
+    def __init__(self):
+        self.suffix = uuid.uuid4().hex[:6]
+        self.keys: dict[str, str] = {}
+
+    def name(self, application: str) -> str:
+        return f"{application}-{self.suffix}"
+
+    def register(self, application: str) -> str:
+        output = self._admin("register", self.name(application))
+        self.keys[application] = output.strip().splitlines()[-1]
+        return self.keys[application]
+
+    def delete_all(self):
+        for application in self.keys:
+            self._admin("delete", self.name(application))
+
+    @staticmethod
+    def _admin(*args: str) -> str:
+        done = subprocess.run([*shlex.split(GOGI_ADMIN), *args], check=True, capture_output=True, text=True)
+        return done.stdout
+
+
+@pytest.fixture
+def gogi_applications():
+    applications = GogiApplications()
+    yield applications
+    applications.delete_all()
+
+
+@pytest.fixture
+def platform(request, on_gogi):
+    if not on_gogi:
+        return FakePlatform()
+
+    from study_assistant.platform.gogi_adapter import GogiPlatform
+
+    if "gogi_keys" in request.keywords:
+        key = request.getfixturevalue("gogi_applications").register("qubit-notes")
+        return GogiPlatform(Settings(gateway_url=KEYS_GATEWAY, gogi_api_key=key))
+    if "gogi_wrong_key" in request.keywords:
+        return GogiPlatform(Settings(gateway_url=KEYS_GATEWAY, gogi_api_key="gogi_" + uuid.uuid4().hex))
+    return GogiPlatform(Settings())
 
 
 @pytest.fixture(scope="session")
