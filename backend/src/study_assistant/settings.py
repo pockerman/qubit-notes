@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -7,6 +9,18 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="STUDY_ASSISTANT_", env_file=".env", extra="ignore")
 
     gateway_url: str = "localhost:50051"
+
+    # how students sign in: by name, as in development, or with Amazon Cognito where the app is deployed
+    auth: Literal["name", "cognito"] = "name"
+    # the user pool and its app client, e.g. eu-west-2, eu-west-2_AbC123, and its sign-in pages' domain, e.g.
+    # https://qubit-notes.auth.eu-west-2.amazoncognito.com
+    cognito_region: str = ""
+    cognito_user_pool_id: str = ""
+    cognito_client_id: str = ""
+    cognito_domain: str = ""
+    # the issuer of the user pool's tokens; https://cognito-idp.<region>.amazonaws.com/<user pool> if unset
+    cognito_issuer: str | None = None
+
     # the key gogi gave the app, where gogi serves many applications; not needed where gogi runs without keys
     gogi_api_key: str | None = None
     # the certificate authority to check gogi's gateway against, e.g. where gogi has no domain; else the system's
@@ -30,3 +44,12 @@ class Settings(BaseSettings):
     embeddings_client: str = "sentence-transformer"
     embeddings_model: str = "clip"
     chunk_strategy: str = "fixed"
+
+    @property
+    def issuer(self) -> str:
+        """the issuer of the Cognito user pool's tokens"""
+        if self.cognito_issuer:
+            return self.cognito_issuer.rstrip("/")
+        if self.cognito_region and self.cognito_user_pool_id:
+            return f"https://cognito-idp.{self.cognito_region}.amazonaws.com/{self.cognito_user_pool_id}"
+        return ""

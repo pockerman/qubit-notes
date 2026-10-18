@@ -16,6 +16,7 @@ pytest_plugins = [
     "tests.bdd.steps.editing_steps",
     "tests.bdd.steps.health_steps",
     "tests.bdd.steps.application_steps",
+    "tests.bdd.steps.sign_in_steps",
     "tests.bdd.steps.materials_steps",
     "tests.bdd.steps.writing_steps",
     "tests.bdd.steps.images_steps",

@@ -51,6 +51,26 @@ development, none of this is needed. The `@gogi` scenarios of `features/gogi_app
 gateway that requires keys (`localhost:50050`), registering applications with `docker exec gogi-gateway-applications
 /root/gogi-admin`.
 
+## Signing in with Amazon Cognito
+
+Where the app is deployed, students sign in with Amazon Cognito rather than by name
+(`features/sign_in.feature`, `features/ui_sign_in.feature`). The user pool needs an app client that is public (no
+client secret), with the authorization code grant, the `openid` scope, and the app's address, e.g.
+`https://notes.example.org/`, as both its callback and its sign-out URL; and a domain for its sign-in pages.
+
+```bash
+export STUDY_ASSISTANT_AUTH=cognito
+export STUDY_ASSISTANT_COGNITO_REGION=eu-west-2
+export STUDY_ASSISTANT_COGNITO_USER_POOL_ID=eu-west-2_AbC123
+export STUDY_ASSISTANT_COGNITO_CLIENT_ID=...
+export STUDY_ASSISTANT_COGNITO_DOMAIN=https://qubit-notes.auth.eu-west-2.amazoncognito.com
+```
+
+The browser signs in with PKCE and sends the access token with every request; the backend checks it against the
+pool's keys, issuer, app client and expiry, and the student is the token's username. A video's link carries the token
+(`?access_token=`), as a `<video>` can't send headers. The tests stand in for Cognito with
+`backend/tests/fakes/fake_cognito.py`.
+
 ## Contributing and releases
 
 Pull requests are squash-merged, and the squash commit takes the PR's title as its message. So the title must be a

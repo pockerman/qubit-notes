@@ -12,6 +12,7 @@ dependencies = [
     "gogi-python",
     # the app's own data: notes, summaries, quizzes
     "sqlalchemy>=2.0",
+    "pyjwt[crypto]>=2.9",
 ]
 
 [project.scripts]
@@ -50,6 +51,7 @@ markers = [
     "ui: the scenario drives the React UI with Playwright",
     "wip: written and reviewed, but not built yet; skipped",
     "ai: the scenario needs the AI; on gogi it runs only with --with-ai",
+    "cognito: students sign in with Cognito; the tests stand in for it with tests/fakes/fake_cognito.py",
     "gogi_keys: on gogi, the app runs as a registered application of gogi, through the gateway that requires keys",
     "gogi_wrong_key: on gogi, the app runs with a key gogi did not give, through the gateway that requires keys",
 ]
