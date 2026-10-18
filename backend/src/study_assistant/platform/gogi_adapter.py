@@ -76,15 +76,41 @@ class GogiPlatform:
 
     def __init__(self, settings: Settings):
         self._settings = settings
-        self._gogi = Gogi(gateway_url=settings.gateway_url, logger=logger)
+        root_certificates = None
+        if settings.gogi_ca_file:
+            with open(settings.gogi_ca_file, "rb") as ca_file:
+                root_certificates = ca_file.read()
+        self._gogi = Gogi(
+            gateway_url=settings.gateway_url,
+            logger=logger,
+            api_key=settings.gogi_api_key,
+            root_certificates=root_certificates,
+        )
 
     def health(self) -> PlatformHealth:
         health = self._gogi.health.status()
-        return PlatformHealth(
+        result = PlatformHealth(
             reachable=health.reachable,
             services={name: str(status) for name, status in health.services.items()},
             error=health.error,
         )
+        if health.reachable:
+            # gogi answers its health without a key, so a call that needs the app's key tells whether gogi takes it
+            try:
+                self._gogi.credentials.list()
+            except grpc.RpcError as e:
+                if e.code() == grpc.StatusCode.UNAUTHENTICATED:
+                    result.authenticated = False
+                    result.error = f"gogi does not take the app's key: {e.details()}"
+        return result
+
+    # the app's credentials
+
+    def store_credential(self, name: str, value: str) -> None:
+        self._gogi.credentials.store(name, value)
+
+    def list_credentials(self) -> list[str]:
+        return [credential.name for credential in self._gogi.credentials.list()]
 
     # indexes
 

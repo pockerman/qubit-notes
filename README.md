@@ -34,6 +34,43 @@ make lint
 The backend needs Python 3.12+ and installs gogi-python from `../../gogi-python` in editable mode. Build its
 protobuf code first (`gogi-python/install.sh` or `uv run python scripts/build_protos.py`).
 
+## Running on a gogi that serves many applications
+
+Where gogi serves many applications, gogi's operator registers the app (`gogi-admin register qubit-notes`) and gives
+it a key. Run the app with it, and store the app's Anthropic key in gogi once, as the app's own:
+
+```bash
+export STUDY_ASSISTANT_GATEWAY_URL=gogi.example.org:443
+export STUDY_ASSISTANT_GOGI_API_KEY=gogi_...
+export STUDY_ASSISTANT_GOGI_CA_FILE=/etc/qubit-notes/gogi-ca.pem   # only where gogi has a certificate authority of its own
+echo "$ANTHROPIC_API_KEY" | uv run study-assistant store-provider-key anthropic
+```
+
+`/api/health` reports the app as degraded if gogi does not take its key. Against a gogi without keys, as in
+development, none of this is needed. The `@gogi` scenarios of `features/gogi_application.feature` run through gogi's
+gateway that requires keys (`localhost:50050`), registering applications with `docker exec gogi-gateway-applications
+/root/gogi-admin`.
+
+## Signing in with Amazon Cognito
+
+Where the app is deployed, students sign in with Amazon Cognito rather than by name
+(`features/sign_in.feature`, `features/ui_sign_in.feature`). The user pool needs an app client that is public (no
+client secret), with the authorization code grant, the `openid` scope, and the app's address, e.g.
+`https://notes.example.org/`, as both its callback and its sign-out URL; and a domain for its sign-in pages.
+
+```bash
+export STUDY_ASSISTANT_AUTH=cognito
+export STUDY_ASSISTANT_COGNITO_REGION=eu-west-2
+export STUDY_ASSISTANT_COGNITO_USER_POOL_ID=eu-west-2_AbC123
+export STUDY_ASSISTANT_COGNITO_CLIENT_ID=...
+export STUDY_ASSISTANT_COGNITO_DOMAIN=https://qubit-notes.auth.eu-west-2.amazoncognito.com
+```
+
+The browser signs in with PKCE and sends the access token with every request; the backend checks it against the
+pool's keys, issuer, app client and expiry, and the student is the token's username. A video's link carries the token
+(`?access_token=`), as a `<video>` can't send headers. The tests stand in for Cognito with
+`backend/tests/fakes/fake_cognito.py`.
+
 ## Contributing and releases
 
 Pull requests are squash-merged, and the squash commit takes the PR's title as its message. So the title must be a

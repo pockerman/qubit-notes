@@ -1,3 +1,4 @@
+import type { AuthConfig, Identity } from './auth'
 export type Health = {
   status: 'ok' | 'degraded'
   // platform service name to its status, e.g. SERVING or NOT_SERVING
@@ -202,19 +203,31 @@ export type MaterialImages = {
   missing: string[]
 }
 
-/** Calls the backend as a student; there is no authentication yet, the student says who they are. */
-export class StudyApi {
-  readonly student: string
+/** How the backend signs students in; asked before anyone has. */
+export async function authConfig(): Promise<AuthConfig> {
+  const response = await fetch('/api/config')
+  if (!response.ok) throw new ApiError(response.status, response.statusText)
+  return response.json()
+}
 
-  constructor(student: string) {
-    this.student = student
+/** Calls the backend as a student: who they say they are, or who their Cognito sign-in says (see auth.ts). */
+export class StudyApi {
+  private readonly identity: Identity
+
+  constructor(identity: Identity) {
+    this.identity = identity
+  }
+
+  get student(): string {
+    return this.identity.student
   }
 
   private async fetch(path: string, init: RequestInit = {}): Promise<Response> {
     const response = await fetch(`/api${path}`, {
       ...init,
-      headers: { 'X-Student-Id': this.student, ...init.headers },
+      headers: { ...(await this.identity.headers()), ...init.headers },
     })
+    if (response.status === 401) this.identity.refused()
     if (!response.ok) {
       const body = await response.json().catch(() => ({}))
       const detail = typeof body.detail === 'string' ? body.detail : response.statusText
@@ -240,9 +253,9 @@ export class StudyApi {
     return this.request(`${this.materialPath(courseId, documentId)}/sections/${position}`)
   }
 
-  /** The file's address for a <video> element, which can't send the student's header. */
+  /** The file's address for a <video> element, which can't send headers: who the student is goes in it. */
   fileUrl(courseId: string, documentId: string): string {
-    const query = new URLSearchParams({ student: this.student, inline: 'true' })
+    const query = new URLSearchParams({ ...this.identity.linkQuery(), inline: 'true' })
     return `/api${this.materialPath(courseId, documentId)}/file?${query}`
   }
 

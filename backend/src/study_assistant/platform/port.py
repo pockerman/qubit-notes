@@ -9,10 +9,12 @@ class PlatformHealth(BaseModel):
     # service name to its status, e.g. {"gateway": "SERVING", "llms": "NOT_SERVING"}
     services: dict[str, str] = {}
     error: str | None = None
+    # whether gogi takes the app's key; gogi answers its health without one
+    authenticated: bool = True
 
     @property
     def serving(self) -> bool:
-        return self.reachable and all(status == "SERVING" for status in self.services.values())
+        return self.reachable and self.authenticated and all(status == "SERVING" for status in self.services.values())
 
 
 class PlatformError(Exception):
@@ -115,6 +117,11 @@ class StudyPlatform(Protocol):
     """
 
     def health(self) -> PlatformHealth: ...
+
+    # the app's own credentials in gogi, e.g. its Anthropic key; their values are never given back
+    def store_credential(self, name: str, value: str) -> None: ...
+
+    def list_credentials(self) -> list[str]: ...
 
     # indexes and their members
     def create_index(self, name: str, owner: str) -> IndexInfo: ...

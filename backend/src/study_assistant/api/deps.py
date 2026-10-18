@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Header, Request
+from fastapi import Depends, Request
 
 from study_assistant.domain.assistant import Assistant
 from study_assistant.domain.courses import Courses
@@ -49,5 +49,15 @@ def assistant(request: Request) -> Assistant:
     return request.app.state.assistant
 
 
-# the student making the request. There is no authentication yet: the client says who it is
-Student = Annotated[str, Header(alias="X-Student-Id", min_length=1)]
+def current_student(request: Request) -> str:
+    return request.app.state.authenticator.student(request)
+
+
+def student_in_link(request: Request) -> str:
+    """the student following a link, e.g. a <video>'s, which can't send headers: who they are is in the link"""
+    return request.app.state.authenticator.student(request, in_link=True)
+
+
+# the student making the request: who they say they are, or who their Cognito token says (see api/auth.py)
+Student = Annotated[str, Depends(current_student)]
+StudentInLink = Annotated[str, Depends(student_in_link)]

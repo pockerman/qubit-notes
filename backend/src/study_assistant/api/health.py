@@ -12,6 +12,12 @@ class HealthResponse(BaseModel):
     error: str | None = None
 
 
+@router.get("/config")
+async def config(request: Request) -> dict:
+    """what the browser needs before anyone signs in: how students sign in"""
+    return request.app.state.authenticator.config()
+
+
 @router.get("/health", response_model=HealthResponse)
 async def health(request: Request) -> HealthResponse:
     platform_health = await run_in_threadpool(request.app.state.platform.health)

@@ -3,6 +3,7 @@ from fastapi.staticfiles import StaticFiles
 
 from study_assistant import storage
 from study_assistant.api import assistant, courses, health, images, materials, notes, reading, study
+from study_assistant.api.auth import authenticator
 from study_assistant.api.errors import add_error_handlers
 from study_assistant.domain.assistant import Assistant
 from study_assistant.domain.courses import Courses
@@ -30,6 +31,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app = FastAPI(title="Study Assistant")
     app.state.platform = platform
     app.state.settings = settings
+    app.state.authenticator = authenticator(settings)
     app.state.memory = StudentMemory(platform)
     app.state.courses = Courses(platform)
     app.state.materials = Materials(platform, app.state.courses, app.state.memory, settings.max_upload_mb)

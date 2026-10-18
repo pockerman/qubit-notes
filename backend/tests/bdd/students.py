@@ -1,5 +1,6 @@
 import time
 import uuid
+from collections.abc import Callable
 
 from fastapi.testclient import TestClient
 from httpx import Response
@@ -16,8 +17,10 @@ class Students:
     see each other's courses or memories.
     """
 
-    def __init__(self, client: TestClient, ingest_timeout_seconds: float):
+    def __init__(self, client: TestClient, ingest_timeout_seconds: float, token: Callable[[str], str] | None = None):
         self.client = client
+        # a student's Cognito access token, where students sign in with Cognito
+        self._token = token
         self.suffix = uuid.uuid4().hex[:8]
         self.me = ""
         self.seen: set[str] = set()
@@ -32,6 +35,8 @@ class Students:
         return student_id.removesuffix(f"-{self.suffix}")
 
     def headers(self, name: str | None = None) -> dict[str, str]:
+        if self._token:
+            return {"Authorization": f"Bearer {self._token(self.id(name or self.me))}"}
         return {"X-Student-Id": self.id(name or self.me)}
 
     # actions

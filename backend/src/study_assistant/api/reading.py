@@ -4,7 +4,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, Depends, Header, Response
 from fastapi.concurrency import run_in_threadpool
 
-from study_assistant.api.deps import Student, reading
+from study_assistant.api.deps import Student, StudentInLink, reading
 from study_assistant.domain.reading import OpenedMaterial, Reading
 from study_assistant.platform.port import SectionText
 
@@ -42,16 +42,12 @@ async def download(
     course_id: str,
     document_id: str,
     service: ReadingDep,
-    x_student_id: Annotated[str | None, Header()] = None,
-    student: str | None = None,
+    who: StudentInLink,
     range: Annotated[str | None, Header()] = None,
     inline: bool = False,
 ) -> Response:
-    """The uploaded file. A <video> element can't send the student's header, so the student may come as a query
-    parameter instead, and it asks for parts of the file with a Range header to seek."""
-    who = x_student_id or student
-    if not who:
-        return Response(status_code=401, content="say who you are with X-Student-Id or ?student=")
+    """The uploaded file. A <video> element can't send headers, so who the student is may come in the link instead:
+    ?student= by name, or ?access_token= with Cognito. It asks for parts of the file with a Range header to seek."""
     byte_range = _byte_range(range)
     offset, length = byte_range or (0, 0)
     downloaded = await run_in_threadpool(service.download, who, course_id, document_id, offset, length)
