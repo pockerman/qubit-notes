@@ -1,0 +1,36 @@
+#cloud-config
+# The app's server, on Amazon Linux 2023: Docker, and qubit-notes.service, which runs the app's image. A Terraform
+# template.
+package_update: true
+packages:
+  - docker
+  - jq
+
+write_files:
+  - path: /opt/qubit-notes/start-qubit-notes.sh
+    encoding: b64
+    permissions: "0755"
+    content: ${start_script}
+  - path: /etc/systemd/system/qubit-notes.service
+    content: |
+      [Unit]
+      Description=qubit-notes
+      Requires=docker.service
+      After=docker.service network-online.target
+      Wants=network-online.target
+
+      [Service]
+      # until its settings are written, which Terraform does after CloudFront and Cognito, the app is tried again
+      Restart=always
+      RestartSec=30
+      ExecStart=/opt/qubit-notes/start-qubit-notes.sh
+      ExecStop=/usr/bin/docker stop qubit-notes
+      TimeoutStartSec=600
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - systemctl daemon-reload
+  - systemctl enable --now docker
+  - systemctl enable --now qubit-notes
