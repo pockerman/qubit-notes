@@ -1,11 +1,41 @@
 """The app's own data: what students make while studying (notes, summaries, quizzes), as opposed to their
-material, which lives in gogi."""
+material, which lives in gogi.
 
-from sqlalchemy import JSON, Boolean, Column, DateTime, Float, Integer, MetaData, String, Table, Text, create_engine
+The tables are created and changed by the migrations in ``migrations/versions``, which the app runs when it starts.
+A change to a table here needs a migration: from backend/, ``uv run alembic revision --autogenerate -m "..."``.
+"""
+
+from pathlib import Path
+
+from alembic import command
+from alembic.config import Config
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    Text,
+    create_engine,
+    inspect,
+)
 from sqlalchemy.engine import Engine
 from sqlalchemy.pool import StaticPool
 
-metadata = MetaData()
+# constraints are named, so migrations can refer to them on every database
+metadata = MetaData(
+    naming_convention={
+        "ix": "ix_%(column_0_label)s",
+        "uq": "uq_%(table_name)s_%(column_0_name)s",
+        "ck": "ck_%(table_name)s_%(constraint_name)s",
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        "pk": "pk_%(table_name)s",
+    }
+)
 
 # a course's topics, each in a subject: they stay when all their material is deleted
 topics = Table(
@@ -126,12 +156,35 @@ conversation_turns = Table(
 )
 
 
+MIGRATIONS = Path(__file__).parent / "migrations"
+# the first migration: the tables as they were before there were migrations
+BASELINE = "0001"
+
+
+def migrations_config() -> Config:
+    config = Config()
+    config.set_main_option("script_location", str(MIGRATIONS))
+    return config
+
+
+def migrate(engine: Engine) -> None:
+    """Brings the database's tables up to date. A database made before there were migrations has the baseline's
+    tables already, and is marked as having them."""
+    config = migrations_config()
+    with engine.begin() as connection:
+        config.attributes["connection"] = connection
+        tables = set(inspect(connection).get_table_names())
+        if "alembic_version" not in tables and "notes" in tables:
+            command.stamp(config, BASELINE)
+        command.upgrade(config, "head")
+
+
 def connect(database_url: str) -> Engine:
-    """The database, with its tables created if they don't exist yet."""
+    """The database, migrated to the tables the app needs."""
     if database_url in ("sqlite://", "sqlite:///:memory:"):
         # one in-memory database, shared by every thread that serves requests
         engine = create_engine(database_url, connect_args={"check_same_thread": False}, poolclass=StaticPool)
     else:
         engine = create_engine(database_url)
-    metadata.create_all(engine)
+    migrate(engine)
     return engine
