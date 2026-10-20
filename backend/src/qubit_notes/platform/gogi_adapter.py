@@ -164,9 +164,8 @@ class GogiPlatform:
                 content_type=content_type,
                 metadata=metadata,
                 chunk_strategy=self._settings.chunk_strategy,
-                embeddings_model=self._settings.embeddings_model,
-                embeddings_client=self._settings.embeddings_client,
-                store_only=store_only,
+                # a stored file, e.g. a video, is not embedded
+                embedding_models=[] if store_only else [self._settings.embedding_model],
             )
         )
         return IngestJob(job_id=job.job_id, document_id=job.document_id or "", status=_STATUSES[job.status])
@@ -189,8 +188,7 @@ class GogiPlatform:
                 content_type=content_type,
                 metadata=metadata,
                 chunk_strategy=self._settings.chunk_strategy,
-                embeddings_model=self._settings.embeddings_model,
-                embeddings_client=self._settings.embeddings_client,
+                embedding_models=[self._settings.embedding_model],
                 replace=True,
             )
         )
@@ -291,8 +289,7 @@ class GogiPlatform:
                 index_name=index_name,
                 query=query,
                 top_k=top_k,
-                embeddings_model=self._settings.embeddings_model,
-                embeddings_client=self._settings.embeddings_client,
+                embedding_model=self._settings.embedding_model,
                 metadata_filter=metadata_filter or {},
             )
         )
