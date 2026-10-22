@@ -9,8 +9,8 @@ Feature: Images in Markdown material
   when the material does. An image is not a material of its own: it is not listed, searched,
   summarised or quizzed. Images on the web (https://...) are shown as they are and not kept.
 
-  PNG, JPEG, GIF and WebP images up to 10 MB are accepted. A PDF's images are part of the
-  PDF; only Markdown material has images of its own.
+  PNG, JPEG, GIF and WebP images up to 10 MB are accepted. The pictures of a PDF or an EPUB
+  become the images of the Markdown it is converted to (see PDF and EPUB material as Markdown).
 
   Background:
     Given I am the student "maria"
@@ -88,7 +88,7 @@ Feature: Images in Markdown material
       Examples:
         | filename      |
         | fe-basics.txt |
-        | lecture-1.pdf |
+        | lecture-3.mp4 |
 
   Rule: Images go with their material, and are shared with its course
 

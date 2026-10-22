@@ -4,8 +4,8 @@ Feature: Reading material
   So that I can study, take notes and ask for summaries and quizzes in one place
 
   A document is divided into sections: its chapters and the headings within them.
-  A Markdown file's sections are its headings; a PDF's come from its outline (bookmarks),
-  or are its pages if it has no outline; a plain text file is a single section.
+  A Markdown file's sections are its headings, as are a PDF's and an EPUB's, which are converted
+  to Markdown (see PDF and EPUB material as Markdown); a plain text file is a single section.
   A section includes its subsections, so "2 Shape functions" includes "2.1 Linear elements".
 
   Background:
@@ -66,7 +66,7 @@ Feature: Reading material
       When I open "fe-meshing.txt" before it is ready
       Then I am told the material is still being processed
 
-  Rule: The original file can be downloaded
+  Rule: The original file can be downloaded (a PDF's or an EPUB's as it is now too: see PDF and EPUB material as Markdown)
 
     @platform
     Scenario: Download the original file

@@ -59,11 +59,11 @@ def given_its_text(context):
     assert response.json()["text"] == context["uploaded"][context["filename"]].decode()
 
 
-@then("I am told only Markdown and text material can be edited")
+@then("I am told only text material can be edited")
 def only_text(context):
     response = context["response"]
     assert response.status_code == 422, response.text
-    assert "only Markdown and text material can be edited" in response.json()["detail"]
+    assert "only text material can be edited" in response.json()["detail"]
 
 
 @then("I am told the material cannot be empty")

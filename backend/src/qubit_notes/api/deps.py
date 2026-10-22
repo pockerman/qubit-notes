@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends, Request
 
 from qubit_notes.domain.assistant import Assistant
+from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.images import Images
 from qubit_notes.domain.materials import Materials
@@ -19,6 +20,10 @@ def courses(request: Request) -> Courses:
 
 def images(request: Request) -> Images:
     return request.app.state.images
+
+
+def conversions(request: Request) -> Conversions:
+    return request.app.state.conversions
 
 
 def materials(request: Request) -> Materials:

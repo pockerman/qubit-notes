@@ -158,6 +158,22 @@ conversation_turns = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
 )
 
+# the conversion of an uploaded PDF or EPUB to the Markdown its material is: see domain/conversions.py
+conversions = Table(
+    "conversions",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("course_id", String, nullable=False),
+    Column("document_id", String, nullable=False, index=True),
+    Column("original_id", String, nullable=False),
+    Column("status", String, nullable=False, index=True),
+    Column("error", Text),
+    # once converted, the platform's processing of the Markdown
+    Column("ingest_job_id", String),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
 
 # the app's own platform (platform/standalone): courses are its indexes, and material is its documents
 

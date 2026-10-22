@@ -262,10 +262,12 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
     api.readSection(courseId, documentId, position).then(setParts, (e: Error) => setError(e.message))
   }, [api, courseId, documentId, position, version])
 
-  async function download() {
+  // the uploaded file, or a converted material as it is now
+  async function download(asItIsNow = false) {
     if (!material) return
     try {
-      const url = URL.createObjectURL(await api.download(courseId, documentId))
+      const file = asItIsNow ? api.export(courseId, documentId) : api.download(courseId, documentId)
+      const url = URL.createObjectURL(await file)
       const link = document.createElement('a')
       link.href = url
       link.download = material.filename
@@ -348,9 +350,20 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
                   Edit
                 </button>
               )}
-              <button type="button" onClick={download}>
-                Download
-              </button>
+              {material.converted_from ? (
+                <>
+                  <button type="button" onClick={() => download()}>
+                    Download original
+                  </button>
+                  <button type="button" onClick={() => download(true)}>
+                    Download as {material.converted_from.toUpperCase()}
+                  </button>
+                </>
+              ) : (
+                <button type="button" onClick={() => download()}>
+                  Download
+                </button>
+              )}
               <button type="button" aria-pressed={assistant} onClick={() => setAssistant(!assistant)}>
                 AI
               </button>

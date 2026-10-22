@@ -60,6 +60,23 @@ wrote. `tests/unit/test_migrations.py` fails if `storage.py` and the migrations 
 `QUBIT_NOTES_TEST_POSTGRES_URL` set it checks Postgres too, and `QUBIT_NOTES_TEST_DATABASE_URL` runs the scenarios
 against a database of your choosing, as CI does with Postgres.
 
+## PDFs and EPUBs
+
+An uploaded PDF or EPUB is converted to Markdown in the background (`features/converting.feature`,
+`backend/src/qubit_notes/conversion/`), and from then on the material is that Markdown: students read, edit, search,
+summarise and quiz it as Markdown. Its pictures become its images.
+
+- PDFs are converted with [pymupdf4llm](https://github.com/pymupdf/pymupdf4llm) (AGPL, as is PyMuPDF): headings from
+  the PDF's outline if it has one, else from its font sizes, else a section per page. A PDF without text, such as a
+  scan, fails with a message saying so; there is no OCR.
+- EPUBs are converted with ebooklib and markdownify: a chapter's headings, or its title in the table of contents.
+- Two downloads: the original file, unchanged, and the material as it is now, as a PDF or an EPUB laid out anew
+  from its Markdown (with PyMuPDF and ebooklib), with an outline of its headings or a chapter per top heading.
+
+The platform keeps a converted material's Markdown as `<name>.md`, so gogi reads it as Markdown too; the app shows it
+by the name it was uploaded with (`platform/named.py`). PDFs uploaded before this stay as they were: read, but not
+edited.
+
 ## The app's own platform
 
 By default (`QUBIT_NOTES_PLATFORM=standalone`) the app is its own platform (`features/standalone.feature`):

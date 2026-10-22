@@ -328,9 +328,15 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
                         ) : (
                           <span className="filename">{material.filename}</span>
                         )}
-                        <span className={`badge ${material.status === 'failed' ? 'bad' : ''}`}>
+                        <span
+                          className={`badge ${material.status === 'failed' ? 'bad' : ''}`}
+                          title={material.error ?? undefined}
+                        >
                           {STATUS_LABEL[material.status]}
                         </span>
+                        {material.status === 'failed' && material.error && (
+                          <span className="note">{material.error}</span>
+                        )}
                         {isOwner && (
                           <button
                             type="button"

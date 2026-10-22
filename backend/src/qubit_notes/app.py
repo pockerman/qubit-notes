@@ -8,6 +8,7 @@ from qubit_notes.api import assistant, courses, health, images, materials, notes
 from qubit_notes.api.auth import authenticator
 from qubit_notes.api.errors import add_error_handlers
 from qubit_notes.domain.assistant import Assistant
+from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.images import Images
 from qubit_notes.domain.materials import Materials
@@ -19,6 +20,7 @@ from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
 from qubit_notes.platform import platform_from
+from qubit_notes.platform.named import NamedDocuments
 from qubit_notes.platform.port import StudyPlatform
 from qubit_notes.settings import Settings
 
@@ -26,7 +28,9 @@ from qubit_notes.settings import Settings
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
     yield
-    # the app's own platform stops ingesting; what it hasn't finished, it finishes when it starts again
+    # conversions and the app's own platform's ingestions stop; what they haven't finished is done when the app
+    # starts again
+    app.state.conversions.stop()
     if stop := getattr(app.state.platform, "stop", None):
         stop()
 
@@ -39,17 +43,25 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     if platform is None:
         platform = platform_from(settings, database)
 
+    # a converted PDF's Markdown keeps the PDF's name, but platforms read it as Markdown by a name ending in .md
+    platform = NamedDocuments(platform)
+
     app = FastAPI(title="Qubit Notes", lifespan=_lifespan)
     app.state.platform = platform
     app.state.settings = settings
     app.state.authenticator = authenticator(settings)
     app.state.memory = StudentMemory(platform)
     app.state.courses = Courses(platform)
-    app.state.materials = Materials(platform, app.state.courses, app.state.memory, settings.max_upload_mb)
-    app.state.reading = Reading(platform, app.state.courses)
     app.state.images = Images(platform, app.state.courses)
-    # a deleted material's images go with it
+    app.state.conversions = Conversions(database, platform, app.state.courses, app.state.images)
+    app.state.materials = Materials(
+        platform, app.state.courses, app.state.memory, settings.max_upload_mb, app.state.conversions
+    )
+    app.state.reading = Reading(platform, app.state.courses, app.state.conversions)
+    # a deleted material's images go with it, as does a converted one's original
     app.state.materials.on_delete_in_course(app.state.images.forget)
+    app.state.materials.on_delete_in_course(app.state.conversions.forget)
+    app.state.conversions.resume()
     app.state.database = database
     app.state.notes = Notes(app.state.database, app.state.reading)
     app.state.topics = Topics(app.state.database, platform, app.state.courses)

@@ -24,6 +24,7 @@ pytest_plugins = [
     "tests.bdd.steps.images_steps",
     "tests.bdd.steps.sharing_steps",
     "tests.bdd.steps.standalone_steps",
+    "tests.bdd.steps.converting_steps",
     "tests.bdd.steps.ui_steps",
 ]
 

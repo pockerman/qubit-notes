@@ -4,7 +4,8 @@ from urllib.parse import quote
 from fastapi import APIRouter, Depends, Header, Response
 from fastapi.concurrency import run_in_threadpool
 
-from qubit_notes.api.deps import Student, StudentInLink, reading
+from qubit_notes.api.deps import Student, StudentInLink, conversions, reading
+from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.reading import OpenedMaterial, Reading
 from qubit_notes.platform.port import SectionText
 
@@ -12,6 +13,7 @@ from qubit_notes.platform.port import SectionText
 # members is refused, rather than told there's no such course
 router = APIRouter(prefix="/courses/{course_id}/materials/{document_id}", tags=["reading"])
 ReadingDep = Annotated[Reading, Depends(reading)]
+ConversionsDep = Annotated[Conversions, Depends(conversions)]
 
 
 @router.get("", response_model=OpenedMaterial)
@@ -61,3 +63,11 @@ async def download(
     end = offset + len(downloaded.content) - 1
     headers["Content-Range"] = f"bytes {offset}-{end}/{downloaded.size}"
     return Response(content=downloaded.content, status_code=206, media_type=downloaded.content_type, headers=headers)
+
+
+@router.get("/export")
+async def export(course_id: str, document_id: str, student: Student, service: ConversionsDep) -> Response:
+    """a material converted from a PDF or an EPUB as it is now, as a PDF or an EPUB laid out anew from its Markdown"""
+    exported = await run_in_threadpool(service.export, student, course_id, document_id)
+    headers = {"Content-Disposition": f"attachment; filename*=UTF-8''{quote(exported.filename)}"}
+    return Response(content=exported.content, media_type=exported.content_type, headers=headers)

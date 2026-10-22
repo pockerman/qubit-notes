@@ -32,6 +32,10 @@ export type Material = {
   status: IngestStatus
   kind: 'text' | 'video'
   duration_seconds: number | null
+  // what a PDF or an EPUB was converted from, to Markdown; its original can be downloaded too
+  converted_from: 'pdf' | 'epub' | null
+  // why it could not be processed, e.g. a PDF without text
+  error: string | null
 }
 
 export type Topic = {
@@ -80,6 +84,7 @@ export type OpenedMaterial = {
   kind: 'text' | 'video'
   content_type: string
   duration_seconds: number | null
+  converted_from: 'pdf' | 'epub' | null
   sections: Section[]
 }
 
@@ -317,6 +322,11 @@ export class StudyApi {
   /** The uploaded file; the student's header can't go on a plain link, so it's fetched. */
   async download(courseId: string, documentId: string): Promise<Blob> {
     return (await this.fetch(`${this.materialPath(courseId, documentId)}/file`)).blob()
+  }
+
+  /** A material converted from a PDF or an EPUB as it is now, as a PDF or an EPUB laid out anew. */
+  async export(courseId: string, documentId: string): Promise<Blob> {
+    return (await this.fetch(`${this.materialPath(courseId, documentId)}/export`)).blob()
   }
 
   health(): Promise<Health> {

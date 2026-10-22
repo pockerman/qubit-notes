@@ -5,9 +5,18 @@ from collections.abc import Callable
 from fastapi.testclient import TestClient
 from httpx import Response
 
-DEFAULT_CONTENT = {
-    ".pdf": b"%PDF-1.4\n% minimal\n",
-}
+
+def _default_content(suffix: str, location: str) -> bytes:
+    """a file of the kind, with some text: PDFs and EPUBs are converted, so they're real ones"""
+    if suffix == ".pdf":
+        from tests.pdfs import make_pdf
+
+        return make_pdf([f"Notes on {location}."])
+    if suffix == ".epub":
+        from tests.epubs import make_epub
+
+        return make_epub([("Notes", f"Notes on {location}.")])
+    return f"Notes on {location}.".encode()
 
 
 class Students:
@@ -43,7 +52,7 @@ class Students:
 
     def upload(self, location: str, filename: str, content: bytes | None = None, *, name: str | None = None):
         if content is None:
-            content = DEFAULT_CONTENT.get(filename[filename.rfind(".") :], f"Notes on {location}.".encode())
+            content = _default_content(filename[filename.rfind(".") :], location)
         return self.client.post(
             "/api/materials",
             headers=self.headers(name),
@@ -112,5 +121,12 @@ class Students:
     def download(self, material: dict, *, name: str | None = None) -> Response:
         return self.client.get(
             f"/api/courses/{material['course_id']}/materials/{material['document_id']}/file",
+            headers=self.headers(name),
+        )
+
+    def export(self, material: dict, *, name: str | None = None) -> Response:
+        """a converted material as it is now, as a PDF or an EPUB"""
+        return self.client.get(
+            f"/api/courses/{material['course_id']}/materials/{material['document_id']}/export",
             headers=self.headers(name),
         )
