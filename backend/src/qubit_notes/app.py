@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -16,19 +18,28 @@ from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
+from qubit_notes.platform import platform_from
 from qubit_notes.platform.port import StudyPlatform
 from qubit_notes.settings import Settings
 
 
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    yield
+    # the app's own platform stops ingesting; what it hasn't finished, it finishes when it starts again
+    if stop := getattr(app.state.platform, "stop", None):
+        stop()
+
+
 def create_app(platform: StudyPlatform | None = None, settings: Settings | None = None) -> FastAPI:
-    """Build the app. Tests pass their own ``platform``; otherwise it talks to gogi."""
+    """Build the app. Tests pass their own ``platform``; otherwise it's the one the settings name: the app's own, or
+    gogi."""
     settings = settings or Settings()
+    database = storage.connect(settings.database_url)
     if platform is None:
-        from qubit_notes.platform.gogi_adapter import GogiPlatform
+        platform = platform_from(settings, database)
 
-        platform = GogiPlatform(settings)
-
-    app = FastAPI(title="Qubit Notes")
+    app = FastAPI(title="Qubit Notes", lifespan=_lifespan)
     app.state.platform = platform
     app.state.settings = settings
     app.state.authenticator = authenticator(settings)
@@ -39,7 +50,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.images = Images(platform, app.state.courses)
     # a deleted material's images go with it
     app.state.materials.on_delete_in_course(app.state.images.forget)
-    app.state.database = storage.connect(settings.database_url)
+    app.state.database = database
     app.state.notes = Notes(app.state.database, app.state.reading)
     app.state.topics = Topics(app.state.database, platform, app.state.courses)
     app.state.materials.on_upload(app.state.topics.ensure)

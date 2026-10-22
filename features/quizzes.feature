@@ -28,7 +28,7 @@ Feature: Quizzes
 
   Rule: A section, a document or a topic can be quizzed
 
-    @gogi
+    @platform
     Scenario: Get a quiz on a section
       When I ask for a quiz of 3 questions on the section "2 Shape functions" of "fem-notes.md"
       Then I get a quiz of 3 questions
@@ -40,7 +40,7 @@ Feature: Quizzes
       Then I get a quiz of 5 questions
       And every question cites a section of "fem-notes.md"
 
-    @gogi
+    @platform
     Scenario: Get a quiz on a topic from all of its material
       Given I have uploaded "fe-meshing.txt" to "aeronautics/numerical-methods/finite-elements"
       And I have uploaded "fd-schemes.txt" to "aeronautics/numerical-methods/finite-differences"

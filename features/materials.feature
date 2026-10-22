@@ -12,7 +12,7 @@ Feature: Study materials
 
   Rule: Uploaded material becomes searchable once it has been processed
 
-    @gogi
+    @platform
     Scenario: Upload a text note to a topic
       When I upload the file "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements" with the content:
         """
@@ -46,7 +46,7 @@ Feature: Study materials
       When I upload the file "empty.txt" to "aeronautics/numerical-methods/finite-elements" with no content
       Then the upload is rejected as empty
 
-    @gogi
+    @platform
     Scenario: A file too large to send in one piece is uploaded
       When I upload a 10 MB file "lecture-notes.pdf" to "aeronautics/numerical-methods/finite-elements"
       Then the upload is accepted for processing
@@ -79,7 +79,7 @@ Feature: Study materials
         | aeronautics/aerodynamics/boundary-layers           | blasius.txt       |
         | mathematics/linear-algebra/eigenvalues             | power-method.txt  |
 
-    @gogi
+    @platform
     Scenario: List my courses
       When I list my courses
       Then I see the courses:
@@ -87,7 +87,7 @@ Feature: Study materials
         | aeronautics |
         | mathematics |
 
-    @gogi
+    @platform
     Scenario: List the material of a course
       When I list the materials of the course "aeronautics"
       Then I see the materials:
@@ -97,7 +97,7 @@ Feature: Study materials
         | numerical-methods | finite-elements    | fe-basics.txt  |
         | numerical-methods | finite-elements    | fe-meshing.txt |
 
-    @gogi
+    @platform
     Scenario: List the material of a single topic
       When I list the materials of "aeronautics/numerical-methods/finite-differences"
       Then I see the materials:
@@ -106,7 +106,7 @@ Feature: Study materials
 
   Rule: Each student sees only their own material
 
-    @gogi
+    @platform
     Scenario: Another student's course is not in my list
       Given the student "tom" has uploaded "rome.txt" to "history/ancient-history/rome"
       And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
@@ -117,7 +117,7 @@ Feature: Study materials
 
   Rule: Deleting material removes it and everything the assistant learned from it
 
-    @gogi
+    @platform
     Scenario: Delete a material
       Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
       And searching "aeronautics" for "finite element" finds "fe-basics.txt"
@@ -125,7 +125,7 @@ Feature: Study materials
       Then the materials of "aeronautics/numerical-methods/finite-elements" are empty
       And searching "aeronautics" for "finite element" finds nothing from "fe-basics.txt"
 
-    @gogi
+    @platform
     Scenario: The assistant forgets what it remembered from a deleted material
       Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
       And I have uploaded "fd-schemes.txt" to "aeronautics/numerical-methods/finite-differences"

@@ -20,7 +20,7 @@ Feature: Notes
 
   Rule: A note on a text is anchored to a passage
 
-    @gogi
+    @platform
     Scenario: Take a note on a passage
       When I note "compare with Galerkin's method" on "divides a domain into small elements" in "1 Introduction" of "fem-notes.md"
       Then the notes of "fem-notes.md" are:
@@ -42,7 +42,7 @@ Feature: Notes
 
   Rule: A note on a video is anchored to a moment
 
-    @gogi
+    @platform
     Scenario: Take a note at a moment of a video
       Given I have uploaded the video "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
       When I note "derivation of the stiffness matrix" at 12:30 of "lecture-3.mp4"

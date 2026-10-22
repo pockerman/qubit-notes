@@ -34,11 +34,30 @@ data "aws_iam_policy_document" "server" {
   statement {
     sid     = "Secrets"
     actions = ["secretsmanager:GetSecretValue"]
-    resources = [
-      aws_secretsmanager_secret.database.arn,
-      aws_secretsmanager_secret.gogi_api_key.arn,
-      aws_secretsmanager_secret.registry.arn,
-    ]
+    resources = concat(
+      [aws_secretsmanager_secret.database.arn, aws_secretsmanager_secret.registry.arn],
+      aws_secretsmanager_secret.provider_keys[*].arn,
+      aws_secretsmanager_secret.gogi_api_key[*].arn,
+    )
+  }
+
+  # on its own platform, the app keeps the students' uploads in its bucket
+  dynamic "statement" {
+    for_each = aws_s3_bucket.material
+    content {
+      sid       = "Material"
+      actions   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"]
+      resources = ["${statement.value.arn}/*"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = aws_s3_bucket.material
+    content {
+      sid       = "MaterialBucket"
+      actions   = ["s3:ListBucket"]
+      resources = [statement.value.arn]
+    }
   }
 }
 

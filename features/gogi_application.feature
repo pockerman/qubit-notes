@@ -14,7 +14,7 @@ Feature: The app as an application of gogi
 
   Run against a gogi without keys, as in development, the app needs no key.
 
-  @gogi @gogi_keys
+  @platform @gogi_keys
   Scenario: The app works as an application of gogi
     Given gogi requires keys and the app runs with the key of the application "qubit-notes"
     And I am the student "maria"
@@ -25,13 +25,13 @@ Feature: The app as an application of gogi
       | fe-basics.txt |
     And another application of gogi does not see the course "aeronautics" of "maria"
 
-  @gogi @gogi_keys
+  @platform @gogi_keys
   Scenario: The app's Anthropic key is stored in gogi as the app's own
     Given gogi requires keys and the app runs with the key of the application "qubit-notes"
     When the app's Anthropic key is stored
     Then gogi has the credential "anthropic" of "qubit-notes", without showing its value
 
-  @gogi @gogi_wrong_key
+  @platform @gogi_wrong_key
   Scenario: The health check tells when gogi does not take the app's key
     Given gogi requires keys and the app runs with a key gogi did not give
     When I check its health

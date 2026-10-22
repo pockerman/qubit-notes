@@ -28,7 +28,7 @@ Feature: Images in Markdown material
 
   Rule: A material's images are added to it under the paths it refers to them by
 
-    @gogi
+    @platform
     Scenario: Add an image a material refers to
       When I add the image "figures/mesh.png" to "fem-notes.md"
       Then "fem-notes.md" has the images "figures/mesh.png"
@@ -92,7 +92,7 @@ Feature: Images in Markdown material
 
   Rule: Images go with their material, and are shared with its course
 
-    @gogi
+    @platform
     Scenario: Deleting a material deletes its images
       Given I have added the image "figures/mesh.png" to "fem-notes.md"
       When I delete the material "fem-notes.md" from "aeronautics/numerical-methods/finite-elements"

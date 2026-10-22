@@ -20,7 +20,7 @@ Feature: Editing material
 
   Rule: The owners of a course edit the text of its Markdown and text material
 
-    @gogi
+    @platform
     Scenario: Edit a material
       When I change the text of "fem-notes.md" to:
         """
@@ -45,7 +45,7 @@ Feature: Editing material
       When I open "fem-notes.md" for editing
       Then I am given its text exactly as I uploaded it
 
-    @gogi
+    @platform
     Scenario: Searching finds the new text, not the old
       When I change the text of "fem-notes.md" to:
         """

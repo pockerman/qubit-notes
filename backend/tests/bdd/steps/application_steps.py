@@ -47,12 +47,15 @@ def provider_key() -> str:
 
 @when("the app's Anthropic key is stored")
 def store_anthropic_key(platform, provider_key, capsys, context):
-    assert cli.main(["store-provider-key", "anthropic"], stdin=io.StringIO(provider_key + "\n"), platform=platform) == 0
-    context["output"] = capsys.readouterr().out
+    context["code"] = cli.main(
+        ["store-provider-key", "anthropic"], stdin=io.StringIO(provider_key + "\n"), platform=platform
+    )
+    context["output"], context["error"] = capsys.readouterr()
 
 
 @then(parsers.parse('gogi has the credential "{credential}" of "{application}", without showing its value'))
 def has_credential(platform, provider_key, context, credential, application):
+    assert context["code"] == 0, context["error"]
     assert credential in platform.list_credentials()
     assert provider_key not in context["output"]
 

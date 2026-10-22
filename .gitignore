@@ -9,3 +9,6 @@ frontend/dist/
 
 # the app's local database
 *.db
+
+# the uploads the app keeps on disk, on its own platform
+backend/material/

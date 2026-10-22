@@ -9,7 +9,7 @@ class PlatformHealth(BaseModel):
     # service name to its status, e.g. {"gateway": "SERVING", "llms": "NOT_SERVING"}
     services: dict[str, str] = {}
     error: str | None = None
-    # whether gogi takes the app's key; gogi answers its health without one
+    # where the platform is gogi, whether gogi takes the app's key; gogi answers its health without one
     authenticated: bool = True
 
     @property
@@ -109,16 +109,18 @@ class Message(BaseModel):
 
 
 class StudyPlatform(Protocol):
-    """The slice of the gogi platform qubit-notes needs.
+    """What qubit-notes needs of a platform.
 
-    The domain depends on this port only. ``GogiPlatform`` implements it with the gogi-python SDK, and the
-    tests implement it in memory. Methods return ``None``/``False`` for things that don't exist, rather than
-    raising, so the domain decides what a missing thing means.
+    The domain depends on this port only. ``StandalonePlatform`` implements it with the app's own database, files and
+    model providers, ``GogiPlatform`` with the gogi-python SDK, and the tests in memory. Methods return
+    ``None``/``False`` for things that don't exist, rather than raising, so the domain decides what a missing thing
+    means.
     """
 
     def health(self) -> PlatformHealth: ...
 
-    # the app's own credentials in gogi, e.g. its Anthropic key; their values are never given back
+    # the app's own credentials in gogi, e.g. its Anthropic key; their values are never given back. The app's own
+    # platform keeps none: it takes its keys from its settings
     def store_credential(self, name: str, value: str) -> None: ...
 
     def list_credentials(self) -> list[str]: ...

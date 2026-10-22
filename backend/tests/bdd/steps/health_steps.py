@@ -33,7 +33,7 @@ def reports_degraded(context):
 @then("it reports every platform service as serving")
 def every_service_serving(context):
     services = context["response"].json()["services"]
-    assert "gateway" in services
+    assert services
     assert all(status == "SERVING" for status in services.values()), services
 
 

@@ -12,7 +12,7 @@ Feature: Sharing courses
 
   Rule: Owners share a course as a reader or as an owner
 
-    @gogi
+    @platform
     Scenario: Share a course with a classmate as a reader
       When I share the course "aeronautics" with "tom" as a reader
       Then the student "tom" sees the courses:
@@ -22,7 +22,7 @@ Feature: Sharing courses
         | subject           | topic           | filename      |
         | numerical-methods | finite-elements | fe-basics.txt |
 
-    @gogi
+    @platform
     Scenario: See who a course is shared with
       Given I have shared the course "aeronautics" with "tom" as a reader
       And I have shared the course "aeronautics" with "lena" as an owner
@@ -33,7 +33,7 @@ Feature: Sharing courses
         | maria   | owner  |
         | tom     | reader |
 
-    @gogi
+    @platform
     Scenario: A co-owner can add material to a shared course
       Given I have shared the course "aeronautics" with "lena" as an owner
       When the student "lena" uploads "fd-schemes.txt" to "aeronautics/numerical-methods/finite-differences"
@@ -60,7 +60,7 @@ Feature: Sharing courses
 
   Rule: Owners can stop sharing, but a course always keeps an owner
 
-    @gogi
+    @platform
     Scenario: Stop sharing a course
       Given I have shared the course "aeronautics" with "tom" as a reader
       When I stop sharing the course "aeronautics" with "tom"
@@ -72,7 +72,7 @@ Feature: Sharing courses
 
   Rule: Course names only need to be unique for the student who creates them
 
-    @gogi
+    @platform
     Scenario: Two students each have a course with the same name
       Given the student "tom" has uploaded "tom-fe.txt" to "aeronautics/structures/beams"
       When I list my courses

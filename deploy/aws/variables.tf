@@ -10,14 +10,33 @@ variable "name" {
   default     = "qubit-notes"
 }
 
-variable "gogi_gateway_url" {
-  description = "Where the app calls gogi: gogi's gateway_address output, e.g. 203.0.113.9:443"
+variable "platform" {
+  description = "What keeps the students' material, searches it and calls the AI: the app itself (standalone), or gogi"
   type        = string
+  default     = "standalone"
+
+  validation {
+    condition     = contains(["standalone", "gogi"], var.platform)
+    error_message = "platform is standalone or gogi."
+  }
+}
+
+variable "material_versions_days" {
+  description = "On its own platform, how many days the app's bucket keeps an upload that was deleted or replaced"
+  type        = number
+  default     = 30
+}
+
+variable "gogi_gateway_url" {
+  description = "Where the platform is gogi, where the app calls it: gogi's gateway_address output, e.g. 203.0.113.9:443"
+  type        = string
+  default     = ""
 }
 
 variable "gogi_ca_certificate" {
-  description = "The certificate to check gogi's gateway against: gogi's ca_certificate output, e.g. file(\"gogi-ca.pem\")"
+  description = "Where the platform is gogi, the certificate to check its gateway against: gogi's ca_certificate output, e.g. file(\"gogi-ca.pem\")"
   type        = string
+  default     = ""
 }
 
 variable "image" {
@@ -33,7 +52,7 @@ variable "image_tag" {
 }
 
 variable "app_settings" {
-  description = "More of the app's settings, e.g. { QUBIT_NOTES_LLM_MODEL = \"claude-sonnet-5-5\" }"
+  description = "More of the app's settings, e.g. { QUBIT_NOTES_LLM_MODEL = \"claude-sonnet-5-5\", QUBIT_NOTES_EMBEDDING_MODEL = \"voyage-3.5-lite\" }"
   type        = map(string)
   default     = {}
 }

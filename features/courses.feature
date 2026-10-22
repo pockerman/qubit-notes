@@ -9,7 +9,7 @@ Feature: Courses
   Background:
     Given I am the student "maria"
 
-  @gogi
+  @platform
   Scenario: Create a course
     When I create the course "computer-science"
     Then I see the courses:
@@ -49,7 +49,7 @@ Feature: Courses
         | subject           | topic           | materials |
         | numerical-methods | finite-elements | 2         |
 
-    @gogi
+    @platform
     Scenario: A topic stays when all of its material is deleted
       Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
       When I delete the material "fe-basics.txt" from "aeronautics/numerical-methods/finite-elements"
@@ -140,7 +140,7 @@ Feature: Courses
 
     Only the student who created a course can delete it; other owners and readers cannot.
 
-    @gogi
+    @platform
     Scenario: Delete a course
       Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
       And I have uploaded "rome.txt" to "history/ancient-history/rome"
@@ -150,7 +150,7 @@ Feature: Courses
         | history |
       And searching "history" for "rome" finds "rome.txt"
 
-    @gogi
+    @platform
     Scenario: A deleted course is gone for its members too
       Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
       And I have shared the course "aeronautics" with "tom" as a reader
@@ -173,7 +173,7 @@ Feature: Courses
       And the topics of "aeronautics" are empty
       And I have no notes, summaries, quizzes or conversations
 
-    @gogi
+    @platform
     Scenario: The assistant forgets what it remembered from a deleted course's material
       Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
       And I have uploaded "rome.txt" to "history/ancient-history/rome"
