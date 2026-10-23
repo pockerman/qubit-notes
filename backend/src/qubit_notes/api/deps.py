@@ -10,6 +10,7 @@ from qubit_notes.domain.materials import Materials
 from qubit_notes.domain.notes import Notes
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
+from qubit_notes.domain.references import References
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
 
@@ -32,6 +33,10 @@ def materials(request: Request) -> Materials:
 
 def reading(request: Request) -> Reading:
     return request.app.state.reading
+
+
+def references(request: Request) -> References:
+    return request.app.state.references
 
 
 def notes(request: Request) -> Notes:

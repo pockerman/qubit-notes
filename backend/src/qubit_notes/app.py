@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from qubit_notes import storage
-from qubit_notes.api import assistant, courses, health, images, materials, notes, reading, study
+from qubit_notes.api import assistant, courses, health, images, materials, notes, reading, references, study
 from qubit_notes.api.auth import authenticator
 from qubit_notes.api.errors import add_error_handlers
 from qubit_notes.domain.assistant import Assistant
@@ -16,6 +16,7 @@ from qubit_notes.domain.memory import StudentMemory
 from qubit_notes.domain.notes import Notes
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
+from qubit_notes.domain.references import References
 from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
@@ -54,8 +55,15 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.courses = Courses(platform)
     app.state.images = Images(platform, app.state.courses)
     app.state.conversions = Conversions(database, platform, app.state.courses, app.state.images)
+    app.state.topics = Topics(database, platform, app.state.courses)
+    app.state.references = References(platform, app.state.courses, app.state.topics)
     app.state.materials = Materials(
-        platform, app.state.courses, app.state.memory, settings.max_upload_mb, app.state.conversions
+        platform,
+        app.state.courses,
+        app.state.memory,
+        settings.max_upload_mb,
+        app.state.conversions,
+        app.state.references,
     )
     app.state.reading = Reading(platform, app.state.courses, app.state.conversions)
     # a deleted material's images go with it, as does a converted one's original
@@ -64,7 +72,6 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.conversions.resume()
     app.state.database = database
     app.state.notes = Notes(app.state.database, app.state.reading)
-    app.state.topics = Topics(app.state.database, platform, app.state.courses)
     app.state.materials.on_upload(app.state.topics.ensure)
     sources = Sources(platform, app.state.courses, app.state.reading)
     app.state.summaries = Summaries(app.state.database, platform, sources)
@@ -87,6 +94,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         materials.router,
         images.router,
         reading.router,
+        references.router,
         notes.router,
         study.router,
         assistant.router,

@@ -744,10 +744,55 @@ a.button {
   color: var(--muted);
 }
 
-.add-image {
+.add-image,
+.add-reference {
   display: grid;
   gap: 8px;
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
+}
+
+/* a reference to another part of the course, and one to what the course doesn't have */
+.reference {
+  color: var(--accent);
+}
+
+.reference-broken {
+  color: var(--bad);
+  cursor: help;
+}
+
+/* the topic the course was opened at, e.g. by following a reference */
+.topic.targeted {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+  scroll-margin-top: 1rem;
+}
+
+.mentions {
+  margin: 0.25rem 0 0;
+}
+
+.reference-help {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.reference-help table {
+  border-collapse: collapse;
+}
+
+.reference-help th,
+.reference-help td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.reference-help code {
+  overflow-wrap: anywhere;
 }

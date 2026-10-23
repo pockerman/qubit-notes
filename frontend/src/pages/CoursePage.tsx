@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import type { Course, Material, StudyApi, Topic } from '../api'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import type { Course, Material, Mention, StudyApi, Topic } from '../api'
 import { slug } from '../names'
+import { takeNotice } from '../notices'
 import { href, navigate } from '../router'
 
 const STATUS_LABEL: Record<Material['status'], string> = {
@@ -84,10 +85,22 @@ function NewTopicForm({
   )
 }
 
-export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string }) {
+type Props = {
+  api: StudyApi
+  courseId: string
+  // the topic to open the course at, e.g. one a reference refers to
+  at?: { subject: string; topic: string }
+}
+
+export function CoursePage({ api, courseId, at }: Props) {
   const [course, setCourse] = useState<Course | null | undefined>(undefined)
   const [materials, setMaterials] = useState<Material[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
+  // the materials each topic is mentioned in, by "subject/topic"
+  const [mentions, setMentions] = useState<Map<string, Mention[]>>(new Map())
+  // e.g. that the material just saved has broken references
+  const [notice] = useState(takeNotice)
+  const target = useRef<HTMLElement | null>(null)
   const [addingTopic, setAddingTopic] = useState(false)
   // the subject a topic is being added to, from its own section
   const [addingTo, setAddingTo] = useState<string | null>(null)
@@ -103,13 +116,23 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
 
   const load = useCallback(() => {
     if (!course) return
-    Promise.all([api.materials(course.name), api.topics(course.name)]).then(([m, t]) => {
-      setMaterials(m)
-      setTopics(t)
-    }, (e: Error) => setError(e.message))
+    Promise.all([api.materials(course.name), api.topics(course.name), api.mentions(course.name)]).then(
+      ([m, t, mentioned]) => {
+        setMaterials(m)
+        setTopics(t)
+        setMentions(new Map(mentioned.map((each) => [`${each.subject}/${each.topic}`, each.mentioned_in])))
+      },
+      (e: Error) => setError(e.message),
+    )
   }, [api, course])
 
   useEffect(load, [load])
+
+  // the topic the course was opened at is scrolled to, once it's shown
+  const shown = topics.length > 0
+  useEffect(() => {
+    if (shown) target.current?.scrollIntoView({ block: 'start' })
+  }, [shown, at?.subject, at?.topic])
 
   // material being processed is shown as ready once it is
   const processing = materials.some((m) => m.status === 'pending' || m.status === 'running')
@@ -221,6 +244,11 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
           {error}
         </p>
       )}
+      {notice && (
+        <p role="status" className="warning">
+          {notice}
+        </p>
+      )}
 
       {addingTopic && (
         <NewTopicForm
@@ -262,97 +290,122 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
                 }}
               />
             )}
-            {of.map(([topic, items], index) => (
-              <section key={topic} className="topic" aria-label={`${subject} › ${topic}`}>
-                <header className="topic-header">
-                  <h4>{topic}</h4>
-                  {isOwner && of.length > 1 && (
-                    <span className="move">
-                      <button
-                        type="button"
-                        className="link"
-                        aria-label={`Move ${topic} up`}
-                        disabled={index === 0}
-                        onClick={() => move(subject, of.map(([t]) => t), index, -1)}
-                      >
-                        ↑
-                      </button>
-                      <button
-                        type="button"
-                        className="link"
-                        aria-label={`Move ${topic} down`}
-                        disabled={index === of.length - 1}
-                        onClick={() => move(subject, of.map(([t]) => t), index, 1)}
-                      >
-                        ↓
-                      </button>
-                    </span>
-                  )}
-                  {isOwner && (
-                    <>
-                      <a
-                        className="link"
-                        href={href({ page: 'add', courseId: course.id, subject, topic })}
-                        aria-label={`Add material to ${topic}`}
-                      >
-                        Add material
-                      </a>
-                      <a
-                        className="link"
-                        href={href({ page: 'write', courseId: course.id, subject, topic })}
-                        aria-label={`Write material in ${topic}`}
-                      >
-                        Write material
-                      </a>
-                    </>
-                  )}
-                  {items.some((m) => m.kind === 'text' && m.status === 'completed') && (
-                    <a className="link" href={href({ page: 'topic', courseId: course.id, subject, topic })}>
-                      Study this topic
-                    </a>
-                  )}
-                </header>
-                {items.length === 0 ? (
-                  <p className="note">No material yet</p>
-                ) : (
-                  <ul>
-                    {items.map((material) => (
-                      <li key={material.document_id}>
-                        {material.status === 'completed' ? (
-                          <a
-                            className="filename"
-                            href={href({ page: 'material', courseId: course.id, documentId: material.document_id })}
-                          >
-                            {material.filename}
-                          </a>
-                        ) : (
-                          <span className="filename">{material.filename}</span>
-                        )}
-                        <span
-                          className={`badge ${material.status === 'failed' ? 'bad' : ''}`}
-                          title={material.error ?? undefined}
+            {of.map(([topic, items], index) => {
+              const targeted = at?.subject === subject && at?.topic === topic
+              const mentionedIn = mentions.get(`${subject}/${topic}`) ?? []
+              return (
+                <section
+                  key={topic}
+                  ref={targeted ? target : undefined}
+                  className={targeted ? 'topic targeted' : 'topic'}
+                  aria-label={`${subject} › ${topic}`}
+                  aria-current={targeted ? 'location' : undefined}
+                >
+                  <header className="topic-header">
+                    <h4>{topic}</h4>
+                    {isOwner && of.length > 1 && (
+                      <span className="move">
+                        <button
+                          type="button"
+                          className="link"
+                          aria-label={`Move ${topic} up`}
+                          disabled={index === 0}
+                          onClick={() => move(subject, of.map(([t]) => t), index, -1)}
                         >
-                          {STATUS_LABEL[material.status]}
-                        </span>
-                        {material.status === 'failed' && material.error && (
-                          <span className="note">{material.error}</span>
-                        )}
-                        {isOwner && (
-                          <button
-                            type="button"
-                            className="link"
-                            aria-label={`Delete ${material.filename}`}
-                            onClick={() => remove(material)}
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          className="link"
+                          aria-label={`Move ${topic} down`}
+                          disabled={index === of.length - 1}
+                          onClick={() => move(subject, of.map(([t]) => t), index, 1)}
+                        >
+                          ↓
+                        </button>
+                      </span>
+                    )}
+                    {isOwner && (
+                      <>
+                        <a
+                          className="link"
+                          href={href({ page: 'add', courseId: course.id, subject, topic })}
+                          aria-label={`Add material to ${topic}`}
+                        >
+                          Add material
+                        </a>
+                        <a
+                          className="link"
+                          href={href({ page: 'write', courseId: course.id, subject, topic })}
+                          aria-label={`Write material in ${topic}`}
+                        >
+                          Write material
+                        </a>
+                      </>
+                    )}
+                    {items.some((m) => m.kind === 'text' && m.status === 'completed') && (
+                      <a className="link" href={href({ page: 'topic', courseId: course.id, subject, topic })}>
+                        Study this topic
+                      </a>
+                    )}
+                  </header>
+                  {items.length === 0 ? (
+                    <p className="note">No material yet</p>
+                  ) : (
+                    <ul>
+                      {items.map((material) => (
+                        <li key={material.document_id}>
+                          {material.status === 'completed' ? (
+                            <a
+                              className="filename"
+                              href={href({ page: 'material', courseId: course.id, documentId: material.document_id })}
+                            >
+                              {material.filename}
+                            </a>
+                          ) : (
+                            <span className="filename">{material.filename}</span>
+                          )}
+                          <span
+                            className={`badge ${material.status === 'failed' ? 'bad' : ''}`}
+                            title={material.error ?? undefined}
                           >
-                            Delete
-                          </button>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-            ))}
+                            {STATUS_LABEL[material.status]}
+                          </span>
+                          {material.status === 'failed' && material.error && (
+                            <span className="note">{material.error}</span>
+                          )}
+                          {isOwner && (
+                            <button
+                              type="button"
+                              className="link"
+                              aria-label={`Delete ${material.filename}`}
+                              onClick={() => remove(material)}
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {mentionedIn.length > 0 && (
+                    <p className="mentions note" aria-label={`Mentions of ${topic}`}>
+                      Mentioned in{' '}
+                      {mentionedIn.map((mention, i) => (
+                        <span key={mention.document_id}>
+                          {i > 0 && ', '}
+                          <a href={href({ page: 'material', courseId: course.id, documentId: mention.document_id })}>
+                            {mention.material}
+                          </a>
+                          {(mention.subject !== subject || mention.topic !== topic) &&
+                            ` (${mention.subject === subject ? mention.topic : `${mention.subject} › ${mention.topic}`})`}
+                        </span>
+                      ))}
+                    </p>
+                  )}
+                </section>
+              )
+            })}
           </section>
         ))
       )}

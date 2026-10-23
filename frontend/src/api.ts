@@ -50,6 +50,38 @@ export type Upload = {
   document_id: string
   course_id: string
   status: IngestStatus
+  // the references of a Markdown material to what its course doesn't have, as written
+  broken_references: string[]
+}
+
+/** A reference in a Markdown material to a topic, a material or a section of its course, e.g. [[subject/topic]]. */
+export type Reference = {
+  // as written, e.g. "[[numerical-methods/finite-elements|the FEM topic]]"
+  written: string
+  shown_as: string
+  // 'nothing' if the course doesn't have what it refers to: the reference is broken
+  refers_to: 'topic' | 'material' | 'section' | 'nothing'
+  subject: string | null
+  topic: string | null
+  material: string | null
+  document_id: string | null
+  section: string | null
+  // the section's position in its material, to open it there
+  position: number | null
+}
+
+/** A material that refers to a topic. */
+export type Mention = {
+  subject: string
+  topic: string
+  material: string
+  document_id: string
+}
+
+export type TopicMentions = {
+  subject: string
+  topic: string
+  mentioned_in: Mention[]
 }
 
 export type IngestJob = {
@@ -370,6 +402,25 @@ export class StudyApi {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     })
+  }
+
+  /** the references of a Markdown material, and what each refers to */
+  references(courseId: string, documentId: string): Promise<Reference[]> {
+    return this.request(`${this.materialPath(courseId, documentId)}/references`)
+  }
+
+  /** the references of text not saved yet, e.g. one being written, and what each refers to */
+  referencesIn(courseId: string, text: string): Promise<Reference[]> {
+    return this.request(`/courses/${encodeURIComponent(courseId)}/references`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
+  }
+
+  /** each topic of the course with the materials it is mentioned in */
+  mentions(course: string): Promise<TopicMentions[]> {
+    return this.request(`/courses/${encodeURIComponent(course)}/mentions`)
   }
 
   materials(course: string): Promise<Material[]> {

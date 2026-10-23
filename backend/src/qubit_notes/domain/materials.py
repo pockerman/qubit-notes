@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import unicodedata
 from pathlib import PurePosixPath
@@ -9,6 +11,7 @@ from qubit_notes.domain.courses import Course, Courses, Location
 from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound, TooLarge
 from qubit_notes.domain.images import is_image
 from qubit_notes.domain.memory import StudentMemory
+from qubit_notes.domain.references import References
 from qubit_notes.domain.videos import VIDEO_TYPES, duration_seconds
 from qubit_notes.platform.port import IngestJob, IngestStatus, StudyPlatform
 
@@ -51,6 +54,8 @@ class Upload(BaseModel):
     document_id: str
     course_id: str
     status: str
+    # the references of a Markdown material to what its course doesn't have, as written
+    broken_references: list[str] = []
 
 
 class Materials:
@@ -64,10 +69,12 @@ class Materials:
         memory: StudentMemory,
         max_upload_mb: float,
         conversions: Conversions,
+        references: References,
     ):
         self._platform = platform
         self._courses = courses
         self._conversions = conversions
+        self._references = references
         self._memory = memory
         self.max_upload_mb = max_upload_mb
         # what else is forgotten with a material, e.g. its notes; each is called with its document id
@@ -112,7 +119,13 @@ class Materials:
             )
         for keep in self._on_upload:
             keep(course.id, where.subject, where.topic)
-        return Upload(job_id=job.job_id, document_id=job.document_id, course_id=course.id, status=job.status)
+        return Upload(
+            job_id=job.job_id,
+            document_id=job.document_id,
+            course_id=course.id,
+            status=job.status,
+            broken_references=self._broken(course, content_type, content),
+        )
 
     def write(self, student: str, location: str, name: str, text: str) -> Upload:
         """a Markdown material the student wrote, saved under a filename made from its name"""
@@ -189,7 +202,18 @@ class Materials:
             document.content_type,
             metadata={**document.metadata, "edited_by": student},
         )
-        return Upload(job_id=job.job_id, document_id=job.document_id, course_id=course.id, status=job.status)
+        return Upload(
+            job_id=job.job_id,
+            document_id=job.document_id,
+            course_id=course.id,
+            status=job.status,
+            broken_references=self._broken(course, document.content_type, content),
+        )
+
+    def _broken(self, course: Course, content_type: str, content: bytes) -> list[str]:
+        if content_type != "text/markdown":
+            return []
+        return self._references.broken(course, content.decode("utf-8", errors="replace"))
 
     def _editable(self, student: str, course_id: str, document_id: str):
         course = self._courses.get_by_id(student, course_id)
