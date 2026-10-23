@@ -195,16 +195,6 @@ button.link.danger {
   color: var(--bad);
 }
 
-.move {
-  display: inline-flex;
-  gap: 4px;
-}
-
-.move button:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
 .tabs {
   display: flex;
   gap: 4px;
@@ -242,17 +232,11 @@ button.link.danger {
   margin-top: 12px;
 }
 
-.topic li,
 .members li {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 4px 0;
-}
-
-.topic h4 {
-  margin: 8px 0 4px;
-  color: var(--muted);
 }
 
 .badge {
@@ -534,7 +518,8 @@ textarea {
   .reader-body,
   .reader-body.video,
   .reader-body.with-assistant,
-  .reader-body.video.with-assistant {
+  .reader-body.video.with-assistant,
+  .topic-body.with-assistant {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -644,6 +629,55 @@ label.inline input {
   gap: 1rem;
 }
 
+/* a subject's topics on the course page, one a line: name, status, and the owners' actions */
+.topics {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.topics > li {
+  border-bottom: 1px solid var(--border);
+}
+
+.topics h4 {
+  margin: 8px 0;
+  color: inherit;
+}
+
+.topic-actions {
+  display: inline-flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.topic-actions button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* a topic's page: its material, and the assistant beside it when open */
+.topic-body {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.topic-body.with-assistant {
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
+}
+
+.topic-page .materials {
+  list-style: none;
+  padding: 0;
+}
+
+.topic-page .materials li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+
 .markdown h4,
 .markdown h5,
 .markdown h6 {
@@ -744,10 +778,47 @@ a.button {
   color: var(--muted);
 }
 
-.add-image {
+.add-image,
+.add-reference {
   display: grid;
   gap: 8px;
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
+}
+
+/* a reference to another part of the course, and one to what the course doesn't have */
+.reference {
+  color: var(--accent);
+}
+
+.reference-broken {
+  color: var(--bad);
+  cursor: help;
+}
+
+.mentions {
+  margin: 0.25rem 0 0;
+}
+
+.reference-help {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.reference-help table {
+  border-collapse: collapse;
+}
+
+.reference-help th,
+.reference-help td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.reference-help code {
+  overflow-wrap: anywhere;
 }

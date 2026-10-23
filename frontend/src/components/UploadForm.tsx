@@ -10,8 +10,8 @@ type Props = {
   // the topic to upload to, which the student can change
   subject?: string
   topic?: string
-  // called once the upload is accepted; it's processed after
-  onUploaded: (upload: Upload) => void
+  // called once the upload is accepted, with where it went; it's processed after
+  onUploaded: (upload: Upload, where: { subject: string; topic: string; filename: string }) => void
 }
 
 export function UploadForm({ api, course, subject: initialSubject = '', topic: initialTopic = '', onUploaded }: Props) {
@@ -54,7 +54,7 @@ export function UploadForm({ api, course, subject: initialSubject = '', topic: i
         setBusy(false)
         return
       }
-      onUploaded(upload)
+      onUploaded(upload, { subject: names[0], topic: names[1], filename: file.name })
     } catch (e) {
       setMessage({ text: (e as Error).message, error: true })
       setBusy(false)

@@ -136,6 +136,70 @@ Feature: Courses
         | introduction |
       Then the student "tom" is not allowed to do that
 
+  Rule: Deleting a topic deletes its material, and everything made from it
+
+    The owners of a course delete a topic with all of its material: the material's images, notes,
+    summaries, quizzes and conversations go with it, for every member. The subject's other topics
+    keep their order. A subject is gone once its last topic is.
+
+    Background:
+      Given I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
+        """
+        # 1 Introduction
+        The finite element method divides a domain into small elements.
+        """
+      And I have uploaded "fe-meshing.txt" to "aeronautics/numerical-methods/finite-elements"
+      And I have created the topic "numerical-methods/finite-volumes" in "aeronautics"
+      And I have created the topic "numerical-methods/finite-differences" in "aeronautics"
+
+    @platform
+    Scenario: Delete a topic and its material
+      When I delete the topic "numerical-methods/finite-elements" from "aeronautics"
+      Then the topics of "aeronautics" are:
+        | subject           | topic              | materials |
+        | numerical-methods | finite-volumes     | 0         |
+        | numerical-methods | finite-differences | 0         |
+      And the course "aeronautics" has no material
+      And searching "aeronautics" for "small elements" finds nothing
+
+    Scenario: Deleting a topic deletes the notes, summaries, quizzes and conversations of its material
+      Given I have noted "why small?" on "small elements" in "1 Introduction" of "fem-notes.md"
+      And I have a summary and a quiz of "fem-notes.md"
+      And I have asked the assistant "What do shape functions do?" while reading "fem-notes.md"
+      When I delete the topic "numerical-methods/finite-elements" from "aeronautics"
+      Then I have no notes, summaries, quizzes or conversations
+
+    Scenario: The other topics keep their order
+      Given I have put the topics of "numerical-methods" in "aeronautics" in the order:
+        | topic              |
+        | finite-differences |
+        | finite-elements    |
+        | finite-volumes     |
+      When I delete the topic "numerical-methods/finite-elements" from "aeronautics"
+      Then the topics of "numerical-methods" in "aeronautics" are, in order:
+        | topic              |
+        | finite-differences |
+        | finite-volumes     |
+
+    Scenario: A topic deleted and created again starts empty, last in its subject
+      When I delete the topic "numerical-methods/finite-elements" from "aeronautics"
+      And I create the topic "numerical-methods/finite-elements" in "aeronautics"
+      Then the topics of "numerical-methods" in "aeronautics" are, in order:
+        | topic              |
+        | finite-volumes     |
+        | finite-differences |
+        | finite-elements    |
+      And the course "aeronautics" has no material
+
+    Scenario: A reader cannot delete a topic
+      Given I have shared the course "aeronautics" with "tom" as a reader
+      When the student "tom" deletes the topic "numerical-methods/finite-elements" from "aeronautics"
+      Then the student "tom" is not allowed to do that
+
+    Scenario: Deleting a topic the course doesn't have
+      When I delete the topic "numerical-methods/spectral-methods" from "aeronautics"
+      Then I am told "aeronautics" has no topic "numerical-methods/spectral-methods"
+
   Rule: Deleting a course removes it and everything in it, for every member
 
     Only the student who created a course can delete it; other owners and readers cannot.

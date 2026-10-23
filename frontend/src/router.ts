@@ -9,7 +9,8 @@ import { useEffect, useState } from 'react'
  *   #/courses/<id>/write?subject=…&topic=… writing material in a topic
  *   #/courses/<id>/members                 who it is shared with
  *   #/courses/<id>/materials/<document>    reading a material
- *   #/courses/<id>/topics/<subject>/<topic> studying a topic
+ *   #/courses/<id>/materials/<document>?section=<position>  reading it at a section
+ *   #/courses/<id>/topics/<subject>/<topic> a topic: its material, and the assistant on all of it
  */
 export type Route =
   | { page: 'courses' }
@@ -17,7 +18,7 @@ export type Route =
   | { page: 'add'; courseId: string; subject: string; topic: string }
   | { page: 'members'; courseId: string }
   | { page: 'write'; courseId: string; subject: string; topic: string }
-  | { page: 'material'; courseId: string; documentId: string }
+  | { page: 'material'; courseId: string; documentId: string; section?: number }
   | { page: 'topic'; courseId: string; subject: string; topic: string }
 
 export function parse(hash: string): Route {
@@ -33,7 +34,10 @@ export function parse(hash: string): Route {
   if (parts[2] === 'write') {
     return { page: 'write', courseId, subject: params.get('subject') ?? '', topic: params.get('topic') ?? '' }
   }
-  if (parts[2] === 'materials' && parts[3]) return { page: 'material', courseId, documentId: parts[3] }
+  if (parts[2] === 'materials' && parts[3]) {
+    const section = Number(params.get('section'))
+    return { page: 'material', courseId, documentId: parts[3], ...(section > 0 ? { section } : {}) }
+  }
   if (parts[2] === 'topics' && parts[3] && parts[4]) {
     return { page: 'topic', courseId, subject: parts[3], topic: parts[4] }
   }
@@ -57,8 +61,10 @@ export function href(route: Route): string {
       const query = new URLSearchParams({ subject: route.subject, topic: route.topic })
       return `${course(route.courseId)}/write?${query}`
     }
-    case 'material':
-      return `${course(route.courseId)}/materials/${encodeURIComponent(route.documentId)}`
+    case 'material': {
+      const material = `${course(route.courseId)}/materials/${encodeURIComponent(route.documentId)}`
+      return route.section ? `${material}?section=${route.section}` : material
+    }
     case 'topic':
       return `${course(route.courseId)}/topics/${encodeURIComponent(route.subject)}/${encodeURIComponent(route.topic)}`
   }

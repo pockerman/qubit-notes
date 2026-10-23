@@ -36,8 +36,10 @@ function openSession(onSignOut: () => void) {
   return opening
 }
 
-/** A material opened for reading, with whether the student may edit it. */
-function MaterialPage({ api, courseId, documentId }: { api: StudyApi; courseId: string; documentId: string }) {
+type MaterialPageProps = { api: StudyApi; courseId: string; documentId: string; section?: number }
+
+/** A material opened for reading, at a section if one is given, with whether the student may edit it. */
+function MaterialPage({ api, courseId, documentId, section }: MaterialPageProps) {
   const [course, setCourse] = useState<Course | null>(null)
   useEffect(() => {
     api.courses().then((courses) => setCourse(courses.find((c) => c.id === courseId) ?? null))
@@ -47,8 +49,15 @@ function MaterialPage({ api, courseId, documentId }: { api: StudyApi; courseId: 
       api={api}
       courseId={courseId}
       documentId={documentId}
+      section={section}
       canEdit={course?.role === 'owner'}
-      onClose={() => navigate({ page: 'course', courseId })}
+      onClose={(material) =>
+        navigate(
+          material
+            ? { page: 'topic', courseId, subject: material.subject, topic: material.topic }
+            : { page: 'course', courseId },
+        )
+      }
     />
   )
 }
@@ -67,9 +76,25 @@ function Pages({ api }: { api: StudyApi }) {
     case 'members':
       return <MembersPage key={route.courseId} api={api} courseId={route.courseId} />
     case 'material':
-      return <MaterialPage key={route.documentId} api={api} courseId={route.courseId} documentId={route.documentId} />
+      return (
+        <MaterialPage
+          key={`${route.documentId}:${route.section ?? ''}`}
+          api={api}
+          courseId={route.courseId}
+          documentId={route.documentId}
+          section={route.section}
+        />
+      )
     case 'topic':
-      return <TopicPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
+      return (
+        <TopicPage
+          key={`${route.courseId}/${route.subject}/${route.topic}`}
+          api={api}
+          courseId={route.courseId}
+          subject={route.subject}
+          topic={route.topic}
+        />
+      )
   }
 }
 

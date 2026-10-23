@@ -43,7 +43,7 @@ Feature: Asking the assistant in the browser
 
   Scenario: Summarise a topic
     When I open the course "aeronautics"
-    And I study the topic "finite-elements"
+    And I open the topic "finite-elements"
     And I open the assistant
     And I ask "Summarise this topic"
     Then I see a summary drawn from "1 Introduction"

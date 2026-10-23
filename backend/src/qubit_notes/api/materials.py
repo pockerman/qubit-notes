@@ -76,6 +76,12 @@ async def create_topic(course: str, body: NewTopic, student: Student, service: T
     return await run_in_threadpool(service.create, student, course, body.subject, body.topic)
 
 
+@router.delete("/courses/{course}/subjects/{subject}/topics/{topic}", status_code=204)
+async def delete_topic(course: str, subject: str, topic: str, student: Student, service: TopicsDep) -> None:
+    """deletes the topic with all of its material"""
+    await run_in_threadpool(service.delete, student, course, subject, topic)
+
+
 @router.put("/courses/{course}/subjects/{subject}/topic-order", response_model=list[Topic])
 async def order_topics(
     course: str, subject: str, body: TopicOrder, student: Student, service: TopicsDep

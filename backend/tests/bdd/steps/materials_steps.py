@@ -165,6 +165,11 @@ def search_finds(platform, students, course, query, filename):
     assert filename in _found_filenames(platform, students, course, query)
 
 
+@then(parsers.parse('searching "{course}" for "{query}" finds nothing'))
+def search_finds_nothing_at_all(platform, students, course, query):
+    assert _found_filenames(platform, students, course, query) == []
+
+
 @then(parsers.parse('searching "{course}" for "{query}" finds nothing from "{filename}"'))
 def search_finds_nothing(platform, students, course, query, filename):
     assert filename not in _found_filenames(platform, students, course, query)

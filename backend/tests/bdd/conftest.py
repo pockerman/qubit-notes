@@ -177,11 +177,15 @@ def cognito():
 
 
 @pytest.fixture
-def app(request, platform):
+def app(request, platform, tmp_path):
+    ui = "ui" in request.keywords
     # only the UI scenarios need the frontend, and building it takes a moment
-    frontend = request.getfixturevalue("frontend_dir") if "ui" in request.keywords else None
+    frontend = request.getfixturevalue("frontend_dir") if ui else None
     # on the app's own platform, the app's data is in the platform's database, as where it's deployed
     database_url = platform.settings.database_url if isinstance(platform, RestartablePlatform) else TEST_DATABASE_URL
+    if ui and storage.in_memory(database_url):
+        # a browser asks for several things at once, which one in-memory connection can't serve together
+        database_url = f"sqlite:///{tmp_path / 'qubit-notes.db'}"
     settings = Settings(frontend_dir=frontend, database_url=database_url)
     if "cognito" in request.keywords:
         cognito = request.getfixturevalue("cognito")

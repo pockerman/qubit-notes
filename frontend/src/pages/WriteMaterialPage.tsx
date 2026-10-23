@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { Course, StudyApi } from '../api'
 import { AddImage } from '../components/AddImage'
+import { AddReference } from '../components/AddReference'
 import { Markdown, type ImageRenderer } from '../components/Markdown'
 import { useImageDrafts } from '../imageDrafts'
 import { slug } from '../names'
+import { brokenReferences, leaveNotice } from '../notices'
+import { insertAtCursor, referenceLinks, useReferencesIn } from '../referenceLinks'
 import { href, navigate } from '../router'
 
 type Props = {
@@ -30,6 +33,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
   const [error, setError] = useState<string | null>(null)
   const textarea = useRef<HTMLTextAreaElement>(null)
   const images = useImageDrafts({ text, setText, textarea, setError })
+  const references = useReferencesIn(api, courseId, text, tab === 'preview')
 
   useEffect(() => {
     api.courses().then(
@@ -38,7 +42,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
     )
   }, [api, courseId])
 
-  const back = () => navigate({ page: 'course', courseId })
+  const back = () => navigate({ page: 'topic', courseId, subject, topic })
   const filename = filenameOf(name)
 
   const preview: ImageRenderer = useMemo(
@@ -77,6 +81,8 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
         setSaving(false)
         return
       }
+      const broken = brokenReferences(filename, upload.broken_references)
+      if (broken) leaveNotice(broken)
       back()
     } catch (e) {
       setError((e as Error).message)
@@ -92,8 +98,8 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
   return (
     <section className="write-material" aria-labelledby="write-title">
       <header className="page-header">
-        <a className="link" href={href({ page: 'course', courseId })}>
-          ← Back to the course
+        <a className="link" href={href({ page: 'topic', courseId, subject, topic })}>
+          ← Back to the topic
         </a>
         <h2 id="write-title">
           Write material in {subject} › {topic}
@@ -150,7 +156,12 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
         ) : (
           <article className="section-text preview" aria-label="Preview">
             {text.trim() ? (
-              <Markdown text={text} headingOffset={3} image={preview} />
+              <Markdown
+                text={text}
+                headingOffset={3}
+                image={preview}
+                reference={referenceLinks(courseId, references)}
+              />
             ) : (
               <p className="note">Nothing to preview yet.</p>
             )}
@@ -158,6 +169,13 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
         )}
 
         {tab === 'write' && <AddImage onInsert={images.insert} />}
+        {tab === 'write' && (
+          <AddReference
+            api={api}
+            courseId={courseId}
+            onInsert={(reference) => insertAtCursor(text, setText, textarea, reference)}
+          />
+        )}
 
         {error && (
           <p role="alert" className="error">

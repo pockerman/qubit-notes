@@ -23,6 +23,7 @@ from qubit_notes.conversion import CONVERTIBLE, NotConvertible, export, to_markd
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import InvalidRequest, NotFound
 from qubit_notes.domain.images import KIND, MATERIAL, Images
+from qubit_notes.domain.reference_text import as_text
 from qubit_notes.platform.port import DocumentInfo, DownloadedFile, IngestJob, IngestStatus, StudyPlatform
 
 # metadata of a material converted from a PDF or an EPUB: the content type it was converted from, and its original's
@@ -205,7 +206,8 @@ class Conversions:
         downloaded = self._platform.download_document(course.id, document_id)
         if downloaded is None:
             raise NotFound(f"no material {document_id!r}")
-        markdown = downloaded.content.decode("utf-8", errors="replace")
+        # a reference to another part of the course is its label, as text: the file isn't in the course
+        markdown = as_text(downloaded.content.decode("utf-8", errors="replace"))
         images = self._images.contents(course.id, document_id)
         content = export(content_type, document.filename.rsplit(".", 1)[0], markdown, images)
         return DownloadedFile(filename=document.filename, content_type=content_type, content=content, size=len(content))

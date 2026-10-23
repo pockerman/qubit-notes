@@ -18,7 +18,34 @@ def _sign_in(page: Page, students, name: str) -> None:
 
 
 def _topic(page: Page, subject: str, topic: str):
+    """a topic as the course page lists it"""
     return page.get_by_role("region", name=f"{subject} › {topic}")
+
+
+def _page_title(page: Page) -> str:
+    """the heading of the page shown: a course's name, "subject › topic", a material's filename, …"""
+    heading = page.get_by_role("main").get_by_role("heading", level=2).first
+    expect(heading).to_be_visible()
+    return heading.inner_text()
+
+
+def open_topic_page(page: Page, subject: str, topic: str) -> None:
+    """the topic's page, from the course page or another topic's"""
+    if _page_title(page) == f"{subject} › {topic}":
+        return
+    back = page.get_by_role("link", name=re.compile("^← Back to "))
+    if " › " in _page_title(page) and back.count():
+        back.click()
+    _topic(page, subject, topic).get_by_role("link", name=topic, exact=True).click()
+    expect(page.get_by_role("heading", name=f"{subject} › {topic}", level=2)).to_be_visible()
+
+
+def open_topic_of(page: Page, students, filename: str) -> None:
+    """the page of the topic the material is in, unless a page with the material is shown already"""
+    if " › " in _page_title(page):
+        return
+    material = students.find_material(filename)
+    open_topic_page(page, material["subject"], material["topic"])
 
 
 def slug(name: str) -> str:
@@ -123,7 +150,9 @@ def see_under(page, context, filename, subject, topic):
     # the scenario may have looked at its courses since, which are on a page of their own
     if context.get("course") and page.get_by_role("heading", name="My courses", level=2).count():
         open_course_page(page, context["course"])
-    expect(_topic(page, subject, topic).get_by_text(filename)).to_be_visible()
+    # a topic's material is on its page
+    open_topic_page(page, subject, topic)
+    expect(page.get_by_role("list", name="Materials").get_by_text(filename, exact=True)).to_be_visible()
 
 
 @then(parsers.parse('I see that "{filename}" is ready'))
@@ -139,7 +168,8 @@ def see_subjects(page, subjects):
 
 
 @when(parsers.parse('I delete "{filename}"'))
-def delete_in_browser(page, filename):
+def delete_in_browser(page, students, filename):
+    open_topic_of(page, students, filename)
     page.get_by_role("button", name=f"Delete {filename}").click()
 
 
@@ -203,8 +233,10 @@ def cannot_change(page):
 
 
 @when(parsers.parse('I open "{filename}" to read it'))
-def open_to_read(page, filename):
-    page.get_by_role("link", name=filename, exact=True).click()
+def open_to_read(page, students, filename):
+    open_topic_of(page, students, filename)
+    # the material in its topic's list, not a mention of another topic
+    page.get_by_role("link", name=filename, exact=True).and_(page.locator("a.filename")).click()
     expect(page.get_by_role("heading", name=filename, level=2)).to_be_visible()
 
 
@@ -431,12 +463,6 @@ def see_no_buttons(page, first, second):
         expect(page.get_by_role("button", name=name)).to_have_count(0)
 
 
-@when(parsers.parse('I study the topic "{topic}"'))
-def study_topic(page, topic):
-    page.get_by_role("region", name=re.compile(f"› {topic}$")).get_by_role("link", name="Study this topic").click()
-    expect(page.get_by_role("heading", name=re.compile(f"› {topic}$"), level=2)).to_be_visible()
-
-
 # courses and topics
 
 
@@ -445,8 +471,8 @@ def offered_to_create(page):
     expect(page.get_by_role("button", name="Create new course")).to_be_visible()
 
 
-@then(parsers.parse('I am in the course "{course}"'))
-@then(parsers.parse('I am back in the course "{course}"'))
+# the name in quotes only: "I am in the course "…" at the topic …" is a step of its own
+@then(parsers.re(r'I am (?:back )?in the course "(?P<course>[^"]+)"$'))
 def in_course(page, course):
     expect(page.get_by_role("heading", name=course, level=2)).to_be_visible()
 
@@ -525,17 +551,27 @@ def add_to_subject_topic(page, filename, subject, topic):
     upload_on_add_page(page, filename, subject, topic)
 
 
-# names without quotes, so it doesn't also match 'I add "…" and the image "…" to the topic "…"'
-@when(parsers.re(r'I add "(?P<filename>[^"]+)" to the topic "(?P<topic>[^"]+)"'))
-def add_to_topic(page, filename, topic):
-    page.get_by_role("link", name=f"Add material to {topic}").click()
+def _open_topic_named(page: Page, topic: str) -> None:
+    """the page of the topic, from the course page, whatever its subject"""
+    if _page_title(page).endswith(f" › {topic}"):
+        return
+    page.get_by_role("region", name=re.compile(f" › {re.escape(topic)}$")).get_by_role(
+        "link", name=topic, exact=True
+    ).click()
+    expect(page.get_by_role("heading", name=re.compile(f" › {re.escape(topic)}$"), level=2)).to_be_visible()
+
+
+@when(parsers.parse('I add "{filename}" to this topic'))
+def add_to_this_topic(page, filename):
+    page.get_by_role("link", name=re.compile("^Add material to ")).click()
     # the topic is filled in already
     upload_on_add_page(page, filename, None, None)
+    expect(page.get_by_role("list", name="Materials").get_by_text(filename, exact=True)).to_be_visible()
 
 
 @then(parsers.parse('I still see the topic "{subject}" › "{topic}", with no material'))
 def topic_without_material(page, subject, topic):
-    expect(_topic(page, subject, topic).get_by_text("No material yet")).to_be_visible()
+    expect(_topic(page, subject, topic).get_by_label(f"Status of {topic}")).to_have_text("no material")
 
 
 @when(parsers.parse('I create the topic "{topic}" in the subject "{subject}"'))
@@ -580,6 +616,7 @@ def edit_text_in_browser(page, docstring):
 
 @when(parsers.parse('I write material in the topic "{topic}"'))
 def write_material_in_topic(page, topic):
+    _open_topic_named(page, topic)
     page.get_by_role("link", name=f"Write material in {topic}").click()
     expect(page.get_by_role("form", name="Write material")).to_be_visible()
 
@@ -625,7 +662,7 @@ def cancel_but_keep_writing(page):
 
 @then("I am not offered to write material")
 def not_offered_to_write(page):
-    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
+    expect(page.get_by_role("main").get_by_role("heading", name="Materials", level=3)).to_be_visible()
     expect(page.get_by_role("link", name=re.compile("^Write material"))).to_have_count(0)
 
 
@@ -645,6 +682,7 @@ def have_file(context, filename, docstring):
 
 @when(parsers.parse('I add "{filename}" and the image "{image}" to the topic "{topic}"'))
 def add_markdown_with_image(page, context, filename, image, topic):
+    _open_topic_named(page, topic)
     page.get_by_role("link", name=f"Add material to {topic}").click()
     form = page.get_by_role("form", name=re.compile("^Upload to "))
     content = context["files"][filename].encode()
@@ -705,3 +743,197 @@ def save_my_changes(page):
 @then("I am not offered to add an image")
 def not_offered_an_image(page):
     expect(page.get_by_role("button", name="Add image")).to_have_count(0)
+
+
+# references
+
+
+@when(parsers.parse('I follow the reference "{label}"'))
+def follow_reference(page, label):
+    page.get_by_role("article", name="Section text").get_by_role("link", name=label, exact=True).click()
+
+
+@then(parsers.re(r'I am reading "(?P<filename>[^"]+)" at the section "(?P<title>[^"]+)"'))
+def reading_at_section(page, filename, title):
+    expect(page.get_by_role("heading", name=filename, level=2)).to_be_visible()
+    section = page.get_by_role("navigation", name="Sections").get_by_role("button", name=title, exact=True)
+    expect(section).to_have_attribute("aria-current", "true")
+
+
+@then(parsers.re(r'I am reading "(?P<filename>[^"]+)"$'))
+def reading(page, filename):
+    expect(page.get_by_role("heading", name=filename, level=2)).to_be_visible()
+
+
+@then(parsers.parse('I see the reference "{label}" as broken'))
+def see_broken_reference(page, label):
+    text = page.get_by_role("article", name="Section text")
+    expect(text.locator(".reference-broken", has_text=label)).to_be_visible()
+    expect(text.get_by_role("link", name=label, exact=True)).to_have_count(0)
+
+
+@when(
+    parsers.re(
+        r'I add a reference to the section "(?P<section>[^"]+)" of "(?P<material>[^"]+)" '
+        r'in "(?P<subject>[^"]+)" › "(?P<topic>[^"]+)"'
+    )
+)
+def add_reference(page, section, material, subject, topic):
+    page.get_by_role("button", name="Add reference").click()
+    group = page.get_by_role("group", name="Add a reference")
+    group.get_by_label("Topic").select_option(label=f"{subject} › {topic}")
+    group.get_by_label("Material").select_option(label=material)
+    group.get_by_label("Section").select_option(label=section)
+    group.get_by_role("button", name="Insert").click()
+
+
+@then(parsers.parse('the text I typed ends with "{text}"'))
+def typed_text_ends_with(page, text):
+    typed = page.get_by_role("form", name="Write material").get_by_label("Text")
+    expect(typed).to_have_value(re.compile(f"{re.escape(text)}$"))
+
+
+@then(parsers.parse('I see the reference "{label}" as a link'))
+def see_reference_link(page, label):
+    expect(page.get_by_role("article", name="Preview").get_by_role("link", name=label, exact=True)).to_be_visible()
+
+
+@then(parsers.parse('I am told the reference "{written}" is broken'))
+def told_reference_broken(page, written):
+    expect(page.get_by_role("status").filter(has_text=written)).to_contain_text("broken")
+
+
+@then(parsers.parse('the topic "{topic}" is mentioned in "{material}"'))
+def topic_mentioned_in(page, topic, material):
+    mentions = page.get_by_label(f"Mentions of {topic}")
+    expect(mentions.get_by_role("link", name=material, exact=True)).to_be_visible()
+
+
+@when(parsers.parse('I open the mention "{material}"'))
+def open_mention(page, material):
+    page.locator(".mentions").get_by_role("link", name=material, exact=True).first.click()
+
+
+@when("I open the help on references")
+def open_reference_help(page):
+    page.get_by_role("button", name="How references work").click()
+
+
+@then("I see how to refer to a topic, a material and a section")
+def see_reference_help(page):
+    help = page.get_by_role("region", name="How references work")
+    for written in (
+        "[[numerical-methods/finite-elements]]",
+        "[[numerical-methods/finite-elements/fem-notes.md]]",
+        "[[numerical-methods/finite-elements/fem-notes.md#2 Assembly]]",
+    ):
+        expect(help.get_by_text(written, exact=True)).to_be_visible()
+
+
+@then(parsers.parse('I see that a label follows a "{bar}"'))
+def see_label_help(page, bar):
+    help = page.get_by_role("region", name="How references work")
+    expect(help.get_by_text("[[numerical-methods/finite-elements|the FEM topic]]", exact=True)).to_be_visible()
+    expect(help).to_contain_text(f'A label follows a "{bar}"')
+
+
+# topics
+
+
+@when(parsers.parse('I open the topic "{topic}"'))
+def open_topic(page, topic):
+    _open_topic_named(page, topic)
+
+
+@then(parsers.parse('I am on the topic "{subject}" › "{topic}"'))
+def on_topic(page, subject, topic):
+    expect(page.get_by_role("heading", name=f"{subject} › {topic}", level=2)).to_be_visible()
+
+
+@then(parsers.parse('I see its materials "{filenames}"'))
+def see_its_materials(page, filenames):
+    materials = page.get_by_role("list", name="Materials").locator(".filename")
+    expect(materials).to_have_text([filename.strip() for filename in filenames.split(",")])
+
+
+@when("I go back")
+def go_back(page):
+    page.get_by_role("button", name="← Back").click()
+
+
+@when("I go back to the course")
+def go_back_to_course(page):
+    page.get_by_role("link", name=re.compile("^← Back to ")).click()
+
+
+@then(parsers.parse('I see the topics "{topics}" under "{subject}"'))
+def see_topics(page, topics, subject):
+    listed = page.get_by_role("list", name=f"Topics of {subject}").get_by_role("heading", level=4)
+    expect(listed).to_have_text([topic.strip() for topic in topics.split(",")])
+
+
+@then(parsers.parse('I do not see "{first}" or "{second}" on the course page'))
+def not_on_course_page(page, first, second):
+    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
+    for filename in (first, second):
+        expect(page.get_by_role("main").get_by_text(filename)).to_have_count(0)
+
+
+@then(parsers.parse('each topic offers only "{up}", "{down}" and "{remove}"'))
+def topic_actions(page, up, down, remove):
+    topics = page.get_by_role("main").locator("section.topic")
+    expect(topics.first).to_be_visible()
+    for i in range(topics.count()):
+        topic = topics.nth(i)
+        name = topic.get_by_role("heading", level=4).inner_text()
+        # the topic's name is its one link, which opens its page
+        expect(topic.get_by_role("link")).to_have_text([name])
+        # each button is labelled with what it does to the topic, e.g. "Move finite-elements up"
+        labels = [button.get_attribute("aria-label") or "" for button in topic.get_by_role("button").all()]
+        assert [label.replace(f" {name}", "") for label in labels] == [up, down, remove], labels
+
+
+@then("the topics show the statuses:")
+def topic_statuses(page, datatable):
+    header, *rows = datatable
+    assert header == ["topic", "status"]
+    for topic, status in rows:
+        expect(page.get_by_label(f"Status of {topic}", exact=True)).to_have_text(status)
+
+
+def _delete_topic(page, context, topic: str):
+    page.get_by_role("button", name=f"Delete {topic}", exact=True).click()
+    dialog = page.get_by_role("alertdialog", name=f"Delete the topic {topic}")
+    expect(dialog).to_be_visible()
+    context["asked"] = dialog.inner_text()
+    return dialog
+
+
+@when(parsers.parse('I delete the topic "{topic}", and confirm it'))
+def delete_topic_confirmed(page, context, topic):
+    _delete_topic(page, context, topic).get_by_role("button", name=f"Yes, delete {topic}").click()
+    expect(page.get_by_role("main").get_by_role("heading", name=topic, level=4)).to_have_count(0)
+
+
+@when(parsers.parse('I delete the topic "{topic}", but cancel'))
+def delete_topic_cancelled(page, context, topic):
+    _delete_topic(page, context, topic).get_by_role("button", name="Cancel").click()
+
+
+@then(parsers.parse("I am told before that its {count:d} materials are deleted with it"))
+def told_materials_deleted(context, count):
+    assert f"its {count} materials" in context["asked"], context["asked"]
+
+
+@then("I am not offered to move or delete topics")
+def not_offered_to_move_or_delete(page):
+    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
+    expect(page.get_by_role("main").get_by_role("button", name=re.compile(r"^(Move|Delete) "))).to_have_count(0)
+
+
+@then("I am not offered to add, write or delete material")
+def not_offered_to_change_topic(page):
+    expect(page.get_by_role("list", name="Materials")).to_be_visible()
+    main = page.get_by_role("main")
+    expect(main.get_by_role("link", name=re.compile("^(Add|Write) material"))).to_have_count(0)
+    expect(main.get_by_role("button", name=re.compile("^Delete "))).to_have_count(0)

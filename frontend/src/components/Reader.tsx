@@ -5,12 +5,16 @@ import {
   type NewNote,
   type Note,
   type OpenedMaterial,
+  type Reference,
   type SectionText,
   type StudyApi,
 } from '../api'
 import { useImageDrafts } from '../imageDrafts'
 import { formatMoment } from '../moments'
+import { brokenReferences } from '../notices'
+import { insertAtCursor, referenceLinks } from '../referenceLinks'
 import { AddImage } from './AddImage'
+import { AddReference } from './AddReference'
 import { Assistant } from './Assistant'
 import { Markdown, type ImageRenderer } from './Markdown'
 import { MaterialImage } from './MaterialImage'
@@ -20,9 +24,12 @@ type Props = {
   api: StudyApi
   courseId: string
   documentId: string
+  // the position of the section to open it at; its first if not given
+  section?: number
   // whether the student may edit the material: they own the course
   canEdit: boolean
-  onClose: () => void
+  // back to the material's topic, once it's known which
+  onClose: (material: OpenedMaterial | null) => void
 }
 
 // the material whose text can be edited
@@ -63,7 +70,8 @@ type EditorProps = {
   documentId: string
   // Markdown material can have images added as it's edited
   markdown: boolean
-  onSaved: () => void
+  // told of the references of the saved text that are broken, as written
+  onSaved: (brokenReferences: string[]) => void
   onCancel: () => void
 }
 
@@ -91,7 +99,7 @@ function Editor({ api, courseId, documentId, markdown, onSaved, onCancel }: Edit
       if (job.status === 'failed') throw new Error(`Processing failed: ${job.error}`)
       const failed = await images.keepWith(api, upload.course_id, upload.document_id, text)
       if (failed.length) throw new Error(`Your changes were saved, but not all the images: ${failed.join('; ')}`)
-      onSaved()
+      onSaved(upload.broken_references)
     } catch (e) {
       setError((e as Error).message)
       setSaving(null)
@@ -122,6 +130,13 @@ function Editor({ api, courseId, documentId, markdown, onSaved, onCancel }: Edit
         </label>
       )}
       {markdown && text !== null && <AddImage onInsert={images.insert} />}
+      {markdown && text !== null && (
+        <AddReference
+          api={api}
+          courseId={courseId}
+          onInsert={(reference) => insertAtCursor(text, setText, textarea, reference)}
+        />
+      )}
       <div className="actions">
         <button type="submit" disabled={text === null || saving !== null}>
           Save
@@ -216,7 +231,7 @@ function NoteForm({ label, onSave, onCancel, top }: NoteFormProps) {
   )
 }
 
-export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
+export function Reader({ api, courseId, documentId, section, canEdit, onClose }: Props) {
   const [material, setMaterial] = useState<OpenedMaterial | null>(null)
   const [position, setPosition] = useState<number | null>(null)
   const [parts, setParts] = useState<SectionText[]>([])
@@ -234,6 +249,10 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
   const [version, setVersion] = useState(0)
   // the images a Markdown material refers to, which it has or is missing
   const [images, setImages] = useState<MaterialImages | null>(null)
+  // the references a Markdown material makes to the rest of its course, and what each refers to
+  const [references, setReferences] = useState<Reference[] | null>(null)
+  // that the text just saved has broken references
+  const [saved, setSaved] = useState<string | null>(null)
   const video = useRef<HTMLVideoElement>(null)
   const body = useRef<HTMLDivElement>(null)
 
@@ -245,16 +264,18 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
     api.openMaterial(courseId, documentId).then(
       (opened) => {
         setMaterial(opened)
-        setPosition(opened.sections[0]?.position ?? null)
+        const at = opened.sections.find((s) => s.position === section) ?? opened.sections[0]
+        setPosition(at?.position ?? null)
         loadNotes()
       },
       (e: Error) => setError(e.message),
     )
-  }, [api, courseId, documentId, loadNotes, version])
+  }, [api, courseId, documentId, section, loadNotes, version])
 
   useEffect(() => {
     if (material?.content_type !== 'text/markdown') return
     api.images(courseId, documentId).then(setImages, (e: Error) => setError(e.message))
+    api.references(courseId, documentId).then(setReferences, (e: Error) => setError(e.message))
   }, [api, courseId, documentId, material, version])
 
   useEffect(() => {
@@ -335,7 +356,7 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
   return (
     <section className="reader" aria-labelledby="reader-title">
       <header className="reader-header">
-        <button type="button" className="link" onClick={onClose}>
+        <button type="button" className="link" onClick={() => onClose(material)}>
           ← Back
         </button>
         <h2 id="reader-title">{material?.filename ?? 'Opening…'}</h2>
@@ -346,7 +367,13 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
             </span>
             <div role="group" aria-label="Material actions" className="reader-actions">
               {canEdit && EDITABLE.includes(material.content_type) && !editing && (
-                <button type="button" onClick={() => setEditing(true)}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSaved(null)
+                    setEditing(true)
+                  }}
+                >
                   Edit
                 </button>
               )}
@@ -378,6 +405,12 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
         </p>
       )}
 
+      {saved && !editing && (
+        <p role="status" className="warning">
+          {saved}
+        </p>
+      )}
+
       {editing && (
         <Editor
           api={api}
@@ -385,7 +418,8 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
           documentId={documentId}
           markdown={material?.content_type === 'text/markdown'}
           onCancel={() => setEditing(false)}
-          onSaved={() => {
+          onSaved={(broken) => {
+            setSaved(brokenReferences(material?.filename ?? 'The material', broken))
             setEditing(false)
             setVersion((v) => v + 1)
           }}
@@ -455,6 +489,7 @@ export function Reader({ api, courseId, documentId, canEdit, onClose }: Props) {
                       headingOffset={3}
                       mark={(text) => highlight(text, passages)}
                       image={materialImages(api, courseId, documentId, images, canEdit ? setImages : undefined)}
+                      reference={referenceLinks(courseId, references)}
                     />
                   ) : (
                     content

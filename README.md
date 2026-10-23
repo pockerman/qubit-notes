@@ -73,9 +73,31 @@ summarise and quiz it as Markdown. Its pictures become its images.
 - Two downloads: the original file, unchanged, and the material as it is now, as a PDF or an EPUB laid out anew
   from its Markdown (with PyMuPDF and ebooklib), with an outline of its headings or a chapter per top heading.
 
-The platform keeps a converted material's Markdown as `<name>.md`, so gogi reads it as Markdown too; the app shows it
-by the name it was uploaded with (`platform/named.py`). PDFs uploaded before this stay as they were: read, but not
-edited.
+## References between topics
+
+A Markdown material refers to another part of its course with a path in double brackets, starting at the subject.
+The whole guide, for students and developers, is [docs/references.md](docs/references.md); the behaviour is
+specified in `features/references.feature` and `features/ui_references.feature`.
+
+| To refer to             | Write                                                        |
+|-------------------------|--------------------------------------------------------------|
+| a topic                 | `[[numerical-methods/finite-elements]]`                      |
+| a material              | `[[numerical-methods/finite-elements/fem-notes.md]]`         |
+| a section of a material | `[[numerical-methods/finite-elements/fem-notes.md#2 Assembly]]` |
+| any of them, labelled   | `[[numerical-methods/finite-elements\|the FEM topic]]`        |
+
+- The reader shows each reference as a link: to the topic's page, to the material, or to the material at the
+  section.
+- A reference to something the course doesn't have is broken: shown struck through, not a link, and reported when
+  the material is saved (`broken_references` in the answer to an upload, a write or an edit).
+- In the editor, **Add reference** picks a topic, material and section and inserts the reference; **How references
+  work** shows the syntax.
+- A topic's page shows the materials it is mentioned in.
+- A PDF or an EPUB downloaded as it is now has each reference as its label, as plain text.
+
+Nothing about references is stored: they are read from the materials when asked for
+(`backend/src/qubit_notes/domain/references.py`), so they are never out of date, at the cost of a topic's page
+reading every Markdown material of the course to find the mentions.
 
 ## The app's own platform
 
