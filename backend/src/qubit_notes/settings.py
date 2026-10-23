@@ -40,9 +40,9 @@ class Settings(BaseSettings):
     # how much of a conversation with the assistant the model is given, in estimated tokens: its most recent messages
     conversation_tokens: int = 4000
 
-    # how material is embedded; the default runs in gogi's worker and needs no API key
-    embeddings_client: str = "sentence-transformer"
-    embeddings_model: str = "clip"
+    # the model that embeds material for search, one of gogi's embedding models; the default runs in gogi and
+    # needs no API key. Material embedded with one model is not found by searching with another
+    embedding_model: str = "bge-small-en-v1.5"
     chunk_strategy: str = "fixed"
 
     @property
