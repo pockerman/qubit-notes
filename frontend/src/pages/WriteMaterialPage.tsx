@@ -42,7 +42,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
     )
   }, [api, courseId])
 
-  const back = () => navigate({ page: 'course', courseId })
+  const back = () => navigate({ page: 'topic', courseId, subject, topic })
   const filename = filenameOf(name)
 
   const preview: ImageRenderer = useMemo(
@@ -98,8 +98,8 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
   return (
     <section className="write-material" aria-labelledby="write-title">
       <header className="page-header">
-        <a className="link" href={href({ page: 'course', courseId })}>
-          ← Back to the course
+        <a className="link" href={href({ page: 'topic', courseId, subject, topic })}>
+          ← Back to the topic
         </a>
         <h2 id="write-title">
           Write material in {subject} › {topic}

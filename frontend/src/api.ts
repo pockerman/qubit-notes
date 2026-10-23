@@ -475,6 +475,12 @@ export class StudyApi {
     return this.request(`/courses/${path[0]}/materials/${path.slice(1).join('/')}`, { method: 'DELETE' })
   }
 
+  /** deletes the topic with all of its material */
+  async deleteTopic(course: string, subject: string, topic: string): Promise<void> {
+    const [c, s, t] = [course, subject, topic].map(encodeURIComponent)
+    await this.fetch(`/courses/${c}/subjects/${s}/topics/${t}`, { method: 'DELETE' })
+  }
+
   /** puts the subject's topics in the order they're meant to be read; returns the course's topics */
   orderTopics(course: string, subject: string, topics: string[]): Promise<Topic[]> {
     return this.request(`/courses/${encodeURIComponent(course)}/subjects/${encodeURIComponent(subject)}/topic-order`, {

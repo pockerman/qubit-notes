@@ -68,7 +68,7 @@ the table above: `\|`.
 
 | A reference to | opens                                                         |
 |----------------|---------------------------------------------------------------|
-| a topic        | the course, scrolled to the topic, which is outlined          |
+| a topic        | the topic's page, with its materials                          |
 | a material     | the material in the reader                                    |
 | a section      | the material in the reader, at that section                   |
 
@@ -92,7 +92,7 @@ same topic.
 ## Mentions
 
 A topic is mentioned in every material that refers to it, to one of its materials, or to a section of one of them.
-On the course page, each topic that is mentioned shows **Mentioned in** and the materials, each a link, with the
+A topic's page, when the topic is mentioned, shows **Mentioned in** and the materials, each a link, with the
 topic they are in when it's another one. A material is listed once, however many references it has to the topic.
 Mentions follow the materials as they are: a mention goes when its last reference is edited out, or when the
 material is deleted.
@@ -136,6 +136,6 @@ material, document id, section heading and section position of what it refers to
 sections the platform read from the material, by its heading, so a material still being processed has no sections
 to refer to yet.
 
-The cost of reading references when asked for is that the course page reads every Markdown material of the course
+The cost of reading references when asked for is that a topic's page reads every Markdown material of the course
 each time it loads, to find the mentions. That's fine for a study course; for courses of hundreds of materials, the
 references would be better kept in a table, updated whenever a material is saved or deleted.

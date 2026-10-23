@@ -240,6 +240,15 @@ class Materials:
         self._forget(course, material.document_id)
         return material
 
+    def delete_topic(self, course: Course, subject: str, topic: str) -> None:
+        """deletes the material of a deleted topic, and everything made from it"""
+        for document in self._platform.list_documents(course.id, {"subject": subject, "topic": topic}):
+            if is_image(document) or is_original(document):
+                # they go with their material
+                continue
+            self._platform.delete_document(course.id, document.document_id)
+            self._forget(course, document.document_id)
+
     def forget_course(self, course: Course) -> None:
         """what the assistant learned from a deleted course's material, for anyone who studied it"""
         document_ids = {document.document_id for document in self._platform.list_documents(course.id)}

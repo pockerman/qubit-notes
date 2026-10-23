@@ -51,7 +51,13 @@ function MaterialPage({ api, courseId, documentId, section }: MaterialPageProps)
       documentId={documentId}
       section={section}
       canEdit={course?.role === 'owner'}
-      onClose={() => navigate({ page: 'course', courseId })}
+      onClose={(material) =>
+        navigate(
+          material
+            ? { page: 'topic', courseId, subject: material.subject, topic: material.topic }
+            : { page: 'course', courseId },
+        )
+      }
     />
   )
 }
@@ -62,14 +68,7 @@ function Pages({ api }: { api: StudyApi }) {
     case 'courses':
       return <CoursesPage api={api} />
     case 'course':
-      return (
-        <CoursePage
-          key={route.courseId}
-          api={api}
-          courseId={route.courseId}
-          at={route.subject && route.topic ? { subject: route.subject, topic: route.topic } : undefined}
-        />
-      )
+      return <CoursePage key={route.courseId} api={api} courseId={route.courseId} />
     case 'add':
       return <AddMaterialPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
     case 'write':
@@ -87,7 +86,15 @@ function Pages({ api }: { api: StudyApi }) {
         />
       )
     case 'topic':
-      return <TopicPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
+      return (
+        <TopicPage
+          key={`${route.courseId}/${route.subject}/${route.topic}`}
+          api={api}
+          courseId={route.courseId}
+          subject={route.subject}
+          topic={route.topic}
+        />
+      )
   }
 }
 

@@ -4,12 +4,12 @@ Feature: References between topics in the browser
   I want to follow the references in my material, and add them without typing paths
   So that I can move between the topics of my course as I study
 
-  A reference is a link: to a topic, it opens the course at that topic; to a material, it opens
-  the material; to a section, it opens the material at that section. A broken reference is
+  A reference is a link: to a topic, it opens the topic's page; to a material, it opens the
+  material; to a section, it opens the material at that section. A broken reference is
   shown struck through and is not a link. While writing or editing, "Add reference" picks a
   topic, a material or a section of the course and puts its reference in the text; "How
-  references work" beside it shows how they are written (see docs/references.md). The course
-  page shows under each topic the materials it is mentioned in.
+  references work" beside it shows how they are written (see docs/references.md). A topic's
+  page shows the materials it is mentioned in.
 
   Background:
     Given I am signed in as "maria"
@@ -33,7 +33,7 @@ Feature: References between topics in the browser
     When I open the course "aeronautics"
     And I open "sparse-matrices.md" to read it
     And I follow the reference "the FEM topic"
-    Then I am in the course "aeronautics" at the topic "numerical-methods" › "finite-elements"
+    Then I am on the topic "numerical-methods" › "finite-elements"
 
   Scenario: Follow a reference to a section
     When I open the course "aeronautics"
@@ -79,8 +79,9 @@ Feature: References between topics in the browser
     Then I am told the reference "[[numerical-methods/finite-element]]" is broken
     And I see "iterative-solvers.md" under "numerical-methods" › "linear-solvers"
 
-  Scenario: A topic shows the materials it is mentioned in
+  Scenario: A topic's page shows the materials it is mentioned in
     When I open the course "aeronautics"
+    And I open the topic "finite-elements"
     Then the topic "finite-elements" is mentioned in "sparse-matrices.md"
     When I open the mention "sparse-matrices.md"
     Then I am reading "sparse-matrices.md"

@@ -22,8 +22,8 @@ Feature: Writing material in the browser
       Shape functions interpolate the solution inside each element.
       """
     And I save it
-    Then I am back in the course "aeronautics"
-    And I see "shape-functions.md" under "numerical-methods" › "finite-elements"
+    Then I am on the topic "numerical-methods" › "finite-elements"
+    And I see its materials "shape-functions.md"
     When I open "shape-functions.md" to read it
     Then I see the text "Shape functions interpolate the solution inside each element."
 
@@ -58,4 +58,5 @@ Feature: Writing material in the browser
     Given the student "maria" has shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
     When I open the course "aeronautics"
+    And I open the topic "finite-elements"
     Then I am not offered to write material

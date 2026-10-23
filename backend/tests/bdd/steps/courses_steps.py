@@ -73,6 +73,30 @@ def student_creates_topic(students, context, name, location, course):
     context["response"] = _create_topic(students, location, course, name=name)
 
 
+def _delete_topic(students, location: str, course: str, name: str | None = None):
+    subject, topic = location.split("/")
+    return students.client.delete(
+        f"/api/courses/{course}/subjects/{subject}/topics/{topic}", headers=students.headers(name)
+    )
+
+
+@when(parsers.parse('I delete the topic "{location}" from "{course}"'))
+def delete_topic(students, context, location, course):
+    context["response"] = _delete_topic(students, location, course)
+
+
+@when(parsers.parse('the student "{name}" deletes the topic "{location}" from "{course}"'))
+def student_deletes_topic(students, context, name, location, course):
+    context["response"] = _delete_topic(students, location, course, name)
+
+
+@then(parsers.parse('I am told "{course}" has no topic "{location}"'))
+def no_such_topic(context, course, location):
+    response = context["response"]
+    assert response.status_code == 404, response.text
+    assert f"{course!r} has no topic {location!r}" in response.json()["detail"]
+
+
 @then(parsers.parse('the topics of "{course}" are:'))
 def topics_are(students, course, datatable):
     response = students.client.get(f"/api/courses/{course}/topics", headers=students.headers())

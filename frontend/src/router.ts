@@ -5,17 +5,16 @@ import { useEffect, useState } from 'react'
  * they were:
  *   #/                                     my courses
  *   #/courses/<id>                         a course
- *   #/courses/<id>?subject=…&topic=…       a course, at one of its topics
  *   #/courses/<id>/add?subject=…&topic=…   adding material to it
  *   #/courses/<id>/write?subject=…&topic=… writing material in a topic
  *   #/courses/<id>/members                 who it is shared with
  *   #/courses/<id>/materials/<document>    reading a material
  *   #/courses/<id>/materials/<document>?section=<position>  reading it at a section
- *   #/courses/<id>/topics/<subject>/<topic> studying a topic
+ *   #/courses/<id>/topics/<subject>/<topic> a topic: its material, and the assistant on all of it
  */
 export type Route =
   | { page: 'courses' }
-  | { page: 'course'; courseId: string; subject?: string; topic?: string }
+  | { page: 'course'; courseId: string }
   | { page: 'add'; courseId: string; subject: string; topic: string }
   | { page: 'members'; courseId: string }
   | { page: 'write'; courseId: string; subject: string; topic: string }
@@ -42,8 +41,7 @@ export function parse(hash: string): Route {
   if (parts[2] === 'topics' && parts[3] && parts[4]) {
     return { page: 'topic', courseId, subject: parts[3], topic: parts[4] }
   }
-  const [subject, topic] = [params.get('subject'), params.get('topic')]
-  return { page: 'course', courseId, ...(subject && topic ? { subject, topic } : {}) }
+  return { page: 'course', courseId }
 }
 
 export function href(route: Route): string {
@@ -51,10 +49,8 @@ export function href(route: Route): string {
   switch (route.page) {
     case 'courses':
       return '#/'
-    case 'course': {
-      if (!route.subject || !route.topic) return course(route.courseId)
-      return `${course(route.courseId)}?${new URLSearchParams({ subject: route.subject, topic: route.topic })}`
-    }
+    case 'course':
+      return course(route.courseId)
     case 'add': {
       const query = new URLSearchParams({ subject: route.subject, topic: route.topic })
       return `${course(route.courseId)}/add?${query}`

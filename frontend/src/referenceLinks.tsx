@@ -4,10 +4,10 @@ import type { ReferenceRenderer } from './components/Markdown'
 import { shownAs } from './references'
 import { href } from './router'
 
-/** where following a reference leads: the course at the topic, the material, or the material at the section */
+/** where following a reference leads: the topic's page, the material, or the material at the section */
 function target(courseId: string, reference: Reference): string | null {
   const { refers_to, subject, topic, document_id, position } = reference
-  if (refers_to === 'topic' && subject && topic) return href({ page: 'course', courseId, subject, topic })
+  if (refers_to === 'topic' && subject && topic) return href({ page: 'topic', courseId, subject, topic })
   if (refers_to === 'material' && document_id) return href({ page: 'material', courseId, documentId: document_id })
   if (refers_to === 'section' && document_id && position) {
     return href({ page: 'material', courseId, documentId: document_id, section: position })

@@ -59,6 +59,12 @@ def upload_scan(students, context, filename, location):
     context["response"] = students.upload(location, filename, make_scanned_pdf())
 
 
+@given(parsers.parse('I have uploaded a PDF "{filename}" of pictures only to "{location}"'))
+def have_uploaded_scan(students, context, filename, location):
+    upload_scan(students, context, filename, location)
+    fails(students, context, filename)
+
+
 @given(parsers.parse('I have changed the text of "{filename}" to:'))
 def changed_text(students, context, filename, docstring):
     material = students.find_material(filename)

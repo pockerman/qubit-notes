@@ -28,7 +28,8 @@ type Props = {
   section?: number
   // whether the student may edit the material: they own the course
   canEdit: boolean
-  onClose: () => void
+  // back to the material's topic, once it's known which
+  onClose: (material: OpenedMaterial | null) => void
 }
 
 // the material whose text can be edited
@@ -355,7 +356,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
   return (
     <section className="reader" aria-labelledby="reader-title">
       <header className="reader-header">
-        <button type="button" className="link" onClick={onClose}>
+        <button type="button" className="link" onClick={() => onClose(material)}>
           ← Back
         </button>
         <h2 id="reader-title">{material?.filename ?? 'Opening…'}</h2>

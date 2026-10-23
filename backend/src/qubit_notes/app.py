@@ -73,6 +73,8 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.database = database
     app.state.notes = Notes(app.state.database, app.state.reading)
     app.state.materials.on_upload(app.state.topics.ensure)
+    # a deleted topic's material goes with it
+    app.state.topics.on_delete(app.state.materials.delete_topic)
     sources = Sources(platform, app.state.courses, app.state.reading)
     app.state.summaries = Summaries(app.state.database, platform, sources)
     app.state.quizzes = Quizzes(app.state.database, platform, sources)

@@ -27,8 +27,8 @@ Feature: Courses in the browser
     And I have created the course "aeronautics"
     When I open the course "aeronautics"
     And I add "fe-basics.txt" to the subject "Numerical Methods", topic "Finite Elements"
-    Then I am back in the course "aeronautics"
-    And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
+    Then I am on the topic "numerical-methods" › "finite-elements"
+    And I see its materials "fe-basics.txt"
 
   Scenario: Edit a material in the reader
     Given I am signed in as "maria"
@@ -50,18 +50,19 @@ Feature: Courses in the browser
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
-    And I add "fe-meshing.txt" to the topic "finite-elements"
-    Then I am back in the course "aeronautics"
-    And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
-    And I see "fe-meshing.txt" under "numerical-methods" › "finite-elements"
+    And I open the topic "finite-elements"
+    And I add "fe-meshing.txt" to this topic
+    Then I see its materials "fe-basics.txt, fe-meshing.txt"
 
   Scenario: A topic stays when all of its material is deleted
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
+    And I open the topic "finite-elements"
     And I delete "fe-basics.txt"
     Then I no longer see "fe-basics.txt"
-    But I still see the topic "numerical-methods" › "finite-elements", with no material
+    When I go back to the course
+    Then I still see the topic "numerical-methods" › "finite-elements", with no material
 
   Scenario: Create a topic in the browser
     Given I am signed in as "maria"

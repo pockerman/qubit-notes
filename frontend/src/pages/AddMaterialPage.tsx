@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Course, StudyApi } from '../api'
 import { UploadForm } from '../components/UploadForm'
+import { brokenReferences, leaveNotice } from '../notices'
 import { href, navigate } from '../router'
 
 type Props = {
@@ -25,8 +26,11 @@ export function AddMaterialPage({ api, courseId, subject, topic }: Props) {
   return (
     <section className="add-material" aria-labelledby="add-title">
       <header className="page-header">
-        <a className="link" href={href({ page: 'course', courseId })}>
-          ← Back to the course
+        <a
+          className="link"
+          href={href(subject && topic ? { page: 'topic', courseId, subject, topic } : { page: 'course', courseId })}
+        >
+          {subject && topic ? '← Back to the topic' : '← Back to the course'}
         </a>
         <h2 id="add-title">Add material{course ? ` to ${course.name}` : ''}</h2>
       </header>
@@ -42,7 +46,11 @@ export function AddMaterialPage({ api, courseId, subject, topic }: Props) {
             course={course.name}
             subject={subject}
             topic={topic}
-            onUploaded={() => navigate({ page: 'course', courseId })}
+            onUploaded={(upload, { subject, topic, filename }) => {
+              const broken = brokenReferences(filename, upload.broken_references)
+              if (broken) leaveNotice(broken)
+              navigate({ page: 'topic', courseId, subject, topic })
+            }}
           />
         </div>
       )}

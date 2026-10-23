@@ -13,8 +13,8 @@ Feature: References between topics
   "the FEM topic". Without one, a reference is shown as the name of what it refers to: the
   topic's, the material's or the section's, e.g. "finite-elements".
 
-  A reference is to the material's own course; it is followed as a link: to the topic in the
-  course, or to the material, opened at the section if it names one. A reference to something
+  A reference is to the material's own course; it is followed as a link: to the topic's page,
+  or to the material, opened at the section if it names one. A reference to something
   the course doesn't have, mistyped or since deleted, is broken: it is shown, but not as a link,
   and the student is told of it when they save the material. Text in code is never a reference.
 

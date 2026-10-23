@@ -41,6 +41,9 @@ Feature: PDF and EPUB material as Markdown
         | 1 Introduction    | 1     |
         | 2 Shape functions | 1     |
         | 3 Assembly        | 1     |
+      And the topics of "aeronautics" are:
+        | subject           | topic           | materials |
+        | numerical-methods | finite-elements | 1         |
       And I read "The element matrices are assembled" in the section "3 Assembly" of "lecture-1.pdf"
 
     Scenario: A PDF's font sizes give its headings when it has no outline
