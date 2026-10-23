@@ -31,6 +31,7 @@ Feature: Study materials
         | notes.txt    | accepted for processing |
         | notes.md     | accepted for processing |
         | lecture.pdf  | accepted for processing |
+        | book.epub    | accepted for processing |
         | song.mp3     | rejected as unsupported |
 
     Scenario Outline: Videos are accepted

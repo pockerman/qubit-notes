@@ -135,6 +135,27 @@ class Images:
             raise NotFound(f"no image {path!r}")
         return Image(filename=downloaded.filename, content_type=downloaded.content_type, content=downloaded.content)
 
+    def keep(self, course_id: str, document_id: str, path: str, content: bytes) -> None:
+        """keeps an image of a material the app made, e.g. a picture of a converted PDF, under the path its Markdown
+        refers to it by; an image already kept there is replaced"""
+        target = _normal(path)
+        content_type = image_type(target, content)
+        for kept in self._documents(course_id, document_id, target):
+            self._platform.delete_document(course_id, kept.document_id)
+        metadata = {KIND: IMAGE, MATERIAL: document_id, PATH: target}
+        self._platform.ingest_document(
+            course_id, PurePosixPath(target).name, content, content_type, metadata=metadata, store_only=True
+        )
+
+    def contents(self, course_id: str, document_id: str) -> dict[str, bytes]:
+        """the images a material has, by the path it refers to them by"""
+        found = {}
+        for image in self._documents(course_id, document_id):
+            downloaded = self._platform.download_document(course_id, image.document_id)
+            if downloaded is not None:
+                found[image.metadata[PATH]] = downloaded.content
+        return found
+
     def forget(self, course_id: str, document_id: str) -> None:
         """deletes the images of a deleted material"""
         for image in self._documents(course_id, document_id):
@@ -149,7 +170,7 @@ class Images:
         if material is None or is_image(material):
             raise NotFound(f"no material {document_id!r}")
         if material.content_type != "text/markdown":
-            raise InvalidRequest("only Markdown material has images of its own; a PDF's images are part of it")
+            raise InvalidRequest("only Markdown material has images of its own")
         return material
 
     def _markdown(self, index: str, document_id: str) -> str:

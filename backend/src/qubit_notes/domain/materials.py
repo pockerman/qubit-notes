@@ -4,6 +4,7 @@ from pathlib import PurePosixPath
 
 from pydantic import BaseModel
 
+from qubit_notes.domain.conversions import JOB_PREFIX, Conversions, converted_from, is_original
 from qubit_notes.domain.courses import Course, Courses, Location
 from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound, TooLarge
 from qubit_notes.domain.images import is_image
@@ -12,8 +13,14 @@ from qubit_notes.domain.videos import VIDEO_TYPES, duration_seconds
 from qubit_notes.platform.port import IngestJob, IngestStatus, StudyPlatform
 
 MB = 1024 * 1024
-TEXT_TYPES = {".txt": "text/plain", ".md": "text/markdown", ".pdf": "application/pdf"}
-# the material whose text can be edited
+TEXT_TYPES = {
+    ".txt": "text/plain",
+    ".md": "text/markdown",
+    # converted to Markdown when uploaded (domain/conversions.py)
+    ".pdf": "application/pdf",
+    ".epub": "application/epub+zip",
+}
+# the material whose text can be edited: a converted PDF's or EPUB's is Markdown
 EDITABLE_TYPES = {"text/plain", "text/markdown"}
 CONTENT_TYPES = {**TEXT_TYPES, **VIDEO_TYPES}
 
@@ -33,6 +40,10 @@ class Material(BaseModel):
     # "text" (read by section, summarised and quizzed) or "video" (watched, with notes at moments)
     kind: str = "text"
     duration_seconds: float | None = None
+    # "pdf" or "epub" for a material converted from one, whose original can be downloaded too
+    converted_from: str | None = None
+    # why it could not be processed, e.g. a PDF without text
+    error: str | None = None
 
 
 class Upload(BaseModel):
@@ -46,9 +57,17 @@ class Materials:
     """Uploading, listing and deleting study material. Material is a document in its course's index, with its
     subject and topic as metadata."""
 
-    def __init__(self, platform: StudyPlatform, courses: Courses, memory: StudentMemory, max_upload_mb: float):
+    def __init__(
+        self,
+        platform: StudyPlatform,
+        courses: Courses,
+        memory: StudentMemory,
+        max_upload_mb: float,
+        conversions: Conversions,
+    ):
         self._platform = platform
         self._courses = courses
+        self._conversions = conversions
         self._memory = memory
         self.max_upload_mb = max_upload_mb
         # what else is forgotten with a material, e.g. its notes; each is called with its document id
@@ -83,10 +102,14 @@ class Materials:
         video = is_video(content_type)
         if video and (duration := duration_seconds(content)) is not None:
             metadata["duration_seconds"] = f"{duration:.3f}"
-        # a video has no text to process: the platform keeps it as it is
-        job = self._platform.ingest_document(
-            course.id, filename, content, content_type, metadata=metadata, store_only=video
-        )
+        if self._conversions.convertible(content_type):
+            # a PDF or an EPUB is converted to Markdown, which is processed then
+            job = self._conversions.start(course.id, filename, content, content_type, metadata)
+        else:
+            # a video has no text to process: the platform keeps it as it is
+            job = self._platform.ingest_document(
+                course.id, filename, content, content_type, metadata=metadata, store_only=video
+            )
         for keep in self._on_upload:
             keep(course.id, where.subject, where.topic)
         return Upload(job_id=job.job_id, document_id=job.document_id, course_id=course.id, status=job.status)
@@ -106,7 +129,10 @@ class Materials:
         return self.upload(student, location, filename, text.encode())
 
     def ingestion(self, job_id: str) -> IngestJob:
-        job = self._platform.get_ingest_job(job_id)
+        if job_id.startswith(JOB_PREFIX):
+            job = self._conversions.job(job_id)
+        else:
+            job = self._platform.get_ingest_job(job_id)
         if job is None:
             raise NotFound(f"no upload {job_id!r}")
         return job
@@ -125,10 +151,15 @@ class Materials:
                 status=document.status,
                 kind="video" if is_video(document.content_type) else "text",
                 duration_seconds=duration_of(document.metadata),
+                converted_from=converted_from(document),
+                error=self._conversions.error(document) if document.status == IngestStatus.FAILED else None,
             )
-            for document in self._platform.list_documents(found.id, metadata_filter or None)
-            # a Markdown material's images are kept beside it, but are not materials of their own
-            if not is_image(document)
+            for document in map(
+                self._conversions.as_it_is, self._platform.list_documents(found.id, metadata_filter or None)
+            )
+            # a Markdown material's images, and a converted material's original, are kept beside it, but are not
+            # materials of their own
+            if not is_image(document) and not is_original(document)
         ]
         return sorted(materials, key=lambda m: (m.subject, m.topic, m.filename))
 
@@ -167,9 +198,7 @@ class Materials:
         if document is None:
             raise NotFound(f"no material {document_id!r} in {course.name!r}")
         if document.content_type not in EDITABLE_TYPES:
-            raise InvalidRequest(
-                f"{document.filename!r} cannot be edited: only Markdown and text material can be edited"
-            )
+            raise InvalidRequest(f"{document.filename!r} cannot be edited: only text material can be edited")
         return course, document
 
     def delete(self, student: str, location: str, filename: str) -> Material:

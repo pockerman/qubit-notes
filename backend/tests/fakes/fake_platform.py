@@ -139,6 +139,7 @@ class FakePlatform:
         self.files[document_id] = (content, sections)
         job = IngestJob(job_id=uuid.uuid4().hex, document_id=document_id, status=IngestStatus.COMPLETED)
         document.version, document.size_bytes, document.metadata = job.job_id, len(content), metadata
+        document.filename, document.content_type, document.status = filename, content_type, IngestStatus.COMPLETED
         self.jobs[job.job_id] = job
         return job
 

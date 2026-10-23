@@ -75,7 +75,7 @@ export function UploadForm({ api, course, subject: initialSubject = '', topic: i
         File
         <input
           type="file"
-          accept=".txt,.md,.pdf,.mp4,.webm"
+          accept=".txt,.md,.pdf,.epub,.mp4,.webm"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           required
         />

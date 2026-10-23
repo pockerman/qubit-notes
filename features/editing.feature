@@ -3,9 +3,10 @@ Feature: Editing material
   I want to correct and extend my own notes in the assistant
   So that what I study from, and what the assistant writes from it, stays right
 
-  The text of a Markdown or plain text material can be edited by the owners of its course.
+  The text of a Markdown or plain text material can be edited by the owners of its course, as can
+  a PDF's or an EPUB's, which are converted to Markdown (see PDF and EPUB material as Markdown).
   Once saved, the material is processed again: it is read, searched, summarised and quizzed
-  as its new text. A PDF or a video cannot be edited.
+  as its new text. A video cannot be edited, nor can a PDF uploaded before PDFs were converted.
 
   Background:
     Given I am the student "maria"
@@ -56,15 +57,10 @@ Feature: Editing material
       Then searching "aeronautics" for "Galerkin residual" finds "fem-notes.md"
       But searching "aeronautics" no longer finds the text "divides a domain into small elements"
 
-    Scenario Outline: Only Markdown and text material can be edited
-      Given I have uploaded "<filename>" to "aeronautics/numerical-methods/finite-elements"
-      When I change the text of "<filename>" to "anything"
-      Then I am told only Markdown and text material can be edited
-
-      Examples:
-        | filename      |
-        | lecture-1.pdf |
-        | lecture-3.mp4 |
+    Scenario: A video cannot be edited
+      Given I have uploaded "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
+      When I change the text of "lecture-3.mp4" to "anything"
+      Then I am told only text material can be edited
 
     Scenario: A reader of a shared course cannot edit its material
       Given I have shared the course "aeronautics" with "tom" as a reader
