@@ -39,6 +39,12 @@ make dev-frontend       # http://localhost:5173, forwards /api to the backend
 make lint
 ```
 
+`./start_local.sh` does it all in one go, on the app's own platform: it reads settings such as
+`QUBIT_NOTES_ANTHROPIC_API_KEY` from `.env` (gitignored) if there is one, uses the dev database (Postgres with
+pgvector in the container `qubit-notes-pgvector`, on `127.0.0.1:5433`) unless `QUBIT_NOTES_DATABASE_URL` is set,
+starts that container if it's stopped, runs the migrations and then `make serve`; `./start_local.sh dev` runs
+`make dev-backend` and `make dev-frontend` together instead.
+
 The backend needs Python 3.12+. To run the app on gogi, `make install-gogi` also installs gogi-python from
 `../gogi-python` in editable mode; build its protobuf code first (`gogi-python/install.sh` or
 `uv run python scripts/build_protos.py`). gogi-python isn't one of the app's dependencies, so a plain `uv sync`
