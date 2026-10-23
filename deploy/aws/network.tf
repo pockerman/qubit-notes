@@ -1,4 +1,5 @@
-# One VPC: the server in a public subnet, with an Elastic IP for its calls out (gogi lets that address in), and
+# One VPC: the server in a public subnet, with an Elastic IP for its calls out (where the platform is gogi, gogi lets
+# that address in), and
 # Postgres in two private subnets, as RDS asks for two availability zones. CloudFront reaches the server privately,
 # through a VPC origin: nothing else can reach it
 data "aws_availability_zones" "available" {

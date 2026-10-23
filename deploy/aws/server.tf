@@ -34,6 +34,8 @@ resource "aws_instance" "server" {
 
   metadata_options {
     http_tokens = "required"
+    # one hop more than the server itself, so the app's container can take the server's role, e.g. for its bucket
+    http_put_response_hop_limit = 2
   }
 
   tags = { Name = var.name }

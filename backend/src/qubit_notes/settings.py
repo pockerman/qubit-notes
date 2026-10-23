@@ -8,6 +8,11 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="QUBIT_NOTES_", env_file=".env", extra="ignore")
 
+    # what keeps the material, searches it, calls the AI and keeps conversations and memories: the app itself, or
+    # the gogi platform (which needs gogi-python installed beside the app: make install-gogi)
+    platform: Literal["standalone", "gogi"] = "standalone"
+
+    # gogi's gateway, where the platform is gogi
     gateway_url: str = "localhost:50051"
 
     # how students sign in: by name, as in development, or with Amazon Cognito where the app is deployed
@@ -33,16 +38,31 @@ class Settings(BaseSettings):
     # the largest file a student may upload; gogi refuses files larger than its own limit, 100 MB by default
     max_upload_mb: float = 100.0
 
-    # the model that writes summaries and quizzes, through gogi's model service
+    # where the app's own platform keeps the uploaded files: an S3 bucket if set (e.g. where it's deployed on AWS),
+    # else a directory
+    files_bucket: str | None = None
+    files_dir: str = "material"
+    # the model providers' keys, for the app's own platform; where the platform is gogi, they're kept in gogi
+    anthropic_api_key: str | None = None
+    openai_api_key: str | None = None
+    voyage_api_key: str | None = None
+    # where an embedding model that runs in the app is downloaded to; a temporary directory if unset
+    embedding_cache_dir: str | None = None
+    # how many documents the app's own platform processes at once
+    ingestion_workers: int = 2
+
+    # the model that writes summaries and quizzes: anthropic or openai
     llm_provider: str = "anthropic"
     llm_model: str = "claude-sonnet-5-5"
     llm_max_tokens: int = 4000
     # how much of a conversation with the assistant the model is given, in estimated tokens: its most recent messages
     conversation_tokens: int = 4000
 
-    # the model that embeds material for search, one of gogi's embedding models; the default runs in gogi and
-    # needs no API key. Material embedded with one model is not found by searching with another
+    # the model that embeds material for search: bge-small-en-v1.5 runs in the app (or in gogi) and needs no API key;
+    # voyage-* models need the Voyage AI key, text-embedding-3-* ones the OpenAI key. Material embedded with one
+    # model is not found by searching with another: after changing it, run qubit-notes reembed
     embedding_model: str = "bge-small-en-v1.5"
+    # gogi's chunking strategy, where the platform is gogi
     chunk_strategy: str = "fixed"
 
     @property

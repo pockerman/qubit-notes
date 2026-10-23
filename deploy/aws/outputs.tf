@@ -4,7 +4,7 @@ output "url" {
 }
 
 output "server_public_ip" {
-  description = "Where the app calls gogi from: add it to gogi's client_cidrs, as <ip>/32"
+  description = "Where the app calls out from, e.g. to gogi: add it to gogi's client_cidrs, as <ip>/32"
   value       = aws_eip.server.public_ip
 }
 
@@ -23,9 +23,19 @@ output "cognito_domain" {
   value       = local.cognito_domain
 }
 
+output "provider_keys_secret" {
+  description = "On its own platform, where to put the app's keys of the model providers"
+  value       = one(aws_secretsmanager_secret.provider_keys[*].name)
+}
+
+output "material_bucket" {
+  description = "On its own platform, the bucket of the students' uploads"
+  value       = one(aws_s3_bucket.material[*].bucket)
+}
+
 output "gogi_api_key_secret" {
-  description = "Where to put the key gogi gave the app"
-  value       = aws_secretsmanager_secret.gogi_api_key.name
+  description = "Where the platform is gogi, where to put the key gogi gave the app"
+  value       = one(aws_secretsmanager_secret.gogi_api_key[*].name)
 }
 
 output "registry_secret" {

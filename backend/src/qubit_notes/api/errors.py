@@ -33,4 +33,4 @@ def add_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(PlatformError)
     async def handle_platform(_: Request, error: PlatformError) -> JSONResponse:
         logger.error(f"the platform failed: {error}")
-        return JSONResponse(status_code=502, content={"detail": f"The gogi platform failed: {error}"})
+        return JSONResponse(status_code=502, content={"detail": f"The platform failed: {error}"})

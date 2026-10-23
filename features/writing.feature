@@ -16,7 +16,7 @@ Feature: Writing material
 
   Rule: The owners of a course write Markdown material in its topics
 
-    @gogi
+    @platform
     Scenario: Write a material
       When I write the material "Shape functions" in "aeronautics/numerical-methods/finite-elements" with the text:
         """

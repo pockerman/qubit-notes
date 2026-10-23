@@ -14,9 +14,13 @@ import pytest
 import uvicorn
 from fastapi.testclient import TestClient
 
+from qubit_notes import storage
 from qubit_notes.app import create_app
+from qubit_notes.platform.standalone import StandalonePlatform
+from qubit_notes.platform.standalone.embeddings import Embedder, embedder_from
 from qubit_notes.settings import Settings
 from tests.bdd.students import Students
+from tests.fakes.fake_ai import FakeAI
 from tests.fakes.fake_cognito import CLIENT_ID, FakeCognito
 from tests.fakes.fake_platform import FakePlatform
 
@@ -26,6 +30,11 @@ FRONTEND = Path(__file__).resolve().parents[3] / "frontend"
 @pytest.fixture
 def on_gogi(request) -> bool:
     return request.config.getoption("--platform") == "gogi"
+
+
+@pytest.fixture
+def on_standalone(request) -> bool:
+    return request.config.getoption("--platform") == "standalone"
 
 
 # the app's own database: in memory, or e.g. Postgres, as deployed, shared by the scenarios
@@ -68,19 +77,68 @@ def gogi_applications():
     applications.delete_all()
 
 
+# the embedding models, loaded once for every scenario
+_embedders: dict[str, Embedder] = {}
+
+
+class RestartablePlatform:
+    """The app's own platform, which a scenario can restart, e.g. with another embedding model: the app keeps
+    calling this, and it calls the platform of the moment. A restart keeps the database and the files."""
+
+    def __init__(self, settings: Settings, ai):
+        self.settings = settings
+        self._ai = ai
+        self.current = self._start()
+
+    def _start(self, ai=None) -> StandalonePlatform:
+        model = self.settings.embedding_model
+        if model not in _embedders:
+            _embedders[model] = embedder_from(self.settings)
+        return StandalonePlatform(
+            self.settings,
+            storage.connect(self.settings.database_url),
+            embedder=_embedders[model],
+            ai=ai or self._ai or None,
+        )
+
+    def restart(self, ai=None, **settings) -> None:
+        self.current.stop()
+        self.settings = self.settings.model_copy(update=settings)
+        self.current = self._start(ai)
+
+    def __getattr__(self, name):
+        return getattr(self.current, name)
+
+
+def _standalone(request, tmp_path) -> RestartablePlatform:
+    # the app's database, as in the app fixture; one in memory is a file instead, so ingestion runs in the background
+    url = TEST_DATABASE_URL if not storage.in_memory(TEST_DATABASE_URL) else f"sqlite:///{tmp_path / 'qubit-notes.db'}"
+    settings = Settings(database_url=url, files_dir=str(tmp_path / "files"))
+    # the AI is a stand-in, unless the scenarios are run with it
+    ai = None if request.config.getoption("--with-ai") else FakeAI()
+    return RestartablePlatform(settings, ai)
+
+
 @pytest.fixture
-def platform(request, on_gogi):
+def platform(request, on_gogi, on_standalone, tmp_path):
+    if on_standalone:
+        platform = _standalone(request, tmp_path)
+        yield platform
+        platform.current.stop()
+        return
     if not on_gogi:
-        return FakePlatform()
+        yield FakePlatform()
+        return
 
     from qubit_notes.platform.gogi_adapter import GogiPlatform
 
     if "gogi_keys" in request.keywords:
         key = request.getfixturevalue("gogi_applications").register("qubit-notes")
-        return GogiPlatform(Settings(gateway_url=KEYS_GATEWAY, gogi_api_key=key))
-    if "gogi_wrong_key" in request.keywords:
-        return GogiPlatform(Settings(gateway_url=KEYS_GATEWAY, gogi_api_key="gogi_" + uuid.uuid4().hex))
-    return GogiPlatform(Settings())
+        yield GogiPlatform(Settings(gateway_url=KEYS_GATEWAY, gogi_api_key=key))
+    elif "gogi_wrong_key" in request.keywords:
+        yield GogiPlatform(Settings(gateway_url=KEYS_GATEWAY, gogi_api_key="gogi_" + uuid.uuid4().hex))
+    else:
+        yield GogiPlatform(Settings())
 
 
 @pytest.fixture(scope="session")
@@ -122,7 +180,9 @@ def cognito():
 def app(request, platform):
     # only the UI scenarios need the frontend, and building it takes a moment
     frontend = request.getfixturevalue("frontend_dir") if "ui" in request.keywords else None
-    settings = Settings(frontend_dir=frontend, database_url=TEST_DATABASE_URL)
+    # on the app's own platform, the app's data is in the platform's database, as where it's deployed
+    database_url = platform.settings.database_url if isinstance(platform, RestartablePlatform) else TEST_DATABASE_URL
+    settings = Settings(frontend_dir=frontend, database_url=database_url)
     if "cognito" in request.keywords:
         cognito = request.getfixturevalue("cognito")
         settings = settings.model_copy(
@@ -169,10 +229,12 @@ def page(browser, live_url):
 
 
 @pytest.fixture
-def students(request, client, platform, on_gogi):
+def students(request, client, platform, on_gogi, on_standalone):
     # signed in with Cognito, a student's requests carry their token rather than their name
     token = request.getfixturevalue("cognito").token if "cognito" in request.keywords else None
-    students = Students(client, ingest_timeout_seconds=180 if on_gogi else 1, token=token)
+    # the app's own platform downloads its embedding model the first time
+    timeout = 180 if on_gogi else 60 if on_standalone else 1
+    students = Students(client, ingest_timeout_seconds=timeout, token=token)
     yield students
     # the scenario's courses and conversations would otherwise stay on the gogi platform
     for student_id in students.seen:

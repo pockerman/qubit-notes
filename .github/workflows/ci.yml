@@ -6,15 +6,9 @@ on:
       - main
   pull_request:
   workflow_dispatch:
-    inputs:
-      gogi-python-ref:
-        description: "gogi-python branch, tag or commit to test against"
-        default: main
 
-# the backend installs gogi-python from ../../gogi-python, so both repositories are checked out side by side:
-#   $GITHUB_WORKSPACE/qubit-notes and $GITHUB_WORKSPACE/gogi-python
-env:
-  GOGI_PYTHON_REF: ${{ inputs.gogi-python-ref || 'main' }}
+# the app runs on its own platform, so nothing but this repository is needed; gogi-python, for its gogi extra, is not
+# installed. The repository is checked out in $GITHUB_WORKSPACE/qubit-notes
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -27,13 +21,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: qubit-notes
-
-      - uses: actions/checkout@v4
-        with:
-          repository: pockerman/gogi-python
-          ref: ${{ env.GOGI_PYTHON_REF }}
-          path: gogi-python
-          submodules: recursive
 
       - uses: astral-sh/setup-uv@v5
 
@@ -68,7 +55,8 @@ jobs:
     # the app's own database, as deployed
     services:
       postgres:
-        image: postgres:16
+        # with pgvector, which the app's own platform searches with
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: qubit
           POSTGRES_PASSWORD: qubit
@@ -82,13 +70,6 @@ jobs:
         with:
           path: qubit-notes
 
-      - uses: actions/checkout@v4
-        with:
-          repository: pockerman/gogi-python
-          ref: ${{ env.GOGI_PYTHON_REF }}
-          path: gogi-python
-          submodules: recursive
-
       - uses: astral-sh/setup-uv@v5
 
       - uses: actions/setup-node@v4
@@ -96,12 +77,6 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: qubit-notes/frontend/package-lock.json
-
-      - name: Generate gogi-python's protobuf code
-        working-directory: gogi-python
-        run: |
-          uv sync --extra dev
-          uv run python scripts/build_protos.py
 
       - name: Install backend and Chromium
         working-directory: qubit-notes/backend
@@ -114,13 +89,21 @@ jobs:
         run: npm ci
 
       # every scenario against the in-memory platform, with the app's data in Postgres; the @ui ones build the
-      # frontend and drive it in Chromium. The migrations are checked on SQLite and Postgres. The @gogi runs need a
+      # frontend and drive it in Chromium. The migrations are checked on SQLite and Postgres. The runs on gogi need a
       # gogi stack and stay local (make bdd-gogi)
       - name: Run the scenarios
         working-directory: qubit-notes/backend
         env:
           QUBIT_NOTES_TEST_DATABASE_URL: postgresql+psycopg://qubit:qubit@localhost:5432/qubit_notes
         run: uv run pytest --ignore=tests/unit/test_migrations.py
+
+      # the @platform and @standalone scenarios against the app's own platform, searching with pgvector, with its
+      # in-app embedding models and a stand-in for the AI
+      - name: Run the scenarios on the app's own platform
+        working-directory: qubit-notes/backend
+        env:
+          QUBIT_NOTES_TEST_DATABASE_URL: postgresql+psycopg://qubit:qubit@localhost:5432/qubit_notes
+        run: uv run pytest --platform=standalone --ignore=tests/unit
 
       - name: Check the migrations
         working-directory: qubit-notes/backend
@@ -140,13 +123,6 @@ jobs:
         with:
           path: qubit-notes
 
-      - uses: actions/checkout@v4
-        with:
-          repository: pockerman/gogi-python
-          ref: ${{ env.GOGI_PYTHON_REF }}
-          path: gogi-python
-          submodules: recursive
-
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
@@ -159,7 +135,6 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: qubit-notes
-          build-contexts: gogi-python=gogi-python
           push: ${{ github.event_name == 'push' }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/qubit-notes:main

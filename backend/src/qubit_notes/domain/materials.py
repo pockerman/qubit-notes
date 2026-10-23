@@ -83,7 +83,7 @@ class Materials:
         video = is_video(content_type)
         if video and (duration := duration_seconds(content)) is not None:
             metadata["duration_seconds"] = f"{duration:.3f}"
-        # a video has no text to process: gogi keeps it as it is
+        # a video has no text to process: the platform keeps it as it is
         job = self._platform.ingest_document(
             course.id, filename, content, content_type, metadata=metadata, store_only=video
         )

@@ -28,7 +28,7 @@ Feature: Summaries
 
   Rule: A section, a document or a topic can be summarised
 
-    @gogi
+    @platform
     Scenario: Summarise a section
       When I ask for a summary of the section "2 Shape functions" of "fem-notes.md"
       Then I get a summary
@@ -42,7 +42,7 @@ Feature: Summaries
       Then I get a summary
       And the summary cites every section of "fem-notes.md"
 
-    @gogi
+    @platform
     Scenario: Summarise a topic from all of its material
       Given I have uploaded "fe-meshing.txt" to "aeronautics/numerical-methods/finite-elements"
       And I have uploaded "fd-schemes.txt" to "aeronautics/numerical-methods/finite-differences"

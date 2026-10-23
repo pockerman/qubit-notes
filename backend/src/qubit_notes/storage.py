@@ -1,5 +1,6 @@
-"""The app's own data: what students make while studying (notes, summaries, quizzes), as opposed to their
-material, which lives in gogi.
+"""The app's own data: what students make while studying (notes, summaries, quizzes), and, where the app is its own
+platform, the students' material, the conversations with the assistant and what it remembers. Where the platform is
+gogi, those live in gogi and the platform's tables stay empty.
 
 The tables are created and changed by the migrations in ``migrations/versions``, which the app runs when it starts.
 A change to a table here needs a migration: from backend/, ``uv run alembic revision --autogenerate -m "..."``.
@@ -9,6 +10,7 @@ from pathlib import Path
 
 from alembic import command
 from alembic.config import Config
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -20,6 +22,7 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    TypeDecorator,
     create_engine,
     inspect,
 )
@@ -156,6 +159,129 @@ conversation_turns = Table(
 )
 
 
+# the app's own platform (platform/standalone): courses are its indexes, and material is its documents
+
+
+class Embedding(TypeDecorator):
+    """A chunk's embedding: pgvector's vector on Postgres, which searches them; a JSON list elsewhere, e.g. SQLite,
+    searched in Python. Its size is the embedding model's, so the column has none."""
+
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(Vector())
+        return dialect.type_descriptor(JSON())
+
+    def process_bind_param(self, value, dialect):
+        return None if value is None else [float(x) for x in value]
+
+    def process_result_value(self, value, dialect):
+        return None if value is None else [float(x) for x in value]
+
+
+platform_indexes = Table(
+    "platform_indexes",
+    metadata,
+    Column("name", String, primary_key=True),
+    Column("owner", String, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
+# an index's members, its owner among them; role is owner or reader
+platform_index_members = Table(
+    "platform_index_members",
+    metadata,
+    Column("index_name", String, primary_key=True),
+    Column("member", String, primary_key=True, index=True),
+    Column("role", String, nullable=False),
+)
+
+platform_documents = Table(
+    "platform_documents",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("index_name", String, nullable=False, index=True),
+    Column("filename", String, nullable=False),
+    Column("content_type", String, nullable=False),
+    Column("size_bytes", Integer, nullable=False),
+    Column("metadata", JSON, nullable=False),
+    # the status of the ingestion of its current content, and that ingestion's job: the document's version
+    Column("status", String, nullable=False),
+    Column("job_id", String, nullable=False),
+    # a file that is kept but not ingested, e.g. a video
+    Column("store_only", Boolean, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
+# the ingestion of a document's content; a job left pending or running when the app stopped is resumed when it starts
+platform_jobs = Table(
+    "platform_jobs",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("index_name", String, nullable=False),
+    Column("document_id", String, nullable=False, index=True),
+    Column("status", String, nullable=False, index=True),
+    Column("error", Text),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
+# a document's sections, read from it by its ingestion, each with its own text
+platform_sections = Table(
+    "platform_sections",
+    metadata,
+    Column("document_id", String, primary_key=True),
+    Column("position", Integer, primary_key=True),
+    Column("title", String, nullable=False),
+    Column("level", Integer, nullable=False),
+    Column("page_start", Integer),
+    Column("page_end", Integer),
+    Column("content", Text, nullable=False),
+)
+
+# the parts of the sections that search finds, embedded with a model; found only by searching with the same model
+platform_chunks = Table(
+    "platform_chunks",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("index_name", String, nullable=False, index=True),
+    Column("document_id", String, nullable=False, index=True),
+    Column("model", String, nullable=False),
+    Column("section", Integer, nullable=False),
+    Column("content", Text, nullable=False),
+    Column("embedding", Embedding, nullable=False),
+)
+
+platform_conversations = Table(
+    "platform_conversations",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("member", String, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
+platform_messages = Table(
+    "platform_messages",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("conversation_id", String, nullable=False, index=True),
+    Column("role", String, nullable=False),
+    Column("content", Text, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
+# what the assistant remembers of a student, key to a JSON value
+platform_memories = Table(
+    "platform_memories",
+    metadata,
+    Column("member", String, primary_key=True),
+    Column("key", String, primary_key=True),
+    Column("value", JSON, nullable=False),
+)
+
+
 MIGRATIONS = Path(__file__).parent / "migrations"
 # the first migration: the tables as they were before there were migrations
 BASELINE = "0001"
@@ -179,9 +305,13 @@ def migrate(engine: Engine) -> None:
         command.upgrade(config, "head")
 
 
+def in_memory(database_url: str) -> bool:
+    return database_url in ("sqlite://", "sqlite:///:memory:")
+
+
 def connect(database_url: str) -> Engine:
     """The database, migrated to the tables the app needs."""
-    if database_url in ("sqlite://", "sqlite:///:memory:"):
+    if in_memory(database_url):
         # one in-memory database, shared by every thread that serves requests
         engine = create_engine(database_url, connect_args={"check_same_thread": False}, poolclass=StaticPool)
     else:

@@ -30,7 +30,7 @@ Feature: Reading material
 
   Rule: A document is read section by section
 
-    @gogi
+    @platform
     Scenario: See the sections of a document
       When I open "fem-notes.md"
       Then I see the sections:
@@ -41,7 +41,7 @@ Feature: Reading material
         | 2.2 Quadratic elements  | 2     |
         | 3 Assembly              | 1     |
 
-    @gogi
+    @platform
     Scenario: Read a section
       When I read the section "2.1 Linear elements" of "fem-notes.md"
       Then I read "A linear element interpolates linearly between its two nodes."
@@ -68,7 +68,7 @@ Feature: Reading material
 
   Rule: The original file can be downloaded
 
-    @gogi
+    @platform
     Scenario: Download the original file
       When I download "fem-notes.md"
       Then I get the file exactly as I uploaded it

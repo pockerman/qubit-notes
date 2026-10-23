@@ -35,7 +35,7 @@ Feature: Asking the assistant
 
   Rule: Questions are answered from the course's material, citing it
 
-    @gogi
+    @platform
     Scenario: Ask a question about the material being read
       Given I am reading the section "1 Introduction" of "fem-notes.md"
       When I ask the assistant "What does the finite element method divide a domain into?"
@@ -59,7 +59,7 @@ Feature: Asking the assistant
 
   Rule: Requests for summaries and quizzes are recognised
 
-    @gogi
+    @platform
     Scenario: Ask for a summary of the section being read
       Given I am reading the section "2 Shape functions" of "fem-notes.md"
       When I ask the assistant "Summarise this section"

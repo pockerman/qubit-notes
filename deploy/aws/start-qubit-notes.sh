@@ -1,6 +1,6 @@
 #!/bin/bash
 # Runs the app on its server: qubit-notes.service runs it, and runs it again whenever it stops. The operator restarts
-# it to take new settings, e.g. a new image_tag or gogi's key: sudo systemctl restart qubit-notes
+# it to take new settings, e.g. a new image_tag or new keys: sudo systemctl restart qubit-notes
 #
 # It reads the app's settings and secrets, writes them for the container, and runs the image on port 80. A Terraform
 # template: Terraform fills in what's in $${...}.
@@ -26,8 +26,14 @@ umask 077
 {
   jq -r '.environment | to_entries[] | "\(.key)=\(.value)"' <<<"$settings"
   echo "QUBIT_NOTES_DATABASE_URL=postgresql+psycopg://$(field username):$(field password)@$(field host):$(field port)/$(field dbname)?sslmode=require"
-  # until the operator puts the key gogi gave the app, the app runs, and reports gogi as not taking it
-  if key="$(secret "$(setting gogi_api_key)" 2>/dev/null)"; then
+  # on its own platform, the app's keys of the model providers: until the operator puts them, the app runs, and
+  # reports that it has no key for its model provider
+  if [ -n "$(setting provider_keys)" ] && keys="$(secret "$(setting provider_keys)" 2>/dev/null)"; then
+    jq -r 'to_entries[] | "QUBIT_NOTES_\(.key | ascii_upcase)_API_KEY=\(.value)"' <<<"$keys"
+  fi
+  # where the platform is gogi, the key gogi gave the app: until the operator puts it, the app runs, and reports gogi
+  # as not taking it
+  if [ -n "$(setting gogi_api_key)" ] && key="$(secret "$(setting gogi_api_key)" 2>/dev/null)"; then
     echo "QUBIT_NOTES_GOGI_API_KEY=$key"
   fi
 } > app.env

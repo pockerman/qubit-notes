@@ -35,12 +35,6 @@ jobs:
         with:
           path: qubit-notes
 
-      - uses: actions/checkout@v4
-        with:
-          repository: pockerman/gogi-python
-          path: gogi-python
-          submodules: recursive
-
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
@@ -52,7 +46,6 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           context: qubit-notes
-          build-contexts: gogi-python=gogi-python
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/qubit-notes:${{ needs.release-please.outputs.version }}

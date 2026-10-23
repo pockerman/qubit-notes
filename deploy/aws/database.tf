@@ -1,4 +1,6 @@
-# The app's own data: courses, notes, summaries and quizzes. Its materials' files are kept in gogi
+# The app's own data: notes, summaries and quizzes, and, on its own platform, its courses, the students' material
+# (searched with pgvector, which the app turns on) and the conversations with the assistant. The uploaded files are
+# kept in S3 (files.tf), or in gogi
 resource "random_password" "database" {
   length  = 32
   special = false

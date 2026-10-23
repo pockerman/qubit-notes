@@ -11,7 +11,7 @@ Feature: Managing materials and sharing in the browser
     And I see that the platform is connected
     And I see that I have no courses yet
 
-  @gogi
+  @platform
   Scenario: Upload material to a new course
     Given I am signed in as "maria"
     When I upload "fe-basics.txt" to the course "aeronautics", subject "numerical-methods", topic "finite-elements"
@@ -66,7 +66,7 @@ Feature: Managing materials and sharing in the browser
     And I see "tom" as a reader of the course
     But I am not offered to share the course
 
-  @gogi
+  @platform
   Scenario: A reader sees a shared course but cannot change it
     Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     And the student "maria" has shared the course "aeronautics" with "tom" as a reader

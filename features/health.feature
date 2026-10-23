@@ -1,9 +1,9 @@
 Feature: Service health
   As someone running qubit-notes
-  I want to know whether the gogi platform behind it is healthy
+  I want to know whether the platform behind it, its own or gogi, is healthy
   So that I can tell a broken deployment apart from a broken feature
 
-  @gogi
+  @platform
   Scenario: The platform is healthy
     Given qubit-notes is running
     When I check its health

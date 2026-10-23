@@ -1,5 +1,6 @@
-"""The images of Markdown material. An image is kept in gogi beside its material, as a file that is stored but not
-processed, like a video; its metadata says which material it belongs to and the path the material refers to it by."""
+"""The images of Markdown material. An image is kept by the platform beside its material, as a file that is stored
+but not processed, like a video; its metadata says which material it belongs to and the path the material refers to
+it by."""
 
 import re
 from dataclasses import dataclass

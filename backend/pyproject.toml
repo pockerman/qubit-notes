@@ -1,7 +1,7 @@
 [project]
 name = "qubit-notes"
 version = "0.1.0"
-description = "Study your own material with notes, summaries, quizzes and an AI assistant, on the gogi platform"
+description = "Study your own material with notes, summaries, quizzes and an AI assistant"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
@@ -9,12 +9,19 @@ dependencies = [
     "pydantic-settings>=2.4",
     "python-multipart>=0.0.9",
     "loguru>=0.7.3",
-    "gogi-python",
-    # the app's own data: notes, summaries, quizzes
+    # the app's own data: notes, summaries, quizzes, and its own platform's material, conversations and memories
     "sqlalchemy>=2.0",
     "pyjwt[crypto]>=2.9",
     "alembic>=1.13",
     "psycopg[binary]>=3.2",
+    "pgvector>=0.5.1",
+    # the app's own platform: reading PDFs, the files in S3, the embedding models and the model providers
+    "pypdf>=5.0",
+    "boto3>=1.43.117",
+    "fastembed>=0.9.0",
+    "httpx>=0.27",
+    "anthropic>=2.1.0",
+    "openai>=3.36.1",
 ]
 
 [project.scripts]
@@ -24,11 +31,8 @@ qubit-notes = "qubit_notes.cli:main"
 dev = [
     "pytest>=8.3",
     "pytest-bdd>=8.0",
-    "httpx>=0.27",
     "playwright>=1.47",
     "ruff>=0.14.0",
-    # the fake platform reads PDFs, and the tests write them
-    "pypdf>=5.0",
 ]
 
 [build-system]
@@ -38,18 +42,14 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.uv.sources]
-gogi-python = { path = "../../gogi-python", editable = true }
-
-[tool.uv.extra-build-dependencies]
-grpcio-tools = ["pkg_resources"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
 bdd_features_base_dir = "../features"
 markers = [
-    "gogi: the scenario also runs against the real gogi platform (--platform=gogi)",
+    "platform: the scenario also runs against a real platform: the app's own (--platform=standalone) or gogi (--platform=gogi)",
+    "standalone: the scenario runs only against the app's own platform (--platform=standalone)",
+    "embedding_keys: the scenario embeds with Voyage AI or OpenAI; it runs only with --with-embedding-keys",
     "ui: the scenario drives the React UI with Playwright",
     "wip: written and reviewed, but not built yet; skipped",
     "ai: the scenario needs the AI; on gogi it runs only with --with-ai",

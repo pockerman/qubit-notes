@@ -1,7 +1,9 @@
 """Top-level pytest hooks: the --platform option and the step libraries the scenarios share.
 
-``--platform=fake`` (the default) runs every scenario against ``FakePlatform``. ``--platform=gogi`` runs only the
-scenarios tagged ``@gogi``, against the gogi gateway at ``QUBIT_NOTES_GATEWAY_URL``.
+``--platform=fake`` (the default) runs every scenario but the @standalone ones against ``FakePlatform``.
+``--platform=standalone`` runs the scenarios tagged ``@platform`` or ``@standalone`` against the app's own platform,
+with a stand-in for the AI unless ``--with-ai`` is given. ``--platform=gogi`` runs only the scenarios tagged
+``@platform``, against the gogi gateway at ``QUBIT_NOTES_GATEWAY_URL``.
 """
 
 import pytest
@@ -21,32 +23,46 @@ pytest_plugins = [
     "tests.bdd.steps.writing_steps",
     "tests.bdd.steps.images_steps",
     "tests.bdd.steps.sharing_steps",
+    "tests.bdd.steps.standalone_steps",
     "tests.bdd.steps.ui_steps",
 ]
 
 
 def pytest_addoption(parser):
-    parser.addoption("--platform", choices=["fake", "gogi"], default="fake", help="what the scenarios run against")
+    parser.addoption(
+        "--platform", choices=["fake", "standalone", "gogi"], default="fake", help="what the scenarios run against"
+    )
     parser.addoption(
         "--with-ai",
         action="store_true",
-        help="on gogi, also run the @ai scenarios, which need a model provider's API key in gogi",
+        help="also run the @ai scenarios with the real AI: on gogi, gogi needs a model provider's API key; on the "
+        "app's own platform, QUBIT_NOTES_ANTHROPIC_API_KEY",
+    )
+    parser.addoption(
+        "--with-embedding-keys",
+        action="store_true",
+        help="on the app's own platform, also run the @embedding_keys scenarios, which embed with Voyage AI and "
+        "OpenAI: QUBIT_NOTES_VOYAGE_API_KEY and QUBIT_NOTES_OPENAI_API_KEY",
     )
 
 
 def pytest_collection_modifyitems(config, items):
-    # @wip scenarios are written and reviewed, but not built yet
-    wip = pytest.mark.skip(reason="work in progress (@wip)")
-    not_gogi = pytest.mark.skip(reason="not tagged @gogi")
-    needs_gogi = pytest.mark.skip(reason="runs only on gogi (--platform=gogi): gogi's application keys")
-    no_ai = pytest.mark.skip(reason="needs the AI: run with --with-ai once gogi has a model provider's API key")
-    on_gogi = config.getoption("--platform") == "gogi"
+    def skip(reason: str):
+        return pytest.mark.skip(reason=reason)
+
+    platform = config.getoption("--platform")
     for item in items:
-        if "wip" in item.keywords:
-            item.add_marker(wip)
-        elif not on_gogi and ("gogi_keys" in item.keywords or "gogi_wrong_key" in item.keywords):
-            item.add_marker(needs_gogi)
-        elif on_gogi and "gogi" not in item.keywords:
-            item.add_marker(not_gogi)
-        elif on_gogi and "ai" in item.keywords and not config.getoption("--with-ai"):
-            item.add_marker(no_ai)
+        keywords = item.keywords
+        if "wip" in keywords:
+            # @wip scenarios are written and reviewed, but not built yet
+            item.add_marker(skip("work in progress (@wip)"))
+        elif platform != "gogi" and ("gogi_keys" in keywords or "gogi_wrong_key" in keywords):
+            item.add_marker(skip("runs only on gogi (--platform=gogi): gogi's application keys"))
+        elif platform != "standalone" and "standalone" in keywords:
+            item.add_marker(skip("runs only on the app's own platform (--platform=standalone)"))
+        elif platform != "fake" and "platform" not in keywords and "standalone" not in keywords:
+            item.add_marker(skip("not tagged @platform"))
+        elif platform == "gogi" and "ai" in keywords and not config.getoption("--with-ai"):
+            item.add_marker(skip("needs the AI: run with --with-ai once gogi has a model provider's API key"))
+        elif "embedding_keys" in keywords and not config.getoption("--with-embedding-keys"):
+            item.add_marker(skip("embeds with Voyage AI and OpenAI: run with --with-embedding-keys"))

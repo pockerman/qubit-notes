@@ -7,7 +7,7 @@ from qubit_notes.platform.port import IndexInfo, MemberRole, StudyPlatform
 # lowercase words joined by single hyphens, e.g. "numerical-methods"
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 # separates the creator from the course name in an index name: course names are unique per creator only,
-# while gogi index names are unique across the platform
+# while index names are unique across the platform
 INDEX_SEPARATOR = "--"
 
 
@@ -35,7 +35,7 @@ class Location:
 
 @dataclass(frozen=True)
 class Course:
-    """A course is a gogi index; its members are the index's members."""
+    """A course is an index of the platform; its members are the index's members."""
 
     id: str
     name: str
