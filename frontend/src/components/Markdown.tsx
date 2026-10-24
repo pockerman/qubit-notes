@@ -1,3 +1,5 @@
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
 import type { ReactNode } from 'react'
 import { shownAs } from '../references'
 
@@ -39,16 +41,55 @@ function safeHref(href: string): string | undefined {
   return /^(https?:|mailto:)/i.test(href) ? href : undefined
 }
 
-/** Inline **bold**, *italic*, `code`, [links](https://…) and [[references]], as React elements. */
+/**
+ * Mathematics in LaTeX, typeset by KaTeX: in the text, or on a line of its own. LaTeX KaTeX can't typeset is shown as
+ * written, marked as such. KaTeX's HTML is its own, from the LaTeX, which can't run scripts or link anywhere.
+ */
+function Maths({ tex, display = false }: { tex: string; display?: boolean }) {
+  try {
+    const html = katex.renderToString(tex, { displayMode: display, throwOnError: true, trust: false })
+    // a span, as display mathematics may be in a paragraph too; the stylesheet puts it on a line of its own
+    return <span className={display ? 'math math-display' : 'math'} dangerouslySetInnerHTML={{ __html: html }} />
+  } catch (e) {
+    return (
+      <code className="math-error" title={`Could not typeset this: ${(e as Error).message}`}>
+        {tex}
+      </code>
+    )
+  }
+}
+
+// mathematics in the text: $$…$$ and \[…\] on a line of its own, \(…\), and $…$ as Pandoc reads it: no space just
+// inside its dollars, and no digit just after, so "$5, or $10" is not mathematics
+const MATHS = String.raw`\$\$[^$]+?\$\$|\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\)|\$(?=\S)(?:\\\$|[^$])*?[^\s\\]\$(?!\d)`
+
+/** the LaTeX of mathematics in the text, without its delimiters, and whether it is on a line of its own */
+function maths(token: string): { tex: string; display: boolean } {
+  if (token.startsWith('$$')) return { tex: token.slice(2, -2).trim(), display: true }
+  if (token.startsWith('\\[')) return { tex: token.slice(2, -2).trim(), display: true }
+  if (token.startsWith('\\(')) return { tex: token.slice(2, -2).trim(), display: false }
+  return { tex: token.slice(1, -1), display: false }
+}
+
+/** Inline **bold**, *italic*, `code`, [links](https://…), [[references]] and $mathematics$, as React elements. */
 function inline(text: string, mark: Highlighter, image: ImageRenderer, reference: ReferenceRenderer): ReactNode[] {
   const parts: ReactNode[] = []
-  const pattern = /(\[\[[^[\]]+\]\]|!\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|`[^`]+`|\[[^\]]+\]\([^)\s]+\))/g
+  const pattern = new RegExp(
+    String.raw`(\[\[[^[\]]+\]\]|!\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|` +
+      '`[^`]+`' +
+      String.raw`|\[[^\]]+\]\([^)\s]+\)|${MATHS}|\\\$)`,
+    'g',
+  )
   let cursor = 0
   for (const match of text.matchAll(pattern)) {
     const at = match.index ?? 0
     parts.push(mark(text.slice(cursor, at)))
     const token = match[0]
-    if (token.startsWith('[[')) parts.push(reference(token, at))
+    if (token === '\\$') parts.push(mark('$'))
+    else if (/^(\$|\\[[(])/.test(token)) {
+      const { tex, display } = maths(token)
+      parts.push(<Maths key={at} tex={tex} display={display} />)
+    } else if (token.startsWith('[[')) parts.push(reference(token, at))
     else if (token.startsWith('![')) {
       const [, alt, target] = token.match(/^!\[([^\]]*)\]\(([^)]+)\)$/)!
       parts.push(image(imageSource(target), alt, at))
@@ -89,7 +130,7 @@ type Props = {
   reference?: ReferenceRenderer
 }
 
-/** Markdown: headings, paragraphs, bullet and numbered lists, tables, code blocks, quotes and rules. */
+/** Markdown: headings, paragraphs, bullet and numbered lists, tables, code blocks, quotes, rules and mathematics. */
 export function Markdown({ text, headingOffset = 3, mark = plain, image = webOnly, reference = asText }: Props) {
   const blocks: ReactNode[] = []
   let list: { ordered: boolean; items: string[] } | null = null
@@ -156,6 +197,32 @@ export function Markdown({ text, headingOffset = 3, mark = plain, image = webOnl
         </div>,
       )
       continue
+    }
+
+    const opening = line.trim().match(/^(\$\$|\\\[)/)
+    if (opening) {
+      // mathematics on lines of its own, up to the line that closes it: $$ … $$, or \[ … \]
+      const close = opening[1] === '$$' ? '$$' : '\\]'
+      const found: string[] = []
+      let end = i
+      for (let rest = line.trim().slice(2); end < lines.length; rest = lines[++end]?.trim() ?? '') {
+        if (rest.endsWith(close)) {
+          found.push(rest.slice(0, -close.length))
+          break
+        }
+        found.push(rest)
+      }
+      // a block that isn't closed, or that has more after it on its line, is text
+      if (end < lines.length && !found.some((part) => part.includes(close))) {
+        flush()
+        blocks.push(
+          <div className="math-block" key={blocks.length}>
+            <Maths tex={found.join('\n').trim()} display />
+          </div>,
+        )
+        i = end
+        continue
+      }
     }
 
     const heading = line.match(/^(#{1,6})\s+(.*)$/)

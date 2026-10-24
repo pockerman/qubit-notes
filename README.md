@@ -81,6 +81,14 @@ summarise and quiz it as Markdown. Its pictures become its images.
 - Two downloads: the original file, unchanged, and the material as it is now, as a PDF or an EPUB laid out anew
   from its Markdown (with PyMuPDF and ebooklib), with an outline of its headings or a chapter per top heading.
 
+## Mathematics
+
+Markdown material can have mathematics in LaTeX, typeset with KaTeX (`frontend/src/components/Markdown.tsx`,
+`features/ui_reading.feature`): `$…$` or `\(…\)` in the text, and `$$…$$` or `\[…\]` on a line of its own, or over
+several lines. As in Pandoc, `$` with a space just inside it, or a digit just after the closing one, is a dollar sign,
+so "$5, or $10" stays as it is; `\$` is always one. LaTeX that KaTeX can't typeset is shown as written, in red. It's
+typeset wherever Markdown is shown: the reader, the editor's preview, and what the AI writes.
+
 ## References between topics
 
 A Markdown material refers to another part of its course with a path in double brackets, starting at the subject.
