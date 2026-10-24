@@ -8,13 +8,19 @@ def _sign_in(page: Page, students, name: str) -> None:
     students.me = name
     page.goto("/")
     # another student of the scenario may be signed in already
-    sign_out = page.get_by_role("button", name="Sign out")
-    expect(page.get_by_label("Your name").or_(sign_out)).to_be_visible()
-    if sign_out.is_visible():
-        sign_out.click()
+    menu = page.get_by_role("button", name="Menu")
+    expect(page.get_by_label("Your name").or_(menu)).to_be_visible()
+    if menu.is_visible():
+        choose_from_menu(page, "Sign out")
     page.get_by_label("Your name").fill(students.id(name))
     page.get_by_role("button", name="Sign in").click()
     expect(page.get_by_text(f"Signed in as {students.id(name)}")).to_be_visible()
+
+
+def choose_from_menu(page: Page, item: str) -> None:
+    """chooses an item of the app's menu, in the bar"""
+    page.get_by_role("button", name="Menu").click()
+    page.get_by_role("menu", name="Menu").get_by_role("menuitem", name=item).click()
 
 
 def _topic(page: Page, subject: str, topic: str):
@@ -1073,3 +1079,92 @@ def cannot_tick(page, filename):
 def not_offered_to_generate(page):
     expect(page.get_by_role("list", name="Materials")).to_be_visible()
     expect(page.get_by_role("link", name=re.compile("^Generate material"))).to_have_count(0)
+
+
+# the navigation bar
+
+
+def _platform_status(page):
+    return page.get_by_role("banner").locator(".brand").get_by_role("status")
+
+
+@then("I see the platform's status next to the app's name")
+def see_status_by_name(page):
+    brand = page.get_by_role("banner").locator(".brand")
+    expect(brand.get_by_role("heading", name="Qubit Notes")).to_be_visible()
+    expect(brand.get_by_role("status")).to_be_visible()
+
+
+@then(parsers.parse('I see "Signed in as {name}" beside the menu'))
+def see_signed_in_beside_menu(page, students, name):
+    session = page.get_by_role("navigation", name="Session")
+    expect(session.get_by_text(f"Signed in as {students.id(name)}")).to_be_visible()
+    expect(session.get_by_role("button", name="Menu")).to_be_visible()
+
+
+@when("I open the menu")
+def open_menu(page):
+    page.get_by_role("button", name="Menu").click()
+
+
+@then(parsers.parse('it offers "{items}"'))
+def menu_offers(page, items):
+    expect(page.get_by_role("menu", name="Menu").get_by_role("menuitem")).to_have_text(
+        [item.strip() for item in items.split(",")]
+    )
+
+
+@then(parsers.parse('"{item}" is not available yet'))
+def not_available_yet(page, item):
+    expect(page.get_by_role("menu", name="Menu").get_by_role("menuitem", name=item)).to_have_attribute(
+        "aria-disabled", "true"
+    )
+
+
+@when(parsers.parse('I choose "{item}" from the menu'))
+def choose_menu_item(page, item):
+    choose_from_menu(page, item)
+
+
+@then("I see my courses")
+def see_my_courses(page):
+    expect(page.get_by_role("heading", name="My courses", level=2)).to_be_visible()
+
+
+@then("I am asked who I am")
+def asked_who_i_am(page):
+    expect(page.get_by_label("Your name")).to_be_visible()
+
+
+@then(parsers.parse('the platform\'s status says "{text}"'))
+def platform_status_says(page, text):
+    expect(_platform_status(page)).to_have_text(text)
+
+
+@when("I open the platform's status")
+def open_platform_status(page):
+    page.get_by_role("banner").locator(".brand").get_by_role("button").click()
+
+
+@then(parsers.parse('I am told the app is missing its "{provider}" key'))
+def told_missing_key(page, provider):
+    expect(page.get_by_role("dialog", name="The platform")).to_contain_text(f"missing its {provider} key")
+
+
+@when(parsers.parse('I give it the key "{key}"'))
+def give_it_the_key(page, key):
+    dialog = page.get_by_role("dialog", name="The platform")
+    dialog.get_by_role("textbox", name=re.compile(" key$")).fill(key)
+    dialog.get_by_role("button", name="Save").click()
+
+
+@then("I am told to ask an admin to give it")
+def told_to_ask_admin(page):
+    expect(page.get_by_role("dialog", name="The platform")).to_contain_text("Ask an admin")
+
+
+@then("I am not offered to give it a key")
+def not_offered_key(page):
+    dialog = page.get_by_role("dialog", name="The platform")
+    expect(dialog).to_be_visible()
+    expect(dialog.get_by_role("button", name="Save")).to_have_count(0)

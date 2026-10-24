@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     openai_api_key: str | None = None
     voyage_api_key: str | None = None
+    # who may give the app the keys it is missing, from the app: students' names, separated by commas, e.g. alex,maria
+    admins: str = ""
+    # what the keys the admins give the app are encrypted with, in its database; they can't be given without it
+    secret_key: str | None = None
     # where an embedding model that runs in the app is downloaded to; a temporary directory if unset
     embedding_cache_dir: str | None = None
     # how many documents the app's own platform processes at once
@@ -64,6 +68,10 @@ class Settings(BaseSettings):
     embedding_model: str = "bge-small-en-v1.5"
     # gogi's chunking strategy, where the platform is gogi
     chunk_strategy: str = "fixed"
+
+    @property
+    def admin_names(self) -> set[str]:
+        return {name.strip() for name in self.admins.split(",") if name.strip()}
 
     @property
     def issuer(self) -> str:

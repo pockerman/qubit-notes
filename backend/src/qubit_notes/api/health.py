@@ -10,6 +10,8 @@ class HealthResponse(BaseModel):
     # platform service name to its status
     services: dict[str, str]
     error: str | None = None
+    # the model providers whose keys the app is missing, e.g. ["anthropic"]
+    missing_keys: list[str] = []
 
 
 @router.get("/config")
@@ -25,4 +27,5 @@ async def health(request: Request) -> HealthResponse:
         status="ok" if platform_health.serving else "degraded",
         services=platform_health.services,
         error=platform_health.error,
+        missing_keys=platform_health.missing_keys,
     )

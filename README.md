@@ -43,7 +43,9 @@ make lint
 `QUBIT_NOTES_ANTHROPIC_API_KEY` from `.env` (gitignored) if there is one, uses the dev database (Postgres with
 pgvector in the container `qubit-notes-pgvector`, on `127.0.0.1:5433`) unless `QUBIT_NOTES_DATABASE_URL` is set,
 starts that container if it's stopped, runs the migrations and then `make serve`; `./start_local.sh dev` runs
-`make dev-backend` and `make dev-frontend` together instead.
+`make dev-backend` and `make dev-frontend` together instead. The first time, it makes the app's secret
+(`QUBIT_NOTES_SECRET_KEY`) into `.env`, and it makes you (`$USER`) the app's admin, so you can give the app a missing
+key from the bar (see [The app's keys](#the-apps-keys)).
 
 The backend needs Python 3.12+. To run the app on gogi, `make install-gogi` also installs gogi-python from
 `../gogi-python` in editable mode; build its protobuf code first (`gogi-python/install.sh` or
@@ -147,6 +149,18 @@ make dev-backend
 
 `/api/health` reports the app's database, files, embeddings and AI, and reports it degraded without the key of its
 model provider. Unfinished ingestions are resumed when the app starts again, so run one replica of the app.
+
+## The app's keys
+
+A key the settings don't give the app, such as its Anthropic key, its admins can give it from the app
+(`features/app_keys.feature`, `features/ui_navigation.feature`): the platform's status, next to the app's name, says
+"Platform degraded" and opens to show what is missing, with a field for each missing key. The admins are named in
+`QUBIT_NOTES_ADMINS` (e.g. `alex,maria`, as they sign in); anyone else is told to ask one.
+
+The app keeps a key it is given in its database (`app_keys`), encrypted with `QUBIT_NOTES_SECRET_KEY`, and gives it to
+its platform again when it starts; without the secret it keeps none. A key is never shown back, and a key in the
+settings is used rather than one kept. Changing the secret makes the keys kept unreadable: give them again. Where the
+platform is gogi, the key is stored in gogi as the app's credential instead, as `qubit-notes store-provider-key` does.
 
 ## Running on a gogi that serves many applications
 

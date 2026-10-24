@@ -11,6 +11,8 @@ class PlatformHealth(BaseModel):
     error: str | None = None
     # where the platform is gogi, whether gogi takes the app's key; gogi answers its health without one
     authenticated: bool = True
+    # the model providers whose keys the platform needs and doesn't have, e.g. ["anthropic"]
+    missing_keys: list[str] = []
 
     @property
     def serving(self) -> bool:
@@ -124,6 +126,13 @@ class StudyPlatform(Protocol):
     def store_credential(self, name: str, value: str) -> None: ...
 
     def list_credentials(self) -> list[str]: ...
+
+    # whether the platform keeps the app's model providers' keys itself, as gogi does; else the app keeps them
+    keeps_keys: bool
+
+    def use_key(self, provider: str, key: str) -> None:
+        """the platform calls the model provider with this key from now on"""
+        ...
 
     # indexes and their members
     def create_index(self, name: str, owner: str) -> IndexInfo: ...

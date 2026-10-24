@@ -26,6 +26,8 @@ dependencies = [
     "ebooklib>=0.20",
     "markdownify>=1.2.3",
     "markdown-it-py>=4.2.0",
+    # the keys the admins give the app, encrypted in its database
+    "cryptography>=43",
 ]
 
 [project.scripts]

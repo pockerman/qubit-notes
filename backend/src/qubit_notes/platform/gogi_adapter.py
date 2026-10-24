@@ -112,6 +112,12 @@ class GogiPlatform:
     def list_credentials(self) -> list[str]:
         return [credential.name for credential in self._gogi.credentials.list()]
 
+    # gogi keeps the app's keys, as its credentials
+    keeps_keys = True
+
+    def use_key(self, provider: str, key: str) -> None:
+        self.store_credential(provider, key)
+
     # indexes
 
     @staticmethod

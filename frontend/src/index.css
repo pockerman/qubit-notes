@@ -158,6 +158,14 @@ select {
   color: var(--text);
 }
 
+/* tick boxes keep their own size */
+input[type='checkbox'],
+input[type='radio'] {
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
 button[type='submit'] {
   padding: 6px 12px;
   border: none;
@@ -767,16 +775,22 @@ a.button {
   min-height: 50vh;
 }
 
-/* the materials to generate from */
-.materials-menu {
+/* a drop-down: the materials to generate from, the app's menu, the platform's status */
+.materials-menu,
+.navigation-menu,
+.platform-status {
   position: relative;
+}
+
+.materials-menu {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   align-items: flex-start;
 }
 
-.materials-menu .menu {
+.menu,
+.popover {
   position: absolute;
   top: 100%;
   left: 0;
@@ -794,16 +808,66 @@ a.button {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
-.materials-menu .menu li {
+.menu li {
   display: flex;
   gap: 0.5rem;
-  align-items: baseline;
+  align-items: center;
   padding: 0.25rem 0.75rem;
+}
+
+/* a tick box beside its material, on one line */
+.menu label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text);
 }
 
 .materials-menu .menu li:first-child {
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.4rem;
+}
+
+.navigation-menu .menu {
+  left: auto;
+  right: 0;
+  min-width: 10rem;
+}
+
+.navigation-menu .menu [role='menuitem'] {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.navigation-menu .menu [aria-disabled='true'] {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.popover {
+  padding: 0.75rem;
+  min-width: 18rem;
+  max-height: none;
+}
+
+.popover p {
+  margin: 0 0 0.5rem;
+}
+
+.key-form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.platform-status > button.badge {
+  background: none;
+  cursor: pointer;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .add-material .card {

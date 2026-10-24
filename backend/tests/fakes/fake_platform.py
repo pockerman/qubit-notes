@@ -37,6 +37,9 @@ class FakePlatform:
         self.takes_key = True
         # the app's credentials, name to value
         self.credentials: dict[str, str] = {}
+        # the model providers whose keys the platform needs, and the keys it has, provider to key
+        self.needs_keys: set[str] = set()
+        self.keys: dict[str, str] = {}
         self.indexes: dict[str, IndexInfo] = {}
         # index name to document id to (document, text)
         self.documents: dict[str, dict[str, tuple[DocumentInfo, str]]] = {}
@@ -53,11 +56,17 @@ class FakePlatform:
     def health(self) -> PlatformHealth:
         if not self.reachable:
             return PlatformHealth(reachable=False, error="UNAVAILABLE: connection refused")
+        services = {name: "NOT_SERVING" if name in self.down else "SERVING" for name in SERVICES}
+        missing_keys = sorted(self.needs_keys - set(self.keys))
+        if missing_keys:
+            # as the app's own platform reports its AI without its key
+            services["ai"] = "NOT_SERVING"
         return PlatformHealth(
             reachable=True,
-            services={name: "NOT_SERVING" if name in self.down else "SERVING" for name in SERVICES},
+            services=services,
             authenticated=self.takes_key,
             error=None if self.takes_key else "gogi does not take the app's key: UNAUTHENTICATED",
+            missing_keys=missing_keys,
         )
 
     def store_credential(self, name: str, value: str) -> None:
@@ -65,6 +74,12 @@ class FakePlatform:
 
     def list_credentials(self) -> list[str]:
         return sorted(self.credentials)
+
+    # the app keeps its keys, as it does on its own platform
+    keeps_keys = False
+
+    def use_key(self, provider: str, key: str) -> None:
+        self.keys[provider] = key
 
     # indexes
 
