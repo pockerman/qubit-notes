@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
  * The page shown, from the address's hash, so the browser's back button and a refresh keep the student where
  * they were:
  *   #/                                     my courses
+ *   #/settings                             the app's settings
  *   #/courses/<id>                         a course
  *   #/courses/<id>/subjects/<subject>      a subject: its topics
  *   #/courses/<id>/add?subject=…&topic=…   adding material to it
@@ -16,6 +17,7 @@ import { useEffect, useState } from 'react'
  */
 export type Route =
   | { page: 'courses' }
+  | { page: 'settings' }
   | { page: 'course'; courseId: string }
   | { page: 'subject'; courseId: string; subject: string }
   | { page: 'add'; courseId: string; subject: string; topic: string }
@@ -29,6 +31,7 @@ export function parse(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#/, '').split('?')
   const parts = path.split('/').filter(Boolean).map(decodeURIComponent)
   const params = new URLSearchParams(query)
+  if (parts[0] === 'settings') return { page: 'settings' }
   if (parts[0] !== 'courses' || !parts[1]) return { page: 'courses' }
   const courseId = parts[1]
   if (parts[2] === 'add') {
@@ -57,6 +60,8 @@ export function href(route: Route): string {
   switch (route.page) {
     case 'courses':
       return '#/'
+    case 'settings':
+      return '#/settings'
     case 'course':
       return course(route.courseId)
     case 'subject':

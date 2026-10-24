@@ -14,6 +14,17 @@ export type Me = {
   admin: boolean
 }
 
+/** The provider and model the AI answers with (features/ai_model.feature). */
+export type AIModel = {
+  provider: string
+  model: string
+  // some of each provider's models, and the one each uses unless another is chosen
+  suggested: Record<string, string[]>
+  defaults: Record<string, string>
+  // whether the app has each provider's key
+  keys: Record<string, boolean>
+}
+
 export type Role = 'owner' | 'reader'
 
 export type Course = {
@@ -417,6 +428,19 @@ export class StudyApi {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key }),
+    })
+  }
+
+  aiModel(): Promise<AIModel> {
+    return this.request('/ai-model')
+  }
+
+  /** The AI answers with the model from now on; the provider's own if none is given. Admins only. */
+  chooseAIModel(provider: string, model: string): Promise<AIModel> {
+    return this.request('/ai-model', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider, model: model.trim() || null }),
     })
   }
 

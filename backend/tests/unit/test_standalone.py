@@ -72,8 +72,8 @@ def test_an_unknown_embedding_model_is_refused():
 def test_a_model_without_its_key_says_so():
     embedder = VoyageEmbedder("voyage-3.5-lite", api_key=None)
 
-    assert "QUBIT_NOTES_VOYAGE_API_KEY" in embedder.missing()
-    with pytest.raises(PlatformError, match="no key for voyage"):
+    assert embedder.missing() == "the app is missing its Voyage AI key"
+    with pytest.raises(PlatformError, match="missing its Voyage AI key"):
         embedder.embed(["text"])
 
 
@@ -208,8 +208,9 @@ def test_openai_answers_in_json_by_its_response_format(monkeypatch):
 def test_the_ai_without_its_key_says_so():
     ai = ProviderAI(Settings(llm_provider="anthropic", anthropic_api_key=None))
 
-    assert "QUBIT_NOTES_ANTHROPIC_API_KEY" in ai.missing()
-    with pytest.raises(PlatformError, match="no key for anthropic"):
+    # in words students may see: no setting is named
+    assert ai.missing() == "the app is missing its Anthropic key"
+    with pytest.raises(PlatformError, match="missing its Anthropic key"):
         ai.complete("system", "prompt")
 
 

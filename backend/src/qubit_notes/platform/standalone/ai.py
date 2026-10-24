@@ -1,12 +1,13 @@
-"""The AI of the app's own platform: the model provider QUBIT_NOTES_LLM_PROVIDER names, called with the app's key."""
+"""The AI of the app's own platform: the model provider QUBIT_NOTES_LLM_PROVIDER names, or the one the admins
+choose, called with the app's key."""
 
 import json
 from typing import Any, Protocol
 
 from qubit_notes.platform.port import Message, PlatformError
-from qubit_notes.settings import Settings
+from qubit_notes.settings import DEFAULT_MODELS, Settings, missing_key
 
-PROVIDERS = ("anthropic", "openai")
+PROVIDERS = tuple(DEFAULT_MODELS)
 
 
 class AI(Protocol):
@@ -30,6 +31,14 @@ class AI(Protocol):
         """calls the model provider with this key from now on, if it calls that provider"""
         ...
 
+    def use_model(self, provider: str, model: str) -> None:
+        """answers with this model of this provider from now on"""
+        ...
+
+    def has_key(self, provider: str) -> bool:
+        """whether it has the provider's key"""
+        ...
+
 
 class ProviderAI:
     """Anthropic's or OpenAI's models. A JSON answer is asked of Anthropic's as the input of a tool it must call,
@@ -37,22 +46,30 @@ class ProviderAI:
 
     def __init__(self, settings: Settings):
         self._settings = settings
-        self._provider = settings.llm_provider
-        if self._provider not in PROVIDERS:
-            raise ValueError(f"unknown model provider {self._provider!r}: use one of {', '.join(PROVIDERS)}")
-        self._key = settings.anthropic_api_key if self._provider == "anthropic" else settings.openai_api_key
+        self._keys = {"anthropic": settings.anthropic_api_key, "openai": settings.openai_api_key}
+        self.use_model(settings.llm_provider, settings.model)
+
+    @property
+    def _key(self) -> str | None:
+        return self._keys.get(self._provider)
 
     def missing(self) -> str | None:
-        if self._key:
-            return None
-        return f"the app has no key for {self._provider}: set QUBIT_NOTES_{self._provider.upper()}_API_KEY"
+        return None if self._key else missing_key(self._provider)
 
     def missing_key(self) -> str | None:
         return None if self._key else self._provider
 
     def use_key(self, provider: str, key: str) -> None:
-        if provider == self._provider:
-            self._key = key
+        if provider in self._keys:
+            self._keys[provider] = key
+
+    def use_model(self, provider: str, model: str) -> None:
+        if provider not in PROVIDERS:
+            raise ValueError(f"unknown model provider {provider!r}: use one of {', '.join(PROVIDERS)}")
+        self._provider, self._model = provider, model
+
+    def has_key(self, provider: str) -> bool:
+        return bool(self._keys.get(provider))
 
     def complete(
         self,
@@ -73,7 +90,7 @@ class ProviderAI:
         import anthropic
 
         arguments: dict[str, Any] = {
-            "model": self._settings.llm_model,
+            "model": self._model,
             "max_tokens": self._settings.llm_max_tokens,
             "system": system,
             "messages": messages,
@@ -98,7 +115,7 @@ class ProviderAI:
         import openai
 
         arguments: dict[str, Any] = {
-            "model": self._settings.llm_model,
+            "model": self._model,
             "max_completion_tokens": self._settings.llm_max_tokens,
             "messages": [{"role": "system", "content": system}, *messages],
         }

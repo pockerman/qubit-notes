@@ -128,9 +128,12 @@ class StandalonePlatform:
         except Exception as e:
             report("database", f"cannot reach the database: {e}")
         report("files", self._files.check())
-        report("embeddings", self.embedder.missing())
-        report("ai", self.ai.missing())
         missing_keys = list(dict.fromkeys(k for k in (self.ai.missing_key(), self.embedder.missing_key()) if k))
+        # a missing key is reported by its provider, in missing_keys, not in the error
+        for service, part in (("embeddings", self.embedder), ("ai", self.ai)):
+            services[service] = "NOT_SERVING" if part.missing() else "SERVING"
+            if part.missing() and not part.missing_key():
+                errors.append(part.missing())
         return PlatformHealth(
             reachable=True, services=services, error="; ".join(errors) or None, missing_keys=missing_keys
         )
@@ -141,6 +144,12 @@ class StandalonePlatform:
     def use_key(self, provider: str, key: str) -> None:
         self.ai.use_key(provider, key)
         self.embedder.use_key(provider, key)
+
+    def use_model(self, provider: str, model: str) -> None:
+        self.ai.use_model(provider, model)
+
+    def has_key(self, provider: str) -> bool:
+        return self.ai.has_key(provider)
 
     def store_credential(self, name: str, value: str) -> None:
         raise PlatformError(

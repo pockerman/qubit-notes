@@ -12,7 +12,12 @@ Feature: The app on its own
   - it keeps the conversations with the assistant and what the assistant remembers in its own
     database too;
   - it calls the model provider (QUBIT_NOTES_LLM_PROVIDER, anthropic or openai) itself, with the
-    key it is given (QUBIT_NOTES_ANTHROPIC_API_KEY, QUBIT_NOTES_OPENAI_API_KEY).
+    key it is given (QUBIT_NOTES_ANTHROPIC_API_KEY, QUBIT_NOTES_OPENAI_API_KEY), and the model
+    QUBIT_NOTES_LLM_MODEL names, or the one its admins choose in the app (see The AI's model).
+
+  What the app is missing is said in plain words, e.g. "the app is missing its Anthropic key",
+  where students may see it: the health check names a missing key by its provider, not by the
+  setting that holds it.
 
   Material is embedded with the model QUBIT_NOTES_EMBEDDING_MODEL names:
     | model                  | runs                      | needs                       |
@@ -43,7 +48,8 @@ Feature: The app on its own
     When I check its health
     Then it reports that it is degraded
     And it reports "ai" as not serving
-    And it reports that the app has no key for "anthropic"
+    And it reports the key of "anthropic" as missing
+    And nothing it reports names a setting
 
   @standalone
   Scenario Outline: Material is found with the embedding model the app uses

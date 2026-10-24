@@ -5,9 +5,10 @@ Feature: The navigation bar
   So that it stays tidy, and an admin can fix what the platform is missing from where it shows
 
   The bar has the app's name, with the platform's status next to it, and on the right "Signed in
-  as …" beside a menu of My courses, Settings (not there yet) and Sign out. Where the platform
-  is degraded, its status can be opened to see why: an admin can give the app the keys it is
-  missing there (see The app's keys, set by its admins); anyone else is told to ask an admin.
+  as …" beside a menu of My courses, Settings (see Settings in the browser) and Sign out. Where the platform
+  is degraded, its status can be opened to see why, in plain words: a missing key is "The app is
+  missing its Anthropic key.", never the setting that holds it. An admin can give the app the keys
+  it is missing there (see The app's keys, set by its admins); anyone else is told to ask an admin.
 
   Scenario: The bar
     Given I am signed in as "maria"
@@ -15,7 +16,6 @@ Feature: The navigation bar
     And I see "Signed in as maria" beside the menu
     When I open the menu
     Then it offers "My courses, Settings, Sign out"
-    And "Settings" is not available yet
 
   Scenario: My courses, from the menu
     Given I am signed in as "maria"
@@ -36,6 +36,7 @@ Feature: The navigation bar
     Then the platform's status says "Platform degraded: ai"
     When I open the platform's status
     Then I am told the app is missing its "Anthropic" key
+    And I am not shown the setting "QUBIT_NOTES_ANTHROPIC_API_KEY"
     When I give it the key "sk-ant-test"
     Then the platform's status says "Platform connected"
 
@@ -45,5 +46,6 @@ Feature: The navigation bar
     And I am signed in as "maria"
     When I open the platform's status
     Then I am told the app is missing its "Anthropic" key
+    And I am not shown the setting "QUBIT_NOTES_ANTHROPIC_API_KEY"
     And I am told to ask an admin to give it
     And I am not offered to give it a key

@@ -134,6 +134,14 @@ class StudyPlatform(Protocol):
         """the platform calls the model provider with this key from now on"""
         ...
 
+    def use_model(self, provider: str, model: str) -> None:
+        """the platform's AI is this model of this provider from now on (features/ai_model.feature)"""
+        ...
+
+    def has_key(self, provider: str) -> bool:
+        """whether the platform has the app's key for the model provider; the key itself is never given back"""
+        ...
+
     # indexes and their members
     def create_index(self, name: str, owner: str) -> IndexInfo: ...
 

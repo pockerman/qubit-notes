@@ -12,7 +12,7 @@ from typing import Protocol
 import httpx
 
 from qubit_notes.platform.port import PlatformError
-from qubit_notes.settings import Settings
+from qubit_notes.settings import Settings, missing_key
 
 # the models that run in the app, by name, as fastembed names them
 IN_APP = {
@@ -103,7 +103,7 @@ class VoyageEmbedder:
         return vectors
 
     def missing(self) -> str | None:
-        return None if self._api_key else _no_key("voyage")
+        return None if self._api_key else missing_key("voyage")
 
     def missing_key(self) -> str | None:
         return None if self._api_key else "voyage"
@@ -135,7 +135,7 @@ class OpenAIEmbedder:
         return vectors
 
     def missing(self) -> str | None:
-        return None if self._api_key else _no_key("openai")
+        return None if self._api_key else missing_key("openai")
 
     def missing_key(self) -> str | None:
         return None if self._api_key else "openai"
@@ -143,10 +143,6 @@ class OpenAIEmbedder:
     def use_key(self, provider: str, key: str) -> None:
         if provider == "openai":
             self._api_key = key
-
-
-def _no_key(provider: str) -> str:
-    return f"the app has no key for {provider}: set QUBIT_NOTES_{provider.upper()}_API_KEY"
 
 
 def _require(embedder: Embedder) -> None:

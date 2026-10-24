@@ -76,6 +76,7 @@ class GogiPlatform:
 
     def __init__(self, settings: Settings):
         self._settings = settings
+        self._ai_model = (settings.llm_provider, settings.model)
         root_certificates = None
         if settings.gogi_ca_file:
             with open(settings.gogi_ca_file, "rb") as ca_file:
@@ -117,6 +118,13 @@ class GogiPlatform:
 
     def use_key(self, provider: str, key: str) -> None:
         self.store_credential(provider, key)
+
+    # the model gogi is asked to answer with: the settings', until the admins choose another
+    def use_model(self, provider: str, model: str) -> None:
+        self._ai_model = (provider, model)
+
+    def has_key(self, provider: str) -> bool:
+        return provider in self.list_credentials()
 
     # indexes
 
@@ -322,8 +330,8 @@ class GogiPlatform:
         response = self._gogi.llm_clients.run(
             LLMRunRequest(
                 config=LLMRunRequestConfig(
-                    provider=self._settings.llm_provider,
-                    model=self._settings.llm_model,
+                    provider=self._ai_model[0],
+                    model=self._ai_model[1],
                     max_tokens=self._settings.llm_max_tokens,
                 ),
                 messages=[

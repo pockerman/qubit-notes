@@ -29,6 +29,12 @@ def is_admin(app, students, name):
     app.state.app_keys.admins = {students.id(name)}
 
 
+@given("qubit-notes has a secret to keep the keys it is given with")
+def has_secret(app):
+    settings = app.state.app_keys._settings.model_copy(update={"secret_key": SECRET})
+    app.state.app_keys = _app_keys(app, app.state.platform, settings)
+
+
 @given("qubit-notes has no secret")
 def has_no_secret(app):
     settings = app.state.app_keys._settings.model_copy(update={"secret_key": None})

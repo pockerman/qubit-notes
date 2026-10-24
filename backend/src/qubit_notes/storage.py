@@ -99,6 +99,14 @@ material_order = Table(
     Column("position", Integer, nullable=False),
 )
 
+# what the app's admins chose for the app, by name, e.g. llm_provider: openai (domain/ai_model.py)
+app_settings = Table(
+    "app_settings",
+    metadata,
+    Column("name", String, primary_key=True),
+    Column("value", String, nullable=False),
+)
+
 # the model providers' keys the admins gave the app, encrypted with its secret (domain/app_keys.py)
 app_keys = Table(
     "app_keys",

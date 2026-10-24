@@ -23,6 +23,13 @@ class FakeAI:
     def use_key(self, provider: str, key: str) -> None:
         pass
 
+    def use_model(self, provider: str, model: str) -> None:
+        # the model it stands in for
+        self.model = (provider, model)
+
+    def has_key(self, provider: str) -> bool:
+        return False
+
     def complete(
         self,
         system: str,

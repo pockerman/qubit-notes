@@ -170,8 +170,10 @@ By default (`QUBIT_NOTES_PLATFORM=standalone`) the app is its own platform (`fea
   `text-embedding-3-*` models need `QUBIT_NOTES_OPENAI_API_KEY`. Material embedded with one model is found only by
   searching with the same model: after changing it, run `qubit-notes reembed`.
 - **The AI** (`QUBIT_NOTES_LLM_PROVIDER`, `QUBIT_NOTES_LLM_MODEL`): Anthropic's models with
-  `QUBIT_NOTES_ANTHROPIC_API_KEY` (the default), or OpenAI's with `QUBIT_NOTES_OPENAI_API_KEY`. Conversations and what
-  the assistant remembers are kept in the app's database.
+  `QUBIT_NOTES_ANTHROPIC_API_KEY` (the default), or OpenAI's with `QUBIT_NOTES_OPENAI_API_KEY`. Without a model set,
+  each provider uses its own: `claude-sonnet-5-5`, or `gpt-5`, so `QUBIT_NOTES_LLM_PROVIDER=openai` and the OpenAI key
+  are all OpenAI needs. The admins can choose another provider and model from the app (see below). Conversations and
+  what the assistant remembers are kept in the app's database.
 
 ```bash
 export QUBIT_NOTES_ANTHROPIC_API_KEY=sk-ant-...
@@ -192,6 +194,19 @@ The app keeps a key it is given in its database (`app_keys`), encrypted with `QU
 its platform again when it starts; without the secret it keeps none. A key is never shown back, and a key in the
 settings is used rather than one kept. Changing the secret makes the keys kept unreadable: give them again. Where the
 platform is gogi, the key is stored in gogi as the app's credential instead, as `qubit-notes store-provider-key` does.
+
+A missing key is described in plain words, e.g. "The app is missing its Anthropic key.": the health check lists missing
+keys by their provider (`missing_keys`), and never names the setting that holds one.
+
+## The AI's model
+
+The admins choose the AI's provider and model on the app's Settings page, from the menu (`features/ai_model.feature`,
+`features/ui_settings.feature`): Anthropic or OpenAI, and any of its models by name, with some suggested. Choosing a
+provider fills in its own model, and if the app is missing that provider's key, an admin can give it there. The choice
+is kept in the app's database (`app_settings`) and used for everyone, and again after a restart, rather than
+`QUBIT_NOTES_LLM_PROVIDER` and `QUBIT_NOTES_LLM_MODEL`; where the platform is gogi, it is given to gogi with each
+request. Anyone else sees the provider and model in use. The embedding model isn't chosen there: changing it means
+embedding the material again.
 
 ## Running on a gogi that serves many applications
 

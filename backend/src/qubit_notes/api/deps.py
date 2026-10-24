@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, Request
 
+from qubit_notes.domain.ai_model import AIModel
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.conversions import Conversions
@@ -17,6 +18,10 @@ from qubit_notes.domain.reading_order import ReadingOrder
 from qubit_notes.domain.references import References
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
+
+
+def ai_model(request: Request) -> AIModel:
+    return request.app.state.ai_model
 
 
 def app_keys(request: Request) -> AppKeys:
