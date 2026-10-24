@@ -49,6 +49,15 @@ export type Material = {
   error: string | null
 }
 
+export type Subject = {
+  // its id, in links and references
+  subject: string
+  // what it is called
+  name: string
+  // how many topics it has
+  topics: number
+}
+
 export type Topic = {
   // the ids of the subject and topic, in links and references
   subject: string
@@ -430,6 +439,26 @@ export class StudyApi {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title }),
     })
+  }
+
+  /** The course's subjects, also those without topics. */
+  subjects(course: string): Promise<Subject[]> {
+    return this.request(`/courses/${encodeURIComponent(course)}/subjects`)
+  }
+
+  /** A subject, before any of its topics; its id is made from its name. */
+  createSubject(course: string, name: string): Promise<Subject> {
+    return this.request(`/courses/${encodeURIComponent(course)}/subjects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    })
+  }
+
+  /** deletes a subject that has no topics */
+  async deleteSubject(course: string, subject: string): Promise<void> {
+    const [c, s] = [course, subject].map(encodeURIComponent)
+    await this.fetch(`/courses/${c}/subjects/${s}`, { method: 'DELETE' })
   }
 
   topics(course: string): Promise<Topic[]> {

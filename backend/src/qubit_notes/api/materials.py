@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from qubit_notes.api.deps import Student, materials, reading_order, topics
 from qubit_notes.domain.materials import Material, Materials, Upload
 from qubit_notes.domain.reading_order import Neighbours, ReadingOrder
-from qubit_notes.domain.topics import Topic, Topics
+from qubit_notes.domain.topics import Subject, Topic, Topics
 from qubit_notes.platform.port import IngestJob
 
 router = APIRouter(tags=["materials"])
@@ -91,6 +91,24 @@ async def create_topic(course: str, body: NewTopic, student: Student, service: T
     return await run_in_threadpool(
         service.create, student, course, body.subject, body.topic, body.subject_name, body.topic_name
     )
+
+
+@router.get("/courses/{course}/subjects", response_model=list[Subject])
+async def list_subjects(course: str, student: Student, service: TopicsDep) -> list[Subject]:
+    """the course's subjects, also those without topics"""
+    return await run_in_threadpool(service.subjects, student, course)
+
+
+@router.post("/courses/{course}/subjects", response_model=Subject, status_code=201)
+async def create_subject(course: str, body: NewName, student: Student, service: TopicsDep) -> Subject:
+    """a subject, before any of its topics; its id is made from its name"""
+    return await run_in_threadpool(service.create_subject, student, course, body.name)
+
+
+@router.delete("/courses/{course}/subjects/{subject}", status_code=204)
+async def delete_subject(course: str, subject: str, student: Student, service: TopicsDep) -> None:
+    """deletes a subject that has no topics"""
+    await run_in_threadpool(service.delete_subject, student, course, subject)
 
 
 @router.put("/courses/{course}/subjects/{subject}/topics/{topic}/name", response_model=Topic)

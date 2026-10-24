@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import type { Course, Material, StudyApi, Topic } from '../api'
+import type { Course, Material, StudyApi, Subject, Topic } from '../api'
 import { RenameForm } from '../components/RenameForm'
 import { namesOf, slug } from '../names'
 import { href, navigate } from '../router'
 import { topicStatus } from '../status'
 
 // subject to its topics, each with its materials: subjects sorted, topics in the order they're meant to be read, as
-// listed. Topics stay when their material is deleted
-function group(topics: Topic[], materials: Material[]): [string, [string, Material[]][]][] {
-  const subjects = new Map<string, Map<string, Material[]>>()
+// listed. Subjects stay when their topics are deleted, and topics when their material is
+function group(subjectIds: string[], topics: Topic[], materials: Material[]): [string, [string, Material[]][]][] {
+  const subjects = new Map<string, Map<string, Material[]>>(subjectIds.map((s) => [s, new Map()]))
   const topicOf = (subject: string, topic: string) => {
     const of = subjects.get(subject) ?? new Map<string, Material[]>()
     subjects.set(subject, of)
@@ -20,6 +20,37 @@ function group(topics: Topic[], materials: Material[]): [string, [string, Materi
   return [...subjects.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([subject, of]) => [subject, [...of.entries()]])
+}
+
+// a subject, before any of its topics
+function NewSubjectForm({ api, course, onCreated }: { api: StudyApi; course: Course; onCreated: () => void }) {
+  const [name, setName] = useState('')
+  const [error, setError] = useState<string | null>(null)
+
+  async function submit(event: FormEvent) {
+    event.preventDefault()
+    try {
+      await api.createSubject(course.name, name)
+      onCreated()
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  return (
+    <form className="card" aria-label="New subject" onSubmit={submit}>
+      <label>
+        Subject
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Distributed systems" required />
+      </label>
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      <button type="submit">Create subject</button>
+    </form>
+  )
 }
 
 // a topic in a subject the student names, or in `inSubject` when the course has it already
@@ -91,9 +122,11 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
   const [course, setCourse] = useState<Course | null | undefined>(undefined)
   const [materials, setMaterials] = useState<Material[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
+  const [subjects, setSubjects] = useState<Subject[]>([])
   // the topic being deleted, once its owner has asked to, as "subject/topic"
   const [deletingTopic, setDeletingTopic] = useState<string | null>(null)
   const [addingTopic, setAddingTopic] = useState(false)
+  const [addingSubject, setAddingSubject] = useState(false)
   // the subject a topic is being added to, from its own section
   const [addingTo, setAddingTo] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
@@ -110,10 +143,14 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
 
   const load = useCallback(() => {
     if (!course) return
-    Promise.all([api.materials(course.name), api.topics(course.name)]).then(([m, t]) => {
-      setMaterials(m)
-      setTopics(t)
-    }, (e: Error) => setError(e.message))
+    Promise.all([api.materials(course.name), api.topics(course.name), api.subjects(course.name)]).then(
+      ([m, t, s]) => {
+        setMaterials(m)
+        setTopics(t)
+        setSubjects(s)
+      },
+      (e: Error) => setError(e.message),
+    )
   }, [api, course])
 
   useEffect(load, [load])
@@ -190,10 +227,22 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
     if (!course) return
     setTopics(await api.renameSubject(course.name, subject, name))
     setRenaming(null)
+    load()
   }
 
-  const grouped = group(topics, materials)
+  async function deleteSubject(subject: string) {
+    if (!course) return
+    try {
+      await api.deleteSubject(course.name, subject)
+      load()
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  const grouped = group(subjects.map((s) => s.subject), topics, materials)
   const names = namesOf(topics)
+  const subjectNames = new Map(subjects.map((s) => [s.subject, s.name]))
 
   return (
     <section className="course" aria-labelledby="course-title">
@@ -233,6 +282,9 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
               <a className="button" href={href({ page: 'add', courseId: course.id, subject: '', topic: '' })}>
                 Add material
               </a>
+              <button type="button" className="link" onClick={() => setAddingSubject(!addingSubject)}>
+                New subject
+              </button>
               <button type="button" className="link" onClick={() => setAddingTopic(!addingTopic)}>
                 New topic
               </button>
@@ -271,6 +323,17 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
         </p>
       )}
 
+      {addingSubject && (
+        <NewSubjectForm
+          api={api}
+          course={course}
+          onCreated={() => {
+            setAddingSubject(false)
+            load()
+          }}
+        />
+      )}
+
       {addingTopic && (
         <NewTopicForm
           api={api}
@@ -286,7 +349,7 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
         <p className="note">This course has no material yet.</p>
       ) : (
         grouped.map(([subject, of]) => {
-          const subjectName = names.subject(subject)
+          const subjectName = subjectNames.get(subject) ?? names.subject(subject)
           return (
             <section key={subject} className="subject" aria-label={subjectName}>
               <header className="topic-header">
@@ -309,6 +372,16 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
                     >
                       Rename
                     </button>
+                    {of.length === 0 && (
+                      <button
+                        type="button"
+                        className="link danger"
+                        aria-label={`Delete ${subjectName}`}
+                        onClick={() => deleteSubject(subject)}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </>
                 )}
               </header>
@@ -331,6 +404,7 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
                   }}
                 />
               )}
+              {of.length === 0 && <p className="note">No topics yet</p>}
               <ol className="topics" aria-label={`Topics of ${subjectName}`}>
                 {of.map(([topic, items], index) => {
                   const status = topicStatus(items)

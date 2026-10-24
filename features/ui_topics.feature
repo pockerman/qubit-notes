@@ -4,8 +4,10 @@ Feature: Topics in the browser
   I want a course page that lists its topics, and a page of its own for each topic
   So that I see at a glance what a course covers, and find a topic's material in one place
 
-  The course page lists each subject's topics, not their material. Each topic shows its
-  status, and its owners can move it up or down and delete it:
+  The course page lists each subject's topics, not their material. Its owners create subjects
+  and topics before they have any material: "New subject" and "New topic" on the course page,
+  and "Add topic" in a subject, which also offers "Delete" while it has no topics (see Subjects).
+  Each topic shows its status, and its owners can move it up or down and delete it:
     | status                | when                                         |
     | no material           | the topic has none                           |
     | processing            | any of its material is still being processed |
@@ -60,6 +62,30 @@ Feature: Topics in the browser
       When I open the course "Aeronautics"
       Then I see the topics "Finite elements, Finite volumes" under "Numerical methods"
       And I am not offered to move or delete topics
+
+  Rule: Subjects and topics are created before their material
+
+    Scenario: Create a subject
+      When I open the course "Aeronautics"
+      And I create the subject "Fluid Dynamics"
+      Then I see the subject "Fluid Dynamics" with no topics yet
+      And the subject offers "Add topic", "Rename" and "Delete"
+
+    Scenario: Add a topic to a subject without topics
+      Given I have created the subject "Fluid Dynamics" in "aeronautics"
+      When I open the course "Aeronautics"
+      And I add the topic "Turbulence" to the subject "Fluid Dynamics"
+      Then I see the topics "Turbulence" under "Fluid Dynamics"
+      And the topics show the statuses:
+        | topic      | status      |
+        | Turbulence | no material |
+
+    Scenario: Delete a subject without topics
+      Given I have created the subject "Fluid Dynamics" in "aeronautics"
+      When I open the course "Aeronautics"
+      And I delete the subject "Fluid Dynamics"
+      Then I do not see the subject "Fluid Dynamics"
+      And the subject "Numerical methods", which has topics, does not offer "Delete"
 
   Rule: A topic's page has its material, and what is done with it
 

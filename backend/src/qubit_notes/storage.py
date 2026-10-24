@@ -60,6 +60,15 @@ course_titles = Table(
     Column("title", String, nullable=False),
 )
 
+# a course's subjects: they stay when all their topics are deleted
+subjects = Table(
+    "subjects",
+    metadata,
+    Column("course_id", String, primary_key=True),
+    Column("subject", String, primary_key=True),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
 # what a subject is called, as the student typed it; a subject without one is named after its id
 subject_names = Table(
     "subject_names",

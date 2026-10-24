@@ -627,6 +627,51 @@ def add_topic_to_subject(page, topic, subject):
     form.get_by_role("button", name="Create topic").click()
 
 
+def _subject(page, subject: str):
+    return page.get_by_role("main").get_by_role("region", name=subject, exact=True)
+
+
+@when(parsers.re(r'I create the subject "(?P<name>[^"]+)"$'))
+def create_subject_in_browser(page, name):
+    page.get_by_role("button", name="New subject").click()
+    form = page.get_by_role("form", name="New subject")
+    form.get_by_label("Subject").fill(name)
+    form.get_by_role("button", name="Create subject").click()
+    expect(form).to_have_count(0)
+
+
+@then(parsers.re(r'I see the subject "(?P<subject>[^"]+)" with no topics yet$'))
+def see_subject_without_topics(page, subject):
+    section = _subject(page, subject)
+    expect(section.get_by_role("heading", level=3)).to_have_text(subject)
+    expect(section.get_by_text("No topics yet")).to_be_visible()
+    expect(section.get_by_role("heading", level=4)).to_have_count(0)
+
+
+@then(parsers.re(r'the subject offers "(?P<add>[^"]+)", "(?P<rename>[^"]+)" and "(?P<remove>[^"]+)"$'))
+def subject_offers(page, add, rename, remove):
+    # the subject just created, the one without topics
+    section = page.get_by_role("main").locator("section.subject", has_text="No topics yet")
+    expect(section.locator("header").get_by_role("button")).to_have_text([add, rename, remove])
+
+
+@when(parsers.re(r'I delete the subject "(?P<subject>[^"]+)"$'))
+def delete_subject_in_browser(page, subject):
+    _subject(page, subject).get_by_role("button", name=f"Delete {subject}", exact=True).click()
+
+
+@then(parsers.re(r'I do not see the subject "(?P<subject>[^"]+)"$'))
+def subject_not_seen(page, subject):
+    expect(_subject(page, subject)).to_have_count(0)
+
+
+@then(parsers.re(r'the subject "(?P<subject>[^"]+)", which has topics, does not offer "(?P<action>[^"]+)"$'))
+def subject_does_not_offer(page, subject, action):
+    section = _subject(page, subject)
+    expect(section.get_by_role("heading", level=4).first).to_be_visible()
+    expect(section.locator("header").first.get_by_role("button", name=action)).to_have_count(0)
+
+
 def _rename(page, name: str, new_name: str, cancel: bool = False, label: str = "Name") -> None:
     page.get_by_role("button", name=f"Rename {name}", exact=True).click()
     form = page.get_by_role("form", name=f"Rename {name}")
