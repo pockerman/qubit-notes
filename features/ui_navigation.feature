@@ -6,9 +6,10 @@ Feature: The navigation bar
 
   The bar has the app's name, with the platform's status next to it, and on the right "Signed in
   as …" beside a menu of My courses, Settings (see Settings in the browser) and Sign out. Where the platform
-  is degraded, its status can be opened to see why, in plain words: a missing key is "The app is
-  missing its Anthropic key.", never the setting that holds it. An admin can give the app the keys
-  it is missing there (see The app's keys, set by its admins); anyone else is told to ask an admin.
+  is degraded, its status can be opened to see why, in plain words. A missing key is "The app is
+  missing a key.", naming neither the provider nor the setting that holds it: an admin is told to
+  head to Settings to give it, with a link there (see Settings in the browser); anyone else is told
+  to ask an admin.
 
   Scenario: The bar
     Given I am signed in as "maria"
@@ -29,15 +30,19 @@ Feature: The navigation bar
     When I choose "Sign out" from the menu
     Then I am asked who I am
 
-  Scenario: An admin gives the app its missing key from the platform's status
+  Scenario: An admin is sent to Settings to give the app its missing key
     Given qubit-notes is running without a key for "anthropic"
+    And qubit-notes has a secret to keep the keys it is given with
     And "alex" is an admin of qubit-notes
     And I am signed in as "alex"
     Then the platform's status says "Platform degraded: ai"
     When I open the platform's status
-    Then I am told the app is missing its "Anthropic" key
+    Then I am told the app is missing a key
+    And I am not shown "Anthropic"
     And I am not shown the setting "QUBIT_NOTES_ANTHROPIC_API_KEY"
-    When I give it the key "sk-ant-test"
+    And I am not offered to give it a key
+    When I head to Settings from the platform's status
+    And I give the provider's key "sk-ant-test" in the settings
     Then the platform's status says "Platform connected"
 
   Scenario: A student who is not an admin is told to ask one
@@ -45,7 +50,7 @@ Feature: The navigation bar
     And "alex" is an admin of qubit-notes
     And I am signed in as "maria"
     When I open the platform's status
-    Then I am told the app is missing its "Anthropic" key
-    And I am not shown the setting "QUBIT_NOTES_ANTHROPIC_API_KEY"
+    Then I am told the app is missing a key
+    And I am not shown "Anthropic"
     And I am told to ask an admin to give it
     And I am not offered to give it a key

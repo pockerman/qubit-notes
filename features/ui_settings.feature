@@ -7,13 +7,17 @@ Feature: Settings in the browser
   "Settings" in the app's menu opens the settings. Their "AI model" section shows the provider
   and model the AI uses (see The AI's model). An admin chooses another there: the provider from
   a list, Anthropic or OpenAI, and the model by typing its name, with the provider's models
-  suggested; choosing a provider fills in its own model. If the app is missing the key of the
-  provider chosen, it says so there, and the admin can give it there too. Anyone else sees the
-  provider and model, but cannot change them.
+  suggested; choosing a provider fills in its own model. Below it is one "Provider key" field, for
+  the key of the provider saved: Anthropic's or OpenAI's, whichever the AI uses. It says whether
+  the app has that key; an admin gives it there, or replaces the one the app was given (see The
+  app's keys, set by its admins). A key the app's settings give is used rather than one given, so
+  the field says the settings give it, without naming the setting, and is not offered to change.
+  Where the app is missing its embedding model's key, e.g. Voyage AI's, an "Embedding model"
+  section offers a field for it too, to admins, until it is given. Anyone else sees the provider
+  and model, but no key's field, and cannot change them.
 
   Background:
     Given qubit-notes is running with the model provider "anthropic", and no model set
-    And qubit-notes has the key "sk-ant-test" for "anthropic" in its settings
     And qubit-notes has a secret to keep the keys it is given with
     And "alex" is an admin of qubit-notes
 
@@ -31,13 +35,42 @@ Feature: Settings in the browser
     And I choose the provider "OpenAI" in the settings
     Then the model is filled in as "gpt-5"
     When I choose the model "gpt-5-mini" in the settings, and save it
-    Then I am told the app is missing its "OpenAI" key
-    When I give it the key "sk-openai-test"
-    Then the app uses the key "sk-openai-test" for "openai"
+    Then the provider's key is for "OpenAI", and the app is missing it
+    When I give the provider's key "sk-openai-test" in the settings
+    Then I am told the app has the provider's key
+    And the app uses the key "sk-openai-test" for "openai"
     And the AI uses "gpt-5-mini" of "openai"
+
+  Scenario: An admin replaces the provider's key the app was given
+    Given qubit-notes is running without a key for "anthropic"
+    And I am signed in as "alex"
+    When I choose "Settings" from the menu
+    Then the provider's key is for "Anthropic", and the app is missing it
+    When I give the provider's key "sk-ant-first" in the settings
+    And I give the provider's key "sk-ant-second" in the settings
+    Then the app uses the key "sk-ant-second" for "anthropic"
+    And I am offered no other key
+
+  Scenario: The provider's key the app's settings give is not changed here
+    Given qubit-notes has the key "sk-ant-test" for "anthropic" in its settings
+    And I am signed in as "alex"
+    When I choose "Settings" from the menu
+    Then I am told the app's settings give the provider's key
+    And I am not shown the setting "QUBIT_NOTES_ANTHROPIC_API_KEY"
+    And I am not offered to change the provider's key
+
+  Scenario: An admin gives the embedding model's missing key
+    Given qubit-notes is running without a key for "voyage"
+    And I am signed in as "alex"
+    When I choose "Settings" from the menu
+    Then I am told the app is missing its embedding model's key, of "Voyage AI"
+    When I give the embedding model's key "pa-test" in the settings
+    Then the app uses the key "pa-test" for "voyage"
+    And I am offered no embedding model's key
 
   Scenario: A student who is not an admin sees the model, but cannot change it
     Given I am signed in as "maria"
     When I choose "Settings" from the menu
     Then I see the AI uses "claude-sonnet-5-5" of "Anthropic"
     But I am not offered to change it
+    And I am offered no key

@@ -22,6 +22,8 @@ class AIModelInUse(BaseModel):
     defaults: dict[str, str]
     # whether the app has each provider's key; the keys themselves are never given
     keys: dict[str, bool]
+    # whether the app's settings give each provider's key, which is used rather than one an admin gives
+    in_settings: dict[str, bool]
 
 
 class AIModel:
@@ -38,6 +40,7 @@ class AIModel:
             suggested=SUGGESTED_MODELS,
             defaults=DEFAULT_MODELS,
             keys={p: self._platform.has_key(p) for p in DEFAULT_MODELS},
+            in_settings={p: bool(getattr(self._settings, f"{p}_api_key", None)) for p in DEFAULT_MODELS},
         )
 
     def current(self) -> tuple[str, str]:

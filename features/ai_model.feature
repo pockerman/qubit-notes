@@ -16,8 +16,8 @@ Feature: The AI's model
   again when the app restarts, rather than the settings'. A model is named as its provider names
   it, e.g. "claude-opus-5-5" or "gpt-5-mini": the app suggests some of each provider's, and takes
   any other. The AI needs its provider's key; the app tells whether it has each provider's key,
-  never the key itself. Where the platform is gogi, the choice is given to gogi with each request
-  to the AI. The model that embeds material is not chosen here (see The app on its own).
+  and whether its settings give it, never the key itself. Where the platform is gogi, the choice
+  is given to gogi with each request to the AI. The model that embeds material is not chosen here (see The app on its own).
 
   Background:
     Given qubit-notes is running with the model provider "anthropic", and no model set
@@ -72,6 +72,7 @@ Feature: The AI's model
     And I am the student "alex"
     When I ask which model the AI uses
     Then I am told the app has the key of "anthropic", but not of "openai"
+    And I am told the app's settings give the key of "anthropic", but not of "openai"
     And nothing the app answers holds "sk-ant-test"
 
   Scenario: Only admins choose the model

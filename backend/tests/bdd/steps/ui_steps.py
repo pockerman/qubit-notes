@@ -1381,9 +1381,16 @@ def _where_keys_are(page: Page):
     return page.get_by_role("dialog", name="The platform")
 
 
-@then(parsers.parse('I am told the app is missing its "{provider}" key'))
-def told_missing_key(page, provider):
-    expect(_where_keys_are(page)).to_contain_text(f"The app is missing its {provider} key.")
+@then("I am told the app is missing a key")
+def told_missing_a_key(page):
+    expect(page.get_by_role("dialog", name="The platform")).to_contain_text("The app is missing a key.")
+
+
+@then(parsers.re(r'I am not shown "(?P<text>[^"]+)"$'))
+def not_shown(page, text):
+    dialog = page.get_by_role("dialog", name="The platform")
+    expect(dialog).to_be_visible()
+    expect(dialog).not_to_contain_text(text)
 
 
 @then(parsers.parse('I am not shown the setting "{setting}"'))
@@ -1392,12 +1399,9 @@ def not_shown_setting(page, setting):
     expect(_where_keys_are(page)).not_to_contain_text(setting)
 
 
-@when(parsers.parse('I give it the key "{key}"'))
-def give_it_the_key(page, key):
-    where = _where_keys_are(page)
-    where.get_by_role("textbox", name=re.compile(" key$")).fill(key)
-    where.get_by_role("form", name=re.compile(" key$")).get_by_role("button", name="Save").click()
-    expect(where.get_by_role("form", name=re.compile(" key$"))).to_have_count(0)
+@when("I head to Settings from the platform's status")
+def head_to_settings(page):
+    page.get_by_role("dialog", name="The platform").get_by_role("link", name="Settings").click()
 
 
 @then("I am told to ask an admin to give it")
@@ -1427,7 +1431,7 @@ def see_ai_model(page, model, provider):
 
 @when(parsers.re(r'I choose the provider "(?P<provider>[^"]+)" in the settings$'))
 def choose_provider_in_settings(page, provider):
-    _ai_model_section(page).get_by_label("Provider").select_option(label=provider)
+    _ai_model_section(page).locator("select").select_option(label=provider)
 
 
 @then(parsers.re(r'the model is filled in as "(?P<model>[^"]+)"$'))
@@ -1447,6 +1451,76 @@ def told_ai_model_chosen(page, model, provider):
     expect(_ai_model_section(page).get_by_role("status")).to_have_text(
         f"The AI uses {model} of {provider} from now on."
     )
+
+
+def _give_key(form, key: str):
+    """gives the key in its form; the form's field has its name"""
+    form.locator("input[type=password]").fill(key)
+    form.get_by_role("button", name="Save").click()
+
+
+def _provider_key(page: Page):
+    return _ai_model_section(page).get_by_role("form", name="Provider key")
+
+
+@then(parsers.re(r'the provider\'s key is for "(?P<provider>[^"]+)", and the app is missing it$'))
+def provider_key_missing(page, provider):
+    expect(_provider_key(page)).to_contain_text(f"{provider}'s key, the AI's provider: the app is missing it.")
+
+
+@when(parsers.re(r'I give the provider\'s key "(?P<key>[^"]+)" in the settings$'))
+def give_provider_key(page, key):
+    _give_key(_provider_key(page), key)
+    # the field is emptied once the key is given
+    expect(_provider_key(page).locator("input[type=password]")).to_have_value("")
+
+
+@then("I am told the app has the provider's key")
+def told_has_provider_key(page):
+    expect(_provider_key(page)).to_contain_text("the app has it.")
+
+
+@then("I am offered no other key")
+def offered_no_other_key(page):
+    expect(page.locator("#settings-title")).to_be_visible()
+    expect(page.locator("input[type=password]")).to_have_count(1)
+
+
+@then("I am told the app's settings give the provider's key")
+def told_settings_give_key(page):
+    expect(_ai_model_section(page).get_by_role("group", name="Provider key")).to_contain_text(
+        "the app's settings give it"
+    )
+
+
+def _embedding_model(page: Page):
+    expect(page.locator("#settings-title")).to_be_visible()
+    return page.get_by_role("region", name="Embedding model")
+
+
+@then(parsers.re(r'I am told the app is missing its embedding model\'s key, of "(?P<provider>[^"]+)"$'))
+def told_missing_embedding_key(page, provider):
+    expect(_embedding_model(page)).to_contain_text(f"The app is missing the key of its embedding model, of {provider}.")
+
+
+@when(parsers.re(r'I give the embedding model\'s key "(?P<key>[^"]+)" in the settings$'))
+def give_embedding_key(page, key):
+    _give_key(_embedding_model(page).get_by_role("form", name="Embedding model key"), key)
+    # the section goes once the key is given
+    expect(page.get_by_role("region", name="Embedding model")).to_have_count(0)
+
+
+@then("I am offered no embedding model's key")
+def offered_no_embedding_key(page):
+    expect(page.locator("#settings-title")).to_be_visible()
+    expect(page.get_by_role("region", name="Embedding model")).to_have_count(0)
+
+
+@then("I am not offered to change the provider's key")
+@then("I am offered no key")
+def offered_no_key(page):
+    expect(page.locator("#settings-title")).to_be_visible()
+    expect(page.locator("input[type=password]")).to_have_count(0)
 
 
 @then("I am not offered to change it")

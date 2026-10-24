@@ -44,6 +44,7 @@ def running_with_model(app, platform, provider, model):
 def has_key_in_settings(app, platform, key, provider):
     app.state.settings = app.state.settings.model_copy(update={f"{provider}_api_key": key})
     platform.keys[provider] = key
+    app.state.ai_model = AIModel(app.state.database, app.state.settings, app.state.platform)
 
 
 @when(parsers.re(r"I ask which model the AI uses$"))
@@ -107,6 +108,14 @@ def health_reports_missing(client, provider):
 def told_keys(context, has, hasnt):
     keys = context["response"].json()["keys"]
     assert keys[has] is True and keys[hasnt] is False, keys
+
+
+@then(
+    parsers.re(r'I am told the app\'s settings give the key of "(?P<given>[^"]+)", but not of "(?P<not_given>[^"]+)"$')
+)
+def told_keys_in_settings(context, given, not_given):
+    in_settings = context["response"].json()["in_settings"]
+    assert in_settings[given] is True and in_settings[not_given] is False, in_settings
 
 
 @then("I am told the app's AI is Anthropic's or OpenAI's")
