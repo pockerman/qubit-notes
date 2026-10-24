@@ -21,8 +21,9 @@ export type AIModel = {
   // some of each provider's models, and the one each uses unless another is chosen
   suggested: Record<string, string[]>
   defaults: Record<string, string>
-  // whether the app has each provider's key
+  // whether the app has each provider's key, and whether its settings give it, which is used rather than one given
   keys: Record<string, boolean>
+  in_settings: Record<string, boolean>
 }
 
 export type Role = 'owner' | 'reader'

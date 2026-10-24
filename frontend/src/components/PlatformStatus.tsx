@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Health, Me, StudyApi } from '../api'
-import { PROVIDER } from '../providers'
+import { KEY_GIVEN } from '../providers'
+import { href } from '../router'
 
-/** Whether the platform is working; where it isn't, it opens to say why, and lets an admin give the app the keys
- * it is missing. */
+/** Whether the platform is working; where it isn't, it opens to say why, in plain words, and sends an admin to
+ * Settings for a key the app is missing. */
 export function PlatformStatus({ api }: { api: StudyApi }) {
   const [health, setHealth] = useState<Health | null>(null)
   const [me, setMe] = useState<Me | null>(null)
@@ -16,6 +17,11 @@ export function PlatformStatus({ api }: { api: StudyApi }) {
   }, [api])
 
   useEffect(check, [check])
+  // a key given in Settings may be the one missing
+  useEffect(() => {
+    window.addEventListener(KEY_GIVEN, check)
+    return () => window.removeEventListener(KEY_GIVEN, check)
+  }, [check])
   useEffect(() => {
     api.me().then(setMe, () => setMe(null))
   }, [api])
@@ -74,69 +80,20 @@ export function PlatformStatus({ api }: { api: StudyApi }) {
       {open && (
         <div className="popover" role="dialog" aria-label="The platform">
           {health.error && <p className="note">{health.error}</p>}
-          {health.missing_keys.map((provider) =>
-            me?.admin ? (
-              <KeyForm
-                key={provider}
-                api={api}
-                provider={provider}
-                onGiven={() => {
-                  setOpen(false)
-                  check()
-                }}
-              />
-            ) : (
-              <p key={provider}>
-                The app is missing its {PROVIDER[provider] ?? provider} key. Ask an admin of the app to give it.
+          {health.missing_keys.length > 0 &&
+            (me?.admin ? (
+              <p>
+                The app is missing a key. Head to{' '}
+                <a href={href({ page: 'settings' })} onClick={() => setOpen(false)}>
+                  Settings
+                </a>{' '}
+                to give it.
               </p>
-            ),
-          )}
+            ) : (
+              <p>The app is missing a key. Ask an admin of the app to give it.</p>
+            ))}
         </div>
       )}
     </div>
-  )
-}
-
-type KeyFormProps = { api: StudyApi; provider: string; onGiven: () => void }
-
-/** An admin giving the app the key it is missing for a model provider. */
-export function KeyForm({ api, provider, onGiven }: KeyFormProps) {
-  const [key, setKey] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const name = PROVIDER[provider] ?? provider
-
-  async function give(event: FormEvent) {
-    event.preventDefault()
-    setSaving(true)
-    setError(null)
-    try {
-      await api.giveKey(provider, key)
-      onGiven()
-    } catch (e) {
-      setError((e as Error).message)
-      setSaving(false)
-    }
-  }
-
-  return (
-    <form className="key-form" aria-label={`The ${name} key`} onSubmit={give}>
-      <p>The app is missing its {name} key.</p>
-      <label>
-        {name} key
-        <input type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} />
-      </label>
-      {error && (
-        <p role="alert" className="error">
-          {error}
-        </p>
-      )}
-      <div className="actions">
-        <button type="submit" disabled={saving || !key.trim()}>
-          {saving ? 'Saving…' : 'Save'}
-        </button>
-      </div>
-      <p className="note">Kept encrypted, and never shown again.</p>
-    </form>
   )
 }
