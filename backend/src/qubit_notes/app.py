@@ -4,18 +4,32 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from qubit_notes import storage
-from qubit_notes.api import assistant, courses, health, images, materials, notes, reading, references, study
+from qubit_notes.api import (
+    assistant,
+    courses,
+    generating,
+    health,
+    images,
+    materials,
+    notes,
+    reading,
+    references,
+    study,
+)
 from qubit_notes.api.auth import authenticator
 from qubit_notes.api.errors import add_error_handlers
 from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.courses import Courses
+from qubit_notes.domain.generating import Generator
 from qubit_notes.domain.images import Images
+from qubit_notes.domain.material_order import MaterialOrder
 from qubit_notes.domain.materials import Materials
 from qubit_notes.domain.memory import StudentMemory
 from qubit_notes.domain.notes import Notes
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
+from qubit_notes.domain.reading_order import ReadingOrder
 from qubit_notes.domain.references import References
 from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.summaries import Summaries
@@ -57,6 +71,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.conversions = Conversions(database, platform, app.state.courses, app.state.images)
     app.state.topics = Topics(database, platform, app.state.courses)
     app.state.references = References(platform, app.state.courses, app.state.topics)
+    app.state.material_order = MaterialOrder(database)
     app.state.materials = Materials(
         platform,
         app.state.courses,
@@ -64,17 +79,21 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         settings.max_upload_mb,
         app.state.conversions,
         app.state.references,
+        app.state.material_order,
     )
     app.state.reading = Reading(platform, app.state.courses, app.state.conversions)
     # a deleted material's images go with it, as does a converted one's original
     app.state.materials.on_delete_in_course(app.state.images.forget)
     app.state.materials.on_delete_in_course(app.state.conversions.forget)
+    app.state.materials.on_delete_in_course(app.state.material_order.forget)
     app.state.conversions.resume()
     app.state.database = database
     app.state.notes = Notes(app.state.database, app.state.reading)
     app.state.materials.on_upload(app.state.topics.ensure)
     # a deleted topic's material goes with it
     app.state.topics.on_delete(app.state.materials.delete_topic)
+    app.state.reading_order = ReadingOrder(app.state.courses, app.state.topics, app.state.materials)
+    app.state.generator = Generator(platform, app.state.courses, app.state.reading)
     sources = Sources(platform, app.state.courses, app.state.reading)
     app.state.summaries = Summaries(app.state.database, platform, sources)
     app.state.quizzes = Quizzes(app.state.database, platform, sources)
@@ -86,6 +105,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.materials.on_delete(service.forget_material)
     # deleting a course deletes all of that, its topics, and what the assistant learned from its material
     app.state.courses.on_delete(app.state.materials.forget_course)
+    app.state.courses.on_delete(lambda course: app.state.material_order.forget_course(course.id))
     for service in (app.state.notes, app.state.summaries, app.state.quizzes, app.state.assistant, app.state.topics):
         app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 
@@ -97,6 +117,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         images.router,
         reading.router,
         references.router,
+        generating.router,
         notes.router,
         study.router,
         assistant.router,

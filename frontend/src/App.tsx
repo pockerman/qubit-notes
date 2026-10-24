@@ -15,6 +15,7 @@ import { SignIn } from './components/SignIn'
 import { AddMaterialPage } from './pages/AddMaterialPage'
 import { CoursePage } from './pages/CoursePage'
 import { CoursesPage } from './pages/CoursesPage'
+import { GeneratePage } from './pages/GeneratePage'
 import { MembersPage } from './pages/MembersPage'
 import { TopicPage } from './pages/TopicPage'
 import { WriteMaterialPage } from './pages/WriteMaterialPage'
@@ -73,6 +74,16 @@ function Pages({ api }: { api: StudyApi }) {
       return <AddMaterialPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
     case 'write':
       return <WriteMaterialPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
+    case 'generate':
+      return (
+        <GeneratePage
+          api={api}
+          courseId={route.courseId}
+          subject={route.subject}
+          topic={route.topic}
+          documentIds={route.documentIds}
+        />
+      )
     case 'members':
       return <MembersPage key={route.courseId} api={api} courseId={route.courseId} />
     case 'material':

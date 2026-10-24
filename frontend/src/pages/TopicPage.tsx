@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Course, Material, Mention, StudyApi } from '../api'
 import { Assistant } from '../components/Assistant'
 import { takeNotice } from '../notices'
-import { href } from '../router'
+import { href, navigate } from '../router'
 import { STATUS_LABEL } from '../status'
 
 type Props = { api: StudyApi; courseId: string; subject: string; topic: string }
@@ -13,6 +13,8 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
   const [materials, setMaterials] = useState<Material[]>([])
   const [mentions, setMentions] = useState<Mention[]>([])
   const [assistant, setAssistant] = useState(false)
+  // the materials ticked to generate new material from, by document id
+  const [ticked, setTicked] = useState<string[]>([])
   // e.g. that the material just saved has broken references
   const [notice] = useState(takeNotice)
   const [error, setError] = useState<string | null>(null)
@@ -44,6 +46,22 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
     const timer = setInterval(load, 1500)
     return () => clearInterval(timer)
   }, [processing, load])
+
+  // moves a material one place up (-1) or down (+1) in the topic
+  async function move(index: number, by: -1 | 1) {
+    if (!course) return
+    const order = materials.map((m) => m.filename)
+    ;[order[index], order[index + by]] = [order[index + by], order[index]]
+    try {
+      setMaterials(await api.orderMaterials(course.name, subject, topic, order))
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  function tick(material: Material, on: boolean) {
+    setTicked(on ? [...ticked, material.document_id] : ticked.filter((id) => id !== material.document_id))
+  }
 
   async function remove(material: Material) {
     try {
@@ -119,8 +137,18 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
             <p className="note">No material yet</p>
           ) : (
             <ul className="materials" aria-label="Materials">
-              {materials.map((material) => (
+              {materials.map((material, index) => (
                 <li key={material.document_id}>
+                  {isOwner && (
+                    <input
+                      type="checkbox"
+                      aria-label={`Tick ${material.filename}`}
+                      // only ready text can be generated from
+                      disabled={material.kind !== 'text' || material.status !== 'completed'}
+                      checked={ticked.includes(material.document_id)}
+                      onChange={(e) => tick(material, e.target.checked)}
+                    />
+                  )}
                   {material.status === 'completed' ? (
                     <a
                       className="filename"
@@ -138,6 +166,28 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
                     {STATUS_LABEL[material.status]}
                   </span>
                   {material.status === 'failed' && material.error && <span className="note">{material.error}</span>}
+                  {isOwner && materials.length > 1 && (
+                    <span className="topic-actions">
+                      <button
+                        type="button"
+                        className="link"
+                        aria-label={`Move ${material.filename} up`}
+                        disabled={index === 0}
+                        onClick={() => move(index, -1)}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        className="link"
+                        aria-label={`Move ${material.filename} down`}
+                        disabled={index === materials.length - 1}
+                        onClick={() => move(index, 1)}
+                      >
+                        ↓
+                      </button>
+                    </span>
+                  )}
                   {isOwner && (
                     <button
                       type="button"
@@ -151,6 +201,21 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
                 </li>
               ))}
             </ul>
+          )}
+
+          {isOwner && materials.length > 0 && (
+            <p className="note">
+              <button
+                type="button"
+                disabled={ticked.length === 0}
+                onClick={() => navigate({ page: 'generate', courseId, subject, topic, documentIds: ticked })}
+              >
+                Generate material
+              </button>{' '}
+              {ticked.length === 0
+                ? 'Tick materials for the AI to write new material from, such as revision notes.'
+                : `from the ${ticked.length === 1 ? 'material' : `${ticked.length} materials`} ticked`}
+            </p>
           )}
 
           {mentions.length > 0 && (

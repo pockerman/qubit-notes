@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import {
   waitForUpload,
+  type Material,
   type MaterialImages,
+  type Neighbours,
   type NewNote,
   type Note,
   type OpenedMaterial,
@@ -13,6 +15,7 @@ import { useImageDrafts } from '../imageDrafts'
 import { formatMoment } from '../moments'
 import { brokenReferences } from '../notices'
 import { insertAtCursor, referenceLinks } from '../referenceLinks'
+import { href } from '../router'
 import { AddImage } from './AddImage'
 import { AddReference } from './AddReference'
 import { Assistant } from './Assistant'
@@ -154,6 +157,11 @@ function Editor({ api, courseId, documentId, markdown, onSaved, onCancel }: Edit
   )
 }
 
+/** a material before or after the one being read, with its topic when it's in another */
+function neighbourLabel(neighbour: Material, topic: string): string {
+  return neighbour.topic === topic ? neighbour.filename : `${neighbour.filename}, in ${neighbour.topic}`
+}
+
 function sectionLabel(title: string, filename: string): string {
   return title || filename
 }
@@ -253,6 +261,8 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
   const [references, setReferences] = useState<Reference[] | null>(null)
   // that the text just saved has broken references
   const [saved, setSaved] = useState<string | null>(null)
+  // the materials before and after this one, to read on
+  const [neighbours, setNeighbours] = useState<Neighbours | null>(null)
   const video = useRef<HTMLVideoElement>(null)
   const body = useRef<HTMLDivElement>(null)
 
@@ -277,6 +287,10 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
     api.images(courseId, documentId).then(setImages, (e: Error) => setError(e.message))
     api.references(courseId, documentId).then(setReferences, (e: Error) => setError(e.message))
   }, [api, courseId, documentId, material, version])
+
+  useEffect(() => {
+    api.neighbours(courseId, documentId).then(setNeighbours, () => setNeighbours(null))
+  }, [api, courseId, documentId])
 
   useEffect(() => {
     if (position === null) return
@@ -403,6 +417,24 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
         <p role="alert" className="error">
           {error}
         </p>
+      )}
+
+      {material && neighbours && (neighbours.previous || neighbours.next) && (
+        <nav className="reading-order" aria-label="Reading order">
+          {neighbours.previous && (
+            <a
+              className="previous"
+              href={href({ page: 'material', courseId, documentId: neighbours.previous.document_id })}
+            >
+              ← Previous: {neighbourLabel(neighbours.previous, material.topic)}
+            </a>
+          )}
+          {neighbours.next && (
+            <a className="next" href={href({ page: 'material', courseId, documentId: neighbours.next.document_id })}>
+              Next: {neighbourLabel(neighbours.next, material.topic)} →
+            </a>
+          )}
+        </nav>
       )}
 
       {saved && !editing && (

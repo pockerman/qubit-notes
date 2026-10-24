@@ -41,8 +41,17 @@ def references_are(students, filename, datatable):
 
 
 @then("none of its references is broken")
-def none_broken(context):
+def none_broken(students, context):
     response = context["response"]
+    if "generated" in context and response.status_code == 200:
+        # generated, not saved: its references are resolved as the editor's preview resolves them
+        course_id = students.find_material("fem-notes.md")["course_id"]
+        text = context["generated"]["text"]
+        resolved = students.client.post(
+            f"/api/courses/{course_id}/references", headers=students.headers(), json={"text": text}
+        ).json()
+        assert resolved and all(r["refers_to"] != "nothing" for r in resolved), resolved
+        return
     assert response.status_code == 202, response.text
     assert response.json()["broken_references"] == []
 
