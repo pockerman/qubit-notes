@@ -44,6 +44,16 @@ Feature: Writing material in the browser
     When I go back to writing
     Then the text I typed is still there
 
+  Scenario: Preview mathematics before saving it
+    When I open the course "Aeronautics"
+    And I write material in the topic "Finite elements"
+    And I type:
+      """
+      The stiffness matrix is $K = \int_\Omega B^T D B \, d\Omega$.
+      """
+    And I preview it
+    Then "K = \int_\Omega B^T D B \, d\Omega" is typeset as mathematics, in the text
+
   Scenario: Leaving without saving asks first
     When I open the course "Aeronautics"
     And I write material in the topic "Finite elements"

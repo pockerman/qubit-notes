@@ -316,6 +316,21 @@ def as_code(page, text):
     expect(_section_text(page).locator("pre code", has_text=text)).to_be_visible()
 
 
+@then(parsers.re(r'"(?P<tex>.+)" is typeset as mathematics, (?P<where>in the text|on a line of its own)$'))
+def typeset(page, tex, where):
+    # KaTeX keeps the LaTeX it typeset in the MathML it writes for screen readers
+    kind = "span.math.math-display" if where == "on a line of its own" else "span.math:not(.math-display)"
+    source = page.locator('annotation[encoding="application/x-tex"]', has_text=re.compile(f"^{re.escape(tex)}$"))
+    expect(page.get_by_role("main").locator(kind).filter(has=source)).to_have_count(1)
+
+
+@then(parsers.re(r'I see "(?P<tex>.+)" as written, marked as mathematics that could not be typeset$'))
+def not_typeset(page, tex):
+    error = page.get_by_role("main").locator("code.math-error")
+    expect(error).to_have_text(tex)
+    expect(error).to_have_attribute("title", re.compile("^Could not typeset this: "))
+
+
 @then(parsers.parse('I see the text "{text}"'))
 def see_text(page, text):
     expect(page.get_by_role("article", name="Section text")).to_contain_text(text)

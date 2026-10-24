@@ -363,6 +363,18 @@ main:has(.reader) {
   overflow-x: auto;
 }
 
+/* mathematics, typeset by KaTeX */
+.math-display {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin: 0.75rem 0;
+}
+
+.math-error {
+  color: var(--bad);
+}
+
 .markdown pre {
   background: var(--surface);
   border: 1px solid var(--border);

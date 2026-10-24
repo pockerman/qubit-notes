@@ -36,6 +36,38 @@ Feature: Reading material in the browser
     And I open "fem-notes.md" to read it
     Then the text is at least 60% of the page wide
 
+  Scenario: Mathematics in LaTeX is typeset
+    Given I am signed in as "maria"
+    And I have uploaded "speed-up.md" to "computer-science/parallel-computing/performance" with the content:
+      """
+      # Efficiency
+      The efficiency of $p$ processors is $E_p = \frac{S_p}{p}$, where the speed-up is
+
+      $$
+      S_p = \frac{T_1}{T_p}
+      $$
+
+      $$E_p = \frac{S_p}{p}$$
+
+      A licence costs $5, or $10 with support.
+      """
+    When I open the course "Computer science"
+    And I open "speed-up.md" to read it
+    Then "E_p = \frac{S_p}{p}" is typeset as mathematics, in the text
+    And "S_p = \frac{T_1}{T_p}" is typeset as mathematics, on a line of its own
+    And "E_p = \frac{S_p}{p}" is typeset as mathematics, on a line of its own
+    And I see the text "A licence costs $5, or $10 with support."
+
+  Scenario: Mathematics that isn't valid LaTeX is shown as written
+    Given I am signed in as "maria"
+    And I have uploaded "typo.md" to "computer-science/parallel-computing/performance" with the content:
+      """
+      The speed-up is $S_p = \frac{T_1}{T_p$.
+      """
+    When I open the course "Computer science"
+    And I open "typo.md" to read it
+    Then I see "S_p = \frac{T_1}{T_p" as written, marked as mathematics that could not be typeset
+
   Scenario: Markdown is shown formatted
     Given I am signed in as "maria"
     And I have uploaded "building-blocks.md" to "computer-science/distributed-systems/introduction" with the content:
