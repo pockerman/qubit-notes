@@ -1,6 +1,4 @@
-import katex from 'katex'
-import 'katex/dist/katex.min.css'
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { shownAs } from '../references'
 
 // marks passages in the plain text of a block, e.g. those that have notes; the text is never treated as HTML
@@ -41,11 +39,40 @@ function safeHref(href: string): string | undefined {
   return /^(https?:|mailto:)/i.test(href) ? href : undefined
 }
 
+type Katex = typeof import('katex').default
+
+let katex: Katex | undefined
+let loading: Promise<Katex> | undefined
+
+/** KaTeX and its stylesheet, fetched the first time a page has mathematics, so pages without any don't wait for it */
+function loadKatex(): Promise<Katex> {
+  loading ??= Promise.all([import('katex'), import('katex/dist/katex.min.css')]).then(
+    ([module]) => (katex = module.default),
+    (e) => {
+      // tried again by the next mathematics shown, e.g. once back online
+      loading = undefined
+      throw e
+    },
+  )
+  return loading
+}
+
+function useKatex(): Katex | undefined {
+  const [loaded, setLoaded] = useState(katex)
+  useEffect(() => {
+    if (!loaded) loadKatex().then(setLoaded, () => {})
+  }, [loaded])
+  return loaded
+}
+
 /**
- * Mathematics in LaTeX, typeset by KaTeX: in the text, or on a line of its own. LaTeX KaTeX can't typeset is shown as
- * written, marked as such. KaTeX's HTML is its own, from the LaTeX, which can't run scripts or link anywhere.
+ * Mathematics in LaTeX, typeset by KaTeX: in the text, or on a line of its own. Until KaTeX is loaded it is shown as
+ * written. LaTeX KaTeX can't typeset is shown as written, marked as such. KaTeX's HTML is its own, from the LaTeX,
+ * which can't run scripts or link anywhere.
  */
 function Maths({ tex, display = false }: { tex: string; display?: boolean }) {
+  const katex = useKatex()
+  if (!katex) return <span className={display ? 'math-loading math-display' : 'math-loading'}>{tex}</span>
   try {
     const html = katex.renderToString(tex, { displayMode: display, throwOnError: true, trust: false })
     // a span, as display mathematics may be in a paragraph too; the stylesheet puts it on a line of its own
