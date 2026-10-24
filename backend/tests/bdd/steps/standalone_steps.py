@@ -88,9 +88,9 @@ def services_serving(context, services):
     assert all(reported[name] == "SERVING" for name in names), reported
 
 
-@then(parsers.parse('it reports that the app has no key for "{provider}"'))
-def reports_no_key(context, provider):
-    assert f"no key for {provider}" in (context["response"].json()["error"] or "")
+@then("nothing it reports names a setting")
+def names_no_setting(context):
+    assert "QUBIT_NOTES_" not in context["response"].text, context["response"].text
 
 
 @then("the app says to set QUBIT_NOTES_ANTHROPIC_API_KEY instead")

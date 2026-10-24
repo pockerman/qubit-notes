@@ -2,6 +2,21 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# the model providers, as students know them
+PROVIDER_NAMES = {"anthropic": "Anthropic", "openai": "OpenAI", "voyage": "Voyage AI"}
+# the providers of the app's AI, each with the model it uses unless another is named (features/ai_model.feature)
+DEFAULT_MODELS = {"anthropic": "claude-sonnet-5-5", "openai": "gpt-5"}
+# some of each provider's models, suggested where a model is chosen; any other is taken too
+SUGGESTED_MODELS = {
+    "anthropic": ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"],
+    "openai": ["gpt-5", "gpt-5-mini", "gpt-5-nano"],
+}
+
+
+def missing_key(provider: str) -> str:
+    """what the app says when it hasn't the provider's key, in words students may see: no setting is named"""
+    return f"the app is missing its {PROVIDER_NAMES.get(provider, provider)} key"
+
 
 class Settings(BaseSettings):
     """qubit-notes' configuration, read from ``QUBIT_NOTES_*`` environment variables."""
@@ -55,9 +70,10 @@ class Settings(BaseSettings):
     # how many documents the app's own platform processes at once
     ingestion_workers: int = 2
 
-    # the model that writes summaries and quizzes: anthropic or openai
+    # the model that writes summaries and quizzes: anthropic or openai, and its model, by default the provider's own
+    # (DEFAULT_MODELS); the app's admins can choose others from the app, which are used instead
     llm_provider: str = "anthropic"
-    llm_model: str = "claude-sonnet-5-5"
+    llm_model: str | None = None
     llm_max_tokens: int = 4000
     # how much of a conversation with the assistant the model is given, in estimated tokens: its most recent messages
     conversation_tokens: int = 4000
@@ -68,6 +84,11 @@ class Settings(BaseSettings):
     embedding_model: str = "bge-small-en-v1.5"
     # gogi's chunking strategy, where the platform is gogi
     chunk_strategy: str = "fixed"
+
+    @property
+    def model(self) -> str:
+        """the AI's model: the one named, or its provider's own"""
+        return self.llm_model or DEFAULT_MODELS.get(self.llm_provider, "")
 
     @property
     def admin_names(self) -> set[str]:

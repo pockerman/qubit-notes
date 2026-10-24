@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import type { Health, Me, StudyApi } from '../api'
-
-// the model providers, as students know them
-const PROVIDER: Record<string, string> = { anthropic: 'Anthropic', openai: 'OpenAI', voyage: 'Voyage AI' }
+import { PROVIDER } from '../providers'
 
 /** Whether the platform is working; where it isn't, it opens to say why, and lets an admin give the app the keys
  * it is missing. */
@@ -102,7 +100,7 @@ export function PlatformStatus({ api }: { api: StudyApi }) {
 type KeyFormProps = { api: StudyApi; provider: string; onGiven: () => void }
 
 /** An admin giving the app the key it is missing for a model provider. */
-function KeyForm({ api, provider, onGiven }: KeyFormProps) {
+export function KeyForm({ api, provider, onGiven }: KeyFormProps) {
   const [key, setKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)

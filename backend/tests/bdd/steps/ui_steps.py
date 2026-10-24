@@ -1349,13 +1349,6 @@ def menu_offers(page, items):
     )
 
 
-@then(parsers.parse('"{item}" is not available yet'))
-def not_available_yet(page, item):
-    expect(page.get_by_role("menu", name="Menu").get_by_role("menuitem", name=item)).to_have_attribute(
-        "aria-disabled", "true"
-    )
-
-
 @when(parsers.parse('I choose "{item}" from the menu'))
 def choose_menu_item(page, item):
     choose_from_menu(page, item)
@@ -1381,16 +1374,30 @@ def open_platform_status(page):
     page.get_by_role("banner").locator(".brand").get_by_role("button").click()
 
 
+def _where_keys_are(page: Page):
+    """where the app says what keys it is missing: the settings, if they are shown, else the platform's status"""
+    if page.locator("#settings-title").count():
+        return page.get_by_role("region", name="AI model")
+    return page.get_by_role("dialog", name="The platform")
+
+
 @then(parsers.parse('I am told the app is missing its "{provider}" key'))
 def told_missing_key(page, provider):
-    expect(page.get_by_role("dialog", name="The platform")).to_contain_text(f"missing its {provider} key")
+    expect(_where_keys_are(page)).to_contain_text(f"The app is missing its {provider} key.")
+
+
+@then(parsers.parse('I am not shown the setting "{setting}"'))
+def not_shown_setting(page, setting):
+    expect(_where_keys_are(page)).to_be_visible()
+    expect(_where_keys_are(page)).not_to_contain_text(setting)
 
 
 @when(parsers.parse('I give it the key "{key}"'))
 def give_it_the_key(page, key):
-    dialog = page.get_by_role("dialog", name="The platform")
-    dialog.get_by_role("textbox", name=re.compile(" key$")).fill(key)
-    dialog.get_by_role("button", name="Save").click()
+    where = _where_keys_are(page)
+    where.get_by_role("textbox", name=re.compile(" key$")).fill(key)
+    where.get_by_role("form", name=re.compile(" key$")).get_by_role("button", name="Save").click()
+    expect(where.get_by_role("form", name=re.compile(" key$"))).to_have_count(0)
 
 
 @then("I am told to ask an admin to give it")
@@ -1403,3 +1410,47 @@ def not_offered_key(page):
     dialog = page.get_by_role("dialog", name="The platform")
     expect(dialog).to_be_visible()
     expect(dialog.get_by_role("button", name="Save")).to_have_count(0)
+
+
+# settings
+
+
+def _ai_model_section(page: Page):
+    expect(page.locator("#settings-title")).to_be_visible()
+    return page.get_by_role("region", name="AI model")
+
+
+@then(parsers.re(r'I see the AI uses "(?P<model>[^"]+)" of "(?P<provider>[^"]+)"$'))
+def see_ai_model(page, model, provider):
+    expect(_ai_model_section(page)).to_contain_text(f"The AI uses {model} of {provider}.")
+
+
+@when(parsers.re(r'I choose the provider "(?P<provider>[^"]+)" in the settings$'))
+def choose_provider_in_settings(page, provider):
+    _ai_model_section(page).get_by_label("Provider").select_option(label=provider)
+
+
+@then(parsers.re(r'the model is filled in as "(?P<model>[^"]+)"$'))
+def model_filled_in(page, model):
+    expect(_ai_model_section(page).get_by_label("Model", exact=True)).to_have_value(model)
+
+
+@when(parsers.re(r'I choose the model "(?P<model>[^"]+)" in the settings, and save it$'))
+def choose_model_in_settings(page, model):
+    form = _ai_model_section(page).get_by_role("form", name="Choose the AI model")
+    form.get_by_label("Model", exact=True).fill(model)
+    form.get_by_role("button", name="Save").click()
+
+
+@then(parsers.re(r'I am told the AI uses "(?P<model>[^"]+)" of "(?P<provider>[^"]+)" from now on$'))
+def told_ai_model_chosen(page, model, provider):
+    expect(_ai_model_section(page).get_by_role("status")).to_have_text(
+        f"The AI uses {model} of {provider} from now on."
+    )
+
+
+@then("I am not offered to change it")
+def not_offered_to_change_model(page):
+    section = _ai_model_section(page)
+    expect(section).to_contain_text("Only the app's admins can change it.")
+    expect(section.get_by_role("form")).to_have_count(0)

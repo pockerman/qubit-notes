@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { href } from '../router'
 
-/** The app's menu: My courses, Settings (not there yet) and Sign out. */
+/** The app's menu: My courses, Settings and Sign out. */
 export function NavigationMenu({ onSignOut }: { onSignOut: () => void }) {
   const [open, setOpen] = useState(false)
   const menu = useRef<HTMLDivElement>(null)
@@ -36,9 +36,9 @@ export function NavigationMenu({ onSignOut }: { onSignOut: () => void }) {
             </a>
           </li>
           <li role="none">
-            <button type="button" role="menuitem" className="link" aria-disabled="true" title="Not there yet">
+            <a role="menuitem" href={href({ page: 'settings' })} onClick={() => setOpen(false)}>
               Settings
-            </button>
+            </a>
           </li>
           <li role="none">
             <button

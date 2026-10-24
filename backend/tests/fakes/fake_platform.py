@@ -40,6 +40,8 @@ class FakePlatform:
         # the model providers whose keys the platform needs, and the keys it has, provider to key
         self.needs_keys: set[str] = set()
         self.keys: dict[str, str] = {}
+        # the provider and model the AI answers with, once the app says
+        self.ai_model: tuple[str, str] | None = None
         self.indexes: dict[str, IndexInfo] = {}
         # index name to document id to (document, text)
         self.documents: dict[str, dict[str, tuple[DocumentInfo, str]]] = {}
@@ -80,6 +82,16 @@ class FakePlatform:
 
     def use_key(self, provider: str, key: str) -> None:
         self.keys[provider] = key
+
+    def use_model(self, provider: str, model: str) -> None:
+        # the fake's AI needs no key for the provider it started with, as the scenarios give none; another provider
+        # it is changed to needs its key, as the app's own platform's does
+        if self.ai_model and provider != self.ai_model[0]:
+            self.needs_keys = (self.needs_keys - {self.ai_model[0]}) | {provider}
+        self.ai_model = (provider, model)
+
+    def has_key(self, provider: str) -> bool:
+        return provider in self.keys
 
     # indexes
 
