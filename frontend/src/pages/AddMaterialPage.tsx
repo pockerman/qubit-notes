@@ -61,6 +61,7 @@ export function AddMaterialPage({ api, courseId, subject, topic }: Props) {
               if (broken) leaveNotice(broken)
               navigate({ page: 'topic', courseId, subject, topic })
             }}
+            onTopicCreated={({ subject, topic }) => navigate({ page: 'topic', courseId, subject, topic })}
           />
         </div>
       )}

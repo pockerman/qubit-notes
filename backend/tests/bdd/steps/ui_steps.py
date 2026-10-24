@@ -585,6 +585,57 @@ def add_to_subject_topic(page, filename, subject, topic):
     upload_on_add_page(page, filename, subject, topic)
 
 
+def _add_form(page: Page):
+    return page.get_by_role("form", name=re.compile("^Upload to "))
+
+
+@when(parsers.re(r'on the Add material page I fill in the subject "(?P<subject>[^"]+)"$'))
+def fill_in_subject_on_add_page(page, subject):
+    page.get_by_role("link", name="Add material", exact=True).click()
+    expect(page.get_by_role("heading", name=re.compile("^Add material"), level=2)).to_be_visible()
+    _add_form(page).get_by_label("Subject").fill(subject)
+
+
+@when(parsers.re(r'I fill in the topic "(?P<topic>[^"]+)"$'))
+def fill_in_topic_on_add_page(page, topic):
+    _add_form(page).get_by_label("Topic").fill(topic)
+
+
+@when(parsers.re(r'I choose the file "(?P<filename>[^"]+)"$'))
+def choose_file_on_add_page(page, filename):
+    _add_form(page).get_by_label("File").set_input_files(
+        {"name": filename, "mimeType": "text/plain", "buffer": b"Notes."}
+    )
+
+
+@then(parsers.re(r'its button says "(?P<label>[^"]+)"$'))
+def add_button_says(page, label):
+    expect(_add_form(page).locator('button[type="submit"]')).to_have_text(label)
+
+
+@when("I press it")
+def press_add_button(page):
+    _add_form(page).locator('button[type="submit"]').click()
+
+
+@then(parsers.re(r'I am told the subject "(?P<subject>[^"]+)" is created, and can add a topic to it$'))
+def told_subject_created(page, subject):
+    form = _add_form(page)
+    expect(form.get_by_role("status")).to_have_text(f"Created the subject {subject}. Fill in a topic to add one to it.")
+    # the subject stays, for the topic
+    expect(form.get_by_label("Subject")).to_have_value(subject)
+
+
+@then("I am told to fill in the topic the file goes in")
+def told_to_fill_in_topic(page):
+    expect(_add_form(page).get_by_role("alert")).to_have_text("Fill in the topic the file goes in")
+
+
+@then("I see that the topic has no material yet")
+def topic_has_no_material(page):
+    expect(page.get_by_role("main").get_by_text("No material yet", exact=True)).to_be_visible()
+
+
 def _open_topic_named(page: Page, topic: str) -> None:
     """the page of the topic, from the course page, whatever its subject"""
     if _page_title(page).endswith(f" › {topic}"):
