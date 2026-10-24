@@ -5,6 +5,7 @@ from fastapi import Depends, Request
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.conversions import Conversions
+from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.generating import Generator
 from qubit_notes.domain.images import Images
@@ -20,6 +21,10 @@ from qubit_notes.domain.topics import Topics
 
 def app_keys(request: Request) -> AppKeys:
     return request.app.state.app_keys
+
+
+def course_titles(request: Request) -> CourseTitles:
+    return request.app.state.course_titles
 
 
 def courses(request: Request) -> Courses:

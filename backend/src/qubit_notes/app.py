@@ -22,6 +22,7 @@ from qubit_notes.api.errors import add_error_handlers
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.conversions import Conversions
+from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.generating import Generator
 from qubit_notes.domain.images import Images
@@ -111,6 +112,8 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     # deleting a course deletes all of that, its topics, and what the assistant learned from its material
     app.state.courses.on_delete(app.state.materials.forget_course)
     app.state.courses.on_delete(lambda course: app.state.material_order.forget_course(course.id))
+    app.state.course_titles = CourseTitles(database, app.state.courses)
+    app.state.courses.on_delete(app.state.course_titles.forget)
     for service in (app.state.notes, app.state.summaries, app.state.quizzes, app.state.assistant, app.state.topics):
         app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 

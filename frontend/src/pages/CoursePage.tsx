@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { Course, Material, StudyApi, Topic } from '../api'
+import { RenameForm } from '../components/RenameForm'
 import { namesOf, slug } from '../names'
 import { href, navigate } from '../router'
 import { topicStatus } from '../status'
@@ -82,50 +83,8 @@ function NewTopicForm({
   )
 }
 
-// another name for a subject or topic; its id stays
-function RenameForm({
-  name,
-  onRename,
-  onCancel,
-}: {
-  name: string
-  onRename: (name: string) => Promise<void>
-  onCancel: () => void
-}) {
-  const [value, setValue] = useState(name)
-  const [error, setError] = useState<string | null>(null)
-
-  async function submit(event: FormEvent) {
-    event.preventDefault()
-    try {
-      await onRename(value)
-    } catch (e) {
-      setError((e as Error).message)
-    }
-  }
-
-  return (
-    <form className="card rename" aria-label={`Rename ${name}`} onSubmit={submit}>
-      <label>
-        Name
-        <input value={value} onChange={(e) => setValue(e.target.value)} required autoFocus />
-      </label>
-      {error && (
-        <p role="alert" className="error">
-          {error}
-        </p>
-      )}
-      <div className="actions">
-        <button type="submit" disabled={!value.trim()}>
-          Rename
-        </button>
-        <button type="button" className="link" onClick={onCancel}>
-          Cancel
-        </button>
-      </div>
-    </form>
-  )
-}
+// what `renaming` is when it's the course's title being changed: no subject or topic id has a space
+const COURSE = 'the course'
 
 /** A course: its subjects and their topics, in order, each with its status; a topic's material is on its own page. */
 export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string }) {
@@ -138,7 +97,7 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
   // the subject a topic is being added to, from its own section
   const [addingTo, setAddingTo] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
-  // the subject ("subject") or topic ("subject/topic") being renamed
+  // what is being renamed: the course (COURSE), a subject ("subject") or a topic ("subject/topic")
   const [renaming, setRenaming] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -221,6 +180,12 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
     load()
   }
 
+  async function changeTitle(title: string) {
+    if (!course) return
+    setCourse({ ...course, ...(await api.changeTitle(course.name, title)) })
+    setRenaming(null)
+  }
+
   async function renameSubject(subject: string, name: string) {
     if (!course) return
     setTopics(await api.renameSubject(course.name, subject, name))
@@ -236,7 +201,27 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
         <a className="link" href={href({ page: 'courses' })}>
           ← My courses
         </a>
-        <h2 id="course-title">{course.name}</h2>
+        <div className="title-row">
+          <h2 id="course-title">{course.title}</h2>
+          {isCreator && (
+            <button
+              type="button"
+              className="link"
+              aria-label={`Rename ${course.title}`}
+              onClick={() => setRenaming(renaming === COURSE ? null : COURSE)}
+            >
+              Rename
+            </button>
+          )}
+        </div>
+        {renaming === COURSE && (
+          <RenameForm
+            name={course.title}
+            label="Title"
+            onRename={changeTitle}
+            onCancel={() => setRenaming(null)}
+          />
+        )}
         {course.owner !== api.student && (
           <p className="note">
             Shared with you by {course.owner} as {course.role === 'owner' ? 'an owner' : 'a reader'}
@@ -265,12 +250,12 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
         {confirmingDelete && (
           <div className="card confirm" role="alertdialog" aria-label="Delete this course">
             <p>
-              Delete {course.name} and everything in it? Its material, topics, notes, summaries, quizzes and
+              Delete {course.title} and everything in it? Its material, topics, notes, summaries, quizzes and
               conversations go for every member, and this cannot be undone.
             </p>
             <div className="actions">
               <button type="button" className="danger" onClick={deleteCourse}>
-                Yes, delete {course.name}
+                Yes, delete {course.title}
               </button>
               <button type="button" className="link" onClick={() => setConfirmingDelete(false)}>
                 Cancel

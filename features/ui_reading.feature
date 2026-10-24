@@ -17,7 +17,7 @@ Feature: Reading material in the browser
       ## 2.1 Linear elements
       A linear element interpolates linearly between its two nodes.
       """
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "fem-notes.md" to read it
     Then I see its sections "1 Introduction, 2 Shape functions, 2.1 Linear elements"
     And I see the text "The finite element method divides a domain into small elements."
@@ -32,7 +32,7 @@ Feature: Reading material in the browser
       The finite element method divides a domain into small elements.
       """
     And my screen is 1440 pixels wide
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "fem-notes.md" to read it
     Then the text is at least 60% of the page wide
 
@@ -52,7 +52,7 @@ Feature: Reading material in the browser
       ip addr show
       ```
       """
-    When I open the course "computer-science"
+    When I open the course "Computer science"
     And I open "building-blocks.md" to read it
     Then I see a table with the columns "Building block, Main pillar, Course lesson"
     And the table has the rows:
@@ -68,7 +68,7 @@ Feature: Reading material in the browser
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     And I have uploaded "fe-assembly.txt" to "aeronautics/numerical-methods/finite-elements"
     And I have uploaded "fv-basics.txt" to "aeronautics/numerical-methods/finite-volumes"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "fe-assembly.txt" to read it
     Then the next topic is shown as "Finite volumes"
     And I am not offered a previous topic

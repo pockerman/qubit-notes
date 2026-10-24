@@ -35,9 +35,9 @@ export function MembersPage({ api, courseId }: { api: StudyApi; courseId: string
     <section className="course" aria-labelledby="members-title">
       <header className="page-header">
         <a className="link" href={href({ page: 'course', courseId: course.id })}>
-          ← {course.name}
+          ← {course.title}
         </a>
-        <h2 id="members-title">Members of {course.name}</h2>
+        <h2 id="members-title">Members of {course.title}</h2>
       </header>
       <Members api={api} course={course} />
     </section>

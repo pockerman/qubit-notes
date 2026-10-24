@@ -20,7 +20,7 @@ Feature: The navigation bar
   Scenario: My courses, from the menu
     Given I am signed in as "maria"
     And I have created the course "aeronautics"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I choose "My courses" from the menu
     Then I see my courses
 

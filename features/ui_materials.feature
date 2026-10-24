@@ -14,8 +14,8 @@ Feature: Managing materials and sharing in the browser
   @platform
   Scenario: Upload material to a new course
     Given I am signed in as "maria"
-    When I upload "fe-basics.txt" to the course "aeronautics", subject "Numerical Methods", topic "Finite Elements"
-    Then I see the course "aeronautics" in my courses
+    When I upload "fe-basics.txt" to the course "Aeronautics", subject "Numerical Methods", topic "Finite Elements"
+    Then I see the course "Aeronautics" in my courses
     And I see "fe-basics.txt" under "Numerical Methods" › "Finite Elements"
     And I see that "fe-basics.txt" is ready
 
@@ -26,7 +26,7 @@ Feature: Managing materials and sharing in the browser
       | aeronautics/numerical-methods/finite-elements    | fe-basics.txt  |
       | aeronautics/numerical-methods/finite-differences | fd-schemes.txt |
       | aeronautics/aerodynamics/boundary-layers         | blasius.txt    |
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     Then I see the subjects "Aerodynamics, Numerical methods"
     And I see "fd-schemes.txt" under "Numerical methods" › "Finite differences"
     And I see "blasius.txt" under "Aerodynamics" › "Boundary layers"
@@ -34,14 +34,14 @@ Feature: Managing materials and sharing in the browser
   Scenario: Delete material
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I delete "fe-basics.txt"
     Then I no longer see "fe-basics.txt"
 
   Scenario: Share a course and see its members
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open its members
     And I share it with "tom" as a reader
     Then I see "tom" as a reader of the course
@@ -50,7 +50,7 @@ Feature: Managing materials and sharing in the browser
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     And I have shared the course "aeronautics" with "tom" as a reader
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     Then I do not see the members on the course page
     When I open its members
     Then I see "tom" as a reader of the course
@@ -60,7 +60,7 @@ Feature: Managing materials and sharing in the browser
     Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     And the student "maria" has shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open its members
     Then I see "maria" as an owner of the course
     And I see "tom" as a reader of the course
@@ -71,13 +71,13 @@ Feature: Managing materials and sharing in the browser
     Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     And the student "maria" has shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     Then I see that the course is shared with me by "maria" as a reader
     And I see "fe-basics.txt" under "Numerical methods" › "Finite elements"
     But I cannot upload, delete or share in this course
 
-  Scenario: A course's name is written as lowercase words joined by hyphens; subjects and topics show as typed
+  Scenario: Courses, subjects and topics show as typed
     Given I am signed in as "maria"
     When I upload "intro.txt" to the course "Computer Science", subject "Distributed Systems Design", topic "Introduction"
-    Then I see the course "computer-science" in my courses
+    Then I see the course "Computer Science" in my courses
     And I see "intro.txt" under "Distributed Systems Design" › "Introduction"

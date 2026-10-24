@@ -86,7 +86,8 @@ def create_course_in_browser(page: Page, name: str) -> None:
     form = page.get_by_role("form", name="New course")
     form.get_by_label("Course name").fill(name)
     form.get_by_role("button", name="Create course").click()
-    expect(page.get_by_role("heading", name=slug(name), level=2)).to_be_visible()
+    # shown by the title typed
+    expect(page.get_by_role("heading", name=name, level=2)).to_be_visible()
 
 
 def upload_on_add_page(page: Page, filename: str, subject: str | None, topic: str | None) -> None:
@@ -135,10 +136,14 @@ def see_no_courses(page):
 
 @when(parsers.parse('I upload "{filename}" to the course "{course}", subject "{subject}", topic "{topic}"'))
 def upload_in_browser(page, context, filename, course, subject, topic):
-    context["course"] = slug(course)
+    context["course"] = course
     go_to_courses(page)
-    if page.get_by_role("list", name="Courses").get_by_role("link", name=re.compile(f"^{slug(course)}\\b")).count():
-        open_course_page(page, slug(course))
+    if (
+        page.get_by_role("list", name="Courses")
+        .get_by_role("link", name=re.compile(f"^{re.escape(course)}\\b"))
+        .count()
+    ):
+        open_course_page(page, course)
     else:
         create_course_in_browser(page, course)
     page.get_by_role("link", name="Add material", exact=True).click()
@@ -607,10 +612,10 @@ def add_topic_to_subject(page, topic, subject):
     form.get_by_role("button", name="Create topic").click()
 
 
-def _rename(page, name: str, new_name: str, cancel: bool = False) -> None:
+def _rename(page, name: str, new_name: str, cancel: bool = False, label: str = "Name") -> None:
     page.get_by_role("button", name=f"Rename {name}", exact=True).click()
     form = page.get_by_role("form", name=f"Rename {name}")
-    form.get_by_label("Name").fill(new_name)
+    form.get_by_label(label).fill(new_name)
     form.get_by_role("button", name="Cancel" if cancel else "Rename").click()
     expect(form).to_have_count(0)
 
@@ -623,6 +628,23 @@ def rename_in_browser(page, name, new_name):
 @when(parsers.re(r'I start renaming the topic "(?P<name>[^"]+)" to "(?P<new_name>[^"]+)", but cancel$'))
 def rename_cancelled(page, name, new_name):
     _rename(page, name, new_name, cancel=True)
+
+
+def change_title_in_browser(page, title: str, new_title: str) -> None:
+    _rename(page, title, new_title, label="Title")
+
+
+@then("I am not offered to change the course's title")
+def not_offered_to_change_title(page):
+    title = page.get_by_role("main").get_by_role("heading", level=2).first
+    expect(title).to_be_visible()
+    expect(page.get_by_role("button", name=f"Rename {title.inner_text()}", exact=True)).to_have_count(0)
+
+
+@then("I am not offered to rename the topic")
+def not_offered_to_rename_topic(page):
+    expect(page.get_by_role("main").get_by_role("heading", level=2).first).to_be_visible()
+    expect(page.get_by_role("button", name=re.compile("^Rename "))).to_have_count(0)
 
 
 @then("I am not offered to rename subjects or topics")

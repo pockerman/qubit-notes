@@ -20,7 +20,7 @@ def _create_topic(students, location: str, course: str, name: str | None = None)
     )
 
 
-@when(parsers.parse('I create the course "{name}"'))
+@when(parsers.re(r'I create the course "(?P<name>[^"]+)"$'))
 def create_course(request, students, context, name):
     if "ui" in request.keywords:
         # in the browser, which writes the name the way it's stored
@@ -31,7 +31,7 @@ def create_course(request, students, context, name):
     context["response"] = _create_course(students, name)
 
 
-@given(parsers.parse('I have created the course "{name}"'))
+@given(parsers.re(r'I have created the course "(?P<name>[^"]+)"$'))
 def have_created_course(students, name):
     response = _create_course(students, name)
     assert response.status_code == 201, response.text

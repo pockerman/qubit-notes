@@ -31,7 +31,7 @@ Feature: Generating material with the AI in the browser
     And I have created the topic "numerical-methods/linear-solvers" in "aeronautics"
 
   Scenario: Generate revision notes, preview them and save them in the topic
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     And I choose to generate material
     Then the materials menu offers "All, fem-notes.md, fe-meshing.md"
@@ -46,7 +46,7 @@ Feature: Generating material with the AI in the browser
 
   Scenario: Choose all the material of the topic
     Given I have uploaded "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     And I choose to generate material
     And I tick "All"
@@ -57,7 +57,7 @@ Feature: Generating material with the AI in the browser
     Then I see the reference "1 Meshing" as a link
 
   Scenario: The menu says what is chosen
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     And I choose to generate material
     Then the materials menu says "Choose materials"
@@ -69,7 +69,7 @@ Feature: Generating material with the AI in the browser
     Then the materials menu says "Choose materials"
 
   Scenario: Save generated material in another topic
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     And I choose to generate material
     And I tick "fem-notes.md"
@@ -80,7 +80,7 @@ Feature: Generating material with the AI in the browser
     And I see its materials "cheat-sheet.md"
 
   Scenario: Cancel before generating
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     And I choose to generate material
     And I tick "fem-notes.md"
@@ -89,7 +89,7 @@ Feature: Generating material with the AI in the browser
     And I see its materials "fem-notes.md, fe-meshing.md"
 
   Scenario: Nothing is saved when I leave the editor without saving
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     And I choose to generate material
     And I tick "fem-notes.md"
@@ -99,14 +99,14 @@ Feature: Generating material with the AI in the browser
     And I see its materials "fem-notes.md, fe-meshing.md"
 
   Scenario: Generating needs a material ticked
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     And I choose to generate material
     Then I cannot generate until I tick a material
 
   Scenario: A video cannot be ticked
     Given I have uploaded "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     And I choose to generate material
     Then I cannot tick "lecture-3.mp4"
@@ -114,6 +114,6 @@ Feature: Generating material with the AI in the browser
   Scenario: A reader of a shared course is not offered to generate material
     Given I have shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     Then I am not offered to generate material
