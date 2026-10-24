@@ -115,10 +115,11 @@ their order, passing over material that isn't ready. The order is kept in the ap
 ## Generating material with the AI
 
 On a topic's page, owners choose **Generate material** (`features/generating.feature`,
-`backend/src/qubit_notes/domain/generating.py`), tick the topic's materials to generate from, and ask for revision
-notes, a cheat sheet, combined notes or worked examples, their own instructions, or both. The AI writes Markdown from the ticked materials alone, citing the sections it drew
-on by labels the app turns into references (see [References between topics](#references-between-topics)), so they're
-links and the sources mention the new material. It opens in the editor, unsaved, to be edited and saved in any topic.
+`backend/src/qubit_notes/domain/generating.py`), tick the topic's materials to generate from in a menu (or All), and
+ask for revision notes, a cheat sheet, combined notes or worked examples, their own instructions, or both. The AI
+writes Markdown from the ticked materials alone, citing the sections it drew on by labels the app turns into
+references (see [References between topics](#references-between-topics)), so they're links and the sources mention the
+new material. It opens in the editor, unsaved, to be edited and saved in any topic.
 At most 60,000 characters of material are generated from at once.
 
 ## The app's own platform
