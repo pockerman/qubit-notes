@@ -18,13 +18,13 @@ Feature: Images in the browser
       ![A mesh of triangles](figures/mesh.png)
       """
     When I open the course "aeronautics"
-    And I add "fem-notes.md" and the image "mesh.png" to the topic "finite-elements"
+    And I add "fem-notes.md" and the image "mesh.png" to the topic "Finite elements"
     And I open "fem-notes.md" to read it
     Then I see the image "A mesh of triangles"
 
   Scenario: Add an image while writing
     When I open the course "aeronautics"
-    And I write material in the topic "finite-elements"
+    And I write material in the topic "Finite elements"
     And I name it "Meshing"
     And I type:
       """

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { Course, StudyApi } from '../api'
+import type { Course, StudyApi, Topic } from '../api'
 import { UploadForm } from '../components/UploadForm'
+import { namesOf } from '../names'
 import { brokenReferences, leaveNotice } from '../notices'
 import { href, navigate } from '../router'
 
@@ -14,6 +15,8 @@ type Props = {
 
 export function AddMaterialPage({ api, courseId, subject, topic }: Props) {
   const [course, setCourse] = useState<Course | null>(null)
+  // the course's topics, for what the topic given is called
+  const [topics, setTopics] = useState<Topic[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -22,6 +25,12 @@ export function AddMaterialPage({ api, courseId, subject, topic }: Props) {
       (e: Error) => setError(e.message),
     )
   }, [api, courseId])
+
+  useEffect(() => {
+    if (!course) return
+    api.topics(course.name).then(setTopics, () => setTopics([]))
+  }, [api, course])
+  const names = namesOf(topics ?? [])
 
   return (
     <section className="add-material" aria-labelledby="add-title">
@@ -39,13 +48,14 @@ export function AddMaterialPage({ api, courseId, subject, topic }: Props) {
           {error}
         </p>
       )}
-      {course && (
+      {course && topics && (
         <div className="card">
           <UploadForm
             api={api}
             course={course.name}
             subject={subject}
             topic={topic}
+            topicName={subject && topic ? `${names.subject(subject)} › ${names.topic(subject, topic)}` : undefined}
             onUploaded={(upload, { subject, topic, filename }) => {
               const broken = brokenReferences(filename, upload.broken_references)
               if (broken) leaveNotice(broken)

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import {
   waitForUpload,
-  type Material,
   type MaterialImages,
   type Neighbours,
   type NewNote,
@@ -10,9 +9,11 @@ import {
   type Reference,
   type SectionText,
   type StudyApi,
+  type Topic,
 } from '../api'
 import { useImageDrafts } from '../imageDrafts'
 import { formatMoment } from '../moments'
+import { namesOf } from '../names'
 import { brokenReferences } from '../notices'
 import { insertAtCursor, referenceLinks } from '../referenceLinks'
 import { href } from '../router'
@@ -157,11 +158,6 @@ function Editor({ api, courseId, documentId, markdown, onSaved, onCancel }: Edit
   )
 }
 
-/** a material before or after the one being read, with its topic when it's in another */
-function neighbourLabel(neighbour: Material, topic: string): string {
-  return neighbour.topic === topic ? neighbour.filename : `${neighbour.filename}, in ${neighbour.topic}`
-}
-
 function sectionLabel(title: string, filename: string): string {
   return title || filename
 }
@@ -263,6 +259,8 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
   const [saved, setSaved] = useState<string | null>(null)
   // the materials before and after this one, to read on
   const [neighbours, setNeighbours] = useState<Neighbours | null>(null)
+  // the course's topics, for what the material's subject and topic are called
+  const [topics, setTopics] = useState<Topic[]>([])
   const video = useRef<HTMLVideoElement>(null)
   const body = useRef<HTMLDivElement>(null)
 
@@ -291,6 +289,16 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
   useEffect(() => {
     api.neighbours(courseId, documentId).then(setNeighbours, () => setNeighbours(null))
   }, [api, courseId, documentId])
+
+  useEffect(() => {
+    api
+      .courses()
+      .then((courses) => {
+        const course = courses.find((c) => c.id === courseId)
+        return course ? api.topics(course.name) : []
+      })
+      .then(setTopics, () => setTopics([]))
+  }, [api, courseId])
 
   useEffect(() => {
     if (position === null) return
@@ -377,7 +385,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
         {material && (
           <>
             <span className="note">
-              {material.subject} › {material.topic}
+              {namesOf(topics).subject(material.subject)} › {namesOf(topics).topic(material.subject, material.topic)}
             </span>
             <div role="group" aria-label="Material actions" className="reader-actions">
               {canEdit && EDITABLE.includes(material.content_type) && !editing && (
@@ -424,14 +432,17 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
           {neighbours.previous && (
             <a
               className="previous"
-              href={href({ page: 'material', courseId, documentId: neighbours.previous.document_id })}
+              href={href({ page: 'material', courseId, documentId: neighbours.previous.material.document_id })}
             >
-              ← Previous: {neighbourLabel(neighbours.previous, material.topic)}
+              ← Previous: {neighbours.previous.name}
             </a>
           )}
           {neighbours.next && (
-            <a className="next" href={href({ page: 'material', courseId, documentId: neighbours.next.document_id })}>
-              Next: {neighbourLabel(neighbours.next, material.topic)} →
+            <a
+              className="next"
+              href={href({ page: 'material', courseId, documentId: neighbours.next.material.document_id })}
+            >
+              Next: {neighbours.next.name} →
             </a>
           )}
         </nav>

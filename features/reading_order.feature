@@ -7,11 +7,12 @@ Feature: Reading a subject in order
   material goes after the topic's other material. (Material uploaded before the order was kept
   goes after the ordered material, by name.)
 
-  Reading a material, the student can go to the next material or the previous one. After a
-  topic's last material comes the first material of the subject's next topic, in the order of
-  its topics (see Courses); topics without material ready to read are passed over. A subject's
-  first material has no previous one, and its last no next one. Only material that is ready can
-  be read, so material still being processed, or that failed to be, is passed over too.
+  Reading a material, the student can go on to the next topic of its subject, or back to the
+  previous one, in the order of the subject's topics (see Courses): each is shown by its name
+  (see The names of subjects and topics), and opens at its first material. Topics without
+  material ready to read are passed over; material still being processed, or that failed to
+  be, can't be read. A subject's first topic has no previous one, and its last no next one.
+  The other material of a topic is on the topic's page.
 
   Background:
     Given I am the student "maria"
@@ -79,38 +80,43 @@ Feature: Reading a subject in order
         | fe-basics.txt   |
       Then the student "tom" is not allowed to do that
 
-  Rule: From a material, the student goes on to the next one, or back to the previous one
+  Rule: From a material, the student goes on to the next topic, or back to the previous one
 
     @platform
-    Scenario: The next material is the next of its topic
+    Scenario: The next topic opens at its first material
       When I open "fe-basics.txt"
-      Then the next material is "fe-assembly.txt" in "numerical-methods/finite-elements"
-      And there is no previous material
+      Then the next topic is "Finite volumes", opening at "fv-basics.txt"
+      And there is no previous topic
 
-    Scenario: After a topic's last material comes the next topic's first, passing over topics without any
+    Scenario: Every material of a topic has the same next and previous topics
       When I open "fe-assembly.txt"
-      Then the previous material is "fe-basics.txt" in "numerical-methods/finite-elements"
-      And the next material is "fv-basics.txt" in "numerical-methods/finite-volumes"
+      Then the next topic is "Finite volumes", opening at "fv-basics.txt"
+      And there is no previous topic
 
-    Scenario: Before a topic's first material comes the previous topic's last
+    Scenario: The previous topic opens at its first material, passing over topics without any
       When I open "fv-basics.txt"
-      Then the previous material is "fe-assembly.txt" in "numerical-methods/finite-elements"
-      And there is no next material
+      Then the previous topic is "Finite elements", opening at "fe-basics.txt"
+      And there is no next topic
 
-    Scenario: The next material follows the order the owners set
+    Scenario: A topic opens at the first material in the order the owners set
       Given I have put the material of "aeronautics/numerical-methods/finite-elements" in the order:
         | filename        |
         | fe-assembly.txt |
         | fe-basics.txt   |
-      When I open "fe-assembly.txt"
-      Then the next material is "fe-basics.txt" in "numerical-methods/finite-elements"
+      When I open "fv-basics.txt"
+      Then the previous topic is "Finite elements", opening at "fe-assembly.txt"
+
+    Scenario: A topic shows by the name it was given
+      Given I have renamed the topic "numerical-methods/finite-volumes" of "aeronautics" to "Finite Volume Methods"
+      When I open "fe-basics.txt"
+      Then the next topic is "Finite Volume Methods", opening at "fv-basics.txt"
 
     Scenario: Material that isn't ready is passed over
       Given I have uploaded a PDF "scan.pdf" of pictures only to "aeronautics/numerical-methods/finite-differences"
-      When I open "fe-assembly.txt"
-      Then the next material is "fv-basics.txt" in "numerical-methods/finite-volumes"
+      When I open "fe-basics.txt"
+      Then the next topic is "Finite volumes", opening at "fv-basics.txt"
 
-    Scenario: The next material stays in the subject
+    Scenario: The next topic stays in the subject
       Given I have uploaded "blasius.txt" to "aeronautics/aerodynamics/boundary-layers"
       When I open "fv-basics.txt"
-      Then there is no next material
+      Then there is no next topic

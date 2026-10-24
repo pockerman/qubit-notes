@@ -14,7 +14,7 @@ Feature: Writing material in the browser
 
   Scenario: Write a material in a topic
     When I open the course "aeronautics"
-    And I write material in the topic "finite-elements"
+    And I write material in the topic "Finite elements"
     And I name it "Shape functions"
     And I type:
       """
@@ -22,14 +22,14 @@ Feature: Writing material in the browser
       Shape functions interpolate the solution inside each element.
       """
     And I save it
-    Then I am on the topic "numerical-methods" › "finite-elements"
+    Then I am on the topic "Numerical methods" › "Finite elements"
     And I see its materials "shape-functions.md"
     When I open "shape-functions.md" to read it
     Then I see the text "Shape functions interpolate the solution inside each element."
 
   Scenario: Preview the material before saving it
     When I open the course "aeronautics"
-    And I write material in the topic "finite-elements"
+    And I write material in the topic "Finite elements"
     And I type:
       """
       The **main** idea, in a table:
@@ -46,7 +46,7 @@ Feature: Writing material in the browser
 
   Scenario: Leaving without saving asks first
     When I open the course "aeronautics"
-    And I write material in the topic "finite-elements"
+    And I write material in the topic "Finite elements"
     And I type:
       """
       Notes I have not saved yet.
@@ -58,5 +58,5 @@ Feature: Writing material in the browser
     Given the student "maria" has shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     Then I am not offered to write material

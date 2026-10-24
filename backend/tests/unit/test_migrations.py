@@ -13,7 +13,7 @@ from alembic import command
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine, insert, inspect, select, text
+from sqlalchemy import MetaData, Table, create_engine, insert, inspect, select, text
 
 from qubit_notes import storage
 
@@ -71,9 +71,15 @@ def test_a_database_made_before_migrations_keeps_its_data(database_url):
     engine = create_engine(database_url)
     # as the app made its tables before there were migrations: all but its own platform's, the conversions and the
     # order of material
-    later = ("platform_", "conversions", "material_order", "app_keys")
-    before = [table for table in storage.metadata.sorted_tables if not table.name.startswith(later)]
-    storage.metadata.create_all(engine, tables=before)
+    later = ("platform_", "conversions", "material_order", "app_keys", "subject_names")
+    # and the columns added to them since
+    added = {"topics": {"name"}}
+    before = MetaData()
+    for table in storage.metadata.sorted_tables:
+        if not table.name.startswith(later):
+            columns = [column._copy() for column in table.columns if column.name not in added.get(table.name, set())]
+            Table(table.name, before, *columns)
+    before.create_all(engine)
     now = datetime.now(UTC)
     note = {
         "id": "n1",

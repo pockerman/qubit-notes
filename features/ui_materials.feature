@@ -14,9 +14,9 @@ Feature: Managing materials and sharing in the browser
   @platform
   Scenario: Upload material to a new course
     Given I am signed in as "maria"
-    When I upload "fe-basics.txt" to the course "aeronautics", subject "numerical-methods", topic "finite-elements"
+    When I upload "fe-basics.txt" to the course "aeronautics", subject "Numerical Methods", topic "Finite Elements"
     Then I see the course "aeronautics" in my courses
-    And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
+    And I see "fe-basics.txt" under "Numerical Methods" › "Finite Elements"
     And I see that "fe-basics.txt" is ready
 
   Scenario: Material is grouped by subject and topic
@@ -27,9 +27,9 @@ Feature: Managing materials and sharing in the browser
       | aeronautics/numerical-methods/finite-differences | fd-schemes.txt |
       | aeronautics/aerodynamics/boundary-layers         | blasius.txt    |
     When I open the course "aeronautics"
-    Then I see the subjects "aerodynamics, numerical-methods"
-    And I see "fd-schemes.txt" under "numerical-methods" › "finite-differences"
-    And I see "blasius.txt" under "aerodynamics" › "boundary-layers"
+    Then I see the subjects "Aerodynamics, Numerical methods"
+    And I see "fd-schemes.txt" under "Numerical methods" › "Finite differences"
+    And I see "blasius.txt" under "Aerodynamics" › "Boundary layers"
 
   Scenario: Delete material
     Given I am signed in as "maria"
@@ -73,11 +73,11 @@ Feature: Managing materials and sharing in the browser
     And I am signed in as "tom"
     When I open the course "aeronautics"
     Then I see that the course is shared with me by "maria" as a reader
-    And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
+    And I see "fe-basics.txt" under "Numerical methods" › "Finite elements"
     But I cannot upload, delete or share in this course
 
-  Scenario: Names are written as lowercase words joined by hyphens
+  Scenario: A course's name is written as lowercase words joined by hyphens; subjects and topics show as typed
     Given I am signed in as "maria"
     When I upload "intro.txt" to the course "Computer Science", subject "Distributed Systems Design", topic "Introduction"
     Then I see the course "computer-science" in my courses
-    And I see "intro.txt" under "distributed-systems-design" › "introduction"
+    And I see "intro.txt" under "Distributed Systems Design" › "Introduction"

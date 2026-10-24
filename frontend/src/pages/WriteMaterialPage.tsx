@@ -4,7 +4,7 @@ import { AddImage } from '../components/AddImage'
 import { AddReference } from '../components/AddReference'
 import { Markdown, type ImageRenderer } from '../components/Markdown'
 import { useImageDrafts } from '../imageDrafts'
-import { slug } from '../names'
+import { namesOf, slug } from '../names'
 import { brokenReferences, leaveNotice } from '../notices'
 import { insertAtCursor, referenceLinks, useReferencesIn } from '../referenceLinks'
 import { href, navigate } from '../router'
@@ -50,9 +50,10 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
   }, [api, courseId])
 
   useEffect(() => {
-    if (!chooseTopic || !course) return
+    if (!course) return
     api.topics(course.name).then(setTopics, (e: Error) => setError(e.message))
-  }, [api, course, chooseTopic])
+  }, [api, course])
+  const names = namesOf(topics)
 
   const back = () => navigate({ page: 'topic', courseId, subject, topic })
   const filename = filenameOf(name)
@@ -115,7 +116,8 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
           ← Back to the topic
         </a>
         <h2 id="write-title">
-          {initial ? 'Material the AI wrote' : 'Write material'} in {subject} › {topic}
+          {initial ? 'Material the AI wrote' : 'Write material'} in {names.subject(subject)} ›{' '}
+          {names.topic(subject, topic)}
         </h2>
       </header>
 
@@ -135,12 +137,12 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
             <select value={savingIn} onChange={(e) => setSavingIn(e.target.value)}>
               {topics.length === 0 && (
                 <option value={`${subject}/${topic}`}>
-                  {subject} › {topic}
+                  {names.subject(subject)} › {names.topic(subject, topic)}
                 </option>
               )}
               {topics.map((t) => (
                 <option key={`${t.subject}/${t.topic}`} value={`${t.subject}/${t.topic}`}>
-                  {t.subject} › {t.topic}
+                  {t.subject_name} › {t.name}
                 </option>
               ))}
             </select>

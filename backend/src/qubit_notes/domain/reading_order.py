@@ -1,5 +1,6 @@
-"""Going on from a material to the next one, or back to the previous one (features/reading_order.feature): through a
-subject's topics in their order, and each topic's material in its order, passing over material not ready to read."""
+"""Going on from a material to the next topic of its subject, or back to the previous one
+(features/reading_order.feature): through the subject's topics in their order, each opening at its first material
+ready to read, passing over topics with none."""
 
 from pydantic import BaseModel
 
@@ -10,9 +11,18 @@ from qubit_notes.domain.topics import Topics
 from qubit_notes.platform.port import IngestStatus
 
 
+class TopicToRead(BaseModel):
+    subject: str
+    topic: str
+    # what it is called
+    name: str
+    # its first material ready to read, where it opens
+    material: Material
+
+
 class Neighbours(BaseModel):
-    previous: Material | None = None
-    next: Material | None = None
+    previous: TopicToRead | None = None
+    next: TopicToRead | None = None
 
 
 class ReadingOrder:
@@ -22,23 +32,35 @@ class ReadingOrder:
         self._materials = materials
 
     def neighbours(self, student: str, course_id: str, document_id: str) -> Neighbours:
-        """the materials before and after this one in its subject"""
+        """the topics before and after this material's in its subject"""
         course = self._courses.get_by_id(student, course_id)
         materials = self._materials.list(student, course.name)
         material = next((m for m in materials if m.document_id == document_id), None)
         if material is None:
             raise NotFound(f"no material {document_id!r} in {course.name!r}")
-        topics = [t.topic for t in self._topics.of_course(course) if t.subject == material.subject]
-        in_order = [
-            m
-            for topic in topics
-            for m in materials
-            if m.subject == material.subject and m.topic == topic and m.status == IngestStatus.COMPLETED
-        ]
-        at = next((i for i, m in enumerate(in_order) if m.document_id == document_id), None)
+        topics = [t for t in self._topics.of_course(course) if t.subject == material.subject]
+        at = next((i for i, t in enumerate(topics) if t.topic == material.topic), None)
         if at is None:
             return Neighbours()
+
+        def to_read(index: int) -> TopicToRead | None:
+            topic = topics[index]
+            # the material is listed in its order
+            first = next(
+                (
+                    m
+                    for m in materials
+                    if (m.subject, m.topic) == (topic.subject, topic.topic) and m.status == IngestStatus.COMPLETED
+                ),
+                None,
+            )
+            if first is None:
+                return None
+            return TopicToRead(subject=topic.subject, topic=topic.topic, name=topic.name, material=first)
+
+        before = (to_read(i) for i in range(at - 1, -1, -1))
+        after = (to_read(i) for i in range(at + 1, len(topics)))
         return Neighbours(
-            previous=in_order[at - 1] if at > 0 else None,
-            next=in_order[at + 1] if at + 1 < len(in_order) else None,
+            previous=next((t for t in before if t), None),
+            next=next((t for t in after if t), None),
         )

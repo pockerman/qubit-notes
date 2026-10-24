@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Course, Material, Mention, StudyApi } from '../api'
+import type { Course, Material, Mention, StudyApi, Topic } from '../api'
 import { Assistant } from '../components/Assistant'
+import { namesOf } from '../names'
 import { takeNotice } from '../notices'
 import { href } from '../router'
 import { STATUS_LABEL } from '../status'
@@ -12,6 +13,8 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
   const [course, setCourse] = useState<Course | null | undefined>(undefined)
   const [materials, setMaterials] = useState<Material[]>([])
   const [mentions, setMentions] = useState<Mention[]>([])
+  // the course's topics, for what they're called
+  const [topics, setTopics] = useState<Topic[]>([])
   const [assistant, setAssistant] = useState(false)
   // e.g. that the material just saved has broken references
   const [notice] = useState(takeNotice)
@@ -26,10 +29,11 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
 
   const load = useCallback(() => {
     if (!course) return
-    Promise.all([api.materials(course.name), api.mentions(course.name)]).then(
-      ([all, mentioned]) => {
+    Promise.all([api.materials(course.name), api.mentions(course.name), api.topics(course.name)]).then(
+      ([all, mentioned, of]) => {
         setMaterials(all.filter((m) => m.subject === subject && m.topic === topic))
         setMentions(mentioned.find((t) => t.subject === subject && t.topic === topic)?.mentioned_in ?? [])
+        setTopics(of)
       },
       (e: Error) => setError(e.message),
     )
@@ -75,6 +79,8 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
     )
   }
   const isOwner = course.role === 'owner'
+  const names = namesOf(topics)
+  const [subjectName, name] = [names.subject(subject), names.topic(subject, topic)]
   const ready = materials.some((m) => m.kind === 'text' && m.status === 'completed')
 
   return (
@@ -84,7 +90,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
           ← Back to {course.name}
         </a>
         <h2 id="topic-title">
-          {subject} › {topic}
+          {subjectName} › {name}
         </h2>
         <div className="actions page-actions">
           {isOwner && (
@@ -92,14 +98,14 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
               <a
                 className="button"
                 href={href({ page: 'add', courseId, subject, topic })}
-                aria-label={`Add material to ${topic}`}
+                aria-label={`Add material to ${name}`}
               >
                 Add material
               </a>
               <a
                 className="link"
                 href={href({ page: 'write', courseId, subject, topic })}
-                aria-label={`Write material in ${topic}`}
+                aria-label={`Write material in ${name}`}
               >
                 Write material
               </a>
@@ -107,7 +113,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
                 <a
                   className="link"
                   href={href({ page: 'generate', courseId, subject, topic })}
-                  aria-label={`Generate material in ${topic}`}
+                  aria-label={`Generate material in ${name}`}
                 >
                   Generate material
                 </a>
@@ -197,14 +203,18 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
           )}
 
           {mentions.length > 0 && (
-            <p className="mentions note" aria-label={`Mentions of ${topic}`}>
+            <p className="mentions note" aria-label={`Mentions of ${name}`}>
               Mentioned in{' '}
               {mentions.map((mention, i) => (
                 <span key={mention.document_id}>
                   {i > 0 && ', '}
                   <a href={href({ page: 'material', courseId, documentId: mention.document_id })}>{mention.material}</a>
                   {(mention.subject !== subject || mention.topic !== topic) &&
-                    ` (${mention.subject === subject ? mention.topic : `${mention.subject} › ${mention.topic}`})`}
+                    ` (${
+                      mention.subject === subject
+                        ? names.topic(mention.subject, mention.topic)
+                        : `${names.subject(mention.subject)} › ${names.topic(mention.subject, mention.topic)}`
+                    })`}
                 </span>
               ))}
             </p>
@@ -216,7 +226,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
             key={`${courseId}/${subject}/${topic}`}
             api={api}
             where={{ course_id: courseId, subject, topic }}
-            label={`${subject} › ${topic}`}
+            label={`${subjectName} › ${name}`}
             onClose={() => setAssistant(false)}
           />
         )}

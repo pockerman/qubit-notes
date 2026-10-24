@@ -51,7 +51,15 @@ def open_topic_of(page: Page, students, filename: str) -> None:
     if " › " in _page_title(page):
         return
     material = students.find_material(filename)
-    open_topic_page(page, material["subject"], material["topic"])
+    open_topic_page(page, *_names(students, material["course"], material["subject"], material["topic"]))
+
+
+def _names(students, course: str, subject: str, topic: str) -> tuple[str, str]:
+    """what a subject and topic are called, by their ids, as the app shows them"""
+    response = students.client.get(f"/api/courses/{course}/topics", headers=students.headers())
+    assert response.status_code == 200, response.text
+    named = next(t for t in response.json() if (t["subject"], t["topic"]) == (subject, topic))
+    return named["subject_name"], named["name"]
 
 
 def slug(name: str) -> str:
@@ -580,7 +588,7 @@ def topic_without_material(page, subject, topic):
     expect(_topic(page, subject, topic).get_by_label(f"Status of {topic}")).to_have_text("no material")
 
 
-@when(parsers.parse('I create the topic "{topic}" in the subject "{subject}"'))
+@when(parsers.re(r'I create the topic "(?P<topic>[^"]+)" in the subject "(?P<subject>[^"]+)"$'))
 def create_topic_in_browser(page, topic, subject):
     page.get_by_role("button", name="New topic").click()
     form = page.get_by_role("form", name="New topic")
@@ -597,6 +605,30 @@ def add_topic_to_subject(page, topic, subject):
     expect(form.get_by_label("Subject")).to_have_count(0)
     form.get_by_label("Topic").fill(topic)
     form.get_by_role("button", name="Create topic").click()
+
+
+def _rename(page, name: str, new_name: str, cancel: bool = False) -> None:
+    page.get_by_role("button", name=f"Rename {name}", exact=True).click()
+    form = page.get_by_role("form", name=f"Rename {name}")
+    form.get_by_label("Name").fill(new_name)
+    form.get_by_role("button", name="Cancel" if cancel else "Rename").click()
+    expect(form).to_have_count(0)
+
+
+@when(parsers.re(r'I rename the (?:topic|subject) "(?P<name>[^"]+)" to "(?P<new_name>[^"]+)"$'))
+def rename_in_browser(page, name, new_name):
+    _rename(page, name, new_name)
+
+
+@when(parsers.re(r'I start renaming the topic "(?P<name>[^"]+)" to "(?P<new_name>[^"]+)", but cancel$'))
+def rename_cancelled(page, name, new_name):
+    _rename(page, name, new_name, cancel=True)
+
+
+@then("I am not offered to rename subjects or topics")
+def not_offered_to_rename(page):
+    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
+    expect(page.get_by_role("button", name=re.compile("^Rename "))).to_have_count(0)
 
 
 @then("I am not offered to create a topic")
@@ -885,8 +917,8 @@ def not_on_course_page(page, first, second):
         expect(page.get_by_role("main").get_by_text(filename)).to_have_count(0)
 
 
-@then(parsers.parse('each topic offers only "{up}", "{down}" and "{remove}"'))
-def topic_actions(page, up, down, remove):
+@then(parsers.parse('each topic offers only "{up}", "{down}", "{rename}" and "{remove}"'))
+def topic_actions(page, up, down, rename, remove):
     topics = page.get_by_role("main").locator("section.topic")
     expect(topics.first).to_be_visible()
     for i in range(topics.count()):
@@ -894,9 +926,9 @@ def topic_actions(page, up, down, remove):
         name = topic.get_by_role("heading", level=4).inner_text()
         # the topic's name is its one link, which opens its page
         expect(topic.get_by_role("link")).to_have_text([name])
-        # each button is labelled with what it does to the topic, e.g. "Move finite-elements up"
+        # each button is labelled with what it does to the topic, e.g. "Move Finite elements up"
         labels = [button.get_attribute("aria-label") or "" for button in topic.get_by_role("button").all()]
-        assert [label.replace(f" {name}", "") for label in labels] == [up, down, remove], labels
+        assert [label.replace(f" {name}", "") for label in labels] == [up, down, rename, remove], labels
 
 
 @then("the topics show the statuses:")
@@ -966,23 +998,25 @@ def _reading_order(page):
     return page.get_by_role("navigation", name="Reading order")
 
 
-@when(parsers.re(r"I go to the (?P<which>next|previous) material"))
-def go_to_neighbour(page, which):
+def _neighbour(page, which: str):
     # "← Previous: …" or "Next: … →"
-    _reading_order(page).get_by_role("link", name=re.compile(f"^(← )?{which.capitalize()}:")).click()
+    return _reading_order(page).get_by_role("link", name=re.compile(f"^(← )?{which.capitalize()}:"))
 
 
-@then(parsers.parse('the next material is shown as "{filename}", in "{topic}"'))
-def next_shown_as(page, filename, topic):
-    expect(_reading_order(page).get_by_role("link", name=re.compile("^Next"))).to_have_text(
-        f"Next: {filename}, in {topic} →"
-    )
+@when(parsers.re(r"I go to the (?P<which>next|previous) topic$"))
+def go_to_neighbour(page, which):
+    _neighbour(page, which).click()
 
 
-@then("I am not offered a next material")
-def no_next_material(page):
-    expect(_reading_order(page).get_by_role("link", name=re.compile("^← Previous:"))).to_be_visible()
-    expect(_reading_order(page).get_by_role("link", name=re.compile("^Next"))).to_have_count(0)
+@then(parsers.re(r'the (?P<which>next|previous) topic is shown as "(?P<name>[^"]+)"$'))
+def neighbour_shown_as(page, which, name):
+    expect(_neighbour(page, which)).to_have_text(f"Next: {name} →" if which == "next" else f"← Previous: {name}")
+
+
+@then(parsers.re(r"I am not offered a (?P<which>next|previous) topic$"))
+def no_neighbour_offered(page, which):
+    expect(_reading_order(page)).to_be_visible()
+    expect(_neighbour(page, which)).to_have_count(0)
 
 
 # generating

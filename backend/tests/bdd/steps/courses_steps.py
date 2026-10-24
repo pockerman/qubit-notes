@@ -61,14 +61,14 @@ def invalid_name(context):
     assert "invalid course name" in response.json()["detail"]
 
 
-@when(parsers.parse('I create the topic "{location}" in "{course}"'))
-@given(parsers.parse('I have created the topic "{location}" in "{course}"'))
+@when(parsers.re(r'I create the topic "(?P<location>[^"]+)" in "(?P<course>[^"]+)"$'))
+@given(parsers.re(r'I have created the topic "(?P<location>[^"]+)" in "(?P<course>[^"]+)"$'))
 def create_topic(students, context, location, course):
     context["response"] = _create_topic(students, location, course)
     assert context["response"].status_code == 201, context["response"].text
 
 
-@when(parsers.parse('the student "{name}" creates the topic "{location}" in "{course}"'))
+@when(parsers.re(r'the student "(?P<name>[^"]+)" creates the topic "(?P<location>[^"]+)" in "(?P<course>[^"]+)"$'))
 def student_creates_topic(students, context, name, location, course):
     context["response"] = _create_topic(students, location, course, name=name)
 

@@ -27,7 +27,7 @@ Feature: Courses in the browser
     And I have created the course "aeronautics"
     When I open the course "aeronautics"
     And I add "fe-basics.txt" to the subject "Numerical Methods", topic "Finite Elements"
-    Then I am on the topic "numerical-methods" › "finite-elements"
+    Then I am on the topic "Numerical Methods" › "Finite Elements"
     And I see its materials "fe-basics.txt"
 
   Scenario: Edit a material in the reader
@@ -50,7 +50,7 @@ Feature: Courses in the browser
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I add "fe-meshing.txt" to this topic
     Then I see its materials "fe-basics.txt, fe-meshing.txt"
 
@@ -58,26 +58,26 @@ Feature: Courses in the browser
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I delete "fe-basics.txt"
     Then I no longer see "fe-basics.txt"
     When I go back to the course
-    Then I still see the topic "numerical-methods" › "finite-elements", with no material
+    Then I still see the topic "Numerical methods" › "Finite elements", with no material
 
   Scenario: Create a topic in the browser
     Given I am signed in as "maria"
     And I have created the course "computer-science"
     When I open the course "computer-science"
     And I create the topic "Introduction" in the subject "Distributed Systems"
-    Then I still see the topic "distributed-systems" › "introduction", with no material
+    Then I still see the topic "Distributed Systems" › "Introduction", with no material
 
   Scenario: Add a topic to a subject the course already has
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
-    And I add the topic "Finite Volumes" to the subject "numerical-methods"
-    Then I still see the topic "numerical-methods" › "finite-volumes", with no material
-    And I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
+    And I add the topic "Finite Volumes" to the subject "Numerical methods"
+    Then I still see the topic "Numerical methods" › "Finite Volumes", with no material
+    And I see "fe-basics.txt" under "Numerical methods" › "Finite elements"
 
   Scenario: Move a topic up or down
     Given I am signed in as "maria"
@@ -86,10 +86,10 @@ Feature: Courses in the browser
     And I have created the topic "distributed-systems/consensus" in "computer-science"
     And I have created the topic "distributed-systems/replication" in "computer-science"
     When I open the course "computer-science"
-    And I move the topic "replication" up
-    Then the topics of "distributed-systems" are shown in the order "introduction, replication, consensus"
-    When I move the topic "introduction" down
-    Then the topics of "distributed-systems" are shown in the order "replication, introduction, consensus"
+    And I move the topic "Replication" up
+    Then the topics of "Distributed systems" are shown in the order "Introduction, Replication, Consensus"
+    When I move the topic "Introduction" down
+    Then the topics of "Distributed systems" are shown in the order "Replication, Introduction, Consensus"
     And they are still in that order when I open the course again
 
   Scenario: A reader of a shared course is not offered to reorder topics
@@ -99,6 +99,7 @@ Feature: Courses in the browser
     And I am signed in as "tom"
     When I open the course "aeronautics"
     Then I am not offered to move topics
+    And I am not offered to rename subjects or topics
 
   Scenario: Delete a course
     Given I am signed in as "maria"
@@ -114,7 +115,7 @@ Feature: Courses in the browser
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
     And I delete the course, but cancel
-    Then I see "fe-basics.txt" under "numerical-methods" › "finite-elements"
+    Then I see "fe-basics.txt" under "Numerical methods" › "Finite elements"
 
   Scenario: Only the creator is offered to delete a course
     Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
@@ -129,3 +130,26 @@ Feature: Courses in the browser
     And I am signed in as "tom"
     When I open the course "aeronautics"
     Then I am not offered to create a topic
+
+  Scenario: Rename a topic
+    Given I am signed in as "maria"
+    And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    When I open the course "aeronautics"
+    And I rename the topic "Finite elements" to "The Finite Element Method"
+    Then I see "fe-basics.txt" under "Numerical methods" › "The Finite Element Method"
+    When I open the topic "The Finite Element Method"
+    Then I am on the topic "Numerical methods" › "The Finite Element Method"
+
+  Scenario: Rename a subject
+    Given I am signed in as "maria"
+    And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    When I open the course "aeronautics"
+    And I rename the subject "Numerical methods" to "Numerical Methods for PDEs"
+    Then I see "fe-basics.txt" under "Numerical Methods for PDEs" › "Finite elements"
+
+  Scenario: Cancel renaming
+    Given I am signed in as "maria"
+    And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    When I open the course "aeronautics"
+    And I start renaming the topic "Finite elements" to "Something else", but cancel
+    Then I see "fe-basics.txt" under "Numerical methods" › "Finite elements"

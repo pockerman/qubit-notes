@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import type { Course, Generated, GeneratedKind, Material, StudyApi } from '../api'
+import type { Course, Generated, GeneratedKind, Material, StudyApi, Topic } from '../api'
 import { MaterialsMenu } from '../components/MaterialsMenu'
+import { namesOf } from '../names'
 import { href, navigate } from '../router'
 import { WriteMaterialPage } from './WriteMaterialPage'
 
@@ -22,6 +23,8 @@ type Props = {
  * save. */
 export function GeneratePage({ api, courseId, subject, topic }: Props) {
   const [materials, setMaterials] = useState<Material[]>([])
+  // the course's topics, for what they're called
+  const [topics, setTopics] = useState<Topic[]>([])
   // the materials ticked to generate from, by document id
   const [ticked, setTicked] = useState<string[]>([])
   const [kind, setKind] = useState<GeneratedKind | ''>('revision notes')
@@ -36,10 +39,13 @@ export function GeneratePage({ api, courseId, subject, topic }: Props) {
       .then((courses) => {
         const course: Course | undefined = courses.find((c) => c.id === courseId)
         if (!course) throw new Error('There is no such course')
-        return api.materials(course.name)
+        return Promise.all([api.materials(course.name), api.topics(course.name)])
       })
       .then(
-        (all) => setMaterials(all.filter((m) => m.subject === subject && m.topic === topic)),
+        ([all, of]) => {
+          setMaterials(all.filter((m) => m.subject === subject && m.topic === topic))
+          setTopics(of)
+        },
         (e: Error) => setError(e.message),
       )
   }, [api, courseId, subject, topic])
@@ -76,7 +82,7 @@ export function GeneratePage({ api, courseId, subject, topic }: Props) {
           ← Back to the topic
         </a>
         <h2 id="generate-title">
-          Generate material from {subject} › {topic}
+          Generate material from {namesOf(topics).subject(subject)} › {namesOf(topics).topic(subject, topic)}
         </h2>
       </header>
 

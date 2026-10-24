@@ -12,9 +12,18 @@ type Props = {
   topic?: string
   // called once the upload is accepted, with where it went; it's processed after
   onUploaded: (upload: Upload, where: { subject: string; topic: string; filename: string }) => void
+  // what the topic given is called, e.g. "Numerical methods › Finite elements": it is uploaded there, not asked
+  topicName?: string
 }
 
-export function UploadForm({ api, course, subject: initialSubject = '', topic: initialTopic = '', onUploaded }: Props) {
+export function UploadForm({
+  api,
+  course,
+  subject: initialSubject = '',
+  topic: initialTopic = '',
+  onUploaded,
+  topicName,
+}: Props) {
   const [subject, setSubject] = useState(initialSubject)
   const [topic, setTopic] = useState(initialTopic)
   const [file, setFile] = useState<File | null>(null)
@@ -39,6 +48,10 @@ export function UploadForm({ api, course, subject: initialSubject = '', topic: i
     setMessage({ text: `Uploading ${file.name}…` })
     try {
       const upload = await api.upload(`${course}/${names.join('/')}`, file)
+      if (subject !== initialSubject || topic !== initialTopic) {
+        // a topic the student named, which the upload made: shown by the names typed, unless it had names already
+        await api.createTopic(course, names[0], names[1], subject.trim(), topic.trim())
+      }
       const failed: string[] = []
       for (const image of markdown ? images : []) {
         setMessage({ text: `Adding ${image.name}…` })
@@ -63,14 +76,25 @@ export function UploadForm({ api, course, subject: initialSubject = '', topic: i
 
   return (
     <form className="upload" onSubmit={submit} aria-label={`Upload to ${course}`}>
-      <label>
-        Subject
-        <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Numerical methods" required />
-      </label>
-      <label>
-        Topic
-        <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Finite elements" required />
-      </label>
+      {topicName ? (
+        <p className="note">To {topicName}</p>
+      ) : (
+        <>
+          <label>
+            Subject
+            <input
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Numerical methods"
+              required
+            />
+          </label>
+          <label>
+            Topic
+            <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Finite elements" required />
+          </label>
+        </>
+      )}
       <label>
         File
         <input
