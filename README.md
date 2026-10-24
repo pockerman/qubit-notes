@@ -105,6 +105,22 @@ Nothing about references is stored: they are read from the materials when asked 
 (`backend/src/qubit_notes/domain/references.py`), so they are never out of date, at the cost of a topic's page
 reading every Markdown material of the course to find the mentions.
 
+## Reading in order
+
+Each topic's material is in the order its owners set (`features/reading_order.feature`), with ↑ ↓ on the topic's
+page; new material goes last. The reader links to the previous and the next material, through the subject's topics in
+their order, passing over material that isn't ready. The order is kept in the app's database (`material_order`,
+`backend/src/qubit_notes/domain/material_order.py`).
+
+## Generating material with the AI
+
+On a topic's page, owners tick materials and choose **Generate material** (`features/generating.feature`,
+`backend/src/qubit_notes/domain/generating.py`): revision notes, a cheat sheet, combined notes or worked examples,
+their own instructions, or both. The AI writes Markdown from the ticked materials alone, citing the sections it drew
+on by labels the app turns into references (see [References between topics](#references-between-topics)), so they're
+links and the sources mention the new material. It opens in the editor, unsaved, to be edited and saved in any topic.
+At most 60,000 characters of material are generated from at once.
+
 ## The app's own platform
 
 By default (`QUBIT_NOTES_PLATFORM=standalone`) the app is its own platform (`features/standalone.feature`):

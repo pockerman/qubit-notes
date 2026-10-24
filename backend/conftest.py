@@ -26,6 +26,8 @@ pytest_plugins = [
     "tests.bdd.steps.standalone_steps",
     "tests.bdd.steps.converting_steps",
     "tests.bdd.steps.references_steps",
+    "tests.bdd.steps.reading_order_steps",
+    "tests.bdd.steps.generating_steps",
     "tests.bdd.steps.ui_steps",
 ]
 

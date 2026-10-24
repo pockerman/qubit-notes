@@ -24,12 +24,17 @@ class FakeAI:
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
     ) -> str:
-        """A deterministic stand-in: each answer is numbered, so no two are alike. A quiz has the questions the
+        """A deterministic stand-in: each answer is numbered, so no two are alike. New material has a line from each
+        labelled part of the material it is written from, citing it. A quiz has the questions the
         prompt asks for, each from one of the sections the prompt gives, in turn, with the first choice correct.
         The assistant understands a request by its words (see ``_understand``)."""
         self.completions.append(prompt)
         self.histories.append(list(history or []))
         number = len(self.completions)
+        if json_schema is None and (labelled := re.findall(r"^\[(S\d+)\] (.+)$", prompt, re.MULTILINE)):
+            # new material: a line from each part of the material, citing it by its label
+            lines = [f"- From {heading} [{label}]." for label, heading in labelled]
+            return "\n".join([f"# Generated {number}", "", *lines])
         if json_schema is None:
             titles = re.findall(r"^## (.+)$", prompt, re.MULTILINE)
             return f"Summary {number} of {', '.join(titles) or 'the summaries'}."

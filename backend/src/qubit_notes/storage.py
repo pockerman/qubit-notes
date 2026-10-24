@@ -60,6 +60,17 @@ topic_order = Table(
     Column("position", Integer, nullable=False),
 )
 
+# the order a topic's material is meant to be read in, by its owners; a material is added last when uploaded
+material_order = Table(
+    "material_order",
+    metadata,
+    Column("course_id", String, primary_key=True),
+    Column("document_id", String, primary_key=True),
+    Column("subject", String, nullable=False),
+    Column("topic", String, nullable=False),
+    Column("position", Integer, nullable=False),
+)
+
 notes = Table(
     "notes",
     metadata,

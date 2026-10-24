@@ -62,3 +62,19 @@ Feature: Reading material in the browser
     And "Load balancing" links to "https://example.org/load-balancing"
     And "main" is in bold
     And "ip addr show" is shown as code
+
+  Scenario: Go on to the next material, into the next topic, and back
+    Given I am signed in as "maria"
+    And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
+    And I have uploaded "fe-assembly.txt" to "aeronautics/numerical-methods/finite-elements"
+    And I have uploaded "fv-basics.txt" to "aeronautics/numerical-methods/finite-volumes"
+    When I open the course "aeronautics"
+    And I open "fe-basics.txt" to read it
+    And I go to the next material
+    Then I am reading "fe-assembly.txt"
+    And the next material is shown as "fv-basics.txt", in "finite-volumes"
+    When I go to the next material
+    Then I am reading "fv-basics.txt"
+    And I am not offered a next material
+    When I go to the previous material
+    Then I am reading "fe-assembly.txt"

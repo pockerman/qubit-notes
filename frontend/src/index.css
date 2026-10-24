@@ -629,6 +629,18 @@ label.inline input {
   gap: 1rem;
 }
 
+/* the previous and the next material, above the text */
+.reading-order {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.5rem 0;
+}
+
+.reading-order .next {
+  margin-left: auto;
+}
+
 /* a subject's topics on the course page, one a line: name, status, and the owners' actions */
 .topics {
   list-style: none;

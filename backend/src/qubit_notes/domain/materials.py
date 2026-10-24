@@ -10,6 +10,7 @@ from qubit_notes.domain.conversions import JOB_PREFIX, Conversions, converted_fr
 from qubit_notes.domain.courses import Course, Courses, Location
 from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound, TooLarge
 from qubit_notes.domain.images import is_image
+from qubit_notes.domain.material_order import MaterialOrder
 from qubit_notes.domain.memory import StudentMemory
 from qubit_notes.domain.references import References
 from qubit_notes.domain.videos import VIDEO_TYPES, duration_seconds
@@ -70,11 +71,13 @@ class Materials:
         max_upload_mb: float,
         conversions: Conversions,
         references: References,
+        order: MaterialOrder,
     ):
         self._platform = platform
         self._courses = courses
         self._conversions = conversions
         self._references = references
+        self._order = order
         self._memory = memory
         self.max_upload_mb = max_upload_mb
         # what else is forgotten with a material, e.g. its notes; each is called with its document id
@@ -119,6 +122,8 @@ class Materials:
             )
         for keep in self._on_upload:
             keep(course.id, where.subject, where.topic)
+        # new material goes after the topic's other material
+        self._order.append(course.id, where.subject, where.topic, job.document_id)
         return Upload(
             job_id=job.job_id,
             document_id=job.document_id,
@@ -174,7 +179,29 @@ class Materials:
             # materials of their own
             if not is_image(document) and not is_original(document)
         ]
-        return sorted(materials, key=lambda m: (m.subject, m.topic, m.filename))
+        # each topic's material in the order it's meant to be read; material without a place in it after, by name
+        positions = self._order.positions(found.id)
+
+        def place(m: Material):
+            position = positions.get(m.document_id)
+            return (m.subject, m.topic, position is None, position or 0, m.filename)
+
+        return sorted(materials, key=place)
+
+    def order(self, student: str, location: str, filenames: list[str]) -> list[Material]:
+        """puts the topic's material in the order it's meant to be read; returns it in that order"""
+        where = Location.parse(location)
+        course = self._courses.get(student, where.course)
+        self._courses.require_owner(student, course)
+        current = self.list(student, where.course, where.subject, where.topic)
+        if len(filenames) != len(current) or set(filenames) != {m.filename for m in current}:
+            topic = f"{where.subject}/{where.topic}"
+            raise InvalidRequest(
+                f"the order must have each of the materials of {topic!r} once: {', '.join(m.filename for m in current)}"
+            )
+        by_name = {m.filename: m.document_id for m in current}
+        self._order.set(course.id, where.subject, where.topic, [by_name[filename] for filename in filenames])
+        return self.list(student, where.course, where.subject, where.topic)
 
     def text(self, student: str, course_id: str, document_id: str) -> str:
         """the text of a Markdown or text material, to edit"""

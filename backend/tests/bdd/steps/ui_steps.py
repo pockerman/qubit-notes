@@ -931,9 +931,106 @@ def not_offered_to_move_or_delete(page):
     expect(page.get_by_role("main").get_by_role("button", name=re.compile(r"^(Move|Delete) "))).to_have_count(0)
 
 
-@then("I am not offered to add, write or delete material")
+@then("I am not offered to add, write, move or delete material")
 def not_offered_to_change_topic(page):
     expect(page.get_by_role("list", name="Materials")).to_be_visible()
     main = page.get_by_role("main")
     expect(main.get_by_role("link", name=re.compile("^(Add|Write) material"))).to_have_count(0)
-    expect(main.get_by_role("button", name=re.compile("^Delete "))).to_have_count(0)
+    expect(main.get_by_role("button", name=re.compile("^(Delete|Move) "))).to_have_count(0)
+
+
+# the order of a topic's material, and reading on
+
+
+@when(parsers.parse('I move the material "{filename}" {direction}'))
+def move_material(page, context, filename, direction):
+    page.get_by_role("button", name=f"Move {filename} {direction}").click()
+
+
+@then("they are still in that order when I open the topic again")
+def materials_still_in_order(page):
+    materials = page.get_by_role("list", name="Materials").locator(".filename")
+    expect(materials.first).to_be_visible()
+    order = materials.all_inner_texts()
+    page.reload()
+    expect(page.get_by_role("list", name="Materials").locator(".filename")).to_have_text(order)
+
+
+def _reading_order(page):
+    return page.get_by_role("navigation", name="Reading order")
+
+
+@when(parsers.re(r"I go to the (?P<which>next|previous) material"))
+def go_to_neighbour(page, which):
+    # "← Previous: …" or "Next: … →"
+    _reading_order(page).get_by_role("link", name=re.compile(f"^(← )?{which.capitalize()}:")).click()
+
+
+@then(parsers.parse('the next material is shown as "{filename}", in "{topic}"'))
+def next_shown_as(page, filename, topic):
+    expect(_reading_order(page).get_by_role("link", name=re.compile("^Next"))).to_have_text(
+        f"Next: {filename}, in {topic} →"
+    )
+
+
+@then("I am not offered a next material")
+def no_next_material(page):
+    expect(_reading_order(page).get_by_role("link", name=re.compile("^← Previous:"))).to_be_visible()
+    expect(_reading_order(page).get_by_role("link", name=re.compile("^Next"))).to_have_count(0)
+
+
+# generating
+
+
+@when(parsers.re(r'I tick "(?P<first>[^"]+)"(?: and "(?P<second>[^"]+)")?$'))
+def tick(page, first, second):
+    for filename in (first, second):
+        if filename:
+            page.get_by_role("checkbox", name=f"Tick {filename}").check()
+
+
+@when(parsers.re(r'I generate "(?P<kind>[^"]+)" from them(?:, with the instructions "(?P<instructions>[^"]*)")?$'))
+def generate_in_browser(page, kind, instructions):
+    page.get_by_role("button", name="Generate material").click()
+    form = page.get_by_role("form", name="Generate material")
+    form.get_by_label("Kind").select_option(label=kind)
+    if instructions:
+        form.get_by_role("textbox", name="Instructions").fill(instructions)
+    form.get_by_role("button", name="Generate").click()
+    expect(page.get_by_role("form", name="Write material")).to_be_visible(timeout=120_000)
+
+
+@then(parsers.parse('the editor has the name "{name}"'))
+def editor_named(page, name):
+    expect(page.get_by_role("form", name="Write material").get_by_label("Name")).to_have_value(name)
+
+
+@when(parsers.parse('I choose to save it in "{subject}" › "{topic}"'))
+def choose_topic_to_save_in(page, subject, topic):
+    page.get_by_role("form", name="Write material").get_by_label("Save in").select_option(label=f"{subject} › {topic}")
+
+
+@when("I cancel, and choose to discard it")
+def cancel_and_discard(page):
+    page.get_by_role("form", name="Write material").get_by_role("button", name="Cancel").click()
+    page.get_by_role("alertdialog", name="Leave without saving").get_by_role("button", name="Discard").click()
+
+
+@then("I cannot generate material until I tick one")
+def generate_needs_a_tick(page):
+    generate = page.get_by_role("button", name="Generate material")
+    expect(generate).to_be_disabled()
+    page.get_by_role("checkbox", name=re.compile("^Tick ")).first.check()
+    expect(generate).to_be_enabled()
+
+
+@then(parsers.parse('I cannot tick "{filename}"'))
+def cannot_tick(page, filename):
+    expect(page.get_by_role("checkbox", name=f"Tick {filename}")).to_be_disabled()
+
+
+@then("I am not offered to generate material")
+def not_offered_to_generate(page):
+    expect(page.get_by_role("list", name="Materials")).to_be_visible()
+    expect(page.get_by_role("button", name="Generate material")).to_have_count(0)
+    expect(page.get_by_role("checkbox")).to_have_count(0)

@@ -4,14 +4,16 @@ from fastapi import APIRouter, Depends, Form, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
-from qubit_notes.api.deps import Student, materials, topics
+from qubit_notes.api.deps import Student, materials, reading_order, topics
 from qubit_notes.domain.materials import Material, Materials, Upload
+from qubit_notes.domain.reading_order import Neighbours, ReadingOrder
 from qubit_notes.domain.topics import Topic, Topics
 from qubit_notes.platform.port import IngestJob
 
 router = APIRouter(tags=["materials"])
 MaterialsDep = Annotated[Materials, Depends(materials)]
 TopicsDep = Annotated[Topics, Depends(topics)]
+ReadingOrderDep = Annotated[ReadingOrder, Depends(reading_order)]
 
 
 class NewTopic(BaseModel):
@@ -21,6 +23,11 @@ class NewTopic(BaseModel):
 
 class TopicOrder(BaseModel):
     topics: list[str]
+
+
+class MaterialOrder(BaseModel):
+    # the topic's materials by filename
+    materials: list[str]
 
 
 class Text(BaseModel):
@@ -80,6 +87,20 @@ async def create_topic(course: str, body: NewTopic, student: Student, service: T
 async def delete_topic(course: str, subject: str, topic: str, student: Student, service: TopicsDep) -> None:
     """deletes the topic with all of its material"""
     await run_in_threadpool(service.delete, student, course, subject, topic)
+
+
+@router.put("/courses/{course}/subjects/{subject}/topics/{topic}/material-order", response_model=list[Material])
+async def order_materials(
+    course: str, subject: str, topic: str, body: MaterialOrder, student: Student, service: MaterialsDep
+) -> list[Material]:
+    """puts the topic's material in the order it's meant to be read"""
+    return await run_in_threadpool(service.order, student, f"{course}/{subject}/{topic}", body.materials)
+
+
+@router.get("/courses/{course_id}/materials/{document_id}/neighbours", response_model=Neighbours)
+async def neighbours(course_id: str, document_id: str, student: Student, service: ReadingOrderDep) -> Neighbours:
+    """the materials before and after this one in its subject, to read on"""
+    return await run_in_threadpool(service.neighbours, student, course_id, document_id)
 
 
 @router.put("/courses/{course}/subjects/{subject}/topic-order", response_model=list[Topic])

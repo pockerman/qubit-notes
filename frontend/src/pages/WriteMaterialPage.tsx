@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import type { Course, StudyApi } from '../api'
+import type { Course, StudyApi, Topic } from '../api'
 import { AddImage } from '../components/AddImage'
 import { AddReference } from '../components/AddReference'
 import { Markdown, type ImageRenderer } from '../components/Markdown'
@@ -14,6 +14,10 @@ type Props = {
   courseId: string
   subject: string
   topic: string
+  // what to start from, e.g. material the AI wrote; empty if not given
+  initial?: { name: string; text: string }
+  // whether the student chooses the topic to save it in; else it's saved in `subject` › `topic`
+  chooseTopic?: boolean
 }
 
 // the filename a name is saved under, as the backend makes it: "Shape functions" is "shape-functions.md"
@@ -23,10 +27,13 @@ function filenameOf(name: string): string {
 }
 
 /** Writes a Markdown material in a topic: typed or pasted, previewed formatted, then saved and processed. */
-export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
+export function WriteMaterialPage({ api, courseId, subject, topic, initial, chooseTopic = false }: Props) {
   const [course, setCourse] = useState<Course | null>(null)
-  const [name, setName] = useState('')
-  const [text, setText] = useState('')
+  const [name, setName] = useState(initial?.name ?? '')
+  const [text, setText] = useState(initial?.text ?? '')
+  // the topics it can be saved in, and the one chosen, as "subject/topic"
+  const [topics, setTopics] = useState<Topic[]>([])
+  const [savingIn, setSavingIn] = useState(`${subject}/${topic}`)
   const [tab, setTab] = useState<'write' | 'preview'>('write')
   const [leaving, setLeaving] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -41,6 +48,11 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
       (e: Error) => setError(e.message),
     )
   }, [api, courseId])
+
+  useEffect(() => {
+    if (!chooseTopic || !course) return
+    api.topics(course.name).then(setTopics, (e: Error) => setError(e.message))
+  }, [api, course, chooseTopic])
 
   const back = () => navigate({ page: 'topic', courseId, subject, topic })
   const filename = filenameOf(name)
@@ -74,7 +86,8 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
     setSaving(true)
     setError(null)
     try {
-      const upload = await api.writeMaterial(course.name, subject, topic, name, text)
+      const [inSubject, inTopic] = savingIn.split('/')
+      const upload = await api.writeMaterial(course.name, inSubject, inTopic, name, text)
       const failed = await images.keepWith(api, upload.course_id, upload.document_id, text)
       if (failed.length) {
         setError(`${filename} was saved, but not all its images: ${failed.join('; ')}`)
@@ -83,7 +96,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
       }
       const broken = brokenReferences(filename, upload.broken_references)
       if (broken) leaveNotice(broken)
-      back()
+      navigate({ page: 'topic', courseId, subject: inSubject, topic: inTopic })
     } catch (e) {
       setError((e as Error).message)
       setSaving(false)
@@ -102,7 +115,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
           ← Back to the topic
         </a>
         <h2 id="write-title">
-          Write material in {subject} › {topic}
+          {initial ? 'Material the AI wrote' : 'Write material'} in {subject} › {topic}
         </h2>
       </header>
 
@@ -115,6 +128,23 @@ export function WriteMaterialPage({ api, courseId, subject, topic }: Props) {
           <p className="note" aria-live="polite">
             Saved as <code>{filename}</code>
           </p>
+        )}
+        {chooseTopic && (
+          <label>
+            Save in
+            <select value={savingIn} onChange={(e) => setSavingIn(e.target.value)}>
+              {topics.length === 0 && (
+                <option value={`${subject}/${topic}`}>
+                  {subject} › {topic}
+                </option>
+              )}
+              {topics.map((t) => (
+                <option key={`${t.subject}/${t.topic}`} value={`${t.subject}/${t.topic}`}>
+                  {t.subject} › {t.topic}
+                </option>
+              ))}
+            </select>
+          </label>
         )}
 
         <div className="tabs" role="tablist" aria-label="Editor">

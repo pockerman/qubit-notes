@@ -84,6 +84,21 @@ export type TopicMentions = {
   mentioned_in: Mention[]
 }
 
+/** The materials before and after one in its subject, to read on. */
+export type Neighbours = {
+  previous: Material | null
+  next: Material | null
+}
+
+export type GeneratedKind = 'revision notes' | 'cheat sheet' | 'combined notes' | 'worked examples'
+
+/** Material the AI wrote, not saved until the student saves it. */
+export type Generated = {
+  name: string
+  // Markdown, citing its sources with references to them
+  text: string
+}
+
 export type IngestJob = {
   job_id: string
   document_id: string
@@ -473,6 +488,30 @@ export class StudyApi {
   deleteMaterial(material: Material): Promise<Material> {
     const path = [material.course, material.subject, material.topic, material.filename].map(encodeURIComponent)
     return this.request(`/courses/${path[0]}/materials/${path.slice(1).join('/')}`, { method: 'DELETE' })
+  }
+
+  /** puts the topic's material in the order it's meant to be read; returns it in that order */
+  orderMaterials(course: string, subject: string, topic: string, filenames: string[]): Promise<Material[]> {
+    const [c, s, t] = [course, subject, topic].map(encodeURIComponent)
+    return this.request(`/courses/${c}/subjects/${s}/topics/${t}/material-order`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ materials: filenames }),
+    })
+  }
+
+  /** the materials before and after this one in its subject */
+  neighbours(courseId: string, documentId: string): Promise<Neighbours> {
+    return this.request(`${this.materialPath(courseId, documentId)}/neighbours`)
+  }
+
+  /** new material the AI writes from the materials; it isn't saved until the student saves it */
+  generate(courseId: string, documents: string[], kind: GeneratedKind | null, instructions: string): Promise<Generated> {
+    return this.request(`/courses/${encodeURIComponent(courseId)}/generated`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ documents, kind, instructions }),
+    })
   }
 
   /** deletes the topic with all of its material */

@@ -11,8 +11,8 @@ Feature: Topics in the browser
     | processing            | any of its material is still being processed |
     | failed                | any of its material could not be processed   |
     | ready · 2 materials   | all of its material is ready                 |
-  The topic's name opens its page, which has its material, "Add material" and "Write material"
-  for its owners, the materials it is mentioned in (see References between topics), and the
+  The topic's name opens its page, which has its material in the order it is meant to be read
+  (see Reading a subject in order), "Add material" and "Write material" for its owners, the materials it is mentioned in (see References between topics), and the
   assistant for the whole topic (see Asking the assistant in the browser). Material is read from the topic page, and the reader goes
   back to it.
 
@@ -79,6 +79,13 @@ Feature: Topics in the browser
       Then I am on the topic "numerical-methods" › "finite-volumes"
       And I see its materials "fv-basics.txt"
 
+    Scenario: Move a material up or down
+      When I open the course "aeronautics"
+      And I open the topic "finite-elements"
+      And I move the material "fem-notes.md" up
+      Then I see its materials "fem-notes.md, fe-basics.txt"
+      And they are still in that order when I open the topic again
+
     Scenario: Delete material from the topic's page
       When I open the course "aeronautics"
       And I open the topic "finite-elements"
@@ -91,4 +98,4 @@ Feature: Topics in the browser
       When I open the course "aeronautics"
       And I open the topic "finite-elements"
       Then I see its materials "fe-basics.txt, fem-notes.md"
-      But I am not offered to add, write or delete material
+      But I am not offered to add, write, move or delete material
