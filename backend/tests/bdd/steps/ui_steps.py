@@ -1,4 +1,5 @@
 import re
+from urllib.parse import unquote
 
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, then, when
@@ -24,7 +25,8 @@ def choose_from_menu(page: Page, item: str) -> None:
 
 
 def _topic(page: Page, subject: str, topic: str):
-    """a topic as the course page lists it"""
+    """a topic as its subject's page lists it"""
+    open_subject_page(page, subject)
     return page.get_by_role("region", name=f"{subject} › {topic}")
 
 
@@ -35,13 +37,28 @@ def _page_title(page: Page) -> str:
     return heading.inner_text()
 
 
+def open_subject_page(page: Page, subject: str) -> None:
+    """the subject's page, from the course page, a subject's page or a topic's"""
+    title = _page_title(page)
+    if page.locator("#subject-title").count() and title == subject:
+        return
+    # a topic's page goes back to its subject's, and a subject's to the course
+    if page.locator("#topic-title").count():
+        page.get_by_role("link", name=re.compile("^← Back to ")).click()
+        expect(page.locator("#subject-title")).to_be_visible()
+        if _page_title(page) == subject:
+            return
+    if page.locator("#subject-title").count():
+        page.get_by_role("link", name=re.compile("^← Back to ")).click()
+    expect(page.locator("#course-title")).to_be_visible()
+    page.get_by_role("list", name="Subjects").get_by_role("link", name=subject, exact=True).click()
+    expect(page.locator("#subject-title")).to_have_text(subject)
+
+
 def open_topic_page(page: Page, subject: str, topic: str) -> None:
-    """the topic's page, from the course page or another topic's"""
+    """the topic's page, from the course page, a subject's page or another topic's"""
     if _page_title(page) == f"{subject} › {topic}":
         return
-    back = page.get_by_role("link", name=re.compile("^← Back to "))
-    if " › " in _page_title(page) and back.count():
-        back.click()
     _topic(page, subject, topic).get_by_role("link", name=topic, exact=True).click()
     expect(page.get_by_role("heading", name=f"{subject} › {topic}", level=2)).to_be_visible()
 
@@ -518,12 +535,13 @@ def move_topic(page, topic, direction):
 
 @then(parsers.parse('the topics of "{subject}" are shown in the order "{topics}"'))
 def topics_shown_in_order(page, context, subject, topics):
+    open_subject_page(page, subject)
     order = [topic.strip() for topic in topics.split(",")]
     expect(page.get_by_role("region", name=subject, exact=True).get_by_role("heading", level=4)).to_have_text(order)
     context["topic order"] = (subject, order)
 
 
-@then("they are still in that order when I open the course again")
+@then("they are still in that order when I open the subject again")
 def still_in_order(page, context):
     subject, order = context["topic order"]
     page.reload()
@@ -636,14 +654,16 @@ def topic_has_no_material(page):
     expect(page.get_by_role("main").get_by_text("No material yet", exact=True)).to_be_visible()
 
 
-def _open_topic_named(page: Page, topic: str) -> None:
-    """the page of the topic, from the course page, whatever its subject"""
+def _open_topic_named(page: Page, students, topic: str) -> None:
+    """the page of the topic, from the course page or a subject's, whatever its subject"""
     if _page_title(page).endswith(f" › {topic}"):
         return
-    page.get_by_role("region", name=re.compile(f" › {re.escape(topic)}$")).get_by_role(
-        "link", name=topic, exact=True
-    ).click()
-    expect(page.get_by_role("heading", name=re.compile(f" › {re.escape(topic)}$"), level=2)).to_be_visible()
+    # the course shown, by its id in the address, and the subject it has a topic of that name in
+    course_id = unquote(re.search(r"#/courses/([^/?]+)", page.url).group(1))
+    courses = students.client.get("/api/courses", headers=students.headers()).json()
+    course = next(c["name"] for c in courses if c["id"] == course_id)
+    topics = students.client.get(f"/api/courses/{course}/topics", headers=students.headers()).json()
+    open_topic_page(page, next(t["subject_name"] for t in topics if t["name"] == topic), topic)
 
 
 @when(parsers.parse('I add "{filename}" to this topic'))
@@ -670,16 +690,13 @@ def create_topic_in_browser(page, topic, subject):
 
 @when(parsers.parse('I add the topic "{topic}" to the subject "{subject}"'))
 def add_topic_to_subject(page, topic, subject):
+    open_subject_page(page, subject)
     page.get_by_role("button", name=f"Add a topic to {subject}").click()
     form = page.get_by_role("form", name=f"New topic in {subject}")
     # the subject is the one the topic is added to, not asked again
     expect(form.get_by_label("Subject")).to_have_count(0)
     form.get_by_label("Topic").fill(topic)
     form.get_by_role("button", name="Create topic").click()
-
-
-def _subject(page, subject: str):
-    return page.get_by_role("main").get_by_role("region", name=subject, exact=True)
 
 
 @when(parsers.re(r'I create the subject "(?P<name>[^"]+)"$'))
@@ -693,34 +710,29 @@ def create_subject_in_browser(page, name):
 
 @then(parsers.re(r'I see the subject "(?P<subject>[^"]+)" with no topics yet$'))
 def see_subject_without_topics(page, subject):
-    section = _subject(page, subject)
-    expect(section.get_by_role("heading", level=3)).to_have_text(subject)
-    expect(section.get_by_text("No topics yet")).to_be_visible()
-    expect(section.get_by_role("heading", level=4)).to_have_count(0)
+    expect(page.locator("#subject-title")).to_have_text(subject)
+    expect(page.get_by_role("main").get_by_text("No topics yet")).to_be_visible()
+    expect(page.get_by_role("main").get_by_role("heading", level=4)).to_have_count(0)
 
 
-@then(parsers.re(r'the subject offers "(?P<add>[^"]+)", "(?P<rename>[^"]+)" and "(?P<remove>[^"]+)"$'))
-def subject_offers(page, add, rename, remove):
-    # the subject just created, the one without topics
-    section = page.get_by_role("main").locator("section.subject", has_text="No topics yet")
-    expect(section.locator("header").get_by_role("button")).to_have_text([add, rename, remove])
+@then(parsers.re(r'the subject offers "(?P<first>[^"]+)", "(?P<second>[^"]+)" and "(?P<third>[^"]+)"$'))
+def subject_offers(page, first, second, third):
+    expect(page.locator("#subject-title")).to_be_visible()
+    expect(page.locator("header.page-header").get_by_role("button")).to_have_text([first, second, third])
 
 
 @when(parsers.re(r'I delete the subject "(?P<subject>[^"]+)"$'))
 def delete_subject_in_browser(page, subject):
-    _subject(page, subject).get_by_role("button", name=f"Delete {subject}", exact=True).click()
-
-
-@then(parsers.re(r'I do not see the subject "(?P<subject>[^"]+)"$'))
-def subject_not_seen(page, subject):
-    expect(_subject(page, subject)).to_have_count(0)
+    page.get_by_role("button", name=f"Delete {subject}", exact=True).click()
+    # back on the course page
+    expect(page.locator("#course-title")).to_be_visible()
 
 
 @then(parsers.re(r'the subject "(?P<subject>[^"]+)", which has topics, does not offer "(?P<action>[^"]+)"$'))
 def subject_does_not_offer(page, subject, action):
-    section = _subject(page, subject)
-    expect(section.get_by_role("heading", level=4).first).to_be_visible()
-    expect(section.locator("header").first.get_by_role("button", name=action)).to_have_count(0)
+    expect(page.locator("#subject-title")).to_have_text(subject)
+    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
+    expect(page.locator("header.page-header").get_by_role("button", name=action)).to_have_count(0)
 
 
 def _rename(page, name: str, new_name: str, cancel: bool = False, label: str = "Name") -> None:
@@ -786,8 +798,8 @@ def edit_text_in_browser(page, docstring):
 
 
 @when(parsers.parse('I write material in the topic "{topic}"'))
-def write_material_in_topic(page, topic):
-    _open_topic_named(page, topic)
+def write_material_in_topic(page, students, topic):
+    _open_topic_named(page, students, topic)
     page.get_by_role("link", name=f"Write material in {topic}").click()
     expect(page.get_by_role("form", name="Write material")).to_be_visible()
 
@@ -852,8 +864,8 @@ def have_file(context, filename, docstring):
 
 
 @when(parsers.parse('I add "{filename}" and the image "{image}" to the topic "{topic}"'))
-def add_markdown_with_image(page, context, filename, image, topic):
-    _open_topic_named(page, topic)
+def add_markdown_with_image(page, students, context, filename, image, topic):
+    _open_topic_named(page, students, topic)
     page.get_by_role("link", name=f"Add material to {topic}").click()
     form = page.get_by_role("form", name=re.compile("^Upload to "))
     content = context["files"][filename].encode()
@@ -1012,8 +1024,8 @@ def see_label_help(page, bar):
 
 
 @when(parsers.parse('I open the topic "{topic}"'))
-def open_topic(page, topic):
-    _open_topic_named(page, topic)
+def open_topic(page, students, topic):
+    _open_topic_named(page, students, topic)
 
 
 @then(parsers.parse('I am on the topic "{subject}" › "{topic}"'))
@@ -1035,19 +1047,75 @@ def go_back(page):
 @when("I go back to the course")
 def go_back_to_course(page):
     page.get_by_role("link", name=re.compile("^← Back to ")).click()
+    expect(page.locator("#course-title")).to_be_visible()
+
+
+@when("I go back to the subject")
+def go_back_to_subject(page):
+    page.get_by_role("link", name=re.compile("^← Back to ")).click()
+    expect(page.locator("#subject-title")).to_be_visible()
+
+
+@when(parsers.re(r'I open the subject "(?P<subject>[^"]+)"$'))
+def open_subject(page, subject):
+    open_subject_page(page, subject)
+
+
+@then(parsers.re(r'I am on the subject "(?P<subject>[^"]+)"$'))
+def on_subject(page, subject):
+    expect(page.locator("#subject-title")).to_have_text(subject)
+
+
+@then(parsers.re(r'I do not see "(?P<first>[^"]+)" or "(?P<second>[^"]+)" on the course page$'))
+def not_on_course_page(page, first, second):
+    expect(page.locator("#course-title")).to_be_visible()
+    expect(page.get_by_role("list", name="Subjects")).to_be_visible()
+    for name in (first, second):
+        expect(page.get_by_role("main").get_by_text(name)).to_have_count(0)
+
+
+@then(parsers.re(r'I do not see "(?P<first>[^"]+)" or "(?P<second>[^"]+)" on the subject\'s page$'))
+def not_on_subject_page(page, first, second):
+    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
+    for filename in (first, second):
+        expect(page.get_by_role("main").get_by_text(filename)).to_have_count(0)
+
+
+def _subject_actions(page) -> list[list[str]]:
+    """the buttons each subject on the course page offers"""
+    subjects = page.get_by_role("list", name="Subjects").locator("section.subject")
+    expect(subjects.first).to_be_visible()
+    return [[b.inner_text() for b in subjects.nth(i).get_by_role("button").all()] for i in range(subjects.count())]
+
+
+@then(parsers.re(r'each subject offers only "(?P<action>[^"]+)"$'))
+def each_subject_offers_only(page, action):
+    assert all(actions == [action] for actions in _subject_actions(page)), _subject_actions(page)
+
+
+@then("each subject offers nothing")
+def each_subject_offers_nothing(page):
+    assert all(actions == [] for actions in _subject_actions(page)), _subject_actions(page)
+
+
+@when(parsers.re(r'I rename the subject "(?P<name>[^"]+)" to "(?P<new_name>[^"]+)" on the course page$'))
+def rename_subject_on_course_page(page, name, new_name):
+    expect(page.locator("#course-title")).to_be_visible()
+    _rename(page, name, new_name)
+
+
+@then("I am not offered to rename the subject, or add topics to it")
+def not_offered_to_change_subject(page):
+    header = page.locator("header.page-header")
+    expect(page.locator("#subject-title")).to_be_visible()
+    expect(header.get_by_role("button")).to_have_count(0)
 
 
 @then(parsers.parse('I see the topics "{topics}" under "{subject}"'))
 def see_topics(page, topics, subject):
+    open_subject_page(page, subject)
     listed = page.get_by_role("list", name=f"Topics of {subject}").get_by_role("heading", level=4)
     expect(listed).to_have_text([topic.strip() for topic in topics.split(",")])
-
-
-@then(parsers.parse('I do not see "{first}" or "{second}" on the course page'))
-def not_on_course_page(page, first, second):
-    expect(page.get_by_role("main").get_by_role("heading", level=4).first).to_be_visible()
-    for filename in (first, second):
-        expect(page.get_by_role("main").get_by_text(filename)).to_have_count(0)
 
 
 @then(parsers.parse('each topic offers only "{up}", "{down}", "{rename}" and "{remove}"'))

@@ -88,8 +88,8 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
   return (
     <section className="topic-page" aria-labelledby="topic-title">
       <header className="page-header">
-        <a className="link" href={href({ page: 'course', courseId })}>
-          ← Back to {course.title}
+        <a className="link" href={href({ page: 'subject', courseId, subject })}>
+          ← Back to {subjectName}
         </a>
         <div className="title-row">
           <h2 id="topic-title">

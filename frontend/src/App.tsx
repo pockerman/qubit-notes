@@ -18,6 +18,7 @@ import { CoursePage } from './pages/CoursePage'
 import { CoursesPage } from './pages/CoursesPage'
 import { GeneratePage } from './pages/GeneratePage'
 import { MembersPage } from './pages/MembersPage'
+import { SubjectPage } from './pages/SubjectPage'
 import { TopicPage } from './pages/TopicPage'
 import { WriteMaterialPage } from './pages/WriteMaterialPage'
 import { href, navigate, useRoute } from './router'
@@ -71,6 +72,15 @@ function Pages({ api }: { api: StudyApi }) {
       return <CoursesPage api={api} />
     case 'course':
       return <CoursePage key={route.courseId} api={api} courseId={route.courseId} />
+    case 'subject':
+      return (
+        <SubjectPage
+          key={`${route.courseId}/${route.subject}`}
+          api={api}
+          courseId={route.courseId}
+          subject={route.subject}
+        />
+      )
     case 'add':
       return <AddMaterialPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
     case 'write':
