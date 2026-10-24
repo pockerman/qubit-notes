@@ -71,6 +71,14 @@ material_order = Table(
     Column("position", Integer, nullable=False),
 )
 
+# the model providers' keys the admins gave the app, encrypted with its secret (domain/app_keys.py)
+app_keys = Table(
+    "app_keys",
+    metadata,
+    Column("provider", String, primary_key=True),
+    Column("encrypted", Text, nullable=False),
+)
+
 notes = Table(
     "notes",
     metadata,

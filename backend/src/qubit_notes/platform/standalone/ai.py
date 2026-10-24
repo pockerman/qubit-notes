@@ -22,6 +22,14 @@ class AI(Protocol):
         """what the AI needs and doesn't have, e.g. its key; None if it can answer"""
         ...
 
+    def missing_key(self) -> str | None:
+        """the model provider whose key the AI needs and doesn't have"""
+        ...
+
+    def use_key(self, provider: str, key: str) -> None:
+        """calls the model provider with this key from now on, if it calls that provider"""
+        ...
+
 
 class ProviderAI:
     """Anthropic's or OpenAI's models. A JSON answer is asked of Anthropic's as the input of a tool it must call,
@@ -38,6 +46,13 @@ class ProviderAI:
         if self._key:
             return None
         return f"the app has no key for {self._provider}: set QUBIT_NOTES_{self._provider.upper()}_API_KEY"
+
+    def missing_key(self) -> str | None:
+        return None if self._key else self._provider
+
+    def use_key(self, provider: str, key: str) -> None:
+        if provider == self._provider:
+            self._key = key
 
     def complete(
         self,

@@ -17,6 +17,12 @@ class FakeAI:
     def missing(self) -> str | None:
         return None
 
+    def missing_key(self) -> str | None:
+        return None
+
+    def use_key(self, provider: str, key: str) -> None:
+        pass
+
     def complete(
         self,
         system: str,

@@ -131,4 +131,5 @@ def signed_in_to_the_app(page, cognito, live_url, students, name):
 
 @when("I sign out")
 def sign_out(page):
-    page.get_by_role("button", name="Sign out").click()
+    page.get_by_role("button", name="Menu").click()
+    page.get_by_role("menuitem", name="Sign out").click()

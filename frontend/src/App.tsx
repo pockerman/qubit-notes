@@ -9,6 +9,7 @@ import {
   type AuthConfig,
   type Identity,
 } from './auth'
+import { NavigationMenu } from './components/NavigationMenu'
 import { PlatformStatus } from './components/PlatformStatus'
 import { Reader } from './components/Reader'
 import { SignIn } from './components/SignIn'
@@ -130,17 +131,16 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>
-          <a href={href({ page: 'courses' })}>Qubit Notes</a>
-        </h1>
+        <div className="brand">
+          <h1>
+            <a href={href({ page: 'courses' })}>Qubit Notes</a>
+          </h1>
+          {api && <PlatformStatus api={api} />}
+        </div>
         {api && (
           <nav className="session" aria-label="Session">
-            <a href={href({ page: 'courses' })}>My courses</a>
-            <PlatformStatus api={api} />
             <span>Signed in as {api.student}</span>
-            <button type="button" className="link" onClick={signOut}>
-              Sign out
-            </button>
+            <NavigationMenu onSignOut={signOut} />
           </nav>
         )}
       </header>

@@ -71,7 +71,7 @@ def test_a_database_made_before_migrations_keeps_its_data(database_url):
     engine = create_engine(database_url)
     # as the app made its tables before there were migrations: all but its own platform's, the conversions and the
     # order of material
-    later = ("platform_", "conversions", "material_order")
+    later = ("platform_", "conversions", "material_order", "app_keys")
     before = [table for table in storage.metadata.sorted_tables if not table.name.startswith(later)]
     storage.metadata.create_all(engine, tables=before)
     now = datetime.now(UTC)

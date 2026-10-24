@@ -77,6 +77,20 @@ def test_a_model_without_its_key_says_so():
         embedder.embed(["text"])
 
 
+def test_a_key_given_later_is_used():
+    embedder = VoyageEmbedder("voyage-3.5-lite", api_key=None)
+    ai = ProviderAI(Settings(llm_provider="anthropic", anthropic_api_key=None))
+    assert (embedder.missing_key(), ai.missing_key()) == ("voyage", "anthropic")
+
+    # each takes only its own provider's key
+    embedder.use_key("anthropic", "sk-ant")
+    ai.use_key("anthropic", "sk-ant")
+    embedder.use_key("voyage", "pa-voyage")
+
+    assert (embedder.missing_key(), ai.missing_key()) == (None, None)
+    assert embedder.missing() is None and ai.missing() is None
+
+
 def test_voyage_embeds_documents_and_queries_in_batches(monkeypatch):
     requests = []
 

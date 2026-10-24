@@ -4,6 +4,14 @@ export type Health = {
   // platform service name to its status, e.g. SERVING or NOT_SERVING
   services: Record<string, string>
   error: string | null
+  // the model providers whose keys the app is missing, e.g. anthropic
+  missing_keys: string[]
+}
+
+export type Me = {
+  student: string
+  // whether the student can give the app the keys it is missing
+  admin: boolean
 }
 
 export type Role = 'owner' | 'reader'
@@ -378,6 +386,19 @@ export class StudyApi {
 
   health(): Promise<Health> {
     return this.request('/health')
+  }
+
+  me(): Promise<Me> {
+    return this.request('/me')
+  }
+
+  /** The app uses the key for the model provider from now on; it is never given back. */
+  async giveKey(provider: string, key: string): Promise<void> {
+    await this.fetch(`/keys/${encodeURIComponent(provider)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key }),
+    })
   }
 
   courses(): Promise<Course[]> {

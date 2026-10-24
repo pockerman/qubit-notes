@@ -1,0 +1,49 @@
+@ui
+Feature: The navigation bar
+  As a student
+  I want the app's bar to show whether the platform is working and to keep its links in a menu
+  So that it stays tidy, and an admin can fix what the platform is missing from where it shows
+
+  The bar has the app's name, with the platform's status next to it, and on the right "Signed in
+  as …" beside a menu of My courses, Settings (not there yet) and Sign out. Where the platform
+  is degraded, its status can be opened to see why: an admin can give the app the keys it is
+  missing there (see The app's keys, set by its admins); anyone else is told to ask an admin.
+
+  Scenario: The bar
+    Given I am signed in as "maria"
+    Then I see the platform's status next to the app's name
+    And I see "Signed in as maria" beside the menu
+    When I open the menu
+    Then it offers "My courses, Settings, Sign out"
+    And "Settings" is not available yet
+
+  Scenario: My courses, from the menu
+    Given I am signed in as "maria"
+    And I have created the course "aeronautics"
+    When I open the course "aeronautics"
+    And I choose "My courses" from the menu
+    Then I see my courses
+
+  Scenario: Sign out, from the menu
+    Given I am signed in as "maria"
+    When I choose "Sign out" from the menu
+    Then I am asked who I am
+
+  Scenario: An admin gives the app its missing key from the platform's status
+    Given qubit-notes is running without a key for "anthropic"
+    And "alex" is an admin of qubit-notes
+    And I am signed in as "alex"
+    Then the platform's status says "Platform degraded: ai"
+    When I open the platform's status
+    Then I am told the app is missing its "Anthropic" key
+    When I give it the key "sk-ant-test"
+    Then the platform's status says "Platform connected"
+
+  Scenario: A student who is not an admin is told to ask one
+    Given qubit-notes is running without a key for "anthropic"
+    And "alex" is an admin of qubit-notes
+    And I am signed in as "maria"
+    When I open the platform's status
+    Then I am told the app is missing its "Anthropic" key
+    And I am told to ask an admin to give it
+    And I am not offered to give it a key

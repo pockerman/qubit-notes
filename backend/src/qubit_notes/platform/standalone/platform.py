@@ -130,9 +130,17 @@ class StandalonePlatform:
         report("files", self._files.check())
         report("embeddings", self.embedder.missing())
         report("ai", self.ai.missing())
-        return PlatformHealth(reachable=True, services=services, error="; ".join(errors) or None)
+        missing_keys = list(dict.fromkeys(k for k in (self.ai.missing_key(), self.embedder.missing_key()) if k))
+        return PlatformHealth(
+            reachable=True, services=services, error="; ".join(errors) or None, missing_keys=missing_keys
+        )
 
-    # the app's credentials: its settings
+    # the app's credentials: its settings, or the keys its admins give it, which the app keeps
+    keeps_keys = False
+
+    def use_key(self, provider: str, key: str) -> None:
+        self.ai.use_key(provider, key)
+        self.embedder.use_key(provider, key)
 
     def store_credential(self, name: str, value: str) -> None:
         raise PlatformError(
