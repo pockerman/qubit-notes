@@ -17,13 +17,13 @@ Feature: Images in the browser
 
       ![A mesh of triangles](figures/mesh.png)
       """
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I add "fem-notes.md" and the image "mesh.png" to the topic "Finite elements"
     And I open "fem-notes.md" to read it
     Then I see the image "A mesh of triangles"
 
   Scenario: Add an image while writing
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I write material in the topic "Finite elements"
     And I name it "Meshing"
     And I type:
@@ -45,7 +45,7 @@ Feature: Images in the browser
       # 1 Meshing
       ![A mesh of triangles](figures/mesh.png)
       """
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "fem-notes.md" to read it
     Then I see that the image "figures/mesh.png" is missing
     When I add the missing image "figures/mesh.png" from "mesh.png"
@@ -59,7 +59,7 @@ Feature: Images in the browser
       """
     And I have shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "fem-notes.md" to read it
     Then I see that the image "figures/mesh.png" is missing
     But I am not offered to add it
@@ -70,7 +70,7 @@ Feature: Images in the browser
       # 1 Meshing
       The domain is divided into triangles.
       """
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "fem-notes.md" to read it
     And I start editing it
     And I add the image "mesh.png" with the caption "A mesh of triangles"
@@ -79,7 +79,7 @@ Feature: Images in the browser
 
   Scenario: Plain text material is not offered images while editing
     Given I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "fe-basics.txt" to read it
     And I start editing it
     Then I am not offered to add an image

@@ -100,7 +100,10 @@ def list_courses(students, context):
 @then("I see the courses:")
 def see_courses(students, context, datatable):
     courses = context.get("courses") or students.courses()
-    assert [course["name"] for course in courses] == [row["course"] for row in _rows(datatable)]
+    rows = _rows(datatable)
+    # the columns the table has: the course's name, and its title
+    keys = {"course": "name", "title": "title"}
+    assert [{column: course[keys[column]] for column in rows[0]} for course in courses] == rows
 
 
 @when(parsers.parse('I list the materials of the course "{course}"'))

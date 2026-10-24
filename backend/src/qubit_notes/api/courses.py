@@ -4,17 +4,22 @@ from fastapi import APIRouter, Depends
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
-from qubit_notes.api.deps import Student, courses
+from qubit_notes.api.deps import Student, course_titles, courses
+from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Course, Courses
 from qubit_notes.platform.port import MemberRole
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 CoursesDep = Annotated[Courses, Depends(courses)]
+TitlesDep = Annotated[CourseTitles, Depends(course_titles)]
 
 
 class CourseResponse(BaseModel):
     id: str
+    # in its links: lowercase words joined by hyphens
     name: str
+    # what it is called
+    title: str
     owner: str
     role: MemberRole
 
@@ -26,6 +31,12 @@ class MemberResponse(BaseModel):
 
 class NewCourse(BaseModel):
     name: str
+    # as the student typed it; titled after its name if not given
+    title: str | None = None
+
+
+class NewTitle(BaseModel):
+    title: str
 
 
 class ShareRequest(BaseModel):
@@ -33,8 +44,12 @@ class ShareRequest(BaseModel):
     role: MemberRole
 
 
-def _course(course: Course, student: str) -> CourseResponse:
-    return CourseResponse(id=course.id, name=course.name, owner=course.owner, role=course.role_of(student))
+def _courses(courses: list[Course], student: str, titles: CourseTitles) -> list[CourseResponse]:
+    titled = titles.of(courses)
+    return [
+        CourseResponse(id=c.id, name=c.name, title=titled[c.id], owner=c.owner, role=c.role_of(student))
+        for c in courses
+    ]
 
 
 def _members(course: Course) -> list[MemberResponse]:
@@ -42,13 +57,22 @@ def _members(course: Course) -> list[MemberResponse]:
 
 
 @router.get("", response_model=list[CourseResponse])
-async def list_courses(student: Student, catalog: CoursesDep) -> list[CourseResponse]:
-    return [_course(course, student) for course in await run_in_threadpool(catalog.list, student)]
+async def list_courses(student: Student, catalog: CoursesDep, titles: TitlesDep) -> list[CourseResponse]:
+    return _courses(await run_in_threadpool(catalog.list, student), student, titles)
 
 
 @router.post("", response_model=CourseResponse, status_code=201)
-async def create_course(body: NewCourse, student: Student, catalog: CoursesDep) -> CourseResponse:
-    return _course(await run_in_threadpool(catalog.create, student, body.name), student)
+async def create_course(body: NewCourse, student: Student, catalog: CoursesDep, titles: TitlesDep) -> CourseResponse:
+    course = await run_in_threadpool(catalog.create, student, body.name)
+    if body.title and body.title.strip():
+        await run_in_threadpool(titles.title, student, course.name, body.title)
+    return _courses([course], student, titles)[0]
+
+
+@router.put("/{course}/title", response_model=CourseResponse)
+async def change_title(course: str, body: NewTitle, student: Student, titles: TitlesDep) -> CourseResponse:
+    """gives the course another title; its name, in its links, stays. Only its creator can"""
+    return _courses([await run_in_threadpool(titles.title, student, course, body.title)], student, titles)[0]
 
 
 @router.delete("/{course}", status_code=204)

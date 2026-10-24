@@ -18,7 +18,10 @@ export type Role = 'owner' | 'reader'
 
 export type Course = {
   id: string
+  // in its links: lowercase words joined by hyphens
   name: string
+  // what it is called
+  title: string
   owner: string
   role: Role
 }
@@ -412,11 +415,20 @@ export class StudyApi {
     return this.request('/courses')
   }
 
-  createCourse(name: string): Promise<Course> {
+  /** The course, by its name, and its title as the student typed it. */
+  createCourse(name: string, title?: string): Promise<Course> {
     return this.request('/courses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, title }),
+    })
+  }
+
+  changeTitle(course: string, title: string): Promise<Course> {
+    return this.request(`/courses/${encodeURIComponent(course)}/title`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
     })
   }
 

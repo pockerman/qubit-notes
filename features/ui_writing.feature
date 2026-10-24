@@ -13,7 +13,7 @@ Feature: Writing material in the browser
     And I have created the topic "numerical-methods/finite-elements" in "aeronautics"
 
   Scenario: Write a material in a topic
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I write material in the topic "Finite elements"
     And I name it "Shape functions"
     And I type:
@@ -28,7 +28,7 @@ Feature: Writing material in the browser
     Then I see the text "Shape functions interpolate the solution inside each element."
 
   Scenario: Preview the material before saving it
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I write material in the topic "Finite elements"
     And I type:
       """
@@ -45,7 +45,7 @@ Feature: Writing material in the browser
     Then the text I typed is still there
 
   Scenario: Leaving without saving asks first
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I write material in the topic "Finite elements"
     And I type:
       """
@@ -57,6 +57,6 @@ Feature: Writing material in the browser
   Scenario: A reader of a shared course is not offered to write material
     Given the student "maria" has shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     Then I am not offered to write material

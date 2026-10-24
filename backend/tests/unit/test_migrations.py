@@ -71,7 +71,7 @@ def test_a_database_made_before_migrations_keeps_its_data(database_url):
     engine = create_engine(database_url)
     # as the app made its tables before there were migrations: all but its own platform's, the conversions and the
     # order of material
-    later = ("platform_", "conversions", "material_order", "app_keys", "subject_names")
+    later = ("platform_", "conversions", "material_order", "app_keys", "subject_names", "course_titles")
     # and the columns added to them since
     added = {"topics": {"name"}}
     before = MetaData()

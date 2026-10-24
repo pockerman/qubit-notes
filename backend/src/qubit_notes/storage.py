@@ -52,6 +52,14 @@ topics = Table(
     Column("name", String),
 )
 
+# what a course is called, as its creator typed it; a course without one is titled after its name
+course_titles = Table(
+    "course_titles",
+    metadata,
+    Column("course_id", String, primary_key=True),
+    Column("title", String, nullable=False),
+)
+
 # what a subject is called, as the student typed it; a subject without one is named after its id
 subject_names = Table(
     "subject_names",

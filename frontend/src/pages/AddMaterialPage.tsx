@@ -41,7 +41,7 @@ export function AddMaterialPage({ api, courseId, subject, topic }: Props) {
         >
           {subject && topic ? '← Back to the topic' : '← Back to the course'}
         </a>
-        <h2 id="add-title">Add material{course ? ` to ${course.name}` : ''}</h2>
+        <h2 id="add-title">Add material{course ? ` to ${course.title}` : ''}</h2>
       </header>
       {error && (
         <p role="alert" className="error">

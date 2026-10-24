@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Course, Material, Mention, StudyApi, Topic } from '../api'
 import { Assistant } from '../components/Assistant'
+import { RenameForm } from '../components/RenameForm'
 import { namesOf } from '../names'
 import { takeNotice } from '../notices'
 import { href } from '../router'
@@ -15,6 +16,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
   const [mentions, setMentions] = useState<Mention[]>([])
   // the course's topics, for what they're called
   const [topics, setTopics] = useState<Topic[]>([])
+  const [renaming, setRenaming] = useState(false)
   const [assistant, setAssistant] = useState(false)
   // e.g. that the material just saved has broken references
   const [notice] = useState(takeNotice)
@@ -87,11 +89,34 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
     <section className="topic-page" aria-labelledby="topic-title">
       <header className="page-header">
         <a className="link" href={href({ page: 'course', courseId })}>
-          ← Back to {course.name}
+          ← Back to {course.title}
         </a>
-        <h2 id="topic-title">
-          {subjectName} › {name}
-        </h2>
+        <div className="title-row">
+          <h2 id="topic-title">
+            {subjectName} › {name}
+          </h2>
+          {isOwner && (
+            <button
+              type="button"
+              className="link"
+              aria-label={`Rename ${name}`}
+              onClick={() => setRenaming(!renaming)}
+            >
+              Rename
+            </button>
+          )}
+        </div>
+        {renaming && (
+          <RenameForm
+            name={name}
+            onRename={async (newName) => {
+              await api.renameTopic(course.name, subject, topic, newName)
+              setRenaming(false)
+              load()
+            }}
+            onCancel={() => setRenaming(false)}
+          />
+        )}
         <div className="actions page-actions">
           {isOwner && (
             <>

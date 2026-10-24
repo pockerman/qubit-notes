@@ -114,13 +114,17 @@ page; new material goes last. The reader links to the previous and the next topi
 order of its topics; each opens at its first material that is ready, and topics with none are passed over. The order
 is kept in the app's database (`material_order`, `backend/src/qubit_notes/domain/material_order.py`).
 
-## The names of subjects and topics
+## The names of courses, subjects and topics
 
 A subject or topic is known by its id, lowercase words joined by hyphens (e.g. `finite-elements`), which is in its
 links and in references to it and never changes; the app shows it by its name, as typed (e.g. "Finite Elements")
 (`features/topic_names.feature`). One created without a name, e.g. by uploading to a new location, or before names
 were kept, is named after its id ("Finite elements"). Owners rename subjects and topics on the course page. Names are
 kept in the app's database (`topics.name`, `subject_names`).
+
+A course likewise keeps its name (e.g. `computer-science`) in its links and is shown by its title, as typed when it was
+created (`features/course_names.feature`); one without a title is titled after its name. Only its creator changes its
+title, from My courses or the course's page; it is kept in `course_titles`. Owners rename a topic from its page too.
 
 ## Generating material with the AI
 

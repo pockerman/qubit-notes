@@ -30,25 +30,25 @@ Feature: References between topics in the browser
       """
 
   Scenario: Follow a reference to a topic
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "sparse-matrices.md" to read it
     And I follow the reference "the FEM topic"
     Then I am on the topic "Numerical methods" › "Finite elements"
 
   Scenario: Follow a reference to a section
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "sparse-matrices.md" to read it
     And I follow the reference "2 Assembly"
     Then I am reading "fem-notes.md" at the section "2 Assembly"
     And I see the text "The element matrices are assembled into the global stiffness matrix."
 
   Scenario: A broken reference is not a link
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "sparse-matrices.md" to read it
     Then I see the reference "linear-solver" as broken
 
   Scenario: Add a reference while writing
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I write material in the topic "Linear solvers"
     And I name it "Iterative solvers"
     And I type:
@@ -61,14 +61,14 @@ Feature: References between topics in the browser
     Then I see the reference "2 Assembly" as a link
 
   Scenario: See how references are written while writing
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I write material in the topic "Linear solvers"
     And I open the help on references
     Then I see how to refer to a topic, a material and a section
     And I see that a label follows a "|"
 
   Scenario: Saving with a broken reference tells which
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I write material in the topic "Linear solvers"
     And I name it "Iterative solvers"
     And I type:
@@ -80,7 +80,7 @@ Feature: References between topics in the browser
     And I see "iterative-solvers.md" under "Numerical methods" › "Linear solvers"
 
   Scenario: A topic's page shows the materials it is mentioned in
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open the topic "Finite elements"
     Then the topic "Finite elements" is mentioned in "sparse-matrices.md"
     When I open the mention "sparse-matrices.md"
@@ -89,7 +89,7 @@ Feature: References between topics in the browser
   Scenario: A reader of a shared course follows references
     Given I have shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
-    When I open the course "aeronautics"
+    When I open the course "Aeronautics"
     And I open "sparse-matrices.md" to read it
     And I follow the reference "2 Assembly"
     Then I am reading "fem-notes.md" at the section "2 Assembly"
