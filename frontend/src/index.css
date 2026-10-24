@@ -666,7 +666,7 @@ label.inline input {
   margin-left: auto;
 }
 
-/* a subject's topics on the course page, one a line: name, status, and the owners' actions */
+/* a subject's topics on its page, one a line: name, status, and the owners' actions */
 .topics {
   list-style: none;
   margin: 0;
@@ -680,6 +680,11 @@ label.inline input {
 .topics h4 {
   margin: 8px 0;
   color: inherit;
+}
+
+/* a course's subjects on its page, one a line */
+.subjects h3 {
+  margin: 8px 0;
 }
 
 .topic-actions {

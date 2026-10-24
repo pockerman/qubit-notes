@@ -90,7 +90,7 @@ Feature: Courses in the browser
     And I open the topic "Finite elements"
     And I delete "fe-basics.txt"
     Then I no longer see "fe-basics.txt"
-    When I go back to the course
+    When I go back to the subject
     Then I still see the topic "Numerical methods" › "Finite elements", with no material
 
   Scenario: Create a topic in the browser
@@ -115,11 +115,12 @@ Feature: Courses in the browser
     And I have created the topic "distributed-systems/consensus" in "computer-science"
     And I have created the topic "distributed-systems/replication" in "computer-science"
     When I open the course "Computer science"
+    And I open the subject "Distributed systems"
     And I move the topic "Replication" up
     Then the topics of "Distributed systems" are shown in the order "Introduction, Replication, Consensus"
     When I move the topic "Introduction" down
     Then the topics of "Distributed systems" are shown in the order "Replication, Introduction, Consensus"
-    And they are still in that order when I open the course again
+    And they are still in that order when I open the subject again
 
   Scenario: A reader of a shared course is not offered to reorder topics
     Given the student "maria" has uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
@@ -127,6 +128,7 @@ Feature: Courses in the browser
     And the student "maria" has shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
     When I open the course "Aeronautics"
+    And I open the subject "Numerical methods"
     Then I am not offered to move topics
     And I am not offered to rename subjects or topics
 
@@ -164,6 +166,7 @@ Feature: Courses in the browser
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "Aeronautics"
+    And I open the subject "Numerical methods"
     And I rename the topic "Finite elements" to "The Finite Element Method"
     Then I see "fe-basics.txt" under "Numerical methods" › "The Finite Element Method"
     When I open the topic "The Finite Element Method"
@@ -180,6 +183,7 @@ Feature: Courses in the browser
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "Aeronautics"
+    And I open the subject "Numerical methods"
     And I start renaming the topic "Finite elements" to "Something else", but cancel
     Then I see "fe-basics.txt" under "Numerical methods" › "Finite elements"
 

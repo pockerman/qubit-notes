@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
  * they were:
  *   #/                                     my courses
  *   #/courses/<id>                         a course
+ *   #/courses/<id>/subjects/<subject>      a subject: its topics
  *   #/courses/<id>/add?subject=…&topic=…   adding material to it
  *   #/courses/<id>/write?subject=…&topic=… writing material in a topic
  *   #/courses/<id>/generate?subject=…&topic=…  the AI writing material from a topic's
@@ -16,6 +17,7 @@ import { useEffect, useState } from 'react'
 export type Route =
   | { page: 'courses' }
   | { page: 'course'; courseId: string }
+  | { page: 'subject'; courseId: string; subject: string }
   | { page: 'add'; courseId: string; subject: string; topic: string }
   | { page: 'members'; courseId: string }
   | { page: 'write'; courseId: string; subject: string; topic: string }
@@ -43,6 +45,7 @@ export function parse(hash: string): Route {
     const section = Number(params.get('section'))
     return { page: 'material', courseId, documentId: parts[3], ...(section > 0 ? { section } : {}) }
   }
+  if (parts[2] === 'subjects' && parts[3]) return { page: 'subject', courseId, subject: parts[3] }
   if (parts[2] === 'topics' && parts[3] && parts[4]) {
     return { page: 'topic', courseId, subject: parts[3], topic: parts[4] }
   }
@@ -56,6 +59,8 @@ export function href(route: Route): string {
       return '#/'
     case 'course':
       return course(route.courseId)
+    case 'subject':
+      return `${course(route.courseId)}/subjects/${encodeURIComponent(route.subject)}`
     case 'add': {
       const query = new URLSearchParams({ subject: route.subject, topic: route.topic })
       return `${course(route.courseId)}/add?${query}`

@@ -124,9 +124,12 @@ is kept in the app's database (`material_order`, `backend/src/qubit_notes/domain
 
 ## Subjects and topics
 
-A course is organised into subjects, each with its topics. Owners create both before they have material for them:
-"New subject" and "New topic" on the course page, "Add topic" in a subject, and the Add material page, where only the
-subject is needed (`features/subjects.feature`, `features/courses.feature`, `features/ui_courses.feature`). Uploading to a new location creates its subject and topic too. A topic stays when its
+A course is organised into subjects, each with its topics. The course page lists its subjects by name; each opens a
+page of its own with the subject's topics, their statuses, and the owners' actions on them, and each topic opens a
+page with its material (`features/ui_topics.feature`). Owners create subjects and topics before they have material
+for them: "New subject" and "New topic" on the course page, "Add topic" on a subject's page, and the Add material
+page, where only the subject is needed (`features/subjects.feature`, `features/courses.feature`,
+`features/ui_courses.feature`). Uploading to a new location creates its subject and topic too. A topic stays when its
 material is deleted, and a subject when its topics are; owners delete a subject once it has no topics. Subjects are
 kept in the app's database (`subjects`), as topics are (`topics`).
 
@@ -135,8 +138,8 @@ kept in the app's database (`subjects`), as topics are (`topics`).
 A subject or topic is known by its id, lowercase words joined by hyphens (e.g. `finite-elements`), which is in its
 links and in references to it and never changes; the app shows it by its name, as typed (e.g. "Finite Elements")
 (`features/topic_names.feature`). One created without a name, e.g. by uploading to a new location, or before names
-were kept, is named after its id ("Finite elements"). Owners rename subjects and topics on the course page. Names are
-kept in the app's database (`topics.name`, `subject_names`).
+were kept, is named after its id ("Finite elements"). Owners rename subjects on the course page or their own, and
+topics on their subject's page or their own. Names are kept in the app's database (`topics.name`, `subject_names`).
 
 A course likewise keeps its name (e.g. `computer-science`) in its links and is shown by its title, as typed when it was
 created (`features/course_names.feature`); one without a title is titled after its name. Only its creator changes its
