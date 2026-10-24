@@ -767,6 +767,45 @@ a.button {
   min-height: 50vh;
 }
 
+/* the materials to generate from */
+.materials-menu {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+}
+
+.materials-menu .menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  margin: 0.25rem 0 0;
+  padding: 0.4rem 0;
+  list-style: none;
+  min-width: 16rem;
+  max-width: calc(100vw - 2rem);
+  max-height: 20rem;
+  overflow-y: auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.materials-menu .menu li {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.25rem 0.75rem;
+}
+
+.materials-menu .menu li:first-child {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+}
+
 .add-material .card {
   max-width: 32rem;
 }

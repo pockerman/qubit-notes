@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { Course, Generated, GeneratedKind, Material, StudyApi } from '../api'
+import { MaterialsMenu } from '../components/MaterialsMenu'
 import { href, navigate } from '../router'
-import { STATUS_LABEL } from '../status'
 import { WriteMaterialPage } from './WriteMaterialPage'
 
 const KINDS: { kind: GeneratedKind; label: string }[] = [
@@ -44,10 +44,6 @@ export function GeneratePage({ api, courseId, subject, topic }: Props) {
       )
   }, [api, courseId, subject, topic])
 
-  function tick(material: Material, on: boolean) {
-    setTicked(on ? [...ticked, material.document_id] : ticked.filter((id) => id !== material.document_id))
-  }
-
   async function generate(event: FormEvent) {
     event.preventDefault()
     setWriting(true)
@@ -86,34 +82,10 @@ export function GeneratePage({ api, courseId, subject, topic }: Props) {
 
       <form className="card editor" aria-label="Generate material" onSubmit={generate}>
         <p className="note">
-          Tick the materials to generate from. The AI writes from them alone, and cites the sections it draws on;
+          Choose the materials to generate from. The AI writes from them alone, and cites the sections it draws on;
           nothing is saved until you save it.
         </p>
-        <ul className="materials" aria-label="Materials to generate from">
-          {materials.map((material) => {
-            // only ready text can be generated from
-            const usable = material.kind === 'text' && material.status === 'completed'
-            return (
-              <li key={material.document_id}>
-                <label>
-                  <input
-                    type="checkbox"
-                    aria-label={`Tick ${material.filename}`}
-                    disabled={!usable || writing}
-                    checked={ticked.includes(material.document_id)}
-                    onChange={(e) => tick(material, e.target.checked)}
-                  />{' '}
-                  <span className="filename">{material.filename}</span>
-                </label>
-                {!usable && (
-                  <span className="note">
-                    {material.kind === 'video' ? 'a video, with no text' : STATUS_LABEL[material.status]}
-                  </span>
-                )}
-              </li>
-            )
-          })}
-        </ul>
+        <MaterialsMenu materials={materials} chosen={ticked} onChange={setTicked} disabled={writing} />
         <label>
           Kind
           <select value={kind} onChange={(e) => setKind(e.target.value as GeneratedKind | '')}>

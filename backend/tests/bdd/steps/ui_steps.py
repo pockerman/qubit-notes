@@ -988,21 +988,45 @@ def choose_to_generate(page):
     expect(page.get_by_role("form", name="Generate material")).to_be_visible()
 
 
-@then(parsers.parse('I am offered to generate from "{filenames}"'))
-def offered_to_generate_from(page, filenames):
-    choices = page.get_by_role("list", name="Materials to generate from").locator(".filename")
-    expect(choices).to_have_text([f.strip() for f in filenames.split(",")])
+def _materials_menu(page):
+    """the menu of materials to generate from, opened"""
+    button = page.get_by_role("button", name=re.compile("^Materials"))
+    if button.get_attribute("aria-expanded") != "true":
+        button.click()
+    return page.get_by_role("list", name="Materials to generate from")
+
+
+@then(parsers.parse('the materials menu offers "{filenames}"'))
+def materials_menu_offers(page, filenames):
+    expect(_materials_menu(page).locator(".filename")).to_have_text([f.strip() for f in filenames.split(",")])
+
+
+@then(parsers.parse('the materials menu says "{summary}"'))
+def materials_menu_says(page, summary):
+    expect(page.get_by_role("button", name=re.compile("^Materials"))).to_have_text(f"{summary} ▾")
 
 
 @when(parsers.re(r'I tick "(?P<first>[^"]+)"(?: and "(?P<second>[^"]+)")?$'))
 def tick(page, first, second):
     for filename in (first, second):
         if filename:
-            page.get_by_role("checkbox", name=f"Tick {filename}").check()
+            _materials_menu(page).get_by_role("checkbox", name=f"Tick {filename}").check()
+
+
+@when(parsers.parse('I untick "{filename}"'))
+def untick(page, filename):
+    _materials_menu(page).get_by_role("checkbox", name=f"Tick {filename}").uncheck()
+
+
+@then(parsers.parse('"{first}" and "{second}" are ticked'))
+def ticked(page, first, second):
+    for filename in (first, second):
+        expect(_materials_menu(page).get_by_role("checkbox", name=f"Tick {filename}")).to_be_checked()
 
 
 @when(parsers.re(r'I generate "(?P<kind>[^"]+)" from them(?:, with the instructions "(?P<instructions>[^"]*)")?$'))
 def generate_in_browser(page, kind, instructions):
+    page.keyboard.press("Escape")
     form = page.get_by_role("form", name="Generate material")
     form.get_by_label("Kind").select_option(label=kind)
     if instructions:
@@ -1036,13 +1060,13 @@ def cancel_generating(page):
 def generate_needs_a_tick(page):
     generate = page.get_by_role("form", name="Generate material").get_by_role("button", name="Generate", exact=True)
     expect(generate).to_be_disabled()
-    page.get_by_role("checkbox", name=re.compile("^Tick ")).first.check()
+    _materials_menu(page).get_by_role("checkbox", name="Tick fem-notes.md").check()
     expect(generate).to_be_enabled()
 
 
 @then(parsers.parse('I cannot tick "{filename}"'))
 def cannot_tick(page, filename):
-    expect(page.get_by_role("checkbox", name=f"Tick {filename}")).to_be_disabled()
+    expect(_materials_menu(page).get_by_role("checkbox", name=f"Tick {filename}")).to_be_disabled()
 
 
 @then("I am not offered to generate material")
