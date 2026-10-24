@@ -375,6 +375,11 @@ main:has(.reader) {
   color: var(--bad);
 }
 
+/* as written, until KaTeX is loaded */
+.math-loading {
+  color: var(--muted);
+}
+
 .markdown pre {
   background: var(--surface);
   border: 1px solid var(--border);
