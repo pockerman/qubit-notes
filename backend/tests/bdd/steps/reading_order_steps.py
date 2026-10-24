@@ -54,13 +54,13 @@ def _neighbours(students, context) -> dict:
     return response.json()
 
 
-@then(parsers.re(r'the (?P<which>next|previous) material is "(?P<filename>[^"]+)" in "(?P<location>[^"]+)"'))
-def neighbour_is(students, context, which, filename, location):
+@then(parsers.re(r'the (?P<which>next|previous) topic is "(?P<name>[^"]+)", opening at "(?P<filename>[^"]+)"$'))
+def neighbour_is(students, context, which, name, filename):
     neighbour = _neighbours(students, context)[which]
-    assert neighbour is not None, f"no {which} material"
-    assert (neighbour["filename"], f"{neighbour['subject']}/{neighbour['topic']}") == (filename, location)
+    assert neighbour is not None, f"no {which} topic"
+    assert (neighbour["name"], neighbour["material"]["filename"]) == (name, filename)
 
 
-@then(parsers.re(r"there is no (?P<which>next|previous) material"))
+@then(parsers.re(r"there is no (?P<which>next|previous) topic$"))
 def no_neighbour(students, context, which):
     assert _neighbours(students, context)[which] is None

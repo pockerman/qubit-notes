@@ -32,7 +32,7 @@ Feature: Generating material with the AI in the browser
 
   Scenario: Generate revision notes, preview them and save them in the topic
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I choose to generate material
     Then the materials menu offers "All, fem-notes.md, fe-meshing.md"
     When I tick "fem-notes.md" and "fe-meshing.md"
@@ -41,13 +41,13 @@ Feature: Generating material with the AI in the browser
     When I preview it
     Then I see the reference "2 Assembly" as a link
     When I save it
-    Then I am on the topic "numerical-methods" › "finite-elements"
+    Then I am on the topic "Numerical methods" › "Finite elements"
     And I see its materials "fem-notes.md, fe-meshing.md, revision-notes.md"
 
   Scenario: Choose all the material of the topic
     Given I have uploaded "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I choose to generate material
     And I tick "All"
     Then "fem-notes.md" and "fe-meshing.md" are ticked
@@ -58,7 +58,7 @@ Feature: Generating material with the AI in the browser
 
   Scenario: The menu says what is chosen
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I choose to generate material
     Then the materials menu says "Choose materials"
     When I tick "fem-notes.md"
@@ -70,44 +70,44 @@ Feature: Generating material with the AI in the browser
 
   Scenario: Save generated material in another topic
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I choose to generate material
     And I tick "fem-notes.md"
     And I generate "Cheat sheet" from them, with the instructions "One page at most"
-    And I choose to save it in "numerical-methods" › "linear-solvers"
+    And I choose to save it in "Numerical methods" › "Linear solvers"
     And I save it
-    Then I am on the topic "numerical-methods" › "linear-solvers"
+    Then I am on the topic "Numerical methods" › "Linear solvers"
     And I see its materials "cheat-sheet.md"
 
   Scenario: Cancel before generating
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I choose to generate material
     And I tick "fem-notes.md"
     And I cancel generating
-    Then I am on the topic "numerical-methods" › "finite-elements"
+    Then I am on the topic "Numerical methods" › "Finite elements"
     And I see its materials "fem-notes.md, fe-meshing.md"
 
   Scenario: Nothing is saved when I leave the editor without saving
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I choose to generate material
     And I tick "fem-notes.md"
     And I generate "Revision notes" from them
     And I cancel, and choose to discard it
-    Then I am on the topic "numerical-methods" › "finite-elements"
+    Then I am on the topic "Numerical methods" › "Finite elements"
     And I see its materials "fem-notes.md, fe-meshing.md"
 
   Scenario: Generating needs a material ticked
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I choose to generate material
     Then I cannot generate until I tick a material
 
   Scenario: A video cannot be ticked
     Given I have uploaded "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     And I choose to generate material
     Then I cannot tick "lecture-3.mp4"
 
@@ -115,5 +115,5 @@ Feature: Generating material with the AI in the browser
     Given I have shared the course "aeronautics" with "tom" as a reader
     And I am signed in as "tom"
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
+    And I open the topic "Finite elements"
     Then I am not offered to generate material

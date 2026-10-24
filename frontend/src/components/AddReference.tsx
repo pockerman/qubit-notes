@@ -159,7 +159,7 @@ export function AddReference({ api, courseId, onInsert }: Props) {
           <option value={WHOLE}>Choose a topic</option>
           {topics.map((t) => (
             <option key={`${t.subject}/${t.topic}`} value={`${t.subject}/${t.topic}`}>
-              {t.subject} › {t.topic}
+              {t.subject_name} › {t.name}
             </option>
           ))}
         </select>

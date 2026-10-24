@@ -30,65 +30,65 @@ Feature: Topics in the browser
 
     Scenario: The course page lists topics, not their material
       When I open the course "aeronautics"
-      Then I see the topics "finite-elements, finite-volumes" under "numerical-methods"
+      Then I see the topics "Finite elements, Finite volumes" under "Numerical methods"
       But I do not see "fe-basics.txt" or "fem-notes.md" on the course page
-      And each topic offers only "Move up", "Move down" and "Delete"
+      And each topic offers only "Move up", "Move down", "Rename" and "Delete"
 
     Scenario: A topic's status
       Given I have uploaded a PDF "scan.pdf" of pictures only to "aeronautics/numerical-methods/finite-differences"
       When I open the course "aeronautics"
       Then the topics show the statuses:
         | topic              | status              |
-        | finite-elements    | ready · 2 materials |
-        | finite-volumes     | no material         |
-        | finite-differences | failed              |
+        | Finite elements    | ready · 2 materials |
+        | Finite volumes     | no material         |
+        | Finite differences | failed              |
 
     Scenario: Delete a topic and its material
       When I open the course "aeronautics"
-      And I delete the topic "finite-elements", and confirm it
+      And I delete the topic "Finite elements", and confirm it
       Then I am told before that its 2 materials are deleted with it
-      And I see the topics "finite-volumes" under "numerical-methods"
+      And I see the topics "Finite volumes" under "Numerical methods"
 
     Scenario: Deleting a topic asks first
       When I open the course "aeronautics"
-      And I delete the topic "finite-elements", but cancel
-      Then I see the topics "finite-elements, finite-volumes" under "numerical-methods"
+      And I delete the topic "Finite elements", but cancel
+      Then I see the topics "Finite elements, Finite volumes" under "Numerical methods"
 
     Scenario: A reader of a shared course sees the topics but cannot change them
       Given I have shared the course "aeronautics" with "tom" as a reader
       And I am signed in as "tom"
       When I open the course "aeronautics"
-      Then I see the topics "finite-elements, finite-volumes" under "numerical-methods"
+      Then I see the topics "Finite elements, Finite volumes" under "Numerical methods"
       And I am not offered to move or delete topics
 
   Rule: A topic's page has its material, and what is done with it
 
     Scenario: Open a topic and read its material
       When I open the course "aeronautics"
-      And I open the topic "finite-elements"
-      Then I am on the topic "numerical-methods" › "finite-elements"
+      And I open the topic "Finite elements"
+      Then I am on the topic "Numerical methods" › "Finite elements"
       And I see its materials "fe-basics.txt, fem-notes.md"
       When I open "fem-notes.md" to read it
       And I go back
-      Then I am on the topic "numerical-methods" › "finite-elements"
+      Then I am on the topic "Numerical methods" › "Finite elements"
 
     Scenario: Add material from the topic's page
       When I open the course "aeronautics"
-      And I open the topic "finite-volumes"
+      And I open the topic "Finite volumes"
       And I add "fv-basics.txt" to this topic
-      Then I am on the topic "numerical-methods" › "finite-volumes"
+      Then I am on the topic "Numerical methods" › "Finite volumes"
       And I see its materials "fv-basics.txt"
 
     Scenario: Move a material up or down
       When I open the course "aeronautics"
-      And I open the topic "finite-elements"
+      And I open the topic "Finite elements"
       And I move the material "fem-notes.md" up
       Then I see its materials "fem-notes.md, fe-basics.txt"
       And they are still in that order when I open the topic again
 
     Scenario: Delete material from the topic's page
       When I open the course "aeronautics"
-      And I open the topic "finite-elements"
+      And I open the topic "Finite elements"
       And I delete "fe-basics.txt"
       Then I see its materials "fem-notes.md"
 
@@ -96,6 +96,6 @@ Feature: Topics in the browser
       Given I have shared the course "aeronautics" with "tom" as a reader
       And I am signed in as "tom"
       When I open the course "aeronautics"
-      And I open the topic "finite-elements"
+      And I open the topic "Finite elements"
       Then I see its materials "fe-basics.txt, fem-notes.md"
       But I am not offered to add, write, move or delete material

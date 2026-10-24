@@ -15,8 +15,10 @@ The behaviour is specified in [`features/references.feature`](../features/refere
 
 ## Writing a reference
 
-A reference is a path in double brackets. The path is made of the names the course uses: the subject's and the
-topic's (lowercase words joined by hyphens), and the material's file name.
+A reference is a path in double brackets. The path is made of the ids the course uses: the subject's and the
+topic's (lowercase words joined by hyphens, e.g. `finite-elements` for the topic shown as "Finite Elements"), and the
+material's file name. Renaming a subject or topic keeps its id, so references to it still work. The insert-link
+picker writes the ids for you.
 
 | To refer to                  | Write                                                   |
 |------------------------------|---------------------------------------------------------|

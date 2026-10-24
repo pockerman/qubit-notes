@@ -47,10 +47,14 @@ export type Material = {
 }
 
 export type Topic = {
+  // the ids of the subject and topic, in links and references
   subject: string
   topic: string
   // how many materials it has
   materials: number
+  // what they are called
+  subject_name: string
+  name: string
 }
 
 export type Upload = {
@@ -93,9 +97,12 @@ export type TopicMentions = {
 }
 
 /** The materials before and after one in its subject, to read on. */
+// a topic to go on to, at its first material
+export type TopicToRead = { subject: string; topic: string; name: string; material: Material }
+
 export type Neighbours = {
-  previous: Material | null
-  next: Material | null
+  previous: TopicToRead | null
+  next: TopicToRead | null
 }
 
 export type GeneratedKind = 'revision notes' | 'cheat sheet' | 'combined notes' | 'worked examples'
@@ -417,11 +424,37 @@ export class StudyApi {
     return this.request(`/courses/${encodeURIComponent(course)}/topics`)
   }
 
-  createTopic(course: string, subject: string, topic: string): Promise<Topic> {
+  /** The topic, by the ids of it and its subject, and their names as the student typed them. */
+  createTopic(
+    course: string,
+    subject: string,
+    topic: string,
+    subjectName?: string,
+    topicName?: string,
+  ): Promise<Topic> {
     return this.request(`/courses/${encodeURIComponent(course)}/topics`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subject, topic }),
+      body: JSON.stringify({ subject, topic, subject_name: subjectName, topic_name: topicName }),
+    })
+  }
+
+  renameTopic(course: string, subject: string, topic: string, name: string): Promise<Topic> {
+    const [c, s, t] = [course, subject, topic].map(encodeURIComponent)
+    return this.request(`/courses/${c}/subjects/${s}/topics/${t}/name`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    })
+  }
+
+  /** Renames the subject; the course's topics. */
+  renameSubject(course: string, subject: string, name: string): Promise<Topic[]> {
+    const [c, s] = [course, subject].map(encodeURIComponent)
+    return this.request(`/courses/${c}/subjects/${s}/name`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
     })
   }
 

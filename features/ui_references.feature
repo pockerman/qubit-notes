@@ -33,7 +33,7 @@ Feature: References between topics in the browser
     When I open the course "aeronautics"
     And I open "sparse-matrices.md" to read it
     And I follow the reference "the FEM topic"
-    Then I am on the topic "numerical-methods" › "finite-elements"
+    Then I am on the topic "Numerical methods" › "Finite elements"
 
   Scenario: Follow a reference to a section
     When I open the course "aeronautics"
@@ -49,27 +49,27 @@ Feature: References between topics in the browser
 
   Scenario: Add a reference while writing
     When I open the course "aeronautics"
-    And I write material in the topic "linear-solvers"
+    And I write material in the topic "Linear solvers"
     And I name it "Iterative solvers"
     And I type:
       """
       Conjugate gradients solve the system from
       """
-    And I add a reference to the section "2 Assembly" of "fem-notes.md" in "numerical-methods" › "finite-elements"
+    And I add a reference to the section "2 Assembly" of "fem-notes.md" in "Numerical methods" › "Finite elements"
     Then the text I typed ends with "[[numerical-methods/finite-elements/fem-notes.md#2 Assembly]]"
     When I preview it
     Then I see the reference "2 Assembly" as a link
 
   Scenario: See how references are written while writing
     When I open the course "aeronautics"
-    And I write material in the topic "linear-solvers"
+    And I write material in the topic "Linear solvers"
     And I open the help on references
     Then I see how to refer to a topic, a material and a section
     And I see that a label follows a "|"
 
   Scenario: Saving with a broken reference tells which
     When I open the course "aeronautics"
-    And I write material in the topic "linear-solvers"
+    And I write material in the topic "Linear solvers"
     And I name it "Iterative solvers"
     And I type:
       """
@@ -77,12 +77,12 @@ Feature: References between topics in the browser
       """
     And I save it
     Then I am told the reference "[[numerical-methods/finite-element]]" is broken
-    And I see "iterative-solvers.md" under "numerical-methods" › "linear-solvers"
+    And I see "iterative-solvers.md" under "Numerical methods" › "Linear solvers"
 
   Scenario: A topic's page shows the materials it is mentioned in
     When I open the course "aeronautics"
-    And I open the topic "finite-elements"
-    Then the topic "finite-elements" is mentioned in "sparse-matrices.md"
+    And I open the topic "Finite elements"
+    Then the topic "Finite elements" is mentioned in "sparse-matrices.md"
     When I open the mention "sparse-matrices.md"
     Then I am reading "sparse-matrices.md"
 

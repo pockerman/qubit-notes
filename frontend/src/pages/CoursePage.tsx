@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { Course, Material, StudyApi, Topic } from '../api'
-import { slug } from '../names'
+import { namesOf, slug } from '../names'
 import { href, navigate } from '../router'
 import { topicStatus } from '../status'
 
@@ -26,11 +26,14 @@ function NewTopicForm({
   api,
   course,
   inSubject,
+  inSubjectName,
   onCreated,
 }: {
   api: StudyApi
   course: Course
   inSubject?: string
+  // what `inSubject` is called
+  inSubjectName?: string
   onCreated: () => void
 }) {
   const [subject, setSubject] = useState(inSubject ?? '')
@@ -44,7 +47,8 @@ function NewTopicForm({
       return
     }
     try {
-      await api.createTopic(course.name, slug(subject), slug(topic))
+      // known by their ids, and shown by the names typed; a subject the course has keeps its name
+      await api.createTopic(course.name, slug(subject), slug(topic), inSubject ? undefined : subject, topic)
       onCreated()
     } catch (e) {
       setError((e as Error).message)
@@ -52,7 +56,7 @@ function NewTopicForm({
   }
 
   return (
-    <form className="card" aria-label={inSubject ? `New topic in ${inSubject}` : 'New topic'} onSubmit={submit}>
+    <form className="card" aria-label={inSubject ? `New topic in ${inSubjectName}` : 'New topic'} onSubmit={submit}>
       {!inSubject && (
         <label>
           Subject
@@ -78,6 +82,51 @@ function NewTopicForm({
   )
 }
 
+// another name for a subject or topic; its id stays
+function RenameForm({
+  name,
+  onRename,
+  onCancel,
+}: {
+  name: string
+  onRename: (name: string) => Promise<void>
+  onCancel: () => void
+}) {
+  const [value, setValue] = useState(name)
+  const [error, setError] = useState<string | null>(null)
+
+  async function submit(event: FormEvent) {
+    event.preventDefault()
+    try {
+      await onRename(value)
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  return (
+    <form className="card rename" aria-label={`Rename ${name}`} onSubmit={submit}>
+      <label>
+        Name
+        <input value={value} onChange={(e) => setValue(e.target.value)} required autoFocus />
+      </label>
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      <div className="actions">
+        <button type="submit" disabled={!value.trim()}>
+          Rename
+        </button>
+        <button type="button" className="link" onClick={onCancel}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  )
+}
+
 /** A course: its subjects and their topics, in order, each with its status; a topic's material is on its own page. */
 export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string }) {
   const [course, setCourse] = useState<Course | null | undefined>(undefined)
@@ -89,6 +138,8 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
   // the subject a topic is being added to, from its own section
   const [addingTo, setAddingTo] = useState<string | null>(null)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  // the subject ("subject") or topic ("subject/topic") being renamed
+  const [renaming, setRenaming] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -163,7 +214,21 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
     }
   }
 
+  async function renameTopic(subject: string, topic: string, name: string) {
+    if (!course) return
+    await api.renameTopic(course.name, subject, topic, name)
+    setRenaming(null)
+    load()
+  }
+
+  async function renameSubject(subject: string, name: string) {
+    if (!course) return
+    setTopics(await api.renameSubject(course.name, subject, name))
+    setRenaming(null)
+  }
+
   const grouped = group(topics, materials)
+  const names = namesOf(topics)
 
   return (
     <section className="course" aria-labelledby="course-title">
@@ -235,107 +300,147 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
       {grouped.length === 0 ? (
         <p className="note">This course has no material yet.</p>
       ) : (
-        grouped.map(([subject, of]) => (
-          <section key={subject} className="subject" aria-label={subject}>
-            <header className="topic-header">
-              <h3>{subject}</h3>
-              {isOwner && (
-                <button
-                  type="button"
-                  className="link"
-                  aria-label={`Add a topic to ${subject}`}
-                  onClick={() => setAddingTo(addingTo === subject ? null : subject)}
-                >
-                  Add topic
-                </button>
+        grouped.map(([subject, of]) => {
+          const subjectName = names.subject(subject)
+          return (
+            <section key={subject} className="subject" aria-label={subjectName}>
+              <header className="topic-header">
+                <h3>{subjectName}</h3>
+                {isOwner && (
+                  <>
+                    <button
+                      type="button"
+                      className="link"
+                      aria-label={`Add a topic to ${subjectName}`}
+                      onClick={() => setAddingTo(addingTo === subject ? null : subject)}
+                    >
+                      Add topic
+                    </button>
+                    <button
+                      type="button"
+                      className="link"
+                      aria-label={`Rename ${subjectName}`}
+                      onClick={() => setRenaming(renaming === subject ? null : subject)}
+                    >
+                      Rename
+                    </button>
+                  </>
+                )}
+              </header>
+              {renaming === subject && (
+                <RenameForm
+                  name={subjectName}
+                  onRename={(name) => renameSubject(subject, name)}
+                  onCancel={() => setRenaming(null)}
+                />
               )}
-            </header>
-            {addingTo === subject && (
-              <NewTopicForm
-                api={api}
-                course={course}
-                inSubject={subject}
-                onCreated={() => {
-                  setAddingTo(null)
-                  load()
-                }}
-              />
-            )}
-            <ol className="topics" aria-label={`Topics of ${subject}`}>
-              {of.map(([topic, items], index) => {
-                const status = topicStatus(items)
-                const deleting = deletingTopic === `${subject}/${topic}`
-                return (
-                  <li key={topic}>
-                    <section className="topic" aria-label={`${subject} › ${topic}`}>
-                      <header className="topic-header">
-                        <h4>
-                          <a href={href({ page: 'topic', courseId: course.id, subject, topic })}>{topic}</a>
-                        </h4>
-                        <span className={`badge ${status.bad ? 'bad' : ''}`} aria-label={`Status of ${topic}`}>
-                          {status.label}
-                        </span>
-                        {isOwner && (
-                          <span className="topic-actions">
-                            {of.length > 1 && (
-                              <>
-                                <button
-                                  type="button"
-                                  className="link"
-                                  aria-label={`Move ${topic} up`}
-                                  disabled={index === 0}
-                                  onClick={() => move(subject, of.map(([t]) => t), index, -1)}
-                                >
-                                  ↑
-                                </button>
-                                <button
-                                  type="button"
-                                  className="link"
-                                  aria-label={`Move ${topic} down`}
-                                  disabled={index === of.length - 1}
-                                  onClick={() => move(subject, of.map(([t]) => t), index, 1)}
-                                >
-                                  ↓
-                                </button>
-                              </>
-                            )}
-                            <button
-                              type="button"
-                              className="link danger"
-                              aria-label={`Delete ${topic}`}
-                              onClick={() => setDeletingTopic(`${subject}/${topic}`)}
-                            >
-                              Delete
-                            </button>
+              {addingTo === subject && (
+                <NewTopicForm
+                  api={api}
+                  course={course}
+                  inSubject={subject}
+                  inSubjectName={subjectName}
+                  onCreated={() => {
+                    setAddingTo(null)
+                    load()
+                  }}
+                />
+              )}
+              <ol className="topics" aria-label={`Topics of ${subjectName}`}>
+                {of.map(([topic, items], index) => {
+                  const status = topicStatus(items)
+                  const deleting = deletingTopic === `${subject}/${topic}`
+                  const name = names.topic(subject, topic)
+                  return (
+                    <li key={topic}>
+                      <section className="topic" aria-label={`${subjectName} › ${name}`}>
+                        <header className="topic-header">
+                          <h4>
+                            <a href={href({ page: 'topic', courseId: course.id, subject, topic })}>{name}</a>
+                          </h4>
+                          <span className={`badge ${status.bad ? 'bad' : ''}`} aria-label={`Status of ${name}`}>
+                            {status.label}
                           </span>
+                          {isOwner && (
+                            <span className="topic-actions">
+                              {of.length > 1 && (
+                                <>
+                                  <button
+                                    type="button"
+                                    className="link"
+                                    aria-label={`Move ${name} up`}
+                                    disabled={index === 0}
+                                    onClick={() => move(subject, of.map(([t]) => t), index, -1)}
+                                  >
+                                    ↑
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="link"
+                                    aria-label={`Move ${name} down`}
+                                    disabled={index === of.length - 1}
+                                    onClick={() => move(subject, of.map(([t]) => t), index, 1)}
+                                  >
+                                    ↓
+                                  </button>
+                                </>
+                              )}
+                              <button
+                                type="button"
+                                className="link"
+                                aria-label={`Rename ${name}`}
+                                onClick={() => {
+                                  const key = `${subject}/${topic}`
+                                  setRenaming(renaming === key ? null : key)
+                                }}
+                              >
+                                Rename
+                              </button>
+                              <button
+                                type="button"
+                                className="link danger"
+                                aria-label={`Delete ${name}`}
+                                onClick={() => setDeletingTopic(`${subject}/${topic}`)}
+                              >
+                                Delete
+                              </button>
+                            </span>
+                          )}
+                        </header>
+                        {renaming === `${subject}/${topic}` && (
+                          <RenameForm
+                            name={name}
+                            onRename={(newName) => renameTopic(subject, topic, newName)}
+                            onCancel={() => setRenaming(null)}
+                          />
                         )}
-                      </header>
-                      {deleting && (
-                        <div className="card confirm" role="alertdialog" aria-label={`Delete the topic ${topic}`}>
-                          <p>
-                            {items.length === 0
-                              ? `Delete ${topic}? It has no material.`
-                              : `Delete ${topic} and its ${items.length === 1 ? 'material' : `${items.length} materials`}? ` +
-                                'Their notes, summaries, quizzes and conversations go for every member, and this ' +
-                                'cannot be undone.'}
-                          </p>
-                          <div className="actions">
-                            <button type="button" className="danger" onClick={() => deleteTopic(subject, topic)}>
-                              Yes, delete {topic}
-                            </button>
-                            <button type="button" className="link" onClick={() => setDeletingTopic(null)}>
-                              Cancel
-                            </button>
+                        {deleting && (
+                          <div className="card confirm" role="alertdialog" aria-label={`Delete the topic ${name}`}>
+                            <p>
+                              {items.length === 0
+                                ? `Delete ${name}? It has no material.`
+                                : `Delete ${name} and its ${items.length === 1 ? 'material' : `${items.length} materials`}? ` +
+                                  'Their notes, summaries, quizzes and conversations go for every member, and this ' +
+                                  'cannot be undone.'}
+                            </p>
+                            <div className="actions">
+                              <button type="button" className="danger" onClick={() => deleteTopic(subject, topic)}>
+                                Yes, delete {name}
+                              </button>
+                              <button type="button" className="link" onClick={() => setDeletingTopic(null)}>
+                                Cancel
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </section>
-                  </li>
-                )
-              })}
-            </ol>
-          </section>
-        ))
+                        )}
+                      </section>
+                    </li>
+                  )
+                })}
+              </ol>
+            </section>
+          )
+        })
       )}
     </section>
   )

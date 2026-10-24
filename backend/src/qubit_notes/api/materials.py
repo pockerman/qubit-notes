@@ -17,8 +17,16 @@ ReadingOrderDep = Annotated[ReadingOrder, Depends(reading_order)]
 
 
 class NewTopic(BaseModel):
+    # their ids
     subject: str
     topic: str
+    # what they are called, as the student typed them; named after their ids if not given
+    subject_name: str | None = None
+    topic_name: str | None = None
+
+
+class NewName(BaseModel):
+    name: str
 
 
 class TopicOrder(BaseModel):
@@ -80,7 +88,23 @@ async def list_topics(course: str, student: Student, service: TopicsDep) -> list
 
 @router.post("/courses/{course}/topics", response_model=Topic, status_code=201)
 async def create_topic(course: str, body: NewTopic, student: Student, service: TopicsDep) -> Topic:
-    return await run_in_threadpool(service.create, student, course, body.subject, body.topic)
+    return await run_in_threadpool(
+        service.create, student, course, body.subject, body.topic, body.subject_name, body.topic_name
+    )
+
+
+@router.put("/courses/{course}/subjects/{subject}/topics/{topic}/name", response_model=Topic)
+async def rename_topic(
+    course: str, subject: str, topic: str, body: NewName, student: Student, service: TopicsDep
+) -> Topic:
+    """gives the topic another name; its id, in links and references, stays"""
+    return await run_in_threadpool(service.rename, student, course, subject, topic, body.name)
+
+
+@router.put("/courses/{course}/subjects/{subject}/name", response_model=list[Topic])
+async def rename_subject(course: str, subject: str, body: NewName, student: Student, service: TopicsDep) -> list[Topic]:
+    """gives the subject another name; its id stays"""
+    return await run_in_threadpool(service.rename_subject, student, course, subject, body.name)
 
 
 @router.delete("/courses/{course}/subjects/{subject}/topics/{topic}", status_code=204)
