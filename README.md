@@ -125,8 +125,8 @@ is kept in the app's database (`material_order`, `backend/src/qubit_notes/domain
 ## Subjects and topics
 
 A course is organised into subjects, each with its topics. Owners create both before they have material for them:
-"New subject" and "New topic" on the course page, and "Add topic" in a subject (`features/subjects.feature`,
-`features/courses.feature`). Uploading to a new location creates its subject and topic too. A topic stays when its
+"New subject" and "New topic" on the course page, "Add topic" in a subject, and the Add material page, where only the
+subject is needed (`features/subjects.feature`, `features/courses.feature`, `features/ui_courses.feature`). Uploading to a new location creates its subject and topic too. A topic stays when its
 material is deleted, and a subject when its topics are; owners delete a subject once it has no topics. Subjects are
 kept in the app's database (`subjects`), as topics are (`topics`).
 

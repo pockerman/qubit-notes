@@ -12,6 +12,8 @@ type Props = {
   topic?: string
   // called once the upload is accepted, with where it went; it's processed after
   onUploaded: (upload: Upload, where: { subject: string; topic: string; filename: string }) => void
+  // called once a topic is created without a file, with its ids
+  onTopicCreated?: (where: { subject: string; topic: string }) => void
   // what the topic given is called, e.g. "Numerical methods › Finite elements": it is uploaded there, not asked
   topicName?: string
 }
@@ -22,6 +24,7 @@ export function UploadForm({
   subject: initialSubject = '',
   topic: initialTopic = '',
   onUploaded,
+  onTopicCreated,
   topicName,
 }: Props) {
   const [subject, setSubject] = useState(initialSubject)
@@ -36,12 +39,40 @@ export function UploadForm({
   // the topic as it's stored, e.g. "distributed-systems/introduction"
   const names = [slug(subject), slug(topic)]
   const typed = `${subject.trim()}/${topic.trim()}`
+  // what the button does: a file is uploaded to its topic; without one, the topic, or only the subject, is created
+  const action = file || topicName ? 'Upload' : topic.trim() ? 'Create topic' : 'Create subject'
+
+  // a subject, or a topic, without material
+  async function create() {
+    setBusy(true)
+    try {
+      if (!topic.trim()) {
+        const created = await api.createSubject(course, subject.trim())
+        // the subject stays filled in, for a topic to be added to it
+        setMessage({ text: `Created the subject ${created.name}. Fill in a topic to add one to it.` })
+      } else {
+        await api.createTopic(course, names[0], names[1], subject.trim(), topic.trim())
+        onTopicCreated?.({ subject: names[0], topic: names[1] })
+      }
+    } catch (e) {
+      setMessage({ text: (e as Error).message, error: true })
+    }
+    setBusy(false)
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!file) return
-    if (names.some((name) => !name)) {
-      setMessage({ text: 'Subject and topic each need at least one letter or digit', error: true })
+    if (!names[0]) {
+      setMessage({ text: 'The subject needs at least one letter or digit', error: true })
+      return
+    }
+    if (topic.trim() && !names[1]) {
+      setMessage({ text: 'The topic needs at least one letter or digit', error: true })
+      return
+    }
+    if (!file) return create()
+    if (!names[1]) {
+      setMessage({ text: 'Fill in the topic the file goes in', error: true })
       return
     }
     setBusy(true)
@@ -91,7 +122,7 @@ export function UploadForm({
           </label>
           <label>
             Topic
-            <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Finite elements" required />
+            <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Finite elements" />
           </label>
         </>
       )}
@@ -101,7 +132,8 @@ export function UploadForm({
           type="file"
           accept=".txt,.md,.pdf,.epub,.mp4,.webm"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          required
+          // only to add to a topic given; otherwise the subject or topic can be created without one
+          required={Boolean(topicName)}
         />
       </label>
       {markdown && (
@@ -122,7 +154,7 @@ export function UploadForm({
         </p>
       )}
       <button type="submit" disabled={busy}>
-        Upload
+        {action}
       </button>
       {message && (
         <p role={message.error ? 'alert' : 'status'} className={message.error ? 'error' : 'note'}>

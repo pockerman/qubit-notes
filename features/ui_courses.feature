@@ -4,6 +4,11 @@ Feature: Courses in the browser
   I want to start from my courses, and create one when I have none
   So that I always know where my material is and where to add more
 
+  The Add material page asks for a subject; the topic and the file are optional. Its button
+  says what it does: "Create subject" with only a subject, "Create topic" with a topic too, and
+  "Upload" with a file, which needs a topic. A subject created there stays on the page, so a
+  topic can be added to it; a topic created or uploaded to opens its page.
+
   Scenario: A student without courses is offered to create one
     Given I am signed in as "maria"
     Then I see that I have no courses yet
@@ -29,6 +34,30 @@ Feature: Courses in the browser
     And I add "fe-basics.txt" to the subject "Numerical Methods", topic "Finite Elements"
     Then I am on the topic "Numerical Methods" › "Finite Elements"
     And I see its materials "fe-basics.txt"
+
+  Scenario: Create a subject, then a topic, on the Add material page, without a file
+    Given I am signed in as "maria"
+    And I have created the course "aeronautics"
+    When I open the course "Aeronautics"
+    And on the Add material page I fill in the subject "Fluid Dynamics"
+    Then its button says "Create subject"
+    When I press it
+    Then I am told the subject "Fluid Dynamics" is created, and can add a topic to it
+    When I fill in the topic "Turbulence"
+    Then its button says "Create topic"
+    When I press it
+    Then I am on the topic "Fluid Dynamics" › "Turbulence"
+    And I see that the topic has no material yet
+
+  Scenario: A file is uploaded to a topic
+    Given I am signed in as "maria"
+    And I have created the course "aeronautics"
+    When I open the course "Aeronautics"
+    And on the Add material page I fill in the subject "Fluid Dynamics"
+    And I choose the file "turbulence.txt"
+    Then its button says "Upload"
+    When I press it
+    Then I am told to fill in the topic the file goes in
 
   Scenario: Edit a material in the reader
     Given I am signed in as "maria"
