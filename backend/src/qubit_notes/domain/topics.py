@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+import unicodedata
 from datetime import UTC, datetime
 
 from pydantic import BaseModel
@@ -11,7 +13,7 @@ from sqlalchemy.engine import Engine
 from qubit_notes import storage
 from qubit_notes.domain.conversions import is_original
 from qubit_notes.domain.courses import SLUG, Course, Courses
-from qubit_notes.domain.errors import InvalidRequest, NotFound
+from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound
 from qubit_notes.domain.images import is_image
 from qubit_notes.platform.port import StudyPlatform
 
@@ -27,6 +29,22 @@ class Topic(BaseModel):
     name: str = ""
 
 
+class Subject(BaseModel):
+    # its id: lowercase words joined by hyphens, in links and references
+    subject: str
+    # what it is called, as the student typed it, or named after its id
+    name: str
+    # how many topics it has
+    topics: int
+
+
+def slug(name: str) -> str:
+    """the id made from a name, as the browser makes it (frontend/src/names.ts): "Distributed Systems" is
+    distributed-systems. Accents are dropped and other characters separate words"""
+    plain = re.sub("[\u0300-\u036f]", "", unicodedata.normalize("NFKD", name)).lower()
+    return "-".join(re.findall("[a-z0-9]+", plain))
+
+
 def named(slug: str) -> str:
     """the name of a subject or topic that wasn't given one: its id, with spaces for hyphens and a capital first
     letter, e.g. "Finite elements" for finite-elements"""
@@ -36,7 +54,8 @@ def named(slug: str) -> str:
 
 class Topics:
     """A course's subjects and topics. A topic is created explicitly or by uploading to it, and stays when all of
-    its material is deleted. Subjects and topics are known by their ids, and shown by their names
+    its material is deleted; a subject is created explicitly or with a topic in it, and stays when all of its topics
+    are deleted (features/subjects.feature). Subjects and topics are known by their ids, and shown by their names
     (features/topic_names.feature)."""
 
     def __init__(self, engine: Engine, platform: StudyPlatform, courses: Courses):
@@ -82,6 +101,56 @@ class Topics:
                 )
         return next(t for t in self.list(student, course_name) if (t.subject, t.topic) == (subject, topic))
 
+    def create_subject(self, student: str, course_name: str, name: str) -> Subject:
+        """the subject, with the name given and an id made from it"""
+        course = self._courses.get(student, course_name)
+        self._courses.require_owner(student, course)
+        name = " ".join(name.split())
+        subject = slug(name)
+        if not subject:
+            raise InvalidRequest("a subject's name needs at least one letter or digit")
+        taken = next((s for s in self.subjects_of(course) if s.subject == subject), None)
+        if taken:
+            raise Conflict(f"the course already has the subject {taken.name!r}")
+        with self._engine.begin() as connection:
+            _insert_new(connection, storage.subjects, _row(course.id, subject))
+            connection.execute(insert(storage.subject_names).values(course_id=course.id, subject=subject, name=name))
+        return next(s for s in self.subjects_of(course) if s.subject == subject)
+
+    def subjects(self, student: str, course_name: str) -> list[Subject]:
+        return self.subjects_of(self._courses.get(student, course_name))
+
+    def subjects_of(self, course: Course) -> list[Subject]:
+        """the course's subjects, with or without topics, in alphabetical order of their ids"""
+        topics = self.of_course(course)
+        with self._engine.connect() as connection:
+            kept = set(
+                connection.execute(
+                    select(storage.subjects.c.subject).where(storage.subjects.c.course_id == course.id)
+                ).scalars()
+            )
+            names = storage.subject_names
+            subject_names = dict(
+                connection.execute(select(names.c.subject, names.c.name).where(names.c.course_id == course.id)).all()
+            )
+        counts = dict.fromkeys(kept, 0)
+        for topic in topics:
+            counts[topic.subject] = counts.get(topic.subject, 0) + 1
+        return [Subject(subject=s, name=subject_names.get(s) or named(s), topics=counts[s]) for s in sorted(counts)]
+
+    def delete_subject(self, student: str, course_name: str, subject: str) -> None:
+        """deletes a subject that has no topics; one that has is deleted by deleting them first"""
+        course = self._courses.get(student, course_name)
+        self._courses.require_owner(student, course)
+        found = next((s for s in self.subjects_of(course) if s.subject == subject), None)
+        if found is None:
+            raise NotFound(f"no subject {subject!r} in {course.name!r}")
+        if found.topics:
+            raise InvalidRequest(f"delete the topics of {found.name!r} first")
+        with self._engine.begin() as connection:
+            for table in (storage.subjects, storage.subject_names):
+                connection.execute(delete(table).where(table.c.course_id == course.id, table.c.subject == subject))
+
     def rename(self, student: str, course_name: str, subject: str, topic: str, name: str) -> Topic:
         """gives the topic another name; its id stays"""
         course = self._courses.get(student, course_name)
@@ -106,7 +175,7 @@ class Topics:
         course = self._courses.get(student, course_name)
         self._courses.require_owner(student, course)
         name = _name(name)
-        if subject not in {t.subject for t in self.of_course(course)}:
+        if subject not in {s.subject for s in self.subjects_of(course)}:
             raise NotFound(f"no subject {subject!r} in {course.name!r}")
         names = storage.subject_names
         with self._engine.begin() as connection:
@@ -149,6 +218,8 @@ class Topics:
         for forget in self._on_delete:
             forget(course, subject, topic)
         with self._engine.begin() as connection:
+            # the subject stays, also one of material uploaded before subjects were kept
+            _insert_new(connection, storage.subjects, _row(course.id, subject))
             for table in (storage.topics, storage.topic_order):
                 connection.execute(
                     delete(table).where(
@@ -157,20 +228,17 @@ class Topics:
                 )
 
     def ensure(self, course_id: str, subject: str, topic: str) -> None:
-        """the topic exists, e.g. when material is uploaded to it"""
-        row = {"course_id": course_id, "subject": subject, "topic": topic, "created_at": datetime.now(UTC)}
+        """the topic, and its subject, exist, e.g. when material is uploaded to it"""
         with self._engine.begin() as connection:
-            if connection.dialect.name == "sqlite":
-                connection.execute(sqlite_insert(storage.topics).values(**row).on_conflict_do_nothing())
-            else:
-                connection.execute(postgres_insert(storage.topics).values(**row).on_conflict_do_nothing())
+            _insert_new(connection, storage.subjects, _row(course_id, subject))
+            _insert_new(connection, storage.topics, {**_row(course_id, subject), "topic": topic})
 
     def list(self, student: str, course_name: str) -> list[Topic]:
         return self.of_course(self._courses.get(student, course_name))
 
     def forget_course(self, course_id: str) -> None:
         with self._engine.begin() as connection:
-            for table in (storage.topics, storage.topic_order, storage.subject_names):
+            for table in (storage.topics, storage.topic_order, storage.subjects, storage.subject_names):
                 connection.execute(delete(table).where(table.c.course_id == course_id))
 
     def of_course(self, course: Course) -> list[Topic]:
@@ -216,6 +284,16 @@ class Topics:
             )
             for s, t in sorted(counts, key=place)
         ]
+
+
+def _row(course_id: str, subject: str) -> dict:
+    return {"course_id": course_id, "subject": subject, "created_at": datetime.now(UTC)}
+
+
+def _insert_new(connection, table, row: dict) -> None:
+    """inserts the row unless the table has it already"""
+    dialect_insert = sqlite_insert if connection.dialect.name == "sqlite" else postgres_insert
+    connection.execute(dialect_insert(table).values(**row).on_conflict_do_nothing())
 
 
 def _name(name: str) -> str:

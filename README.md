@@ -122,6 +122,14 @@ page; new material goes last. The reader links to the previous and the next topi
 order of its topics; each opens at its first material that is ready, and topics with none are passed over. The order
 is kept in the app's database (`material_order`, `backend/src/qubit_notes/domain/material_order.py`).
 
+## Subjects and topics
+
+A course is organised into subjects, each with its topics. Owners create both before they have material for them:
+"New subject" and "New topic" on the course page, and "Add topic" in a subject (`features/subjects.feature`,
+`features/courses.feature`). Uploading to a new location creates its subject and topic too. A topic stays when its
+material is deleted, and a subject when its topics are; owners delete a subject once it has no topics. Subjects are
+kept in the app's database (`subjects`), as topics are (`topics`).
+
 ## The names of courses, subjects and topics
 
 A subject or topic is known by its id, lowercase words joined by hyphens (e.g. `finite-elements`), which is in its
