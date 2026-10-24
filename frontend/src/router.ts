@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
  *   #/courses/<id>                         a course
  *   #/courses/<id>/add?subject=…&topic=…   adding material to it
  *   #/courses/<id>/write?subject=…&topic=… writing material in a topic
- *   #/courses/<id>/generate?subject=…&topic=…&materials=<document>,…  the AI writing material from a topic's
+ *   #/courses/<id>/generate?subject=…&topic=…  the AI writing material from a topic's
  *   #/courses/<id>/members                 who it is shared with
  *   #/courses/<id>/materials/<document>    reading a material
  *   #/courses/<id>/materials/<document>?section=<position>  reading it at a section
@@ -19,7 +19,7 @@ export type Route =
   | { page: 'add'; courseId: string; subject: string; topic: string }
   | { page: 'members'; courseId: string }
   | { page: 'write'; courseId: string; subject: string; topic: string }
-  | { page: 'generate'; courseId: string; subject: string; topic: string; documentIds: string[] }
+  | { page: 'generate'; courseId: string; subject: string; topic: string }
   | { page: 'material'; courseId: string; documentId: string; section?: number }
   | { page: 'topic'; courseId: string; subject: string; topic: string }
 
@@ -34,13 +34,7 @@ export function parse(hash: string): Route {
   }
   if (parts[2] === 'members') return { page: 'members', courseId }
   if (parts[2] === 'generate') {
-    return {
-      page: 'generate',
-      courseId,
-      subject: params.get('subject') ?? '',
-      topic: params.get('topic') ?? '',
-      documentIds: (params.get('materials') ?? '').split(',').filter(Boolean),
-    }
+    return { page: 'generate', courseId, subject: params.get('subject') ?? '', topic: params.get('topic') ?? '' }
   }
   if (parts[2] === 'write') {
     return { page: 'write', courseId, subject: params.get('subject') ?? '', topic: params.get('topic') ?? '' }
@@ -69,11 +63,7 @@ export function href(route: Route): string {
     case 'members':
       return `${course(route.courseId)}/members`
     case 'generate': {
-      const query = new URLSearchParams({
-        subject: route.subject,
-        topic: route.topic,
-        materials: route.documentIds.join(','),
-      })
+      const query = new URLSearchParams({ subject: route.subject, topic: route.topic })
       return `${course(route.courseId)}/generate?${query}`
     }
     case 'write': {

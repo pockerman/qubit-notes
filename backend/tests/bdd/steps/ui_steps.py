@@ -982,6 +982,18 @@ def no_next_material(page):
 # generating
 
 
+@when("I choose to generate material")
+def choose_to_generate(page):
+    page.get_by_role("link", name=re.compile("^Generate material")).click()
+    expect(page.get_by_role("form", name="Generate material")).to_be_visible()
+
+
+@then(parsers.parse('I am offered to generate from "{filenames}"'))
+def offered_to_generate_from(page, filenames):
+    choices = page.get_by_role("list", name="Materials to generate from").locator(".filename")
+    expect(choices).to_have_text([f.strip() for f in filenames.split(",")])
+
+
 @when(parsers.re(r'I tick "(?P<first>[^"]+)"(?: and "(?P<second>[^"]+)")?$'))
 def tick(page, first, second):
     for filename in (first, second):
@@ -991,12 +1003,11 @@ def tick(page, first, second):
 
 @when(parsers.re(r'I generate "(?P<kind>[^"]+)" from them(?:, with the instructions "(?P<instructions>[^"]*)")?$'))
 def generate_in_browser(page, kind, instructions):
-    page.get_by_role("button", name="Generate material").click()
     form = page.get_by_role("form", name="Generate material")
     form.get_by_label("Kind").select_option(label=kind)
     if instructions:
         form.get_by_role("textbox", name="Instructions").fill(instructions)
-    form.get_by_role("button", name="Generate").click()
+    form.get_by_role("button", name="Generate", exact=True).click()
     expect(page.get_by_role("form", name="Write material")).to_be_visible(timeout=120_000)
 
 
@@ -1016,9 +1027,14 @@ def cancel_and_discard(page):
     page.get_by_role("alertdialog", name="Leave without saving").get_by_role("button", name="Discard").click()
 
 
-@then("I cannot generate material until I tick one")
+@when("I cancel generating")
+def cancel_generating(page):
+    page.get_by_role("form", name="Generate material").get_by_role("button", name="Cancel").click()
+
+
+@then("I cannot generate until I tick a material")
 def generate_needs_a_tick(page):
-    generate = page.get_by_role("button", name="Generate material")
+    generate = page.get_by_role("form", name="Generate material").get_by_role("button", name="Generate", exact=True)
     expect(generate).to_be_disabled()
     page.get_by_role("checkbox", name=re.compile("^Tick ")).first.check()
     expect(generate).to_be_enabled()
@@ -1032,5 +1048,4 @@ def cannot_tick(page, filename):
 @then("I am not offered to generate material")
 def not_offered_to_generate(page):
     expect(page.get_by_role("list", name="Materials")).to_be_visible()
-    expect(page.get_by_role("button", name="Generate material")).to_have_count(0)
-    expect(page.get_by_role("checkbox")).to_have_count(0)
+    expect(page.get_by_role("link", name=re.compile("^Generate material"))).to_have_count(0)

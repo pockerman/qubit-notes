@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Course, Material, Mention, StudyApi } from '../api'
 import { Assistant } from '../components/Assistant'
 import { takeNotice } from '../notices'
-import { href, navigate } from '../router'
+import { href } from '../router'
 import { STATUS_LABEL } from '../status'
 
 type Props = { api: StudyApi; courseId: string; subject: string; topic: string }
@@ -13,8 +13,6 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
   const [materials, setMaterials] = useState<Material[]>([])
   const [mentions, setMentions] = useState<Mention[]>([])
   const [assistant, setAssistant] = useState(false)
-  // the materials ticked to generate new material from, by document id
-  const [ticked, setTicked] = useState<string[]>([])
   // e.g. that the material just saved has broken references
   const [notice] = useState(takeNotice)
   const [error, setError] = useState<string | null>(null)
@@ -57,10 +55,6 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
     } catch (e) {
       setError((e as Error).message)
     }
-  }
-
-  function tick(material: Material, on: boolean) {
-    setTicked(on ? [...ticked, material.document_id] : ticked.filter((id) => id !== material.document_id))
   }
 
   async function remove(material: Material) {
@@ -109,6 +103,15 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
               >
                 Write material
               </a>
+              {materials.length > 0 && (
+                <a
+                  className="link"
+                  href={href({ page: 'generate', courseId, subject, topic })}
+                  aria-label={`Generate material in ${topic}`}
+                >
+                  Generate material
+                </a>
+              )}
             </>
           )}
           {ready && (
@@ -139,16 +142,6 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
             <ul className="materials" aria-label="Materials">
               {materials.map((material, index) => (
                 <li key={material.document_id}>
-                  {isOwner && (
-                    <input
-                      type="checkbox"
-                      aria-label={`Tick ${material.filename}`}
-                      // only ready text can be generated from
-                      disabled={material.kind !== 'text' || material.status !== 'completed'}
-                      checked={ticked.includes(material.document_id)}
-                      onChange={(e) => tick(material, e.target.checked)}
-                    />
-                  )}
                   {material.status === 'completed' ? (
                     <a
                       className="filename"
@@ -201,21 +194,6 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
                 </li>
               ))}
             </ul>
-          )}
-
-          {isOwner && materials.length > 0 && (
-            <p className="note">
-              <button
-                type="button"
-                disabled={ticked.length === 0}
-                onClick={() => navigate({ page: 'generate', courseId, subject, topic, documentIds: ticked })}
-              >
-                Generate material
-              </button>{' '}
-              {ticked.length === 0
-                ? 'Tick materials for the AI to write new material from, such as revision notes.'
-                : `from the ${ticked.length === 1 ? 'material' : `${ticked.length} materials`} ticked`}
-            </p>
           )}
 
           {mentions.length > 0 && (

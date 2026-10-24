@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { Course, Generated, GeneratedKind, Material, StudyApi } from '../api'
-import { href } from '../router'
+import { href, navigate } from '../router'
+import { STATUS_LABEL } from '../status'
 import { WriteMaterialPage } from './WriteMaterialPage'
 
 const KINDS: { kind: GeneratedKind; label: string }[] = [
@@ -15,13 +16,14 @@ type Props = {
   courseId: string
   subject: string
   topic: string
-  // the materials to generate from
-  documentIds: string[]
 }
 
-/** The AI writing new material from materials of a topic: what to make, then the result in the editor, to save. */
-export function GeneratePage({ api, courseId, subject, topic, documentIds }: Props) {
+/** The AI writing new material from materials of a topic: which, and what to make, then the result in the editor, to
+ * save. */
+export function GeneratePage({ api, courseId, subject, topic }: Props) {
   const [materials, setMaterials] = useState<Material[]>([])
+  // the materials ticked to generate from, by document id
+  const [ticked, setTicked] = useState<string[]>([])
   const [kind, setKind] = useState<GeneratedKind | ''>('revision notes')
   const [instructions, setInstructions] = useState('')
   const [writing, setWriting] = useState(false)
@@ -37,17 +39,21 @@ export function GeneratePage({ api, courseId, subject, topic, documentIds }: Pro
         return api.materials(course.name)
       })
       .then(
-        (all) => setMaterials(all.filter((m) => documentIds.includes(m.document_id))),
+        (all) => setMaterials(all.filter((m) => m.subject === subject && m.topic === topic)),
         (e: Error) => setError(e.message),
       )
-  }, [api, courseId, documentIds])
+  }, [api, courseId, subject, topic])
+
+  function tick(material: Material, on: boolean) {
+    setTicked(on ? [...ticked, material.document_id] : ticked.filter((id) => id !== material.document_id))
+  }
 
   async function generate(event: FormEvent) {
     event.preventDefault()
     setWriting(true)
     setError(null)
     try {
-      setGenerated(await api.generate(courseId, documentIds, kind || null, instructions))
+      setGenerated(await api.generate(courseId, ticked, kind || null, instructions))
     } catch (e) {
       setError((e as Error).message)
       setWriting(false)
@@ -80,9 +86,34 @@ export function GeneratePage({ api, courseId, subject, topic, documentIds }: Pro
 
       <form className="card editor" aria-label="Generate material" onSubmit={generate}>
         <p className="note">
-          From {materials.map((m) => m.filename).join(', ') || 'the materials ticked'}. The AI writes from them alone,
-          and cites the sections it draws on; nothing is saved until you save it.
+          Tick the materials to generate from. The AI writes from them alone, and cites the sections it draws on;
+          nothing is saved until you save it.
         </p>
+        <ul className="materials" aria-label="Materials to generate from">
+          {materials.map((material) => {
+            // only ready text can be generated from
+            const usable = material.kind === 'text' && material.status === 'completed'
+            return (
+              <li key={material.document_id}>
+                <label>
+                  <input
+                    type="checkbox"
+                    aria-label={`Tick ${material.filename}`}
+                    disabled={!usable || writing}
+                    checked={ticked.includes(material.document_id)}
+                    onChange={(e) => tick(material, e.target.checked)}
+                  />{' '}
+                  <span className="filename">{material.filename}</span>
+                </label>
+                {!usable && (
+                  <span className="note">
+                    {material.kind === 'video' ? 'a video, with no text' : STATUS_LABEL[material.status]}
+                  </span>
+                )}
+              </li>
+            )
+          })}
+        </ul>
         <label>
           Kind
           <select value={kind} onChange={(e) => setKind(e.target.value as GeneratedKind | '')}>
@@ -109,8 +140,11 @@ export function GeneratePage({ api, courseId, subject, topic, documentIds }: Pro
           </p>
         )}
         <div className="actions">
-          <button type="submit" disabled={writing || (!kind && !instructions.trim())}>
+          <button type="submit" disabled={writing || ticked.length === 0 || (!kind && !instructions.trim())}>
             {writing ? 'Writing…' : 'Generate'}
+          </button>
+          <button type="button" className="link" onClick={() => navigate({ page: 'topic', courseId, subject, topic })}>
+            Cancel
           </button>
           {writing && (
             <span role="status" className="note">

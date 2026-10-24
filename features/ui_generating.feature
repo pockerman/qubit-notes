@@ -4,10 +4,12 @@ Feature: Generating material with the AI in the browser
   I want to tick materials of a topic and have the AI write new material from them
   So that I can make revision notes and the like without leaving the topic
 
-  On a topic's page, its owners tick materials and choose "Generate material". They pick a
-  kind, or write instructions, or both, and the AI's Markdown opens in the editor, named for its
-  kind, as if they had written it: they edit it, preview it, choose the topic to save it in (the
-  one they are in, unless they choose another), and save it. Nothing is saved until they do.
+  On a topic's page, its owners choose "Generate material". There they choose the materials of
+  the topic to generate from, ticking them in a list of its materials (material that isn't ready
+  text, such as a video, can't be ticked), and pick a kind, or write instructions, or both; or
+  cancel, back to the topic. The AI's Markdown opens in the editor, named for its kind, as if
+  they had written it: they edit it, preview it, choose the topic to save it in (the one they
+  are in, unless they choose another), and save it. Nothing is saved until they do.
 
   Background:
     Given I am signed in as "maria"
@@ -29,7 +31,9 @@ Feature: Generating material with the AI in the browser
   Scenario: Generate revision notes, preview them and save them in the topic
     When I open the course "aeronautics"
     And I open the topic "finite-elements"
-    And I tick "fem-notes.md" and "fe-meshing.md"
+    And I choose to generate material
+    Then I am offered to generate from "fem-notes.md, fe-meshing.md"
+    When I tick "fem-notes.md" and "fe-meshing.md"
     And I generate "Revision notes" from them
     Then the editor has the name "Revision notes"
     When I preview it
@@ -41,6 +45,7 @@ Feature: Generating material with the AI in the browser
   Scenario: Save generated material in another topic
     When I open the course "aeronautics"
     And I open the topic "finite-elements"
+    And I choose to generate material
     And I tick "fem-notes.md"
     And I generate "Cheat sheet" from them, with the instructions "One page at most"
     And I choose to save it in "numerical-methods" › "linear-solvers"
@@ -48,9 +53,19 @@ Feature: Generating material with the AI in the browser
     Then I am on the topic "numerical-methods" › "linear-solvers"
     And I see its materials "cheat-sheet.md"
 
-  Scenario: Nothing is saved when I leave without saving
+  Scenario: Cancel before generating
     When I open the course "aeronautics"
     And I open the topic "finite-elements"
+    And I choose to generate material
+    And I tick "fem-notes.md"
+    And I cancel generating
+    Then I am on the topic "numerical-methods" › "finite-elements"
+    And I see its materials "fem-notes.md, fe-meshing.md"
+
+  Scenario: Nothing is saved when I leave the editor without saving
+    When I open the course "aeronautics"
+    And I open the topic "finite-elements"
+    And I choose to generate material
     And I tick "fem-notes.md"
     And I generate "Revision notes" from them
     And I cancel, and choose to discard it
@@ -60,12 +75,14 @@ Feature: Generating material with the AI in the browser
   Scenario: Generating needs a material ticked
     When I open the course "aeronautics"
     And I open the topic "finite-elements"
-    Then I cannot generate material until I tick one
+    And I choose to generate material
+    Then I cannot generate until I tick a material
 
   Scenario: A video cannot be ticked
     Given I have uploaded "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
     When I open the course "aeronautics"
     And I open the topic "finite-elements"
+    And I choose to generate material
     Then I cannot tick "lecture-3.mp4"
 
   Scenario: A reader of a shared course is not offered to generate material

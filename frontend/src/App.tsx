@@ -75,15 +75,7 @@ function Pages({ api }: { api: StudyApi }) {
     case 'write':
       return <WriteMaterialPage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
     case 'generate':
-      return (
-        <GeneratePage
-          api={api}
-          courseId={route.courseId}
-          subject={route.subject}
-          topic={route.topic}
-          documentIds={route.documentIds}
-        />
-      )
+      return <GeneratePage api={api} courseId={route.courseId} subject={route.subject} topic={route.topic} />
     case 'members':
       return <MembersPage key={route.courseId} api={api} courseId={route.courseId} />
     case 'material':
