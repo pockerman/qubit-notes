@@ -6,23 +6,53 @@ It serves what the app and the browser use of Cognito, as Cognito does:
 - ``/oauth2/authorize``: the sign-in page; signing in sends the browser back to the app with a code
 - ``/oauth2/token``: a code, with the PKCE verifier of its challenge, for tokens; and a refresh token for new ones
 - ``/logout``: ends the sign-in and sends the browser back to the app
+- ``/``: the user's own account, changed with their access token, as Cognito's API (``X-Amz-Target``) does: GetUser,
+  ChangePassword, UpdateUserAttributes and VerifyUserAttribute, for the email; the code it would email is kept
 """
 
 import base64
 import hashlib
 import html
+import re
 import secrets
 import time
 import uuid
+from dataclasses import dataclass
 from urllib.parse import urlencode
 
 import jwt
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 CLIENT_ID = "qubit-notes-test-client"
+# what an access token may do; changing the user's own account needs the second
+SCOPE = "openid aws.cognito.signin.user.admin"
+ACCOUNT_SCOPE = "aws.cognito.signin.user.admin"
+
+
+@dataclass
+class User:
+    email: str = ""
+    password: str = ""
+    # an email changed, until it is confirmed with the code emailed to it
+    pending_email: str = ""
+    code: str = ""
+
+
+def _meets_rules(password: str) -> bool:
+    """the user pool's rules for passwords (deploy/aws/cognito.tf)"""
+    return (
+        len(password) >= 12
+        and re.search("[a-z]", password) is not None
+        and re.search("[A-Z]", password) is not None
+        and re.search("[0-9]", password) is not None
+    )
+
+
+def _refused(kind: str, message: str) -> JSONResponse:
+    return JSONResponse({"__type": kind, "message": message}, status_code=400)
 
 
 class SigningKey:
@@ -39,10 +69,11 @@ class FakeCognito:
     def __init__(self):
         self.base_url = ""
         self.key = SigningKey()
-        self.users: set[str] = set()
-        # code to (username, PKCE challenge, redirect uri)
-        self._codes: dict[str, tuple[str, str, str]] = {}
-        self._refresh: dict[str, str] = {}
+        self.users: dict[str, User] = {}
+        # code to (username, PKCE challenge, redirect uri, scope)
+        self._codes: dict[str, tuple[str, str, str, str]] = {}
+        # refresh token to (username, scope)
+        self._refresh: dict[str, tuple[str, str]] = {}
 
     @property
     def issuer(self) -> str:
@@ -57,6 +88,7 @@ class FakeCognito:
         issuer: str | None = None,
         client_id: str = CLIENT_ID,
         token_use: str = "access",
+        scope: str = SCOPE,
     ) -> str:
         """a token of the pool, as Cognito issues them; the arguments make the kinds the app must not accept"""
         now = int(time.time())
@@ -70,7 +102,7 @@ class FakeCognito:
             "jti": uuid.uuid4().hex,
         }
         if token_use == "access":
-            claims |= {"client_id": client_id, "username": username, "scope": "openid"}
+            claims |= {"client_id": client_id, "username": username, "scope": scope}
         else:
             claims |= {"aud": client_id, "cognito:username": username}
         key = key or self.key
@@ -92,7 +124,7 @@ class FakeCognito:
                 raise HTTPException(400, "unknown client, or no PKCE challenge")
             hidden = "".join(
                 f'<input type="hidden" name="{name}" value="{html.escape(query.get(name, ""))}">'
-                for name in ("redirect_uri", "state", "code_challenge")
+                for name in ("redirect_uri", "state", "code_challenge", "scope")
             )
             return f"""<!doctype html><title>Sign in</title>
                 <h1>Sign in to Cognito (test)</h1>
@@ -103,12 +135,16 @@ class FakeCognito:
 
         @app.post("/login")
         def login(
-            username: str = Form(), redirect_uri: str = Form(), state: str = Form(), code_challenge: str = Form()
+            username: str = Form(),
+            redirect_uri: str = Form(),
+            state: str = Form(),
+            code_challenge: str = Form(),
+            scope: str = Form("openid"),
         ):
             if username not in self.users:
                 return HTMLResponse("<p>Incorrect username or password.</p>", status_code=401)
             code = secrets.token_urlsafe(16)
-            self._codes[code] = (username, code_challenge, redirect_uri)
+            self._codes[code] = (username, code_challenge, redirect_uri, scope)
             return RedirectResponse(f"{redirect_uri}?{urlencode({'code': code, 'state': state})}", status_code=302)
 
         @app.post("/oauth2/token")
@@ -123,23 +159,23 @@ class FakeCognito:
             if client_id != CLIENT_ID:
                 raise HTTPException(400, "invalid_client")
             if grant_type == "refresh_token":
-                username = self._refresh.get(refresh_token)
+                username, scope = self._refresh.get(refresh_token, ("", ""))
                 if not username:
                     raise HTTPException(400, "invalid_grant")
                 return {
-                    "access_token": self.token(username),
+                    "access_token": self.token(username, scope=scope),
                     "id_token": self.token(username, token_use="id"),
                     "token_type": "Bearer",
                     "expires_in": 3600,
                 }
-            username, challenge, expected_redirect = self._codes.pop(code, ("", "", ""))
+            username, challenge, expected_redirect, scope = self._codes.pop(code, ("", "", "", ""))
             verified = base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest()).rstrip(b"=").decode()
             if not username or verified != challenge or redirect_uri != expected_redirect:
                 raise HTTPException(400, "invalid_grant")
             refresh = secrets.token_urlsafe(24)
-            self._refresh[refresh] = username
+            self._refresh[refresh] = (username, scope)
             return {
-                "access_token": self.token(username),
+                "access_token": self.token(username, scope=scope),
                 "id_token": self.token(username, token_use="id"),
                 "refresh_token": refresh,
                 "token_type": "Bearer",
@@ -151,5 +187,39 @@ class FakeCognito:
             if client_id != CLIENT_ID:
                 raise HTTPException(400, "invalid_client")
             return RedirectResponse(logout_uri, status_code=302)
+
+        @app.post("/")
+        async def account(request: Request):
+            action = request.headers.get("X-Amz-Target", "").rpartition(".")[2]
+            body = await request.json()
+            try:
+                claims = jwt.decode(body.get("AccessToken", ""), self.key.private.public_key(), algorithms=["RS256"])
+            except jwt.PyJWTError:
+                return _refused("NotAuthorizedException", "Invalid Access Token")
+            if ACCOUNT_SCOPE not in claims.get("scope", "").split():
+                return _refused("NotAuthorizedException", "Access Token does not have required scopes")
+            user = self.users.get(claims.get("username", ""))
+            if user is None:
+                return _refused("UserNotFoundException", "User does not exist.")
+            if action == "GetUser":
+                return {"Username": claims["username"], "UserAttributes": [{"Name": "email", "Value": user.email}]}
+            if action == "ChangePassword":
+                if body.get("PreviousPassword") != user.password:
+                    return _refused("NotAuthorizedException", "Incorrect username or password.")
+                if not _meets_rules(body.get("ProposedPassword", "")):
+                    return _refused("InvalidPasswordException", "Password does not conform to policy")
+                user.password = body["ProposedPassword"]
+                return {}
+            if action == "UpdateUserAttributes":
+                # the email is changed once it is confirmed (attributes_require_verification_before_update)
+                user.pending_email = next(a["Value"] for a in body["UserAttributes"] if a["Name"] == "email")
+                user.code = f"{secrets.randbelow(900000) + 100000}"
+                return {"CodeDeliveryDetailsList": [{"AttributeName": "email", "DeliveryMedium": "EMAIL"}]}
+            if action == "VerifyUserAttribute":
+                if not user.pending_email or body.get("Code") != user.code:
+                    return _refused("CodeMismatchException", "Invalid verification code provided, please try again.")
+                user.email, user.pending_email, user.code = user.pending_email, "", ""
+                return {}
+            return _refused("InvalidAction", f"{action} is not served here")
 
         return app

@@ -26,6 +26,12 @@ export type AIModel = {
   in_settings: Record<string, boolean>
 }
 
+export type Account = {
+  // how the student signs in: by name, as in development, or with Cognito, which keeps their email and password
+  signs_in_with: 'name' | 'cognito'
+  email: string | null
+}
+
 export type Role = 'owner' | 'reader'
 
 export type Course = {
@@ -189,10 +195,7 @@ export type Note = {
   updated_at: string
 }
 
-export type NewNote = { text: string } & (
-  | { section: number; passage: string }
-  | { at_seconds: number }
-)
+export type NewNote = { text: string } & ({ section: number; passage: string } | { at_seconds: number })
 
 /** What a summary or quiz is about: a section of a document, a whole document, or a topic. */
 export type Scope = {
@@ -432,6 +435,35 @@ export class StudyApi {
     })
   }
 
+  account(): Promise<Account> {
+    return this.request('/account')
+  }
+
+  async changePassword(current: string, newPassword: string): Promise<void> {
+    await this.fetch('/account/password', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current, new: newPassword }),
+    })
+  }
+
+  /** Cognito emails a code to the new email, which is used once it is confirmed with it */
+  async changeEmail(email: string): Promise<void> {
+    await this.fetch('/account/email', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+  }
+
+  async confirmEmail(code: string): Promise<void> {
+    await this.fetch('/account/email/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    })
+  }
+
   aiModel(): Promise<AIModel> {
     return this.request('/ai-model')
   }
@@ -626,7 +658,12 @@ export class StudyApi {
   }
 
   /** new material the AI writes from the materials; it isn't saved until the student saves it */
-  generate(courseId: string, documents: string[], kind: GeneratedKind | null, instructions: string): Promise<Generated> {
+  generate(
+    courseId: string,
+    documents: string[],
+    kind: GeneratedKind | null,
+    instructions: string,
+  ): Promise<Generated> {
     return this.request(`/courses/${encodeURIComponent(courseId)}/generated`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -30,6 +30,7 @@ pytest_plugins = [
     "tests.bdd.steps.generating_steps",
     "tests.bdd.steps.app_keys_steps",
     "tests.bdd.steps.ai_model_steps",
+    "tests.bdd.steps.account_steps",
     "tests.bdd.steps.topic_names_steps",
     "tests.bdd.steps.course_names_steps",
     "tests.bdd.steps.subjects_steps",

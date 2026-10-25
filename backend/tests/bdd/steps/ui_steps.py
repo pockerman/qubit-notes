@@ -19,9 +19,14 @@ def _sign_in(page: Page, students, name: str) -> None:
 
 
 def choose_from_menu(page: Page, item: str) -> None:
-    """chooses an item of the app's menu, in the bar"""
+    """chooses an item of the app's menu, in the bar, or of one of its submenus, as "Settings › Account" """
     page.get_by_role("button", name="Menu").click()
-    page.get_by_role("menu", name="Menu").get_by_role("menuitem", name=item).click()
+    menu = page.get_by_role("menu", name="Menu")
+    *submenus, item = [part.strip() for part in item.split("›")]
+    for submenu in submenus:
+        menu.get_by_role("menuitem", name=submenu, exact=True).click()
+        menu = page.get_by_role("menu", name=submenu)
+    menu.get_by_role("menuitem", name=item, exact=True).click()
 
 
 def _topic(page: Page, subject: str, topic: str):
@@ -1342,7 +1347,19 @@ def open_menu(page):
     page.get_by_role("button", name="Menu").click()
 
 
-@then(parsers.parse('it offers "{items}"'))
+@when(parsers.parse('I open "{item}" in the menu'))
+def open_in_menu(page, item):
+    page.get_by_role("menu", name="Menu").get_by_role("menuitem", name=item, exact=True).click()
+
+
+@then(parsers.re(r'it offers "(?P<items>[^"]+)" under "(?P<submenu>[^"]+)"$'))
+def submenu_offers(page, items, submenu):
+    expect(page.get_by_role("menu", name=submenu).get_by_role("menuitem")).to_have_text(
+        [item.strip() for item in items.split(",")]
+    )
+
+
+@then(parsers.re(r'it offers "(?P<items>[^"]+)"$'))
 def menu_offers(page, items):
     expect(page.get_by_role("menu", name="Menu").get_by_role("menuitem")).to_have_text(
         [item.strip() for item in items.split(",")]
@@ -1463,9 +1480,15 @@ def _provider_key(page: Page):
     return _ai_model_section(page).get_by_role("form", name="Provider key")
 
 
-@then(parsers.re(r'the provider\'s key is for "(?P<provider>[^"]+)", and the app is missing it$'))
-def provider_key_missing(page, provider):
-    expect(_provider_key(page)).to_contain_text(f"{provider}'s key, the AI's provider: the app is missing it.")
+@then("I am offered the provider's key")
+def offered_provider_key(page):
+    expect(_provider_key(page).get_by_role("button", name="Save")).to_be_visible()
+
+
+@then(parsers.re(r'I am not told "(?P<text>[^"]+)"$'))
+def not_told(page, text):
+    expect(page.locator("#settings-title")).to_be_visible()
+    expect(page.locator("main")).not_to_contain_text(text)
 
 
 @when(parsers.re(r'I give the provider\'s key "(?P<key>[^"]+)" in the settings$'))
@@ -1475,9 +1498,9 @@ def give_provider_key(page, key):
     expect(_provider_key(page).locator("input[type=password]")).to_have_value("")
 
 
-@then("I am told the app has the provider's key")
-def told_has_provider_key(page):
-    expect(_provider_key(page)).to_contain_text("the app has it.")
+@then("I am told the provider's key is saved")
+def told_provider_key_saved(page):
+    expect(_provider_key(page).get_by_role("status")).to_have_text("Saved.")
 
 
 @then("I am offered no other key")
@@ -1488,8 +1511,8 @@ def offered_no_other_key(page):
 
 @then("I am told the app's settings give the provider's key")
 def told_settings_give_key(page):
-    expect(_ai_model_section(page).get_by_role("group", name="Provider key")).to_contain_text(
-        "the app's settings give it"
+    expect(_ai_model_section(page).get_by_role("group", name="Provider key")).to_have_text(
+        "The app's settings give this key."
     )
 
 
@@ -1528,3 +1551,72 @@ def not_offered_to_change_model(page):
     section = _ai_model_section(page)
     expect(section).to_contain_text("Only the app's admins can change it.")
     expect(section.get_by_role("form")).to_have_count(0)
+
+
+# my account
+
+
+def _account(page: Page):
+    expect(page.locator("#settings-title")).to_be_visible()
+    return page.get_by_role("region", name="Account")
+
+
+def _give_passwords(page: Page, current: str, new: str, again: str):
+    form = _account(page).get_by_role("form", name="Change my password")
+    form.get_by_label("Current password").fill(current)
+    form.get_by_label("New password", exact=True).fill(new)
+    form.get_by_label("New password again").fill(again)
+    form.get_by_role("button", name="Change password").click()
+
+
+@when(parsers.re(r'I change my password from "(?P<current>[^"]+)" to "(?P<new>[^"]+)" in my account$'))
+def change_password_in_account(page, current, new):
+    _give_passwords(page, current, new, new)
+
+
+@when(parsers.re(r'I give my new password as "(?P<new>[^"]+)", then "(?P<again>[^"]+)"$'))
+def give_new_passwords(page, cognito, students, new, again):
+    _give_passwords(page, cognito.users[students.id(students.me)].password, new, again)
+
+
+@then("I am told my password is changed")
+def told_password_changed(page):
+    expect(_account(page).get_by_role("status")).to_have_text("Your password is changed.")
+
+
+@then("I am told the new passwords are not the same")
+def told_passwords_differ(page):
+    expect(_account(page).get_by_role("alert")).to_have_text("The new passwords are not the same.")
+
+
+@then(parsers.re(r'I see my email is "(?P<email>[^"]+)"$'))
+def see_email(page, email):
+    expect(_account(page)).to_contain_text(f"Your email is {email}.")
+
+
+@when(parsers.re(r'I change my email to "(?P<email>[^"]+)" in my account$'))
+def change_email_in_account(page, email):
+    form = _account(page).get_by_role("form", name="Change my email")
+    form.get_by_label("New email").fill(email)
+    form.get_by_role("button", name="Change email").click()
+    expect(_account(page).get_by_role("form", name="Confirm my email")).to_contain_text(
+        f"Enter the code sent to {email}."
+    )
+
+
+@when("I enter the code Cognito sent")
+def enter_code(page, cognito, students):
+    form = _account(page).get_by_role("form", name="Confirm my email")
+    form.get_by_label("Code").fill(cognito.users[students.id(students.me)].code)
+    form.get_by_role("button", name="Confirm").click()
+    expect(_account(page).get_by_role("status")).to_have_text("Your email is changed.")
+
+
+@then("I am told I sign in by name, with no email or password to change")
+def told_sign_in_by_name(page):
+    expect(_account(page)).to_contain_text("You sign in by name here, so there is no email or password to change.")
+
+
+@then("I am not offered to change my email or password")
+def not_offered_account_changes(page):
+    expect(_account(page).get_by_role("form")).to_have_count(0)

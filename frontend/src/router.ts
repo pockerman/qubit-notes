@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
  * The page shown, from the address's hash, so the browser's back button and a refresh keep the student where
  * they were:
  *   #/                                     my courses
- *   #/settings                             the app's settings
+ *   #/settings                             the app's settings: the AI's model
+ *   #/settings/account                     the student's account: their email and password
  *   #/courses/<id>                         a course
  *   #/courses/<id>/subjects/<subject>      a subject: its topics
  *   #/courses/<id>/add?subject=…&topic=…   adding material to it
@@ -15,9 +16,12 @@ import { useEffect, useState } from 'react'
  *   #/courses/<id>/materials/<document>?section=<position>  reading it at a section
  *   #/courses/<id>/topics/<subject>/<topic> a topic: its material, and the assistant on all of it
  */
+// the settings' views, under Settings in the app's menu
+export type SettingsView = 'ai-model' | 'account'
+
 export type Route =
   | { page: 'courses' }
-  | { page: 'settings' }
+  | { page: 'settings'; view: SettingsView }
   | { page: 'course'; courseId: string }
   | { page: 'subject'; courseId: string; subject: string }
   | { page: 'add'; courseId: string; subject: string; topic: string }
@@ -31,7 +35,7 @@ export function parse(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#/, '').split('?')
   const parts = path.split('/').filter(Boolean).map(decodeURIComponent)
   const params = new URLSearchParams(query)
-  if (parts[0] === 'settings') return { page: 'settings' }
+  if (parts[0] === 'settings') return { page: 'settings', view: parts[1] === 'account' ? 'account' : 'ai-model' }
   if (parts[0] !== 'courses' || !parts[1]) return { page: 'courses' }
   const courseId = parts[1]
   if (parts[2] === 'add') {
@@ -61,7 +65,7 @@ export function href(route: Route): string {
     case 'courses':
       return '#/'
     case 'settings':
-      return '#/settings'
+      return route.view === 'account' ? '#/settings/account' : '#/settings'
     case 'course':
       return course(route.courseId)
     case 'subject':

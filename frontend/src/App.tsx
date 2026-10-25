@@ -18,6 +18,7 @@ import { CoursePage } from './pages/CoursePage'
 import { CoursesPage } from './pages/CoursesPage'
 import { GeneratePage } from './pages/GeneratePage'
 import { MembersPage } from './pages/MembersPage'
+import { AccountPage } from './pages/AccountPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { SubjectPage } from './pages/SubjectPage'
 import { TopicPage } from './pages/TopicPage'
@@ -72,7 +73,7 @@ function Pages({ api }: { api: StudyApi }) {
     case 'courses':
       return <CoursesPage api={api} />
     case 'settings':
-      return <SettingsPage api={api} />
+      return route.view === 'account' ? <AccountPage api={api} /> : <SettingsPage api={api} />
     case 'course':
       return <CoursePage key={route.courseId} api={api} courseId={route.courseId} />
     case 'subject':

@@ -879,6 +879,36 @@ a.button {
   text-decoration: none;
 }
 
+.navigation-menu .has-submenu {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Settings, with its views beneath it */
+.navigation-menu .has-submenu > button {
+  text-align: left;
+}
+
+/* the arrow is not part of its name */
+.navigation-menu .has-submenu > button::after {
+  content: ' ▸' / '';
+}
+
+.navigation-menu .has-submenu > button[aria-expanded='true']::after {
+  content: ' ▾' / '';
+}
+
+.navigation-menu .submenu {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0 0 0 0.75rem;
+  border-left: 2px solid var(--border);
+}
+
+.navigation-menu .submenu li {
+  padding: 0.2rem 0.5rem;
+}
+
 .navigation-menu .menu [aria-disabled='true'] {
   color: var(--muted);
   cursor: not-allowed;
@@ -897,6 +927,23 @@ a.button {
 .key-form {
   display: grid;
   gap: 0.5rem;
+}
+
+/* the student's email, then their password */
+.account-part form {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 28rem;
+}
+
+.account-part h4 {
+  margin: 0 0 0.5rem;
+}
+
+.account-part + .account-part {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
 }
 
 .platform-status > button.badge {

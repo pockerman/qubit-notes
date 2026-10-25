@@ -5,9 +5,9 @@ import { KEY_GIVEN } from '../providers'
 type KeyFormProps = {
   api: StudyApi
   provider: string
-  // the field's name, e.g. "Provider key", and what is said of the key above it
+  // the field's name, e.g. "Provider key", and what is said of the key above it, if anything
   label: string
-  about: ReactNode
+  about?: ReactNode
   onGiven: () => void
 }
 
@@ -16,14 +16,17 @@ export function KeyForm({ api, provider, label, about, onGiven }: KeyFormProps) 
   const [key, setKey] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saved, setSaved] = useState(false)
 
   async function give(event: FormEvent) {
     event.preventDefault()
     setSaving(true)
     setError(null)
+    setSaved(false)
     try {
       await api.giveKey(provider, key)
       setKey('')
+      setSaved(true)
       window.dispatchEvent(new Event(KEY_GIVEN))
       onGiven()
     } catch (e) {
@@ -34,11 +37,16 @@ export function KeyForm({ api, provider, label, about, onGiven }: KeyFormProps) 
 
   return (
     <form className="key-form" aria-label={label} onSubmit={give}>
-      <p>{about}</p>
+      {about && <p>{about}</p>}
       <label>
         {label}
         <input type="password" autoComplete="off" value={key} onChange={(e) => setKey(e.target.value)} />
       </label>
+      {saved && (
+        <p role="status" className="note">
+          Saved.
+        </p>
+      )}
       {error && (
         <p role="alert" className="error">
           {error}
