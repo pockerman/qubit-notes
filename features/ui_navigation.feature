@@ -5,11 +5,12 @@ Feature: The navigation bar
   So that it stays tidy, and an admin can fix what the platform is missing from where it shows
 
   The bar has the app's name, with the platform's status next to it, and on the right "Signed in
-  as …" beside a menu of My courses, Settings (see Settings in the browser) and Sign out. Where the platform
-  is degraded, its status can be opened to see why, in plain words. A missing key is "The app is
-  missing a key.", naming neither the provider nor the setting that holds it: an admin is told to
-  head to Settings to give it, with a link there (see Settings in the browser); anyone else is told
-  to ask an admin.
+  as …" beside a menu of My courses, Settings and Sign out. Settings opens a submenu of its views:
+  AI model (see Settings in the browser) and Account (see My account in the browser). Where the
+  platform is degraded, its status can be opened to see why, in plain words. A missing key is
+  "The app is missing a key.", naming neither the provider nor the setting that holds it: an
+  admin is told to head to Settings to give it, with a link to its AI model view (see Settings in
+  the browser); anyone else is told to ask an admin.
 
   Scenario: The bar
     Given I am signed in as "maria"
@@ -17,6 +18,8 @@ Feature: The navigation bar
     And I see "Signed in as maria" beside the menu
     When I open the menu
     Then it offers "My courses, Settings, Sign out"
+    When I open "Settings" in the menu
+    Then it offers "AI model, Account" under "Settings"
 
   Scenario: My courses, from the menu
     Given I am signed in as "maria"

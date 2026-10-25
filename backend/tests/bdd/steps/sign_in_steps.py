@@ -2,7 +2,7 @@
 
 from pytest_bdd import given, parsers, then, when
 
-from tests.fakes.fake_cognito import SigningKey
+from tests.fakes.fake_cognito import SigningKey, User
 
 
 @given("the app signs students in with Cognito")
@@ -88,7 +88,7 @@ def get_the_video(context):
 
 @given(parsers.parse('Cognito has the user "{name}"'))
 def cognito_has_user(cognito, students, name):
-    cognito.users.add(students.id(name))
+    cognito.users[students.id(name)] = User()
 
 
 @when("I open the app")

@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     cognito_domain: str = ""
     # the issuer of the user pool's tokens; https://cognito-idp.<region>.amazonaws.com/<user pool> if unset
     cognito_issuer: str | None = None
+    # where the app changes a student's email and password with their token; https://cognito-idp.<region>.amazonaws.com/
+    # if unset
+    cognito_api_url: str | None = None
 
     # the key gogi gave the app, where gogi serves many applications; not needed where gogi runs without keys
     gogi_api_key: str | None = None
@@ -102,3 +105,10 @@ class Settings(BaseSettings):
         if self.cognito_region and self.cognito_user_pool_id:
             return f"https://cognito-idp.{self.cognito_region}.amazonaws.com/{self.cognito_user_pool_id}"
         return ""
+
+    @property
+    def cognito_api(self) -> str:
+        """Cognito's API, where a student's own account is changed with their access token"""
+        if self.cognito_api_url:
+            return self.cognito_api_url
+        return f"https://cognito-idp.{self.cognito_region}.amazonaws.com/" if self.cognito_region else ""

@@ -84,7 +84,7 @@ export function PlatformStatus({ api }: { api: StudyApi }) {
             (me?.admin ? (
               <p>
                 The app is missing a key. Head to{' '}
-                <a href={href({ page: 'settings' })} onClick={() => setOpen(false)}>
+                <a href={href({ page: 'settings', view: 'ai-model' })} onClick={() => setOpen(false)}>
                   Settings
                 </a>{' '}
                 to give it.

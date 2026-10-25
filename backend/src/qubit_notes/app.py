@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 
 from qubit_notes import storage
 from qubit_notes.api import (
+    account,
     ai_model,
     app_keys,
     assistant,
@@ -20,6 +21,7 @@ from qubit_notes.api import (
 )
 from qubit_notes.api.auth import authenticator
 from qubit_notes.api.errors import add_error_handlers
+from qubit_notes.domain.account import Account
 from qubit_notes.domain.ai_model import AIModel
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
@@ -70,6 +72,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.platform = platform
     app.state.settings = settings
     app.state.authenticator = authenticator(settings)
+    app.state.account = Account(settings)
     # the keys the admins gave the app, given to its platform again
     app.state.app_keys = AppKeys(database, settings, platform)
     app.state.app_keys.restore()
@@ -127,6 +130,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         health.router,
         app_keys.router,
         ai_model.router,
+        account.router,
         courses.router,
         materials.router,
         images.router,

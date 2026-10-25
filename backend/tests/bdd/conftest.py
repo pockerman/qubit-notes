@@ -195,6 +195,7 @@ def app(request, platform, tmp_path):
                 "cognito_issuer": cognito.issuer,
                 "cognito_domain": cognito.base_url,
                 "cognito_client_id": CLIENT_ID,
+                "cognito_api_url": f"{cognito.base_url}/",
             }
         )
     return create_app(platform=platform, settings=settings)

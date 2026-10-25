@@ -75,25 +75,14 @@ type ProviderKeyProps = { api: StudyApi; inUse: AIModel; onGiven: () => void }
 
 /** The key of the AI's provider: given or replaced by an admin, unless the app's settings give it. */
 function ProviderKey({ api, inUse, onGiven }: ProviderKeyProps) {
-  const name = PROVIDER[inUse.provider] ?? inUse.provider
   if (inUse.in_settings[inUse.provider]) {
     return (
       <div className="key-form" role="group" aria-label="Provider key">
-        <p>{name}'s key, the AI's provider: the app's settings give it, so it is changed there.</p>
+        <p>The app's settings give this key.</p>
       </div>
     )
   }
-  return (
-    <KeyForm
-      api={api}
-      provider={inUse.provider}
-      label="Provider key"
-      about={`${name}'s key, the AI's provider: ${
-        inUse.keys[inUse.provider] ? 'the app has it. Saving another replaces it.' : 'the app is missing it.'
-      }`}
-      onGiven={onGiven}
-    />
-  )
+  return <KeyForm key={inUse.provider} api={api} provider={inUse.provider} label="Provider key" onGiven={onGiven} />
 }
 
 type ModelFormProps = { api: StudyApi; inUse: AIModel; onChosen: (inUse: AIModel) => void }

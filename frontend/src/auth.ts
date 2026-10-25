@@ -103,7 +103,8 @@ export async function startCognitoSignIn(config: CognitoConfig): Promise<void> {
     response_type: 'code',
     client_id: config.client_id,
     redirect_uri: redirectUri(),
-    scope: 'openid',
+    // the second lets the student change their own email and password with the token
+    scope: 'openid aws.cognito.signin.user.admin',
     state,
     code_challenge: challenge,
     code_challenge_method: 'S256',

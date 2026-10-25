@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { href } from '../router'
 
-/** The app's menu: My courses, Settings and Sign out. */
+/** The app's menu: My courses, Settings, which opens a submenu of its views, and Sign out. */
 export function NavigationMenu({ onSignOut }: { onSignOut: () => void }) {
   const [open, setOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const menu = useRef<HTMLDivElement>(null)
 
   // closes on a click outside it, or Escape
@@ -23,9 +24,15 @@ export function NavigationMenu({ onSignOut }: { onSignOut: () => void }) {
     }
   }, [open])
 
+  // opens again with the submenu closed
+  function toggle() {
+    setOpen(!open)
+    setSettingsOpen(false)
+  }
+
   return (
     <div className="navigation-menu" ref={menu}>
-      <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={toggle}>
         Menu ▾
       </button>
       {open && (
@@ -35,10 +42,31 @@ export function NavigationMenu({ onSignOut }: { onSignOut: () => void }) {
               My courses
             </a>
           </li>
-          <li role="none">
-            <a role="menuitem" href={href({ page: 'settings' })} onClick={() => setOpen(false)}>
+          <li role="none" className="has-submenu">
+            <button
+              type="button"
+              role="menuitem"
+              className="link"
+              aria-haspopup="menu"
+              aria-expanded={settingsOpen}
+              onClick={() => setSettingsOpen(!settingsOpen)}
+            >
               Settings
-            </a>
+            </button>
+            {settingsOpen && (
+              <ul className="submenu" role="menu" aria-label="Settings">
+                <li role="none">
+                  <a role="menuitem" href={href({ page: 'settings', view: 'ai-model' })} onClick={() => setOpen(false)}>
+                    AI model
+                  </a>
+                </li>
+                <li role="none">
+                  <a role="menuitem" href={href({ page: 'settings', view: 'account' })} onClick={() => setOpen(false)}>
+                    Account
+                  </a>
+                </li>
+              </ul>
+            )}
           </li>
           <li role="none">
             <button
