@@ -14,20 +14,34 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
   courses' material by subject and topic, and share courses with classmates.
 - `features/`: Gherkin specs. They drive development of both the backend and the UI.
 
-## Behaviour-driven development
+## Features
 
-Each capability starts as a `.feature` file in `features/`. Its steps live in `backend/tests/bdd/steps/`.
-
-- `make bdd` runs every scenario against `FakePlatform`, an in-memory platform. It needs no gogi stack and no API
-  keys. Scenarios tagged `@ui` build the frontend, serve it from the backend and drive it in headless Chromium with
-  Playwright. `make bdd-ui` runs only those.
-- `make bdd-standalone` runs the scenarios tagged `@platform` or `@standalone` against the app's own platform: its
-  database (SQLite, or `QUBIT_NOTES_TEST_DATABASE_URL`), files in a temporary directory, and its in-app embedding
-  models, downloaded the first time. The AI is a stand-in; `make bdd-standalone-ai` uses Anthropic's
-  (`QUBIT_NOTES_ANTHROPIC_API_KEY`). `--with-embedding-keys` also runs the scenarios that embed with Voyage AI and
-  OpenAI.
-- `make bdd-gogi` runs only the scenarios tagged `@platform`, against a running gogi gateway
-  (`QUBIT_NOTES_GATEWAY_URL`, default `localhost:50051`); it needs gogi-python (`make install-gogi`).
+- **Courses, subjects and topics.** Organise material by course, subject and topic, created before there is any
+  material for them, with names and titles of your own ([Subjects and topics](#subjects-and-topics)).
+- **Material.** Upload Markdown, text, PDFs, EPUBs and videos (MP4, WebM), large files included; or write a topic's
+  material in the editor, with a preview, and edit it later. Markdown material keeps its images.
+- **PDFs and EPUBs as Markdown.** Uploaded PDFs and EPUBs are converted to Markdown to read, edit and search, and can
+  be downloaded as they were or as they are now ([PDFs and EPUBs](#pdfs-and-epubs)).
+- **Reading.** Read material section by section, with mathematics typeset by KaTeX, each topic's material in the
+  order its owners set, and links on to the previous and next topic ([Reading in order](#reading-in-order)).
+- **References between topics.** Refer to another topic, material or section with `[[...]]`; references become
+  links, broken ones are reported, and a topic's page shows where it is mentioned
+  ([References between topics](#references-between-topics)).
+- **Notes.** Take notes on passages of text, or at moments of a video; notes follow their passage when the material
+  is edited.
+- **Asking the assistant.** Ask about the material being read or the whole course and get answers that cite their
+  sources, in conversations the assistant remembers, kept private to each student.
+- **Summaries and quizzes.** Summaries and quizzes of 1 to 20 questions on a section, a document or a whole topic,
+  saved, retaken, and marked out of date when the material changes.
+- **Generating material.** Have the AI write revision notes, cheat sheets, combined notes or worked examples from
+  chosen materials, citing them as references ([Generating material with the AI](#generating-material-with-the-ai)).
+- **Sharing.** Share a course with classmates as readers or co-owners, and stop sharing it.
+- **Accounts.** Sign in with Amazon Cognito where deployed, and change your email and password under
+  Settings › Account ([Signing in with Amazon Cognito](#signing-in-with-amazon-cognito)).
+- **Administration.** Admins choose the AI's provider (Anthropic or OpenAI) and model, and give the app keys it is
+  missing; the bar shows the platform's health ([The app's keys](#the-apps-keys), [The AI's model](#the-ais-model)).
+- **Platforms.** Runs on its own (SQLite or Postgres with pgvector, local files or S3, in-app or hosted embedding
+  models) or as an application of gogi; ships as a container image with Terraform for AWS.
 
 ## Development
 
@@ -37,7 +51,20 @@ make serve              # build the frontend and serve it with the backend on ht
 make dev-backend        # http://localhost:8001/api/health (gogi's chromadb takes 8000)
 make dev-frontend       # http://localhost:5173, forwards /api to the backend
 make lint
+make bdd                # every scenario, on an in-memory platform
+make bdd-ui             # only the @ui scenarios, in headless Chromium
+make bdd-standalone     # the @platform and @standalone scenarios, on the app's own platform
+make bdd-gogi           # the @platform scenarios, against a running gogi gateway
 ```
+
+Each capability starts as a `.feature` file in `features/`; its steps live in `backend/tests/bdd/steps/`.
+`make bdd` runs the scenarios against `FakePlatform`, an in-memory platform that needs no gogi stack and no API keys;
+the ones tagged `@ui` build the frontend, serve it from the backend and drive it with Playwright.
+`make bdd-standalone` uses the app's database (SQLite, or `QUBIT_NOTES_TEST_DATABASE_URL`), files in a temporary
+directory and its in-app embedding models, downloaded the first time, with a stand-in AI; `make bdd-standalone-ai`
+uses Anthropic's (`QUBIT_NOTES_ANTHROPIC_API_KEY`), and `--with-embedding-keys` also runs the scenarios that embed
+with Voyage AI and OpenAI. `make bdd-gogi` needs gogi-python (`make install-gogi`) and a gateway at
+`QUBIT_NOTES_GATEWAY_URL` (default `localhost:50051`).
 
 `./start_local.sh` does it all in one go, on the app's own platform: it reads settings such as
 `QUBIT_NOTES_ANTHROPIC_API_KEY` from `.env` (gitignored) if there is one, uses the dev database (Postgres with
