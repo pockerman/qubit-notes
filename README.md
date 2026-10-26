@@ -236,6 +236,10 @@ By default (`QUBIT_NOTES_PLATFORM=standalone`) the app is its own platform (`fea
   in the app and need no key; `voyage-*` models, e.g. `voyage-3.5-lite`, need `QUBIT_NOTES_VOYAGE_API_KEY`;
   `text-embedding-3-*` models need `QUBIT_NOTES_OPENAI_API_KEY`. Material embedded with one model is found only by
   searching with the same model: after changing it, run `qubit-notes reembed`.
+- **Memory.** The in-app models embed 32 chunks at a time, so a document needs about 1.5 GB however long it is
+  (with fastembed's own batch of 256, a book's long lesson took 5.7 GB). `QUBIT_NOTES_INGESTION_WORKERS` documents
+  (2 by default) are embedded at once, each with its own share, so allow about 1.5 GB per worker beside the app's
+  own; on a small machine, set it to 1. Hosted models embed elsewhere and need little.
 - **The AI** (`QUBIT_NOTES_LLM_PROVIDER`, `QUBIT_NOTES_LLM_MODEL`): Anthropic's models with
   `QUBIT_NOTES_ANTHROPIC_API_KEY` (the default), or OpenAI's with `QUBIT_NOTES_OPENAI_API_KEY`. Without a model set,
   each provider uses its own: `claude-sonnet-5-5`, or `gpt-5`, so `QUBIT_NOTES_LLM_PROVIDER=openai` and the OpenAI key

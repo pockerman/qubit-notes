@@ -43,6 +43,10 @@ class Embedder(Protocol):
 
 
 class InAppEmbedder:
+    # the most texts embedded at once: a batch's memory grows with its texts, each padded to the longest of them (up
+    # to 512 tokens), and with fastembed's own batch of 256 one long lesson took 5.7 GB; 32 take 1.4 GB, as fast
+    BATCH = 32
+
     def __init__(self, model: str, cache_dir: str | None = None):
         self.model = model
         self._cache_dir = cache_dir
@@ -60,7 +64,8 @@ class InAppEmbedder:
 
     def embed(self, texts: list[str], query: bool = False) -> list[list[float]]:
         embedding = self._loaded()
-        vectors = embedding.query_embed(texts) if query else embedding.passage_embed(texts)
+        embed = embedding.query_embed if query else embedding.passage_embed
+        vectors = embed(texts, batch_size=self.BATCH)
         return [vector.tolist() for vector in vectors]
 
     def missing(self) -> str | None:

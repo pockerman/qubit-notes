@@ -110,6 +110,30 @@ def test_voyage_embeds_documents_and_queries_in_batches(monkeypatch):
     assert vectors[:3] == [[0.0], [1.0], [2.0]]
 
 
+def test_in_app_models_embed_a_few_texts_at_a_time():
+    calls = []
+
+    class Model:
+        def passage_embed(self, texts, batch_size):
+            calls.append(("passage", batch_size))
+            return [SimpleNamespace(tolist=lambda: [1.0]) for _ in texts]
+
+        def query_embed(self, texts, batch_size):
+            calls.append(("query", batch_size))
+            return [SimpleNamespace(tolist=lambda: [2.0]) for _ in texts]
+
+    embedder = InAppEmbedder("bge-small-en-v1.5")
+    embedder._embedding = Model()
+
+    vectors = embedder.embed([f"text {i}" for i in range(300)])
+    embedder.embed(["what"], query=True)
+
+    # a long document's chunks are never embedded all at once, which takes gigabytes
+    assert calls == [("passage", InAppEmbedder.BATCH), ("query", InAppEmbedder.BATCH)]
+    assert InAppEmbedder.BATCH <= 64
+    assert len(vectors) == 300
+
+
 def test_openai_embeds_with_the_apps_key(monkeypatch):
     import openai
 
