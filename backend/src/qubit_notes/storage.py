@@ -260,6 +260,23 @@ conversions = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
 
+# a document made into a subject's lessons, a topic of each of its headings: see domain/lessons.py
+lesson_imports = Table(
+    "lesson_imports",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("student", String, nullable=False),
+    Column("course_id", String, nullable=False, index=True),
+    Column("subject", String, nullable=False),
+    Column("filename", String, nullable=False),
+    Column("status", String, nullable=False),
+    Column("error", Text),
+    # the ids of the topics made, in order
+    Column("topics", JSON, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+)
+
 
 # the app's own platform (platform/standalone): courses are its indexes, and material is its documents
 

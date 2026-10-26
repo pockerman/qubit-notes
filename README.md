@@ -20,6 +20,8 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
   material for them, with names and titles of your own ([Subjects and topics](#subjects-and-topics)).
 - **Material.** Upload Markdown, text, PDFs, EPUBs and videos (MP4, WebM), large files included; or write a topic's
   material in the editor, with a preview, and edit it later. Markdown material keeps its images.
+- **Lessons from a document.** Upload a textbook as a PDF, an EPUB or Markdown to a subject, and get a topic of each
+  of its chapters, with the chapter's text as its material ([Lessons from a document](#lessons-from-a-document)).
 - **PDFs and EPUBs as Markdown.** Uploaded PDFs and EPUBs are converted to Markdown to read, edit and search, and can
   be downloaded as they were or as they are now ([PDFs and EPUBs](#pdfs-and-epubs)).
 - **Reading.** Read material section by section, with mathematics typeset by KaTeX, each topic's material in the
@@ -109,6 +111,20 @@ summarise and quiz it as Markdown. Its pictures become its images.
 - EPUBs are converted with ebooklib and markdownify: a chapter's headings, or its title in the table of contents.
 - Two downloads: the original file, unchanged, and the material as it is now, as a PDF or an EPUB laid out anew
   from its Markdown (with PyMuPDF and ebooklib), with an outline of its headings or a chapter per top heading.
+
+## Lessons from a document
+
+On a subject's page, owners choose **Make lessons from a document** and give a PDF, an EPUB or a Markdown file
+(`features/lessons.feature`, `features/ui_lessons.feature`, `backend/src/qubit_notes/domain/lessons.py`). A PDF or an
+EPUB is converted to Markdown as an uploaded one is, then divided by its headings at its top level, the shallowest
+level with at least two of them (`backend/src/qubit_notes/conversion/lessons.py`), so a book whose only top heading is
+its title is divided into its chapters. Each part becomes a topic named after its heading, e.g. "2 Shape functions"
+(`2-shape-functions`), after the subject's other topics, with one Markdown material, `2-shape-functions.md`, whose top
+heading is the chapter's and whose sections are the headings within it; it keeps the pictures its text refers to. Text
+before the first chapter is a lesson of its own, named after the book's title, or "Introduction". A topic id the
+subject has already is given a number, e.g. `1-introduction-2`. The lessons are made in the background
+(`POST /api/courses/{course}/subjects/{subject}/lessons`, then `GET /api/lesson-imports/{id}`); the document itself
+isn't kept, so lessons the app stops making in the middle fail, to be made again.
 
 ## Mathematics
 

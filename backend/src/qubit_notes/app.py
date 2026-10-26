@@ -13,6 +13,7 @@ from qubit_notes.api import (
     generating,
     health,
     images,
+    lessons,
     materials,
     notes,
     reading,
@@ -31,6 +32,7 @@ from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.flashcards import Flashcards
 from qubit_notes.domain.generating import Generator
 from qubit_notes.domain.images import Images
+from qubit_notes.domain.lessons import Lessons
 from qubit_notes.domain.material_order import MaterialOrder
 from qubit_notes.domain.materials import Materials
 from qubit_notes.domain.memory import StudentMemory
@@ -55,6 +57,7 @@ async def _lifespan(app: FastAPI):
     # conversions and the app's own platform's ingestions stop; what they haven't finished is done when the app
     # starts again
     app.state.conversions.stop()
+    app.state.lessons.stop()
     if stop := getattr(app.state.platform, "stop", None):
         stop()
 
@@ -106,6 +109,8 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.database = database
     app.state.notes = Notes(app.state.database, app.state.reading)
     app.state.materials.on_upload(app.state.topics.ensure)
+    app.state.lessons = Lessons(database, app.state.courses, app.state.topics, app.state.materials, app.state.images)
+    app.state.lessons.abandon()
     # a deleted topic's material goes with it
     app.state.topics.on_delete(app.state.materials.delete_topic)
     app.state.reading_order = ReadingOrder(app.state.courses, app.state.topics, app.state.materials)
@@ -145,6 +150,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         account.router,
         courses.router,
         materials.router,
+        lessons.router,
         images.router,
         reading.router,
         references.router,

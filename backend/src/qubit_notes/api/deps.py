@@ -12,6 +12,7 @@ from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.flashcards import Flashcards
 from qubit_notes.domain.generating import Generator
 from qubit_notes.domain.images import Images
+from qubit_notes.domain.lessons import Lessons
 from qubit_notes.domain.materials import Materials
 from qubit_notes.domain.notes import Notes
 from qubit_notes.domain.quizzes import Quizzes
@@ -85,6 +86,10 @@ def summaries(request: Request) -> Summaries:
 
 def quizzes(request: Request) -> Quizzes:
     return request.app.state.quizzes
+
+
+def lessons(request: Request) -> Lessons:
+    return request.app.state.lessons
 
 
 def flashcards(request: Request) -> Flashcards:

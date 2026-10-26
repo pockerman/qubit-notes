@@ -197,6 +197,19 @@ export type Note = {
 
 export type NewNote = { text: string } & ({ section: number; passage: string } | { at_seconds: number })
 
+/** A subject's lessons being made from a document: a topic of each of its headings (features/lessons.feature). */
+export type LessonImport = {
+  id: string
+  course_id: string
+  subject: string
+  filename: string
+  status: IngestStatus
+  // why they could not be made, e.g. a PDF without text
+  error: string | null
+  // the ids of the topics made, in the order of the document
+  topics: string[]
+}
+
 /** What a summary, a quiz or a deck of flashcards is about: a section of a document, a whole document, or a topic. */
 export type Scope = {
   course_id: string
@@ -684,6 +697,18 @@ export class StudyApi {
     return this.request('/materials', { method: 'POST', body: form })
   }
 
+  /** makes a topic of each heading of the PDF, EPUB or Markdown file, in the background */
+  makeLessons(course: string, subject: string, file: File): Promise<LessonImport> {
+    const form = new FormData()
+    form.append('file', file)
+    const [c, s] = [course, subject].map(encodeURIComponent)
+    return this.request(`/courses/${c}/subjects/${s}/lessons`, { method: 'POST', body: form })
+  }
+
+  lessonImport(importId: string): Promise<LessonImport> {
+    return this.request(`/lesson-imports/${encodeURIComponent(importId)}`)
+  }
+
   uploadStatus(jobId: string): Promise<IngestJob> {
     return this.request(`/uploads/${encodeURIComponent(jobId)}`)
   }
@@ -757,6 +782,15 @@ export class StudyApi {
     return this.request(`/courses/${encodeURIComponent(course)}/members/${encodeURIComponent(student)}`, {
       method: 'DELETE',
     })
+  }
+}
+
+/** Waits until the lessons have been made, or making them has failed. */
+export async function waitForLessons(api: StudyApi, importId: string, intervalMs = 1000): Promise<LessonImport> {
+  for (;;) {
+    const made = await api.lessonImport(importId)
+    if (made.status === 'completed' || made.status === 'failed') return made
+    await new Promise((resolve) => setTimeout(resolve, intervalMs))
   }
 }
 

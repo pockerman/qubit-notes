@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Course, Material, StudyApi, Subject, Topic } from '../api'
+import { LessonsForm } from '../components/LessonsForm'
 import { NewTopicForm } from '../components/NewTopicForm'
 import { RenameForm } from '../components/RenameForm'
 import { namesOf } from '../names'
@@ -19,6 +20,9 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
   // the topic being deleted, once its owner has asked to
   const [deletingTopic, setDeletingTopic] = useState<string | null>(null)
   const [addingTopic, setAddingTopic] = useState(false)
+  const [makingLessons, setMakingLessons] = useState(false)
+  // e.g. how many lessons were just made
+  const [notice, setNotice] = useState<string | null>(null)
   // what is being renamed: the subject (SUBJECT) or one of its topics
   const [renaming, setRenaming] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -156,6 +160,14 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
             >
               Add topic
             </button>
+            <button
+              type="button"
+              className="link"
+              aria-label={`Make lessons in ${subjectName} from a document`}
+              onClick={() => setMakingLessons(!makingLessons)}
+            >
+              Make lessons from a document
+            </button>
             {of.length === 0 && (
               <button
                 type="button"
@@ -174,6 +186,26 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
         <p role="alert" className="error">
           {error}
         </p>
+      )}
+
+      {notice && (
+        <p role="status" className="note">
+          {notice}
+        </p>
+      )}
+
+      {makingLessons && (
+        <LessonsForm
+          api={api}
+          course={course}
+          subject={subject}
+          subjectName={subjectName}
+          onMade={(count) => {
+            setMakingLessons(false)
+            setNotice(`Made ${count === 1 ? '1 lesson' : `${count} lessons`}.`)
+            load()
+          }}
+        />
       )}
 
       {addingTopic && (

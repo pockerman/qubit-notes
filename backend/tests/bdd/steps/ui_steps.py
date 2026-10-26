@@ -769,10 +769,10 @@ def see_subject_without_topics(page, subject):
     expect(page.get_by_role("main").get_by_role("heading", level=4)).to_have_count(0)
 
 
-@then(parsers.re(r'the subject offers "(?P<first>[^"]+)", "(?P<second>[^"]+)" and "(?P<third>[^"]+)"$'))
-def subject_offers(page, first, second, third):
+@then(parsers.re(r'the subject offers (?P<actions>"[^"]+"(?:, "[^"]+")* and "[^"]+")$'))
+def subject_offers(page, actions):
     expect(page.locator("#subject-title")).to_be_visible()
-    expect(page.locator("header.page-header").get_by_role("button")).to_have_text([first, second, third])
+    expect(page.locator("header.page-header").get_by_role("button")).to_have_text(re.findall(r'"([^"]+)"', actions))
 
 
 @when(parsers.re(r'I delete the subject "(?P<subject>[^"]+)"$'))
@@ -927,6 +927,28 @@ def add_markdown_with_image(page, students, context, filename, image, topic):
     form.get_by_label("Images").set_input_files(_png_file(image))
     form.get_by_role("button", name="Upload").click()
     expect(page.get_by_role("heading", name=re.compile("^Add material"), level=2)).to_have_count(0)
+
+
+@when(parsers.parse('I make lessons from "{filename}"'))
+def make_lessons_in_browser(page, context, filename):
+    page.get_by_role("button", name=re.compile(" from a document$")).click()
+    form = page.get_by_role("form", name=re.compile("^Make lessons in "))
+    content = context["files"][filename].encode()
+    form.get_by_label("PDF, EPUB or Markdown file").set_input_files(
+        {"name": filename, "mimeType": "application/octet-stream", "buffer": content}
+    )
+    form.get_by_role("button", name="Make lessons").click()
+
+
+@then(parsers.parse("I am told {count:d} lessons were made"))
+def told_lessons_made(page, count):
+    expect(page.get_by_role("status").filter(has_text="Made ")).to_have_text(f"Made {count} lessons.")
+
+
+@then("I see that lessons are made only from a PDF, an EPUB or a Markdown file")
+def see_which_documents(page):
+    form = page.get_by_role("form", name=re.compile("^Make lessons in "))
+    expect(form.get_by_role("alert")).to_contain_text("make lessons from a PDF, an EPUB or a Markdown file")
 
 
 @then(parsers.parse('I see the image "{alt}"'))

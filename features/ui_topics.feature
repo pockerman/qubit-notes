@@ -112,7 +112,7 @@ Feature: Subjects and topics in the browser
       Then I see the subjects "Fluid Dynamics, Heat Transfer, Numerical methods"
       When I open the subject "Heat Transfer"
       Then I see the subject "Heat Transfer" with no topics yet
-      And the subject offers "Rename", "Add topic" and "Delete"
+      And the subject offers "Rename", "Add topic", "Make lessons from a document" and "Delete"
 
     Scenario: Add a topic to a subject without topics
       When I open the course "Aeronautics"
