@@ -123,8 +123,13 @@ its title is divided into its chapters. Each part becomes a topic named after it
 heading is the chapter's and whose sections are the headings within it; it keeps the pictures its text refers to. Text
 before the first chapter is a lesson of its own, named after the book's title, or "Introduction". A topic id the
 subject has already is given a number, e.g. `1-introduction-2`. The lessons are made in the background
-(`POST /api/courses/{course}/subjects/{subject}/lessons`, then `GET /api/lesson-imports/{id}`); the document itself
-isn't kept, so lessons the app stops making in the middle fail, to be made again.
+(`POST /api/courses/{course}/subjects/{subject}/lessons`, then `GET /api/lesson-imports/{id}`), and those the app
+stops making are made again when it starts.
+
+A PDF's or an EPUB's lessons keep it as their original, as a converted material does: each lesson's **Download
+original** is the whole document as it was uploaded, e.g. `fem.pdf`, and **Download as PDF** is the lesson as it is
+now, e.g. `2-shape-functions.pdf`. The original is deleted with the last of its lessons. A Markdown document's lessons
+are their own text, so it isn't kept.
 
 ## Mathematics
 

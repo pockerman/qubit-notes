@@ -18,8 +18,14 @@ Feature: Lessons from a document
   in the order of the document; a lesson whose id the subject already has is given one with a
   number after it, e.g. 1-introduction-2.
 
+  A PDF's or an EPUB's lessons keep it as their original: each lesson downloads it, the whole
+  document as it was uploaded, and downloads itself as it is now as a PDF or an EPUB laid out
+  anew from its Markdown, as a converted material does. The original is kept until the last of
+  its lessons' materials is deleted. A Markdown document's lessons are their own text, so it
+  isn't kept.
+
   The document is made into lessons in the background; the student follows it as they follow an
-  upload.
+  upload. Lessons the app stopped making are made again when it starts.
 
   Background:
     Given I am the student "maria"
@@ -107,6 +113,63 @@ Feature: Lessons from a document
     Scenario: A lesson keeps the pictures in its text
       When I make lessons in "aeronautics/numerical-methods" from a PDF "meshing.pdf" with a picture in its section "1 Meshing"
       Then the lesson "1-meshing" of "aeronautics/numerical-methods" has that image, and is missing none
+
+  Rule: A PDF's or an EPUB's lessons keep it as their original
+
+    Background:
+      Given I have made lessons in "aeronautics/numerical-methods" from a PDF "fem.pdf" with the pages:
+        | page | text                                                                 | outline           | level |
+        | 1    | The finite element method divides a domain into small elements.     | 1 Introduction    | 1     |
+        | 2    | A linear element interpolates linearly between its two nodes.       | 2 Shape functions | 1     |
+        | 3    | The element matrices are assembled into the global stiffness matrix. | 3 Assembly        | 1     |
+
+    @platform
+    Scenario: A lesson downloads the original document
+      When I download the original of the lesson "2-shape-functions" of "aeronautics/numerical-methods"
+      Then I get the file exactly as I uploaded it
+
+    Scenario: A lesson downloads itself as a PDF
+      When I download the lesson "2-shape-functions" of "aeronautics/numerical-methods" as it is now
+      Then I get a PDF called "2-shape-functions.pdf"
+      And its text includes "A linear element interpolates linearly"
+      But its text does not include "assembled into the global stiffness matrix"
+
+    Scenario: The original is kept until the last of its lessons is deleted
+      When I delete the topic "numerical-methods/1-introduction" from "aeronautics"
+      And I delete the topic "numerical-methods/2-shape-functions" from "aeronautics"
+      Then the original "fem.pdf" is kept in "aeronautics"
+      When I delete the topic "numerical-methods/3-assembly" from "aeronautics"
+      Then the original "fem.pdf" is no longer kept in "aeronautics"
+
+    Scenario: A Markdown document isn't kept
+      When I make lessons in "aeronautics/numerical-methods" from the Markdown "shape-functions.md":
+        """
+        # 4 Quadrature
+        Gauss quadrature integrates the element matrices.
+
+        # 5 Meshing
+        A mesh of triangles is generated with Delaunay triangulation.
+        """
+      And I download the lesson "4-quadrature" of "aeronautics/numerical-methods"
+      Then I get its own text, which does not include "Delaunay triangulation"
+
+  Rule: Lessons the app stopped making are made when it starts again
+
+    Scenario: The app stops while making lessons
+      Given the app stopped while making lessons in "aeronautics/numerical-methods" from the Markdown "fem.md":
+        """
+        # 1 Introduction
+        The finite element method divides a domain into small elements.
+
+        # 2 Shape functions
+        Shape functions interpolate the solution inside each element.
+        """
+      When the app starts again
+      Then the lessons are made
+      And the subject "numerical-methods" of "aeronautics" has the lessons:
+        | lesson            | topic             | material             |
+        | 1 Introduction    | 1-introduction    | 1-introduction.md    |
+        | 2 Shape functions | 2-shape-functions | 2-shape-functions.md |
 
   Rule: Lessons go after the subject's other topics
 

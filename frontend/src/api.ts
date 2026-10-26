@@ -348,6 +348,15 @@ export type MaterialImages = {
   missing: string[]
 }
 
+/** A file to save, with the name the backend gives it: a lesson's original is the whole document, e.g. fem.pdf. */
+export type DownloadedFile = { blob: Blob; filename: string | null }
+
+async function downloaded(response: Response): Promise<DownloadedFile> {
+  const disposition = response.headers.get('Content-Disposition') ?? ''
+  const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition)?.[1]
+  return { blob: await response.blob(), filename: encoded ? decodeURIComponent(encoded) : null }
+}
+
 /** How the backend signs students in; asked before anyone has. */
 export async function authConfig(): Promise<AuthConfig> {
   const response = await fetch('/api/config')
@@ -472,14 +481,15 @@ export class StudyApi {
     })
   }
 
-  /** The uploaded file; the student's header can't go on a plain link, so it's fetched. */
-  async download(courseId: string, documentId: string): Promise<Blob> {
-    return (await this.fetch(`${this.materialPath(courseId, documentId)}/file`)).blob()
+  /** The uploaded file, or a converted material's original; the student's header can't go on a plain link, so it's
+   * fetched. */
+  async download(courseId: string, documentId: string): Promise<DownloadedFile> {
+    return downloaded(await this.fetch(`${this.materialPath(courseId, documentId)}/file`))
   }
 
   /** A material converted from a PDF or an EPUB as it is now, as a PDF or an EPUB laid out anew. */
-  async export(courseId: string, documentId: string): Promise<Blob> {
-    return (await this.fetch(`${this.materialPath(courseId, documentId)}/export`)).blob()
+  async export(courseId: string, documentId: string): Promise<DownloadedFile> {
+    return downloaded(await this.fetch(`${this.materialPath(courseId, documentId)}/export`))
   }
 
   health(): Promise<Health> {

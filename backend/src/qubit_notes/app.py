@@ -109,8 +109,12 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.database = database
     app.state.notes = Notes(app.state.database, app.state.reading)
     app.state.materials.on_upload(app.state.topics.ensure)
-    app.state.lessons = Lessons(database, app.state.courses, app.state.topics, app.state.materials, app.state.images)
-    app.state.lessons.abandon()
+    app.state.lessons = Lessons(
+        database, platform, app.state.courses, app.state.topics, app.state.materials, app.state.images
+    )
+    # the original of lessons goes with the last of their materials
+    app.state.materials.on_delete_in_course(app.state.lessons.forget)
+    app.state.lessons.resume()
     # a deleted topic's material goes with it
     app.state.topics.on_delete(app.state.materials.delete_topic)
     app.state.reading_order = ReadingOrder(app.state.courses, app.state.topics, app.state.materials)

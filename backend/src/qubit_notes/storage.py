@@ -269,6 +269,8 @@ lesson_imports = Table(
     Column("course_id", String, nullable=False, index=True),
     Column("subject", String, nullable=False),
     Column("filename", String, nullable=False),
+    # the document, kept by the platform as the original of a PDF's or an EPUB's lessons
+    Column("original_id", String),
     Column("status", String, nullable=False),
     Column("error", Text),
     # the ids of the topics made, in order

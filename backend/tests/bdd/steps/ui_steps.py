@@ -4,6 +4,8 @@ from urllib.parse import unquote
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, then, when
 
+from tests.pdfs import make_pdf
+
 
 def _sign_in(page: Page, students, name: str) -> None:
     students.me = name
@@ -933,11 +935,35 @@ def add_markdown_with_image(page, students, context, filename, image, topic):
 def make_lessons_in_browser(page, context, filename):
     page.get_by_role("button", name=re.compile(" from a document$")).click()
     form = page.get_by_role("form", name=re.compile("^Make lessons in "))
-    content = context["files"][filename].encode()
+    content = context["files"][filename]
+    content = content.encode() if isinstance(content, str) else content
     form.get_by_label("PDF, EPUB or Markdown file").set_input_files(
         {"name": filename, "mimeType": "application/octet-stream", "buffer": content}
     )
     form.get_by_role("button", name="Make lessons").click()
+
+
+@given(parsers.parse('I have the PDF "{filename}" with the pages:'))
+def have_pdf(context, filename, datatable):
+    header, *rows = datatable
+    pages = [dict(zip(header, row, strict=True)) for row in rows]
+    outline = [(p["outline"], int(p["level"]), int(p["page"])) for p in pages if p["outline"]]
+    context.setdefault("files", {})[filename] = make_pdf([p["text"] for p in pages], outline=outline)
+
+
+@when("I download its original")
+def download_original_in_browser(page, context):
+    with page.expect_download() as download:
+        page.get_by_role("button", name="Download original").click()
+    context["download"] = download.value
+
+
+@then(parsers.parse('I get "{filename}", the file I made the lessons from'))
+def got_original_in_browser(context, filename):
+    download = context["download"]
+    assert download.suggested_filename == filename
+    with open(download.path(), "rb") as saved:
+        assert saved.read() == context["files"][filename]
 
 
 @then(parsers.parse("I am told {count:d} lessons were made"))

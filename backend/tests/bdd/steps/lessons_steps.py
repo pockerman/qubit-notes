@@ -2,8 +2,10 @@
 
 import time
 
-from pytest_bdd import parsers, then, when
+from pytest_bdd import given, parsers, then, when
 
+from qubit_notes.domain.conversions import ORIGINAL_KIND
+from qubit_notes.domain.images import KIND
 from tests.bdd.steps.converting_steps import PICTURED_TEXT
 from tests.epubs import make_epub
 from tests.pdfs import make_pdf, make_pdf_with_picture, make_scanned_pdf
@@ -17,6 +19,8 @@ def _rows(datatable) -> list[dict]:
 
 
 def _make(students, context, location: str, filename: str, content: bytes, name: str | None = None) -> None:
+    context.setdefault("uploaded", {})[filename] = content
+    context["lessons_from"] = filename
     course, subject = location.split("/")
     context["response"] = students.client.post(
         f"/api/courses/{course}/subjects/{subject}/lessons",
@@ -60,6 +64,13 @@ def from_pdf(students, context, location, filename, datatable):
     _make(students, context, location, filename, make_pdf([p["text"] for p in pages], outline=outline))
 
 
+@given(parsers.parse('I have made lessons in "{location}" from a PDF "{filename}" with the pages:'))
+def have_made_from_pdf(students, context, location, filename, datatable):
+    from_pdf(students, context, location, filename, datatable)
+    made = _made(students, context)
+    assert made["status"] == "completed", made
+
+
 @when(parsers.parse('I make lessons in "{location}" from an EPUB "{filename}" with the chapters:'))
 def from_epub(students, context, location, filename, datatable):
     _, *rows = datatable
@@ -89,6 +100,19 @@ def from_scan(students, context, location, filename):
 @when(parsers.parse('the student "{name}" makes lessons in "{location}" from the Markdown "{filename}"'))
 def they_make_lessons(students, context, name, location, filename):
     _make(students, context, location, filename, TWO_LESSONS, name=name)
+
+
+@given(parsers.parse('the app stopped while making lessons in "{location}" from the Markdown "{filename}":'))
+def stopped_while_making(client, students, context, location, filename, docstring, monkeypatch):
+    # the lessons are started, but not made
+    with monkeypatch.context() as patched:
+        patched.setattr(client.app.state.lessons, "_submit", lambda import_id: None)
+        _make(students, context, location, filename, docstring.encode())
+
+
+@when("the app starts again")
+def app_starts_again(client):
+    client.app.state.lessons.resume()
 
 
 # the lessons made
@@ -166,3 +190,47 @@ def making_fails(students, context, filename):
 def no_topics(students, subject, course):
     response = students.client.get(f"/api/courses/{course}/topics", headers=students.headers())
     assert [t for t in response.json() if t["subject"] == subject] == []
+
+
+# the original
+
+
+@when(parsers.parse('I download the original of the lesson "{topic}" of "{location}"'))
+def download_lesson_original(students, context, topic, location):
+    context["response"] = students.download(_material(students, location, topic))
+    context["filename"] = context["lessons_from"]
+
+
+@when(parsers.parse('I download the lesson "{topic}" of "{location}" as it is now'))
+def download_lesson_now(students, context, topic, location):
+    context["response"] = students.export(_material(students, location, topic))
+
+
+@when(parsers.parse('I download the lesson "{topic}" of "{location}"'))
+def download_lesson(students, context, topic, location):
+    _made(students, context)
+    context["response"] = students.download(_material(students, location, topic))
+
+
+@then(parsers.parse('I get its own text, which does not include "{text}"'))
+def own_text(context, text):
+    response = context["response"]
+    assert response.status_code == 200, response.text
+    assert response.content.decode().startswith("# ")
+    assert text not in response.content.decode()
+
+
+def _originals(client, students, course: str, filename: str) -> list:
+    course_id = next(c["id"] for c in students.courses() if c["name"] == course)
+    found = client.app.state.platform.list_documents(course_id, {KIND: ORIGINAL_KIND})
+    return [document for document in found if document.filename == filename]
+
+
+@then(parsers.parse('the original "{filename}" is kept in "{course}"'))
+def original_kept(client, students, filename, course):
+    assert len(_originals(client, students, course, filename)) == 1
+
+
+@then(parsers.parse('the original "{filename}" is no longer kept in "{course}"'))
+def original_gone(client, students, filename, course):
+    assert _originals(client, students, course, filename) == []

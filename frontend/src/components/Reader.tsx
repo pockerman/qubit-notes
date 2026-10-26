@@ -309,11 +309,11 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
   async function download(asItIsNow = false) {
     if (!material) return
     try {
-      const file = asItIsNow ? api.export(courseId, documentId) : api.download(courseId, documentId)
-      const url = URL.createObjectURL(await file)
+      const file = await (asItIsNow ? api.export(courseId, documentId) : api.download(courseId, documentId))
+      const url = URL.createObjectURL(file.blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = material.filename
+      link.download = file.filename ?? material.filename
       link.click()
       URL.revokeObjectURL(url)
     } catch (e) {

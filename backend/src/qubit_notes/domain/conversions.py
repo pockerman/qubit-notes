@@ -209,8 +209,12 @@ class Conversions:
         # a reference to another part of the course is its label, as text: the file isn't in the course
         markdown = as_text(downloaded.content.decode("utf-8", errors="replace"))
         images = self._images.contents(course.id, document_id)
-        content = export(content_type, document.filename.rsplit(".", 1)[0], markdown, images)
-        return DownloadedFile(filename=document.filename, content_type=content_type, content=content, size=len(content))
+        stem = document.filename.rsplit(".", 1)[0]
+        content = export(content_type, stem, markdown, images)
+        # a lesson made from a PDF is Markdown, e.g. 2-shape-functions.md; as it is now, it is 2-shape-functions.pdf
+        extension = {"application/pdf": ".pdf", "application/epub+zip": ".epub"}[content_type]
+        filename = document.filename if document.filename.lower().endswith(extension) else stem + extension
+        return DownloadedFile(filename=filename, content_type=content_type, content=content, size=len(content))
 
     def forget(self, course_id: str, document_id: str) -> None:
         """deletes a deleted material's original and conversion"""

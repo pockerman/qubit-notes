@@ -96,7 +96,10 @@ class Materials:
         """``forget`` is called with the course id and the document id of every deleted material"""
         self._on_delete_in_course.append(forget)
 
-    def upload(self, student: str, location: str, filename: str, content: bytes) -> Upload:
+    def upload(
+        self, student: str, location: str, filename: str, content: bytes, metadata: dict[str, str] | None = None
+    ) -> Upload:
+        """``metadata`` is more for the material's own, e.g. the original of a lesson made from a document"""
         where = Location.parse(location)
         content_type = CONTENT_TYPES.get(PurePosixPath(filename).suffix.lower())
         if content_type is None:
@@ -108,7 +111,13 @@ class Materials:
 
         course = self._courses.get_or_create(student, where.course)
         self._courses.require_owner(student, course)
-        metadata = {"subject": where.subject, "topic": where.topic, "filename": filename, "uploaded_by": student}
+        metadata = {
+            **(metadata or {}),
+            "subject": where.subject,
+            "topic": where.topic,
+            "filename": filename,
+            "uploaded_by": student,
+        }
         video = is_video(content_type)
         if video and (duration := duration_seconds(content)) is not None:
             metadata["duration_seconds"] = f"{duration:.3f}"

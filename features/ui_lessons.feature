@@ -6,7 +6,8 @@ Feature: Lessons from a document in the browser
 
   "Make lessons from a document" on a subject's page takes a PDF, an EPUB or a Markdown file and
   makes a topic of each of its headings, after the subject's other topics (see Lessons from a
-  document). The student is told how many lessons were made, or why none could be.
+  document). The student is told how many lessons were made, or why none could be. A lesson made
+  from a PDF or an EPUB downloads the whole document, under its own name, as its original.
 
   Background:
     Given I am signed in as "maria"
@@ -29,6 +30,20 @@ Feature: Lessons from a document in the browser
     And I see the topics "1 Introduction, 2 Shape functions" under "Numerical methods"
     When I open the topic "2 Shape functions"
     Then I see its materials "2-shape-functions.md"
+
+  Scenario: A lesson downloads the original PDF
+    Given I have the PDF "fem.pdf" with the pages:
+      | page | text                                                            | outline           | level |
+      | 1    | The finite element method divides a domain into small elements. | 1 Introduction    | 1     |
+      | 2    | A linear element interpolates linearly between its two nodes.   | 2 Shape functions | 1     |
+    When I open the course "Aeronautics"
+    And I open the subject "Numerical methods"
+    And I make lessons from "fem.pdf"
+    Then I am told 2 lessons were made
+    When I open the topic "2 Shape functions"
+    And I open "2-shape-functions.md" to read it
+    And I download its original
+    Then I get "fem.pdf", the file I made the lessons from
 
   Scenario: A file that is not a document
     Given I have the file "notes.txt" with the content:
