@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Course, Material, StudyApi, Subject, Topic } from '../api'
+import type { Course, Material, Original, StudyApi, Subject, Topic } from '../api'
 import { LessonsForm } from '../components/LessonsForm'
 import { NewTopicForm } from '../components/NewTopicForm'
+import { Originals } from '../components/Originals'
 import { RenameForm } from '../components/RenameForm'
 import { namesOf } from '../names'
 import { href, navigate } from '../router'
@@ -17,6 +18,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
   const [materials, setMaterials] = useState<Material[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
   const [subjects, setSubjects] = useState<Subject[] | null>(null)
+  // the documents its lessons were made from
+  const [originals, setOriginals] = useState<Original[]>([])
   // the topic being deleted, once its owner has asked to
   const [deletingTopic, setDeletingTopic] = useState<string | null>(null)
   const [addingTopic, setAddingTopic] = useState(false)
@@ -36,11 +39,17 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
 
   const load = useCallback(() => {
     if (!course) return
-    Promise.all([api.materials(course.name), api.topics(course.name), api.subjects(course.name)]).then(
-      ([m, t, s]) => {
+    Promise.all([
+      api.materials(course.name),
+      api.topics(course.name),
+      api.subjects(course.name),
+      api.originals(course.name, subject),
+    ]).then(
+      ([m, t, s, o]) => {
         setMaterials(m.filter((material) => material.subject === subject))
         setTopics(t)
         setSubjects(s)
+        setOriginals(o)
       },
       (e: Error) => setError(e.message),
     )
@@ -322,6 +331,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
           )
         })}
       </ol>
+
+      <Originals api={api} courseId={courseId} originals={originals} />
     </section>
   )
 }

@@ -51,6 +51,22 @@ class LessonImport(BaseModel):
     topics: list[str] = []
 
 
+class Lesson(BaseModel):
+    # its topic's id, and its material's document, which downloads the original
+    topic: str
+    document_id: str
+
+
+class Original(BaseModel):
+    """a document a subject's lessons were made from, kept as theirs"""
+
+    document_id: str
+    filename: str
+    content_type: str
+    # the lessons made from it that are still there, in the subject's order
+    lessons: list[Lesson]
+
+
 class Lessons:
     def __init__(
         self,
@@ -129,6 +145,34 @@ class Lessons:
             error=row.error,
             topics=row.topics,
         )
+
+    def originals(self, student: str, course_name: str, subject: str) -> list[Original]:
+        """the documents the subject's lessons were made from, by filename; any member of the course sees them"""
+        course = self._courses.get(student, course_name)
+        order = {t.topic: n for n, t in enumerate(self._topics.of_course(course)) if t.subject == subject}
+        found = []
+        for original in self._platform.list_documents(course.id, {KIND: ORIGINAL_KIND, "subject": subject}):
+            if not original.metadata.get(LESSONS):
+                continue
+            made = self._platform.list_documents(course.id, {ORIGINAL: original.document_id})
+            lessons = sorted(
+                (
+                    Lesson(topic=m.metadata.get("topic", ""), document_id=m.document_id)
+                    for m in made
+                    if m.metadata.get("subject") == subject
+                ),
+                key=lambda lesson: order.get(lesson.topic, len(order)),
+            )
+            if lessons:
+                found.append(
+                    Original(
+                        document_id=original.document_id,
+                        filename=original.filename,
+                        content_type=original.content_type,
+                        lessons=lessons,
+                    )
+                )
+        return sorted(found, key=lambda o: o.filename)
 
     def resume(self) -> None:
         """makes again the lessons the app stopped making"""

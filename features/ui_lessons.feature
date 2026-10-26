@@ -9,6 +9,11 @@ Feature: Lessons from a document in the browser
   document). The student is told how many lessons were made, or why none could be. A lesson made
   from a PDF or an EPUB downloads the whole document, under its own name, as its original.
 
+  The subject's page lists the originals its lessons were made from, under "Originals", each
+  with how many lessons were made from it and a download. A PDF can be shown on the page, and
+  hidden again; an EPUB, which a browser can't show, is downloaded to be read. Originals are
+  hidden until the student shows them.
+
   Background:
     Given I am signed in as "maria"
     And I have created the course "aeronautics"
@@ -43,6 +48,22 @@ Feature: Lessons from a document in the browser
     When I open the topic "2 Shape functions"
     And I open "2-shape-functions.md" to read it
     And I download its original
+    Then I get "fem.pdf", the file I made the lessons from
+
+  Scenario: Show and hide the original on the subject's page
+    Given I have the PDF "fem.pdf" with the pages:
+      | page | text                                                            | outline           | level |
+      | 1    | The finite element method divides a domain into small elements. | 1 Introduction    | 1     |
+      | 2    | A linear element interpolates linearly between its two nodes.   | 2 Shape functions | 1     |
+    When I open the course "Aeronautics"
+    And I open the subject "Numerical methods"
+    And I make lessons from "fem.pdf"
+    Then I see the original "fem.pdf", made into 2 lessons, hidden
+    When I show the original "fem.pdf"
+    Then I see "fem.pdf" on the page
+    When I hide the original "fem.pdf"
+    Then I see the original "fem.pdf", made into 2 lessons, hidden
+    When I download the original "fem.pdf" from the subject's page
     Then I get "fem.pdf", the file I made the lessons from
 
   Scenario: A file that is not a document

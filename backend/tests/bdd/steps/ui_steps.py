@@ -966,6 +966,40 @@ def got_original_in_browser(context, filename):
         assert saved.read() == context["files"][filename]
 
 
+def _original(page, filename: str):
+    return page.get_by_role("list", name="Originals").get_by_role("listitem", name=filename, exact=True)
+
+
+@then(parsers.parse('I see the original "{filename}", made into {count:d} lessons, hidden'))
+def see_original_hidden(page, filename, count):
+    original = _original(page, filename)
+    expect(original).to_contain_text(f"made into {count} lessons")
+    expect(original.get_by_role("button", name=f"Show {filename}")).to_have_attribute("aria-expanded", "false")
+    expect(page.locator(f'iframe[title="{filename}"]')).to_have_count(0)
+
+
+@when(parsers.re(r'I (?P<action>show|hide) the original "(?P<filename>[^"]+)"$'))
+def show_or_hide_original(page, action, filename):
+    _original(page, filename).get_by_role("button", name=f"{action.capitalize()} {filename}").click()
+
+
+@then(parsers.parse('I see "{filename}" on the page'))
+def see_original_shown(page, filename):
+    view = page.locator(f'iframe[title="{filename}"]')
+    expect(view).to_be_visible()
+    expect(view).to_have_attribute("src", re.compile(r"/file\?.*inline=true"))
+    expect(_original(page, filename).get_by_role("button", name=f"Hide {filename}")).to_have_attribute(
+        "aria-expanded", "true"
+    )
+
+
+@when(parsers.parse('I download the original "{filename}" from the subject\'s page'))
+def download_original_from_subject(page, context, filename):
+    with page.expect_download() as download:
+        _original(page, filename).get_by_role("button", name=f"Download {filename}").click()
+    context["download"] = download.value
+
+
 @then(parsers.parse("I am told {count:d} lessons were made"))
 def told_lessons_made(page, count):
     expect(page.get_by_role("status").filter(has_text="Made ")).to_have_text(f"Made {count} lessons.")

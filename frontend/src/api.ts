@@ -210,6 +210,15 @@ export type LessonImport = {
   topics: string[]
 }
 
+/** A document a subject's lessons were made from, kept as theirs; each lesson's material downloads it. */
+export type Original = {
+  document_id: string
+  filename: string
+  content_type: string
+  // the lessons made from it, in the subject's order
+  lessons: { topic: string; document_id: string }[]
+}
+
 /** What a summary, a quiz or a deck of flashcards is about: a section of a document, a whole document, or a topic. */
 export type Scope = {
   course_id: string
@@ -713,6 +722,12 @@ export class StudyApi {
     form.append('file', file)
     const [c, s] = [course, subject].map(encodeURIComponent)
     return this.request(`/courses/${c}/subjects/${s}/lessons`, { method: 'POST', body: form })
+  }
+
+  /** the documents the subject's lessons were made from */
+  originals(course: string, subject: string): Promise<Original[]> {
+    const [c, s] = [course, subject].map(encodeURIComponent)
+    return this.request(`/courses/${c}/subjects/${s}/originals`)
   }
 
   lessonImport(importId: string): Promise<LessonImport> {

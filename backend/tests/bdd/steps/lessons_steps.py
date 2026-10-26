@@ -234,3 +234,34 @@ def original_kept(client, students, filename, course):
 @then(parsers.parse('the original "{filename}" is no longer kept in "{course}"'))
 def original_gone(client, students, filename, course):
     assert _originals(client, students, course, filename) == []
+
+
+# the subject's originals
+
+
+def _subject_originals(students, subject: str, course: str, name: str | None = None) -> list[dict]:
+    response = students.client.get(
+        f"/api/courses/{course}/subjects/{subject}/originals", headers=students.headers(name)
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+@then(parsers.parse('the subject "{subject}" of "{course}" has the originals:'))
+def has_originals(students, subject, course, datatable):
+    seen = [
+        {"original": o["filename"], "lessons": ", ".join(lesson["topic"] for lesson in o["lessons"])}
+        for o in _subject_originals(students, subject, course)
+    ]
+    expected = [{key: value.strip() for key, value in row.items()} for row in _rows(datatable)]
+    assert seen == expected
+
+
+@then(parsers.parse('the subject "{subject}" of "{course}" has no originals'))
+def has_no_originals(students, subject, course):
+    assert _subject_originals(students, subject, course) == []
+
+
+@then(parsers.parse('the student "{name}" sees the originals of "{subject}" in "{course}": "{filenames}"'))
+def they_see_originals(students, name, subject, course, filenames):
+    assert [o["filename"] for o in _subject_originals(students, subject, course, name)] == filenames.split('", "')

@@ -1055,3 +1055,29 @@ a.button {
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
+
+/* the documents a subject's lessons were made from */
+.originals ul {
+  list-style: none;
+  padding: 0;
+}
+
+.originals li {
+  margin: 0.5rem 0;
+}
+
+.original-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.original-view {
+  display: block;
+  width: 100%;
+  height: 70vh;
+  margin-top: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}

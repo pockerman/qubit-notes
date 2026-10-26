@@ -21,8 +21,9 @@ Feature: Lessons from a document
   A PDF's or an EPUB's lessons keep it as their original: each lesson downloads it, the whole
   document as it was uploaded, and downloads itself as it is now as a PDF or an EPUB laid out
   anew from its Markdown, as a converted material does. The original is kept until the last of
-  its lessons' materials is deleted. A Markdown document's lessons are their own text, so it
-  isn't kept.
+  its lessons' materials is deleted, and the subject lists the originals of its lessons, each
+  with the lessons made from it. A Markdown document's lessons are their own text, so it isn't
+  kept.
 
   The document is made into lessons in the background; the student follows it as they follow an
   upload. Lessons the app stopped making are made again when it starts.
@@ -122,6 +123,25 @@ Feature: Lessons from a document
         | 1    | The finite element method divides a domain into small elements.     | 1 Introduction    | 1     |
         | 2    | A linear element interpolates linearly between its two nodes.       | 2 Shape functions | 1     |
         | 3    | The element matrices are assembled into the global stiffness matrix. | 3 Assembly        | 1     |
+
+    @platform
+    Scenario: The subject lists the originals of its lessons
+      Then the subject "numerical-methods" of "aeronautics" has the originals:
+        | original | lessons                                        |
+        | fem.pdf  | 1-introduction, 2-shape-functions, 3-assembly  |
+
+    Scenario: A reader sees the originals too
+      Given I have shared the course "aeronautics" with "tom" as a reader
+      Then the student "tom" sees the originals of "numerical-methods" in "aeronautics": "fem.pdf"
+
+    Scenario: An original goes from the list with the last of its lessons
+      When I delete the topic "numerical-methods/1-introduction" from "aeronautics"
+      Then the subject "numerical-methods" of "aeronautics" has the originals:
+        | original | lessons                       |
+        | fem.pdf  | 2-shape-functions, 3-assembly |
+      When I delete the topic "numerical-methods/2-shape-functions" from "aeronautics"
+      And I delete the topic "numerical-methods/3-assembly" from "aeronautics"
+      Then the subject "numerical-methods" of "aeronautics" has no originals
 
     @platform
     Scenario: A lesson downloads the original document

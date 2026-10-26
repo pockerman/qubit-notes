@@ -128,8 +128,10 @@ stops making are made again when it starts.
 
 A PDF's or an EPUB's lessons keep it as their original, as a converted material does: each lesson's **Download
 original** is the whole document as it was uploaded, e.g. `fem.pdf`, and **Download as PDF** is the lesson as it is
-now, e.g. `2-shape-functions.pdf`. The original is deleted with the last of its lessons. A Markdown document's lessons
-are their own text, so it isn't kept.
+now, e.g. `2-shape-functions.pdf`. The subject's page lists its lessons' originals under **Originals**, each with a
+download, and a PDF can be shown there and hidden again (`GET /api/courses/{course}/subjects/{subject}/originals`).
+The original is deleted with the last of its lessons. A Markdown document's lessons are their own text, so it isn't
+kept.
 
 ## Mathematics
 
