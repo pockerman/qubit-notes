@@ -1,7 +1,9 @@
 """When a student reviews each of their flashcards: spaced repetition, as in SM-2 (features/reviews.feature).
 
 A card is due as soon as its deck is written. Reviewing it, the student says how well they remembered it, and that
-changes its ease and decides its next interval: the better they remember it, the longer until it is due again.
+changes its ease and decides its next interval: the better they remember it, the longer until it is due again. Only
+the cards of the courses the student is a member of are reviewed: a reader's are hidden once they're removed from the
+course, and come back, as they were, if it is shared with them again.
 """
 
 from collections.abc import Callable
@@ -12,6 +14,7 @@ from sqlalchemy import and_, func, select, update
 from sqlalchemy.engine import Engine
 
 from qubit_notes import storage
+from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import InvalidRequest, NotFound
 from qubit_notes.domain.sources import Source
 from qubit_notes.domain.written import now
@@ -69,8 +72,9 @@ def _utc(moment: datetime | None) -> datetime | None:
 class Reviews:
     """Each student's reviews of the cards of their decks. ``now`` is the clock the reviews go by."""
 
-    def __init__(self, engine: Engine, clock: Callable[[], datetime] = now):
+    def __init__(self, engine: Engine, courses: Courses, clock: Callable[[], datetime] = now):
         self._engine = engine
+        self._courses = courses
         self.now = clock
 
     def new_schedule(self) -> dict:
@@ -81,9 +85,10 @@ class Reviews:
         """the student's cards due for review, in all their courses or in one"""
         cards = storage.flashcards
         at = self.now()
-        conditions = [cards.c.student == student, cards.c.due_at.is_not(None)]
+        courses = [course.id for course in self._courses.list(student)]
         if course_id is not None:
-            conditions.append(cards.c.course_id == course_id)
+            courses = [course for course in courses if course == course_id]
+        conditions = [cards.c.student == student, cards.c.due_at.is_not(None), cards.c.course_id.in_(courses)]
         with self._engine.connect() as connection:
             rows = connection.execute(
                 select(cards)
@@ -100,7 +105,13 @@ class Reviews:
         if answer not in ANSWERS:
             raise InvalidRequest("answer again, hard, good or easy")
         cards = storage.flashcards
-        mine = and_(cards.c.id == card_id, cards.c.student == student, cards.c.due_at.is_not(None))
+        courses = [course.id for course in self._courses.list(student)]
+        mine = and_(
+            cards.c.id == card_id,
+            cards.c.student == student,
+            cards.c.due_at.is_not(None),
+            cards.c.course_id.in_(courses),
+        )
         with self._engine.begin() as connection:
             row = connection.execute(select(cards).where(mine)).first()
             if row is None:

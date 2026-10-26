@@ -82,6 +82,7 @@ def deck_of_topic(client, students, context, count, location):
 
 
 @when(parsers.parse('the student "{name}" asks for {count:d} flashcards of "{filename}"'))
+@given(parsers.parse('the student "{name}" has asked for {count:d} flashcards of "{filename}"'))
 def they_ask_for_a_deck(client, students, context, name, count, filename):
     context["their_response"] = _deck(client, students, context, _document_scope(students, filename), count, name=name)
 
@@ -222,6 +223,17 @@ def cards_of_new_deck(students, context):
 @then(parsers.parse('the student "{name}" has no cards due for review'))
 def they_have_nothing_due(students, name):
     assert _due(students, name=name)["cards"] == []
+
+
+@then(parsers.parse('the student "{name}" has {count:d} cards due for review'))
+def they_have_cards_due(students, name, count):
+    assert len(_due(students, name=name)["cards"]) == count
+
+
+@then(parsers.parse('the student "{name}" can\'t review their cards'))
+def they_cannot_review(students, context, name):
+    for card in context["their_response"].json()["cards"]:
+        assert _review(students, card["id"], "good", name=name).status_code == 404
 
 
 @when(parsers.parse('I review the card and remembered it "{answer}"'))

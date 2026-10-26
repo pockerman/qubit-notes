@@ -195,7 +195,8 @@ all the student's courses one at a time (`features/reviews.feature`, `features/u
 `backend/src/qubit_notes/domain/reviews.py`). The student shows a card's answer and says how well they remembered it,
 Again, Hard, Good or Easy, which schedules it as SM-2 does: Again brings it back in 10 minutes and starts it over, Good
 after a day, then 6 days, then its interval times its ease (2.5 to start with), so cards the student knows come back
-less and less often. A new deck of the same scope takes the place of the earlier ones in the reviews. Each card's
+less and less often. A new deck of the same scope takes the place of the earlier ones in the reviews, and a reader
+removed from a course no longer reviews its cards, until it is shared with them again. Each card's
 schedule is kept in the app's database (`flashcards`, with the decks in `flashcard_decks`).
 
 ## The app's own platform

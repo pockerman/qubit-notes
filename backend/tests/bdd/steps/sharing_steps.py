@@ -24,6 +24,7 @@ def student_shares(students, context, name, course, other, role):
 
 
 @when(parsers.parse('I stop sharing the course "{course}" with "{name}"'))
+@given(parsers.parse('I have stopped sharing the course "{course}" with "{name}"'))
 def unshare(students, context, course, name):
     context["response"] = students.client.delete(
         f"/api/courses/{course}/members/{students.id(name)}", headers=students.headers()

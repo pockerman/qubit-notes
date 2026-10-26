@@ -113,7 +113,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     sources = Sources(platform, app.state.courses, app.state.reading)
     app.state.summaries = Summaries(app.state.database, platform, sources)
     app.state.quizzes = Quizzes(app.state.database, platform, sources)
-    app.state.reviews = Reviews(app.state.database)
+    app.state.reviews = Reviews(app.state.database, app.state.courses)
     app.state.flashcards = Flashcards(app.state.database, platform, sources, app.state.reviews)
     app.state.assistant = Assistant(
         app.state.database,

@@ -16,9 +16,10 @@ Feature: Reviews
 
   A card's ease starts at 2.5: Again lowers it by 0.2, Hard by 0.15, and Easy raises it by
   0.15, before its next interval is worked out; it is never below 1.3. Intervals are
-  whole days, rounded. The reviews due are those of all the student's courses, or
-  of one course, oldest due first. When a new deck of a scope is written, the cards of the
-  earlier decks of it are no longer reviewed, so the same material isn't reviewed twice.
+  whole days, rounded. The reviews due are those of all the student's courses, or of one
+  course, oldest due first; a course the student is no longer a member of is not reviewed,
+  until it is shared with them again. When a new deck of a scope is written, the cards of
+  the earlier decks of it are no longer reviewed, so the same material isn't reviewed twice.
 
   Background:
     Given I am the student "maria"
@@ -104,6 +105,22 @@ Feature: Reviews
       And I have shared the course "aeronautics" with "tom" as a reader
       When the student "tom" reviews my card
       Then they are told there is no such card
+
+  Rule: Only the courses I am a member of are reviewed
+
+    Scenario: A reader's cards are hidden once they are removed from the course
+      Given I have shared the course "aeronautics" with "tom" as a reader
+      And the student "tom" has asked for 2 flashcards of "fem-notes.md"
+      When I stop sharing the course "aeronautics" with "tom"
+      Then the student "tom" has no cards due for review
+      And the student "tom" can't review their cards
+
+    Scenario: The cards come back when the course is shared again
+      Given I have shared the course "aeronautics" with "tom" as a reader
+      And the student "tom" has asked for 2 flashcards of "fem-notes.md"
+      And I have stopped sharing the course "aeronautics" with "tom"
+      When I share the course "aeronautics" with "tom" as a reader
+      Then the student "tom" has 2 cards due for review
 
   Rule: Reviews go with their material
 
