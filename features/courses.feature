@@ -139,7 +139,7 @@ Feature: Courses
   Rule: Deleting a topic deletes its material, and everything made from it
 
     The owners of a course delete a topic with all of its material: the material's images, notes,
-    summaries, quizzes and conversations go with it, for every member. The subject's other topics
+    summaries, quizzes, flashcards and conversations go with it, for every member. The subject's other topics
     keep their order. A subject is gone once its last topic is.
 
     Background:
@@ -162,12 +162,12 @@ Feature: Courses
       And the course "aeronautics" has no material
       And searching "aeronautics" for "small elements" finds nothing
 
-    Scenario: Deleting a topic deletes the notes, summaries, quizzes and conversations of its material
+    Scenario: Deleting a topic deletes the notes, summaries, quizzes, flashcards and conversations of its material
       Given I have noted "why small?" on "small elements" in "1 Introduction" of "fem-notes.md"
-      And I have a summary and a quiz of "fem-notes.md"
+      And I have a summary, a quiz and flashcards of "fem-notes.md"
       And I have asked the assistant "What do shape functions do?" while reading "fem-notes.md"
       When I delete the topic "numerical-methods/finite-elements" from "aeronautics"
-      Then I have no notes, summaries, quizzes or conversations
+      Then I have no notes, summaries, quizzes, flashcards or conversations
 
     Scenario: The other topics keep their order
       Given I have put the topics of "numerical-methods" in "aeronautics" in the order:
@@ -221,7 +221,7 @@ Feature: Courses
       When I delete the course "aeronautics"
       Then the student "tom" has no courses
 
-    Scenario: Deleting a course deletes its topics, notes, summaries, quizzes and conversations
+    Scenario: Deleting a course deletes its topics, notes, summaries, quizzes, flashcards and conversations
       Given I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
         """
         # 1 Introduction
@@ -229,13 +229,13 @@ Feature: Courses
         """
       And I have created the topic "numerical-methods/finite-volumes" in "aeronautics"
       And I have noted "why small?" on "small elements" in "1 Introduction" of "fem-notes.md"
-      And I have a summary and a quiz of "fem-notes.md"
+      And I have a summary, a quiz and flashcards of "fem-notes.md"
       And I have asked the assistant "What do shape functions do?" while reading "fem-notes.md"
       When I delete the course "aeronautics"
       And I create the course "aeronautics"
       Then the course "aeronautics" has no material
       And the topics of "aeronautics" are empty
-      And I have no notes, summaries, quizzes or conversations
+      And I have no notes, summaries, quizzes, flashcards or conversations
 
     @platform
     Scenario: The assistant forgets what it remembered from a deleted course's material

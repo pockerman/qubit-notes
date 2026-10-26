@@ -1024,3 +1024,34 @@ a.button {
 .reference-help code {
   overflow-wrap: anywhere;
 }
+
+/* flashcards: in the assistant, and on the Reviews page one at a time */
+.flashcards {
+  padding-left: 1.25rem;
+}
+
+.flashcards li {
+  margin: 0.75rem 0;
+}
+
+.flashcards .markdown p,
+.review-card .markdown p {
+  margin: 0.25rem 0;
+}
+
+.back {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.6rem;
+  margin: 0.35rem 0;
+}
+
+.reviews .review-card {
+  max-width: 40rem;
+}
+
+.review-card .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}

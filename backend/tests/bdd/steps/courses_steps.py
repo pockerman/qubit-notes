@@ -141,27 +141,37 @@ def no_such_course(context, course):
     assert f"no course {course!r}" in response.json()["detail"]
 
 
-@given(parsers.parse('I have a summary and a quiz of "{filename}"'))
-def have_summary_and_quiz(students, filename):
+@given(parsers.parse('I have a summary, a quiz and flashcards of "{filename}"'))
+def have_summary_quiz_and_flashcards(students, filename):
     material = students.find_material(filename)
     scope = {"course_id": material["course_id"], "document_id": material["document_id"]}
-    for kind, extra in (("summaries", {}), ("quizzes", {"questions": 1})):
+    written = {}
+    for kind, extra in (("summaries", {}), ("quizzes", {"questions": 1}), ("flashcards", {"cards": 1})):
         response = students.client.post(f"/api/{kind}", headers=students.headers(), json={**scope, **extra})
         assert response.status_code == 200, response.text
-    quiz = response.json()
+        written[kind] = response.json()
+    quiz = written["quizzes"]
     attempt = students.client.post(
         f"/api/quizzes/{quiz['id']}/attempts", headers=students.headers(), json={"answers": [0]}
     )
     assert attempt.status_code == 201, attempt.text
 
 
-@then("I have no notes, summaries, quizzes or conversations")
+@then("I have no notes, summaries, quizzes, flashcards or conversations")
 def nothing_written(students):
     # what the student wrote is about material that's gone, so it can't be asked for by its scope any more
     me = students.id(students.me)
     database = students.client.app.state.database
     with database.connect() as connection:
-        for table in (storage.notes, storage.summaries, storage.quizzes, storage.quiz_attempts, storage.conversations):
+        for table in (
+            storage.notes,
+            storage.summaries,
+            storage.quizzes,
+            storage.quiz_attempts,
+            storage.flashcard_decks,
+            storage.flashcards,
+            storage.conversations,
+        ):
             assert connection.execute(select(table).where(table.c.student == me)).fetchall() == [], table.name
         turns = connection.execute(select(storage.conversation_turns)).fetchall()
         assert turns == []

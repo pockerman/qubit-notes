@@ -2,7 +2,7 @@
 
 Each request is understood and, if it's a question, answered in one call to the AI: it is given the conversation so
 far, the passages of the course's material that a search finds for the request, and the request. A request for a
-summary or a quiz gets the same saved one the student would get by asking for it directly.
+summary, a quiz or flashcards gets the same saved one the student would get by asking for it directly.
 """
 
 import json
@@ -18,6 +18,7 @@ from sqlalchemy.engine import Engine
 from qubit_notes import storage
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import InvalidRequest
+from qubit_notes.domain.flashcards import Deck, Flashcards
 from qubit_notes.domain.quizzes import AIFailed, Quiz, Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.sources import Scope, Source
@@ -31,6 +32,8 @@ PASSAGES = 6
 PASSAGE_CHARACTERS = 2_000
 # the size of a quiz asked for without saying how many questions
 QUIZ_QUESTIONS = 5
+# and of a deck of flashcards
+DECK_CARDS = 10
 
 SYSTEM = """You are a study assistant. A student asks you something while reading their study material.
 
@@ -38,11 +41,13 @@ First decide what they ask for, as "request":
 - "summary" only when they ask for a summary in so many words, e.g. "Summarise this section" or "Give me a summary
   of the topic";
 - "quiz" only when they ask to be quizzed or tested, e.g. "Quiz me on the whole document";
+- "flashcards" only when they ask for flashcards or cards to learn from, e.g. "Make flashcards of this section";
 - "question" for everything else: whatever they ask about the material, e.g. "What is a shape function?", "How is a
   mesh generated?" or "Explain assembly", is a question, which you answer.
-For a summary or a quiz, "of" is what it is of: "section" (the section they are reading, the default), "document"
-(the whole material) or "topic" (all the material of the topic); "new" is true if they ask for a new one rather than
-the one they had; "questions" is how many questions they ask for, or 0 if they don't say. Leave "answer" empty.
+For a summary, a quiz or flashcards, "of" is what it is of: "section" (the section they are reading, the default),
+"document" (the whole material) or "topic" (all the material of the topic); "new" is true if they ask for a new one
+rather than the one they had; "questions" is how many questions or cards they ask for, or 0 if they don't say. Leave
+"answer" empty.
 
 Answer a question only from the passages of their material you are given: never from anything else you know. Answer
 clearly and concisely, in Markdown, and list in "cited" the references of the passages your answer draws on, e.g.
@@ -53,7 +58,7 @@ to false and cite nothing."""
 class Understood(BaseModel):
     """what the AI makes of a request"""
 
-    request: Literal["question", "summary", "quiz"]
+    request: Literal["question", "summary", "quiz", "flashcards"]
     of: Literal["section", "document", "topic"] = "section"
     new: bool = False
     questions: int = 0
@@ -67,8 +72,8 @@ class Turn(BaseModel):
 
     id: str
     question: str
-    kind: Literal["answer", "summary", "quiz"]
-    # an answer's text; for a summary or a quiz, what the assistant says of it
+    kind: Literal["answer", "summary", "quiz", "flashcards"]
+    # an answer's text; for a summary, a quiz or flashcards, what the assistant says of it
     answer: str
     # whether the material covers the question
     covered: bool = True
@@ -77,6 +82,7 @@ class Turn(BaseModel):
     # None once deleted with their material
     summary: Summary | None = None
     quiz: Quiz | None = None
+    deck: Deck | None = None
     created_at: datetime
 
 
@@ -112,6 +118,7 @@ class Assistant:
         reading: Reading,
         summaries: Summaries,
         quizzes: Quizzes,
+        flashcards: Flashcards,
     ):
         self._engine = engine
         self._platform = platform
@@ -119,6 +126,7 @@ class Assistant:
         self._reading = reading
         self._summaries = summaries
         self._quizzes = quizzes
+        self._flashcards = flashcards
 
     def ask(self, student: str, where: Scope, question: str) -> Turn:
         """answers the student's request, made while reading ``where``: a section of a material, or a topic"""
@@ -141,11 +149,16 @@ class Assistant:
         elif understood.request == "summary":
             summary = self._summaries.get(student, self._scope(student, where, understood.of), understood.new)
             turn |= {"kind": "summary", "answer": summary.content, "sources": summary.sources, "summary": summary}
-        else:
+        elif understood.request == "quiz":
             count = understood.questions or QUIZ_QUESTIONS
             quiz = self._quizzes.get(student, self._scope(student, where, understood.of), count, understood.new)
             what = f"a quiz of {len(quiz.questions)} questions"
             turn |= {"kind": "quiz", "answer": f"Here is {what}.", "sources": quiz.sources, "quiz": quiz}
+        else:
+            count = understood.questions or DECK_CARDS
+            deck = self._flashcards.get(student, self._scope(student, where, understood.of), count, understood.new)
+            what = f"{len(deck.cards)} flashcards; they are due for review now"
+            turn |= {"kind": "flashcards", "answer": f"Here are {what}.", "sources": deck.sources, "deck": deck}
         turn = Turn(**turn)
 
         self._platform.add_to_conversation(
@@ -164,6 +177,7 @@ class Assistant:
                     sources=[source.model_dump() for source in turn.sources],
                     summary_id=turn.summary.id if turn.summary else None,
                     quiz_id=turn.quiz.id if turn.quiz else None,
+                    deck_id=turn.deck.id if turn.deck else None,
                     created_at=turn.created_at,
                 )
             )
@@ -250,7 +264,7 @@ class Assistant:
         return f'reading {section}"{opened.filename}", of the topic {opened.subject} › {opened.topic}'
 
     def _scope(self, student: str, where: Scope, of: str) -> Scope:
-        """what a summary or a quiz asked for is of, given where the student is"""
+        """what a summary, a quiz or flashcards asked for are of, given where the student is"""
         if not where.document_id or of == "topic":
             if where.document_id:
                 opened = self._reading.open(student, where.course_id, where.document_id)
@@ -309,5 +323,6 @@ class Assistant:
             sources=[Source(**source) for source in row.sources],
             summary=self._summaries.by_id(student, row.summary_id) if row.summary_id else None,
             quiz=self._quizzes.by_id(student, row.quiz_id) if row.quiz_id else None,
+            deck=self._flashcards.by_id(student, row.deck_id) if row.deck_id else None,
             created_at=row.created_at,
         )

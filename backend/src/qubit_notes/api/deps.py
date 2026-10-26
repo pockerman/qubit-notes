@@ -9,6 +9,7 @@ from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
+from qubit_notes.domain.flashcards import Flashcards
 from qubit_notes.domain.generating import Generator
 from qubit_notes.domain.images import Images
 from qubit_notes.domain.materials import Materials
@@ -17,6 +18,7 @@ from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.reading_order import ReadingOrder
 from qubit_notes.domain.references import References
+from qubit_notes.domain.reviews import Reviews
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
 
@@ -83,6 +85,14 @@ def summaries(request: Request) -> Summaries:
 
 def quizzes(request: Request) -> Quizzes:
     return request.app.state.quizzes
+
+
+def flashcards(request: Request) -> Flashcards:
+    return request.app.state.flashcards
+
+
+def reviews(request: Request) -> Reviews:
+    return request.app.state.reviews
 
 
 def assistant(request: Request) -> Assistant:

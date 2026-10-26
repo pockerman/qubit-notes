@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
  * The page shown, from the address's hash, so the browser's back button and a refresh keep the student where
  * they were:
  *   #/                                     my courses
+ *   #/reviews                              the flashcards due for review
  *   #/settings                             the app's settings: the AI's model
  *   #/settings/account                     the student's account: their email and password
  *   #/courses/<id>                         a course
@@ -21,6 +22,7 @@ export type SettingsView = 'ai-model' | 'account'
 
 export type Route =
   | { page: 'courses' }
+  | { page: 'reviews' }
   | { page: 'settings'; view: SettingsView }
   | { page: 'course'; courseId: string }
   | { page: 'subject'; courseId: string; subject: string }
@@ -35,6 +37,7 @@ export function parse(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#/, '').split('?')
   const parts = path.split('/').filter(Boolean).map(decodeURIComponent)
   const params = new URLSearchParams(query)
+  if (parts[0] === 'reviews') return { page: 'reviews' }
   if (parts[0] === 'settings') return { page: 'settings', view: parts[1] === 'account' ? 'account' : 'ai-model' }
   if (parts[0] !== 'courses' || !parts[1]) return { page: 'courses' }
   const courseId = parts[1]
@@ -64,6 +67,8 @@ export function href(route: Route): string {
   switch (route.page) {
     case 'courses':
       return '#/'
+    case 'reviews':
+      return '#/reviews'
     case 'settings':
       return route.view === 'account' ? '#/settings/account' : '#/settings'
     case 'course':

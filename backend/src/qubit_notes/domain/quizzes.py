@@ -10,7 +10,16 @@ from sqlalchemy.engine import Engine
 from qubit_notes import storage
 from qubit_notes.domain.errors import InvalidRequest, NotFound, StudyAssistantError
 from qubit_notes.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
-from qubit_notes.domain.written import forget_course_rows, forget_document, now, of_scope, scope_of, scope_values
+from qubit_notes.domain.written import (
+    Row,
+    forget_course_rows,
+    forget_document,
+    material,
+    now,
+    of_scope,
+    scope_of,
+    scope_values,
+)
 from qubit_notes.platform.port import StudyPlatform
 
 MIN_QUESTIONS, MAX_QUESTIONS = 1, 20
@@ -74,11 +83,6 @@ class Attempt(BaseModel):
     total: int
     results: list[QuestionResult] = Field(default_factory=list)
     created_at: datetime
-
-
-def _material(sources: list[SourceText]) -> str:
-    share = max(500, MAX_CHARACTERS // max(1, len(sources)))
-    return "\n\n".join(f"[S{i}] {s.filename} › {s.title}\n{s.content[:share]}" for i, s in enumerate(sources, start=1))
 
 
 class Quizzes:
@@ -169,7 +173,7 @@ class Quizzes:
     def _write(self, student: str, scope: Scope, count: int) -> Quiz:
         gathered = self._sources.gather(student, scope)
         cited = {f"S{i}": source for i, source in enumerate(gathered.sources, start=1)}
-        prompt = f"Write a quiz of {count} questions on this material.\n\n{_material(gathered.sources)}"
+        prompt = f"Write a quiz of {count} questions on this material.\n\n{material(gathered.sources, MAX_CHARACTERS)}"
 
         questions = None
         for _ in range(2):
@@ -191,7 +195,7 @@ class Quizzes:
         }
         with self._engine.begin() as connection:
             connection.execute(insert(storage.quizzes).values(**row))
-        return self._quiz(student, _Row(row))
+        return self._quiz(student, Row(row))
 
     def _questions(self, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
         """the questions the AI writes, if there are at least ``count`` well-formed ones"""
@@ -240,10 +244,3 @@ class Quizzes:
             created_at=row.created_at,
             out_of_date=self._sources.out_of_date(student, scope, row.documents),
         )
-
-
-class _Row:
-    """a row just written, with its columns as attributes like a selected one"""
-
-    def __init__(self, values: dict):
-        self.__dict__.update(values)

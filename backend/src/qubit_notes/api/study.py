@@ -1,5 +1,5 @@
-"""Summaries and quizzes. Asking for one returns the newest saved one, or writes one if there's none or the student
-asks for a new one, so it's a POST."""
+"""Summaries, quizzes and flashcards, and the reviews of the flashcards. Asking for a summary, a quiz or a deck returns
+the newest saved one, or writes one if there's none or the student asks for a new one, so it's a POST."""
 
 from typing import Annotated
 
@@ -7,14 +7,18 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
-from qubit_notes.api.deps import Student, quizzes, summaries
+from qubit_notes.api.deps import Student, flashcards, quizzes, reviews, summaries
+from qubit_notes.domain.flashcards import Deck, Flashcards
 from qubit_notes.domain.quizzes import Attempt, Quiz, Quizzes
+from qubit_notes.domain.reviews import Due, ReviewCard, Reviews
 from qubit_notes.domain.sources import Scope
 from qubit_notes.domain.summaries import Summaries, Summary
 
 router = APIRouter(tags=["study"])
 SummariesDep = Annotated[Summaries, Depends(summaries)]
 QuizzesDep = Annotated[Quizzes, Depends(quizzes)]
+FlashcardsDep = Annotated[Flashcards, Depends(flashcards)]
+ReviewsDep = Annotated[Reviews, Depends(reviews)]
 
 
 class SummaryRequest(Scope):
@@ -25,6 +29,16 @@ class SummaryRequest(Scope):
 class QuizRequest(Scope):
     questions: int = 5
     new: bool = False
+
+
+class DeckRequest(Scope):
+    cards: int = 10
+    new: bool = False
+
+
+class Remembered(BaseModel):
+    # how well the student remembered the card: again, hard, good or easy
+    answer: str
 
 
 class Answers(BaseModel):
@@ -65,3 +79,26 @@ async def take_quiz(quiz_id: str, answers: Answers, student: Student, service: Q
 async def attempts(quiz_id: str, student: Student, service: QuizzesDep) -> list[Attempt]:
     """the student's attempts at the quiz, newest first"""
     return await run_in_threadpool(service.attempts, student, quiz_id)
+
+
+@router.post("/flashcards", response_model=Deck)
+async def deck(request: DeckRequest, student: Student, service: FlashcardsDep) -> Deck:
+    scope = Scope(**request.model_dump(exclude={"new", "cards"}))
+    return await run_in_threadpool(service.get, student, scope, request.cards, request.new)
+
+
+@router.get("/flashcards", response_model=list[Deck])
+async def decks_of(scope: Annotated[Scope, Query()], student: Student, service: FlashcardsDep) -> list[Deck]:
+    """the student's decks of the scope, newest first"""
+    return await run_in_threadpool(service.history, student, scope)
+
+
+@router.get("/reviews", response_model=Due)
+async def due(student: Student, service: ReviewsDep, course_id: str | None = None) -> Due:
+    """the student's cards due for review, in all their courses or in one, oldest due first"""
+    return await run_in_threadpool(service.due, student, course_id)
+
+
+@router.post("/reviews/{card_id}", response_model=ReviewCard)
+async def review(card_id: str, remembered: Remembered, student: Student, service: ReviewsDep) -> ReviewCard:
+    return await run_in_threadpool(service.review, student, card_id, remembered.answer)

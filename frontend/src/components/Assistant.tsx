@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { Attempt, OutOfDate, Quiz, Scope, Source, StudyApi, Turn } from '../api'
+import type { Attempt, Deck, OutOfDate, Quiz, Scope, Source, StudyApi, Turn } from '../api'
+import { href } from '../router'
 import { Markdown } from './Markdown'
 
 type Props = {
@@ -136,6 +137,42 @@ function QuizView({ api, quiz }: { api: StudyApi; quiz: Quiz }) {
   )
 }
 
+/** A deck of flashcards, each turned over to see its back; they are reviewed on the Reviews page. */
+function DeckView({ deck }: { deck: Deck }) {
+  const [turned, setTurned] = useState<Set<string>>(() => new Set())
+
+  function turn(id: string) {
+    const next = new Set(turned)
+    if (!next.delete(id)) next.add(id)
+    setTurned(next)
+  }
+
+  return (
+    <section className="study-card" aria-label="Flashcards">
+      <Stale outOfDate={deck.out_of_date} />
+      <ol className="flashcards">
+        {deck.cards.map((card, i) => (
+          <li key={card.id} aria-label={`Card ${i + 1}`}>
+            <Markdown text={card.front} />
+            {turned.has(card.id) && (
+              <div className="back" aria-label="Its answer">
+                <Markdown text={card.back} />
+              </div>
+            )}
+            <button type="button" className="link" aria-expanded={turned.has(card.id)} onClick={() => turn(card.id)}>
+              {turned.has(card.id) ? 'Hide the answer' : 'Show the answer'}
+            </button>
+          </li>
+        ))}
+      </ol>
+      <Cited sources={deck.sources} />
+      <p className="note">
+        They come back for review when you are about to forget them: <a href={href({ page: 'reviews' })}>Reviews</a>
+      </p>
+    </section>
+  )
+}
+
 function Reply({ api, turn }: { api: StudyApi; turn: Turn }) {
   if (turn.kind === 'summary') {
     if (!turn.summary) return <p className="note">This summary was deleted with its material.</p>
@@ -151,6 +188,10 @@ function Reply({ api, turn }: { api: StudyApi; turn: Turn }) {
     if (!turn.quiz) return <p className="note">This quiz was deleted with its material.</p>
     return <QuizView api={api} quiz={turn.quiz} />
   }
+  if (turn.kind === 'flashcards') {
+    if (!turn.deck) return <p className="note">These flashcards were deleted with their material.</p>
+    return <DeckView deck={turn.deck} />
+  }
   return (
     <section aria-label="Answer" className={turn.covered ? undefined : 'not-covered'}>
       <Markdown text={turn.answer} />
@@ -159,7 +200,7 @@ function Reply({ api, turn }: { api: StudyApi; turn: Turn }) {
   )
 }
 
-/** The assistant: the student asks in their own words, for answers, summaries and quizzes. */
+/** The assistant: the student asks in their own words, for answers, summaries, quizzes and flashcards. */
 export function Assistant({ api, where, label, onClose }: Props) {
   const [turns, setTurns] = useState<Turn[] | null>(null)
   const [question, setQuestion] = useState('')
@@ -226,8 +267,8 @@ export function Assistant({ api, where, label, onClose }: Props) {
       <ol className="turns" aria-label="Conversation">
         {turns?.length === 0 && !asking && (
           <li className="note">
-            Ask about your material, or ask for a summary or a quiz, e.g. “Summarise this section” or “Quiz me with 5
-            questions on the whole document”.
+            Ask about your material, or ask for a summary, a quiz or flashcards, e.g. “Summarise this section”, “Quiz
+            me with 5 questions on the whole document” or “Make flashcards of this topic”.
           </li>
         )}
         {turns?.map((turn) => (

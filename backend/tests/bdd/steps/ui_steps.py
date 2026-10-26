@@ -507,6 +507,55 @@ def see_score(page, score, total):
     expect(page.get_by_role("status").filter(has_text="You scored")).to_have_text(f"You scored {score} out of {total}")
 
 
+def _deck(page):
+    return _assistant(page).get_by_role("region", name="Flashcards").last
+
+
+@then(parsers.parse("I see a deck of {count:d} flashcards"))
+def see_deck(page, count):
+    expect(_deck(page).get_by_role("listitem", name=re.compile(r"^Card \d+$"))).to_have_count(count)
+
+
+@when("I turn over its first card")
+def turn_over_first_card(page):
+    _deck(page).get_by_role("listitem", name="Card 1").get_by_role("button", name="Show the answer").click()
+
+
+@then("I see the answer of its first card")
+def see_first_answer(page):
+    card = _deck(page).get_by_role("listitem", name="Card 1")
+    expect(card.get_by_label("Its answer")).not_to_be_empty()
+    expect(card.get_by_role("button", name="Hide the answer")).to_be_visible()
+
+
+def _reviews_status(page):
+    return page.get_by_role("region", name="Reviews").get_by_role("status")
+
+
+@then(parsers.re(r"I see that (?P<count>\d+) cards? (?:is|are) due$"))
+def see_cards_due(page, count):
+    expect(_reviews_status(page)).to_have_text(f"{count} card{'' if count == '1' else 's'} due")
+
+
+@when(parsers.parse('I show the answer and remembered it "{remembered}"'))
+def show_and_remember(page, remembered):
+    card = page.get_by_role("article", name="Card")
+    card.get_by_role("button", name="Show the answer").click()
+    expect(card.get_by_label("Its answer")).not_to_be_empty()
+    card.get_by_role("group", name="How well did you remember it?").get_by_role("button", name=remembered).click()
+
+
+@then("I am told there is nothing to review now, and when the next card is due")
+def nothing_to_review_until(page):
+    expect(_reviews_status(page)).to_contain_text("Nothing to review now. The next card is due")
+    expect(page.get_by_role("article", name="Card")).to_have_count(0)
+
+
+@then("I am told there is nothing to review now")
+def nothing_to_review(page):
+    expect(_reviews_status(page)).to_have_text("Nothing to review now.")
+
+
 @then(parsers.parse('I see the buttons "{first}", "{second}" and "{third}" together'))
 def see_buttons_together(page, first, second, third):
     actions = page.get_by_role("group", name="Material actions")

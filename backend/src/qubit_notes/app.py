@@ -28,6 +28,7 @@ from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
+from qubit_notes.domain.flashcards import Flashcards
 from qubit_notes.domain.generating import Generator
 from qubit_notes.domain.images import Images
 from qubit_notes.domain.material_order import MaterialOrder
@@ -38,6 +39,7 @@ from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.reading_order import ReadingOrder
 from qubit_notes.domain.references import References
+from qubit_notes.domain.reviews import Reviews
 from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
@@ -111,18 +113,28 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     sources = Sources(platform, app.state.courses, app.state.reading)
     app.state.summaries = Summaries(app.state.database, platform, sources)
     app.state.quizzes = Quizzes(app.state.database, platform, sources)
+    app.state.reviews = Reviews(app.state.database)
+    app.state.flashcards = Flashcards(app.state.database, platform, sources, app.state.reviews)
     app.state.assistant = Assistant(
-        app.state.database, platform, app.state.courses, app.state.reading, app.state.summaries, app.state.quizzes
+        app.state.database,
+        platform,
+        app.state.courses,
+        app.state.reading,
+        app.state.summaries,
+        app.state.quizzes,
+        app.state.flashcards,
     )
-    # deleting a material deletes everyone's notes, summaries, quizzes and conversations on it
-    for service in (app.state.notes, app.state.summaries, app.state.quizzes, app.state.assistant):
+    # what is written about the material: everyone's notes, summaries, quizzes, flashcards and conversations on it
+    written = (app.state.notes, app.state.summaries, app.state.quizzes, app.state.flashcards, app.state.assistant)
+    # deleting a material deletes all of that
+    for service in written:
         app.state.materials.on_delete(service.forget_material)
     # deleting a course deletes all of that, its topics, and what the assistant learned from its material
     app.state.courses.on_delete(app.state.materials.forget_course)
     app.state.courses.on_delete(lambda course: app.state.material_order.forget_course(course.id))
     app.state.course_titles = CourseTitles(database, app.state.courses)
     app.state.courses.on_delete(app.state.course_titles.forget)
-    for service in (app.state.notes, app.state.summaries, app.state.quizzes, app.state.assistant, app.state.topics):
+    for service in (*written, app.state.topics):
         app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 
     add_error_handlers(app)

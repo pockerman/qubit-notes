@@ -272,8 +272,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
                       {items.length === 0
                         ? `Delete ${name}? It has no material.`
                         : `Delete ${name} and its ${items.length === 1 ? 'material' : `${items.length} materials`}? ` +
-                          'Their notes, summaries, quizzes and conversations go for every member, and this ' +
-                          'cannot be undone.'}
+                          'Their notes, summaries, quizzes, flashcards and conversations go for every member, and ' +
+                          'this cannot be undone.'}
                     </p>
                     <div className="actions">
                       <button type="button" className="danger" onClick={() => deleteTopic(topic)}>

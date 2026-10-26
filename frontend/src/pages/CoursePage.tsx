@@ -159,8 +159,8 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
         {confirmingDelete && (
           <div className="card confirm" role="alertdialog" aria-label="Delete this course">
             <p>
-              Delete {course.title} and everything in it? Its material, topics, notes, summaries, quizzes and
-              conversations go for every member, and this cannot be undone.
+              Delete {course.title} and everything in it? Its material, topics, notes, summaries, quizzes,
+              flashcards and conversations go for every member, and this cannot be undone.
             </p>
             <div className="actions">
               <button type="button" className="danger" onClick={deleteCourse}>

@@ -39,8 +39,9 @@ class FakeAI:
     ) -> str:
         """A deterministic stand-in: each answer is numbered, so no two are alike. New material has a line from each
         labelled part of the material it is written from, citing it. A quiz has the questions the
-        prompt asks for, each from one of the sections the prompt gives, in turn, with the first choice correct.
-        The assistant understands a request by its words (see ``_understand``)."""
+        prompt asks for, each from one of the sections the prompt gives, in turn, with the first choice correct;
+        flashcards likewise, each with a front and a back. The assistant understands a request by its words (see
+        ``_understand``)."""
         self.completions.append(prompt)
         self.histories.append(list(history or []))
         number = len(self.completions)
@@ -53,8 +54,18 @@ class FakeAI:
             return f"Summary {number} of {', '.join(titles) or 'the summaries'}."
         if "request" in json_schema.get("properties", {}):
             return json.dumps(_understand(prompt, number))
-        count = int(re.search(r"quiz of (\d+) questions", prompt).group(1))
         references = re.findall(r"^\[(S\d+)\] (.+)$", prompt, re.MULTILINE)
+        if flashcards := re.search(r"Write (\d+) flashcards", prompt):
+            cards = [
+                {
+                    "front": f"Card {i + 1} of deck {number}, on {references[i % len(references)][1]}?",
+                    "back": f"The answer to card {i + 1} of deck {number}.",
+                    "source": references[i % len(references)][0],
+                }
+                for i in range(int(flashcards.group(1)))
+            ]
+            return json.dumps({"cards": cards})
+        count = int(re.search(r"quiz of (\d+) questions", prompt).group(1))
         questions = [
             {
                 "question": f"Question {i + 1} of quiz {number}, on {references[i % len(references)][1]}?",
@@ -100,13 +111,22 @@ def _content_words(text: str) -> set[str]:
 
 def _understand(prompt: str, number: int) -> dict:
     """The fake assistant's reading of the student's words, the last part of the prompt: "quiz" asks for a quiz,
-    "summar..." for a summary, of the "topic", the "document" or else the section, "new" for a new one, "N questions"
-    for its size. Anything else is a question, answered from the passages that share a word with it."""
+    "flashcard..." for flashcards, "summar..." for a summary, of the "topic", the "document" or else the section,
+    "new" for a new one, "N questions" or "N flashcards" for its size. Anything else is a question, answered from the
+    passages that share a word with it."""
     words = prompt.rsplit("The student says:", 1)[-1].strip()
     lowered = words.lower()
-    request = "quiz" if "quiz" in lowered else "summary" if "summar" in lowered else "question"
+    request = (
+        "quiz"
+        if "quiz" in lowered
+        else "flashcards"
+        if "flashcard" in lowered
+        else "summary"
+        if "summar" in lowered
+        else "question"
+    )
     of = "topic" if "topic" in lowered else "document" if "document" in lowered else "section"
-    count = re.search(r"(\d+) questions", lowered)
+    count = re.search(r"(\d+) (?:questions|flashcards)", lowered)
     cited = []
     if request == "question":
         passages = re.findall(

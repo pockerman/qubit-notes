@@ -1,6 +1,6 @@
-"""The app's own data: what students make while studying (notes, summaries, quizzes), and, where the app is its own
-platform, the students' material, the conversations with the assistant and what it remembers. Where the platform is
-gogi, those live in gogi and the platform's tables stay empty.
+"""The app's own data: what students make while studying (notes, summaries, quizzes, flashcards), and, where the
+app is its own platform, the students' material, the conversations with the assistant and what it remembers. Where
+the platform is gogi, those live in gogi and the platform's tables stay empty.
 
 The tables are created and changed by the migrations in ``migrations/versions``, which the app runs when it starts.
 A change to a table here needs a migration: from backend/, ``uv run alembic revision --autogenerate -m "..."``.
@@ -181,6 +181,36 @@ quiz_attempts = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
 )
 
+flashcard_decks = Table(
+    "flashcard_decks",
+    metadata,
+    Column("id", String, primary_key=True),
+    *_scope_columns(),
+    Column("count", Integer, nullable=False),
+)
+
+# a deck's cards, each with when the student is to review it next: see domain/reviews.py
+flashcards = Table(
+    "flashcards",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("deck_id", String, nullable=False, index=True),
+    Column("student", String, nullable=False, index=True),
+    Column("course_id", String, nullable=False),
+    Column("position", Integer, nullable=False),
+    Column("front", Text, nullable=False),
+    Column("back", Text, nullable=False),
+    # the section it's from
+    Column("source", JSON, nullable=False),
+    Column("ease", Float, nullable=False),
+    Column("interval_days", Integer, nullable=False),
+    # how many times in a row it was remembered
+    Column("repetitions", Integer, nullable=False),
+    # None once a newer deck of its scope takes its place in the reviews
+    Column("due_at", DateTime(timezone=True), index=True),
+    Column("reviewed_at", DateTime(timezone=True)),
+)
+
 
 # a student's conversation with the assistant on a material or a topic; its id is also the platform's, which keeps
 # what the AI is given of it
@@ -210,6 +240,7 @@ conversation_turns = Table(
     Column("sources", JSON, nullable=False),
     Column("summary_id", String),
     Column("quiz_id", String),
+    Column("deck_id", String),
     Column("created_at", DateTime(timezone=True), nullable=False),
 )
 

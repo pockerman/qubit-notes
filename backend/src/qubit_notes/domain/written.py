@@ -1,11 +1,11 @@
-"""What summaries and quizzes share: they are written by the AI about a scope, saved per student, and the newest
-one is shown until the student asks for a new one."""
+"""What summaries, quizzes and flashcards share: they are written by the AI about a scope, saved per student, and the
+newest one is shown until the student asks for a new one."""
 
 from datetime import UTC, datetime
 
 from sqlalchemy import Table, delete, select
 
-from qubit_notes.domain.sources import Scope
+from qubit_notes.domain.sources import Scope, SourceText
 
 
 def now() -> datetime:
@@ -54,3 +54,17 @@ def forget_document(connection, table: Table, document_id: str) -> list[str]:
     ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.document_id == document_id))]
     connection.execute(delete(table).where(table.c.document_id == document_id))
     return ids
+
+
+def material(sources: list[SourceText], max_characters: int) -> str:
+    """the material the AI writes from, each section labelled by its reference, e.g. S3, and given an equal share
+    of the characters"""
+    share = max(500, max_characters // max(1, len(sources)))
+    return "\n\n".join(f"[S{i}] {s.filename} › {s.title}\n{s.content[:share]}" for i, s in enumerate(sources, start=1))
+
+
+class Row:
+    """a row just written, with its columns as attributes like a selected one"""
+
+    def __init__(self, values: dict):
+        self.__dict__.update(values)

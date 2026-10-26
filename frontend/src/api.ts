@@ -197,7 +197,7 @@ export type Note = {
 
 export type NewNote = { text: string } & ({ section: number; passage: string } | { at_seconds: number })
 
-/** What a summary or quiz is about: a section of a document, a whole document, or a topic. */
+/** What a summary, a quiz or a deck of flashcards is about: a section of a document, a whole document, or a topic. */
 export type Scope = {
   course_id: string
   document_id?: string | null
@@ -256,12 +256,49 @@ export type Attempt = {
   created_at: string
 }
 
-/** What the student asked the assistant, and its reply: an answer citing sections, a summary or a quiz. */
+export type Card = {
+  id: string
+  front: string
+  back: string
+  source: Source
+}
+
+export type Deck = {
+  id: string
+  scope: Scope
+  cards: Card[]
+  sources: Source[]
+  created_at: string
+  out_of_date: OutOfDate | null
+}
+
+/** How well the student remembered a card they reviewed, which decides when it is due again. */
+export type Remembered = 'again' | 'hard' | 'good' | 'easy'
+
+export type ReviewCard = {
+  id: string
+  deck_id: string
+  course_id: string
+  front: string
+  back: string
+  source: Source
+  due_at: string
+  interval_days: number
+  reviewed_at: string | null
+}
+
+/** The cards due for review, oldest due first, and when the next of the others is due. */
+export type Due = {
+  cards: ReviewCard[]
+  next_due_at: string | null
+}
+
+/** What the student asked the assistant, and its reply: an answer citing sections, a summary, a quiz or flashcards. */
 export type Turn = {
   id: string
   question: string
-  kind: 'answer' | 'summary' | 'quiz'
-  // an answer's text; for a summary or a quiz, what the assistant says of it
+  kind: 'answer' | 'summary' | 'quiz' | 'flashcards'
+  // an answer's text; for a summary, a quiz or flashcards, what the assistant says of it
   answer: string
   // whether the material covers the question
   covered: boolean
@@ -269,6 +306,7 @@ export type Turn = {
   // null once deleted with their material
   summary: Summary | null
   quiz: Quiz | null
+  deck: Deck | null
   created_at: string
 }
 
@@ -406,6 +444,19 @@ export class StudyApi {
 
   attempts(quizId: string): Promise<Attempt[]> {
     return this.request(`/quizzes/${encodeURIComponent(quizId)}/attempts`)
+  }
+
+  /** The student's cards due for review, in all their courses. */
+  reviews(): Promise<Due> {
+    return this.request('/reviews')
+  }
+
+  review(cardId: string, remembered: Remembered): Promise<ReviewCard> {
+    return this.request(`/reviews/${encodeURIComponent(cardId)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answer: remembered }),
+    })
   }
 
   /** The uploaded file; the student's header can't go on a plain link, so it's fetched. */

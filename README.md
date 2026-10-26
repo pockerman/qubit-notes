@@ -33,6 +33,8 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
   sources, in conversations the assistant remembers, kept private to each student.
 - **Summaries and quizzes.** Summaries and quizzes of 1 to 20 questions on a section, a document or a whole topic,
   saved, retaken, and marked out of date when the material changes.
+- **Flashcards and reviews.** Decks of 1 to 30 flashcards on a section, a document or a topic, whose cards come back
+  for review by spaced repetition ([Flashcards and reviews](#flashcards-and-reviews)).
 - **Generating material.** Have the AI write revision notes, cheat sheets, combined notes or worked examples from
   chosen materials, citing them as references ([Generating material with the AI](#generating-material-with-the-ai)).
 - **Sharing.** Share a course with classmates as readers or co-owners, and stop sharing it.
@@ -181,6 +183,20 @@ writes Markdown from the ticked materials alone, citing the sections it drew on 
 references (see [References between topics](#references-between-topics)), so they're links and the sources mention the
 new material. It opens in the editor, unsaved, to be edited and saved in any topic.
 At most 60,000 characters of material are generated from at once.
+
+## Flashcards and reviews
+
+Students ask the assistant for flashcards, e.g. "Make 10 flashcards of this section" (`features/flashcards.feature`,
+`backend/src/qubit_notes/domain/flashcards.py`). The AI writes a deck from the section, the document or the topic, each
+card with a front, a back and the section it is from; decks are saved and marked out of date as quizzes are.
+
+Every card is due for review as soon as its deck is written, and **Reviews**, in the app's menu, shows the cards due in
+all the student's courses one at a time (`features/reviews.feature`, `features/ui_reviews.feature`,
+`backend/src/qubit_notes/domain/reviews.py`). The student shows a card's answer and says how well they remembered it,
+Again, Hard, Good or Easy, which schedules it as SM-2 does: Again brings it back in 10 minutes and starts it over, Good
+after a day, then 6 days, then its interval times its ease (2.5 to start with), so cards the student knows come back
+less and less often. A new deck of the same scope takes the place of the earlier ones in the reviews. Each card's
+schedule is kept in the app's database (`flashcards`, with the decks in `flashcard_decks`).
 
 ## The app's own platform
 

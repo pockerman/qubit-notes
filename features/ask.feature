@@ -2,14 +2,14 @@
 Feature: Asking the assistant
   As a student
   I want to ask the assistant about my material in my own words
-  So that I can get answers, summaries and quizzes without looking for the right button
+  So that I can get answers, summaries, quizzes and flashcards without looking for the right button
 
   The student asks while reading a material or studying a topic. The assistant answers
   questions from the course's material only, and cites the sections its answer draws on;
   when the material does not cover the question, it says so rather than answer from
-  elsewhere. A request for a summary or a quiz is recognised as one, and gets the same
-  saved summary or quiz the student would get by asking for it directly (see Summaries
-  and Quizzes). "This section", "this document" and "this topic" refer to what the student
+  elsewhere. A request for a summary, a quiz or flashcards is recognised as one, and gets
+  the same saved summary, quiz or deck the student would get by asking for it directly (see
+  Summaries, Quizzes and Flashcards). "This section", "this document" and "this topic" refer to what the student
   is reading or studying.
 
   The assistant keeps the conversation of each student on each material and each topic,
@@ -57,7 +57,7 @@ Feature: Asking the assistant
       Then the assistant tells me my material does not cover it
       And the answer cites nothing
 
-  Rule: Requests for summaries and quizzes are recognised
+  Rule: Requests for summaries, quizzes and flashcards are recognised
 
     @platform
     Scenario: Ask for a summary of the section being read
@@ -87,6 +87,12 @@ Feature: Asking the assistant
       Given I am reading the section "1 Introduction" of "fem-notes.md"
       When I ask the assistant "Quiz me with 3 questions on the whole document"
       Then the assistant gives me a quiz of 3 questions on "fem-notes.md"
+
+    Scenario: Ask for flashcards
+      Given I am reading the section "1 Introduction" of "fem-notes.md"
+      When I ask the assistant "Make 4 flashcards of the whole document"
+      Then the assistant gives me 4 flashcards of "fem-notes.md"
+      And I have 4 cards due for review
 
   Rule: The conversation is kept
 

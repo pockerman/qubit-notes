@@ -89,7 +89,7 @@ def cites_nothing(context):
     assert context["turn"]["sources"] == []
 
 
-# summaries and quizzes
+# summaries, quizzes and flashcards
 
 
 def _summary(context) -> dict:
@@ -137,6 +137,14 @@ def quiz_on_document(students, context, count, filename):
     assert turn["kind"] == "quiz" and turn["quiz"], turn
     assert len(turn["quiz"]["questions"]) == count
     assert _same_scope(turn["quiz"]["scope"], _document_scope(students, filename))
+
+
+@then(parsers.parse('the assistant gives me {count:d} flashcards of "{filename}"'))
+def flashcards_of_document(students, context, count, filename):
+    turn = context["turn"]
+    assert turn["kind"] == "flashcards" and turn["deck"], turn
+    assert len(turn["deck"]["cards"]) == count
+    assert _same_scope(turn["deck"]["scope"], _document_scope(students, filename))
 
 
 # the conversation
