@@ -76,6 +76,14 @@ def test_an_exported_epub_is_a_chapter_per_top_heading_and_converts_back():
     assert _titles(to_markdown("book.epub", EPUB, exported).markdown) == ["One", "One and a half", "Two"]
 
 
+def test_a_comment_in_code_is_not_an_exported_epub_chapter():
+    markdown = "# One\n\n```bash\n# a comment\nls\n```\n\n# Two\n\nSecond.\n"
+
+    exported = export(EPUB, "book", markdown, {})
+
+    assert _titles(to_markdown("book.epub", EPUB, exported).markdown) == ["One", "Two"]
+
+
 def test_an_exported_pdf_has_an_outline_of_its_headings():
     markdown = "# One\n\nFirst.\n\n### Deep\n\nDeeper.\n\n# Two\n\nSecond.\n"
 

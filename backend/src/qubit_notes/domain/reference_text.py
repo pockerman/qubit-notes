@@ -8,7 +8,8 @@ from dataclasses import dataclass
 
 # [[path]], [[path#section]], [[path|label]] or [[path#section|label]]; in a table the "|" is escaped, "\|"
 WRITTEN = re.compile(r"\[\[([^\[\]|#]*)(?:#([^\[\]|]*))?(?:\|([^\[\]]*))?\]\]")
-FENCE = re.compile(r"^\s*(```|~~~)")
+# a code block's fence; ```code``` on a line of its own is code in the text, as a ``` fence has no ` after it
+FENCE = re.compile(r"^\s*(```(?!.*`)|~~~)")
 CODE_SPAN = re.compile(r"(`+)(?:(?!\1).)+?\1")
 
 

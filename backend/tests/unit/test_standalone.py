@@ -37,6 +37,20 @@ def test_a_pdf_is_read_by_its_outline():
     assert found[1].content == "Methods text."
 
 
+def test_a_comment_in_markdown_code_is_not_a_heading():
+    markdown = (
+        "# Kubernetes\n\nA service:\n\n```yaml\n# load-balancer.yaml\n#   kubectl apply -f load-balancer.yaml\n"
+        "kind: Service\n```\n\nThat's it, as ```kind: Service``` says.\n```Service``` is code in the text\n\n"
+        "## Summary\n\nDone.\n"
+    )
+
+    found = parsing.sections("lesson.md", markdown.encode())
+
+    assert [s.section.title for s in found] == ["Kubernetes", "Summary"]
+    assert "# load-balancer.yaml" in found[0].content
+    assert found[0].content.endswith("```Service``` is code in the text")
+
+
 def test_chunks_overlap_and_never_span_sections():
     def section(position: int, words: int) -> SectionText:
         return SectionText(

@@ -10,7 +10,8 @@ import re
 from dataclasses import dataclass
 
 HEADING = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
-FENCE = re.compile(r"^\s*(```|~~~)")
+# a code block's fence; ```code``` on a line of its own is code in the text, as a ``` fence has no ` after it
+FENCE = re.compile(r"^\s*(```(?!.*`)|~~~)")
 # a lesson of the text before the first, when the document has no title
 INTRODUCTION = "Introduction"
 

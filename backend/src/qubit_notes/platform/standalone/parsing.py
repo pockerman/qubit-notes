@@ -9,6 +9,8 @@ from pypdf import PdfReader
 from qubit_notes.platform.port import Section, SectionText
 
 HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
+# a code block's fence; ```code``` on a line of its own is code in the text, as a ``` fence has no ` after it
+FENCE = re.compile(r"^\s*(```(?!.*`)|~~~)")
 
 
 def sections(filename: str, content: bytes) -> list[SectionText]:
@@ -28,16 +30,25 @@ def _section(position: int, title: str, level: int, text: str, start: int | None
 
 
 def _markdown(text: str) -> list[SectionText]:
-    """a section per heading, and one for any text before the first heading"""
-    found, title, level, lines = [], None, 1, []
-    for line in text.splitlines() + ["# end"]:
-        match = HEADING.match(line)
+    """a section per heading, and one for any text before the first heading; a line of code that starts with #, e.g. a
+    comment, is not a heading"""
+    found, title, level, lines, fence = [], None, 1, [], None
+
+    def close():
+        if title is not None or "".join(lines).strip():
+            found.append(_section(len(found) + 1, title or "", level, "\n".join(lines)))
+
+    for line in text.splitlines():
+        if opening := FENCE.match(line):
+            # a fence is closed by one like it, as the reader closes it
+            fence = opening.group(1) if fence is None else None if opening.group(1) == fence else fence
+        match = None if fence else HEADING.match(line)
         if not match:
             lines.append(line)
             continue
-        if title is not None or "".join(lines).strip():
-            found.append(_section(len(found) + 1, title or "", level, "\n".join(lines)))
+        close()
         title, level, lines = match.group(2), len(match.group(1)), []
+    close()
     return found
 
 

@@ -95,6 +95,26 @@ Feature: Reading material in the browser
     And "main" is in bold
     And "ip addr show" is shown as code
 
+  Scenario: Code is shown as written, comments and all
+    Given I am signed in as "maria"
+    And I have uploaded "load-balancing.md" to "computer-science/distributed-systems/introduction" with the content:
+      """
+      # Load balancing
+      A ```Service``` of type `LoadBalancer`:
+
+      ```yaml
+      # load-balancer.yaml
+      #   kubectl apply -f load-balancer.yaml
+      kind: Service
+      ```
+      """
+    When I open the course "Computer science"
+    And I open "load-balancing.md" to read it
+    Then "# load-balancer.yaml" is shown as code
+    And "kind: Service" is shown as code
+    And "Service" is shown as code in the text
+    And "LoadBalancer" is shown as code in the text
+
   Scenario: Go on to the next topic, and back
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"

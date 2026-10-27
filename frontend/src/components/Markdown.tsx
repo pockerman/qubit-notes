@@ -103,7 +103,8 @@ function inline(text: string, mark: Highlighter, image: ImageRenderer, reference
   const parts: ReactNode[] = []
   const pattern = new RegExp(
     String.raw`(\[\[[^[\]]+\]\]|!\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|` +
-      '`[^`]+`' +
+      // code in a run of backticks, closed by a run as long, e.g. `code` or ```code```
+      '(?<!`)(?<ticks>`+)(?!`).+?(?<!`)\\k<ticks>(?!`)' +
       String.raw`|\[[^\]]+\]\([^)\s]+\)|${MATHS}|\\\$)`,
     'g',
   )
@@ -122,7 +123,12 @@ function inline(text: string, mark: Highlighter, image: ImageRenderer, reference
       parts.push(image(imageSource(target), alt, at))
     } else if (token.startsWith('**'))
       parts.push(<strong key={at}>{inline(token.slice(2, -2), mark, image, reference)}</strong>)
-    else if (token.startsWith('`')) parts.push(<code key={at}>{token.slice(1, -1)}</code>)
+    else if (token.startsWith('`')) {
+      const ticks = match.groups!.ticks.length
+      // a space on both sides lets the code start or end with a backtick, as in `` `x` ``; it isn't the code's
+      const code = token.slice(ticks, -ticks).replace(/^ (.*) $/, '$1')
+      parts.push(<code key={at}>{code}</code>)
+    }
     else if (token.startsWith('[')) {
       const [, label, href] = token.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/)!
       parts.push(
@@ -183,7 +189,8 @@ export function Markdown({ text, headingOffset = 3, mark = plain, image = webOnl
   const lines = text.split('\n')
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
-    const fence = line.match(/^\s*(```|~~~)/)
+    // ```code``` on a line of its own is code in the text, as a ``` fence has no ` after it
+    const fence = line.match(/^\s*(```(?!.*`)|~~~)/)
     if (fence) {
       flush()
       const code: string[] = []

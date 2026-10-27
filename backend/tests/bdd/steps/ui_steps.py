@@ -340,6 +340,12 @@ def as_code(page, text):
     expect(_section_text(page).locator("pre code", has_text=text)).to_be_visible()
 
 
+@then(parsers.parse('"{text}" is shown as code in the text'))
+def as_code_in_text(page, text):
+    # the code alone, without the backticks around it
+    expect(_section_text(page).locator("p code").filter(has_text=re.compile(f"^{re.escape(text)}$"))).to_be_visible()
+
+
 @then(parsers.re(r'"(?P<tex>.+)" is typeset as mathematics, (?P<where>in the text|on a line of its own)$'))
 def typeset(page, tex, where):
     # KaTeX keeps the LaTeX it typeset in the MathML it writes for screen readers

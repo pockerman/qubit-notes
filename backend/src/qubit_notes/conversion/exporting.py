@@ -11,6 +11,7 @@ import pymupdf
 from markdown_it import MarkdownIt
 
 from qubit_notes.conversion.importing import HEADING
+from qubit_notes.conversion.lessons import FENCE
 
 CSS = """
 body { font-family: sans-serif; font-size: 11pt; line-height: 1.4; }
@@ -129,13 +130,25 @@ def _epub(title: str, markdown: str, images: dict[str, bytes]) -> bytes:
 
 def _chapters(markdown: str) -> list[tuple[str, str]]:
     """the Markdown divided at its top-level headings, each part with its heading; text before the first is a part
-    of its own"""
+    of its own. A line of code that starts with #, e.g. a comment, is not a heading."""
     lines = markdown.splitlines()
-    top = min((len(m.group(1)) for line in lines if (m := HEADING.match(line))), default=1)
+    headings = _headings(lines)
+    top = min((len(m.group(1)) for m in headings.values()), default=1)
     parts: list[tuple[str, list[str]]] = [("", [])]
-    for line in lines:
-        match = HEADING.match(line)
+    for i, line in enumerate(lines):
+        match = headings.get(i)
         if match and len(match.group(1)) == top:
             parts.append((match.group(2), []))
         parts[-1][1].append(line)
     return [(heading, "\n".join(text)) for heading, text in parts if "\n".join(text).strip()]
+
+
+def _headings(lines: list[str]) -> dict[int, re.Match]:
+    """the headings by their line, leaving out lines of code"""
+    found, fence = {}, None
+    for i, line in enumerate(lines):
+        if opening := FENCE.match(line):
+            fence = opening.group(1) if fence is None else None if opening.group(1) == fence else fence
+        elif not fence and (match := HEADING.match(line)):
+            found[i] = match
+    return found
