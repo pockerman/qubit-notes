@@ -115,6 +115,20 @@ Feature: Reading material in the browser
     And "Service" is shown as code in the text
     And "LoadBalancer" is shown as code in the text
 
+  Scenario: Links written in HTML are links
+    Given I am signed in as "maria"
+    And I have uploaded "circuits.md" to "computer-science/distributed-systems/introduction" with the content:
+      """
+      # Circuits
+      Read about <a href="https://example.org/breadboard">breadboards</a> and <a href='https://example.org/ohm'>**Ohm's** law</a>.
+      Not this one: <a href="javascript:alert(1)">trap</a>.
+      """
+    When I open the course "Computer science"
+    And I open "circuits.md" to read it
+    Then "breadboards" links to "https://example.org/breadboard"
+    And "Ohm's law" links to "https://example.org/ohm"
+    And "trap" is shown, but not as a link
+
   Scenario: Go on to the next topic, and back
     Given I am signed in as "maria"
     And I have uploaded "fe-basics.txt" to "aeronautics/numerical-methods/finite-elements"

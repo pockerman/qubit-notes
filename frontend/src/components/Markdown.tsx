@@ -98,14 +98,30 @@ function maths(token: string): { tex: string; display: boolean } {
   return { tex: token.slice(1, -1), display: false }
 }
 
-/** Inline **bold**, *italic*, `code`, [links](https://…), [[references]] and $mathematics$, as React elements. */
+// a link written in HTML, <a href="https://…">label</a>: shown as a link like [label](https://…), never as HTML
+const HTML_LINK = /<[aA]\s[^>]*?\bhref\s*=\s*(?:"[^"]*"|'[^']*')[^>]*>.*?<\/[aA]>/
+
+/** the label and target of a link, written [label](href) or <a href="href">label</a> */
+function link(token: string): { label: string; href: string } {
+  if (token.startsWith('[')) {
+    const [, label, href] = token.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/)!
+    return { label, href }
+  }
+  const [, double, single] = token.match(/\shref\s*=\s*(?:"([^"]*)"|'([^']*)')/i)!
+  return { label: token.match(/>(.*)<\/a>$/i)![1], href: double ?? single }
+}
+
+/**
+ * Inline **bold**, *italic*, `code`, [links](https://…) and <a href="https://…">links</a>, [[references]] and
+ * $mathematics$, as React elements.
+ */
 function inline(text: string, mark: Highlighter, image: ImageRenderer, reference: ReferenceRenderer): ReactNode[] {
   const parts: ReactNode[] = []
   const pattern = new RegExp(
     String.raw`(\[\[[^[\]]+\]\]|!\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*\s][^*]*\*|` +
       // code in a run of backticks, closed by a run as long, e.g. `code` or ```code```
       '(?<!`)(?<ticks>`+)(?!`).+?(?<!`)\\k<ticks>(?!`)' +
-      String.raw`|\[[^\]]+\]\([^)\s]+\)|${MATHS}|\\\$)`,
+      String.raw`|\[[^\]]+\]\([^)\s]+\)|${HTML_LINK.source}|${MATHS}|\\\$)`,
     'g',
   )
   let cursor = 0
@@ -129,8 +145,8 @@ function inline(text: string, mark: Highlighter, image: ImageRenderer, reference
       const code = token.slice(ticks, -ticks).replace(/^ (.*) $/, '$1')
       parts.push(<code key={at}>{code}</code>)
     }
-    else if (token.startsWith('[')) {
-      const [, label, href] = token.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/)!
+    else if (token.startsWith('[') || token.startsWith('<')) {
+      const { label, href } = link(token)
       parts.push(
         <a key={at} href={safeHref(href)} target="_blank" rel="noreferrer">
           {inline(label, mark, image, reference)}

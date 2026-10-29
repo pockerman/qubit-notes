@@ -330,6 +330,12 @@ def links_to(page, label, href):
     expect(_section_text(page).get_by_role("link", name=label)).to_have_attribute("href", href)
 
 
+@then(parsers.parse('"{text}" is shown, but not as a link'))
+def not_a_link(page, text):
+    expect(_section_text(page).get_by_text(text, exact=True)).to_be_visible()
+    expect(_section_text(page).get_by_role("link", name=text)).to_have_count(0)
+
+
 @then(parsers.parse('"{text}" is in bold'))
 def in_bold(page, text):
     expect(_section_text(page).locator("strong", has_text=text)).to_be_visible()
