@@ -6,7 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from qubit_notes.platform.port import Message, PlatformError, Section, SectionText
+from qubit_notes.platform.port import Message, PlatformError, Section, SectionText, chosen_ai
 from qubit_notes.platform.standalone import chunking, parsing
 from qubit_notes.platform.standalone.ai import ProviderAI
 from qubit_notes.platform.standalone.embeddings import (
@@ -250,6 +250,52 @@ def test_the_ai_without_its_key_says_so():
     assert ai.missing() == "the app is missing its Anthropic key"
     with pytest.raises(PlatformError, match="missing its Anthropic key"):
         ai.complete("system", "prompt")
+
+
+def test_the_ai_answers_with_the_provider_chosen_with_its_key(monkeypatch):
+    import openai
+
+    asked = {}
+
+    class Client:
+        def __init__(self, api_key):
+            asked["api_key"] = api_key
+            self.chat = SimpleNamespace(completions=SimpleNamespace(create=self.create))
+
+        def create(self, **arguments):
+            asked.update(arguments)
+            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content="From OpenAI."))])
+
+    monkeypatch.setattr(openai, "OpenAI", Client)
+    ai = ProviderAI(Settings(llm_provider="anthropic", anthropic_api_key="ant-key", openai_api_key=None))
+    ai.use_key("openai", "openai-key")
+
+    token = chosen_ai.set(("openai", "gpt-5-mini"))
+    try:
+        assert ai.complete("be brief", "who?") == "From OpenAI."
+    finally:
+        chosen_ai.reset(token)
+    assert (asked["api_key"], asked["model"]) == ("openai-key", "gpt-5-mini")
+
+
+def test_the_ai_without_the_key_of_the_provider_chosen_says_so():
+    ai = ProviderAI(Settings(llm_provider="anthropic", anthropic_api_key="ant-key", openai_api_key=None))
+
+    token = chosen_ai.set(("openai", "gpt-5"))
+    try:
+        with pytest.raises(PlatformError, match="missing its OpenAI key"):
+            ai.complete("system", "prompt")
+    finally:
+        chosen_ai.reset(token)
+
+
+def test_a_key_removed_is_no_longer_used():
+    ai = ProviderAI(Settings(llm_provider="openai", openai_api_key=None))
+    ai.use_key("openai", "key")
+    ai.use_key("openai", None)
+
+    assert not ai.has_key("openai")
+    assert ai.missing() == "the app is missing its OpenAI key"
 
 
 def test_s3_reads_part_of_a_file(monkeypatch):

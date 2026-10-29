@@ -20,7 +20,7 @@ class FakeAI:
     def missing_key(self) -> str | None:
         return None
 
-    def use_key(self, provider: str, key: str) -> None:
+    def use_key(self, provider: str, key: str | None) -> None:
         pass
 
     def use_model(self, provider: str, model: str) -> None:

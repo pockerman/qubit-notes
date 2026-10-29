@@ -1,3 +1,4 @@
+from contextvars import ContextVar
 from enum import StrEnum
 from typing import Any, Literal, Protocol
 
@@ -17,6 +18,11 @@ class PlatformHealth(BaseModel):
     @property
     def serving(self) -> bool:
         return self.reachable and self.authenticated and all(status == "SERVING" for status in self.services.values())
+
+
+# the provider and model a student chose to answer them, for the request being answered, rather than the app's
+# (features/ai_model.feature); None: the app's
+chosen_ai: ContextVar[tuple[str, str] | None] = ContextVar("chosen_ai", default=None)
 
 
 class PlatformError(Exception):
@@ -130,8 +136,8 @@ class StudyPlatform(Protocol):
     # whether the platform keeps the app's model providers' keys itself, as gogi does; else the app keeps them
     keeps_keys: bool
 
-    def use_key(self, provider: str, key: str) -> None:
-        """the platform calls the model provider with this key from now on"""
+    def use_key(self, provider: str, key: str | None) -> None:
+        """the platform calls the model provider with this key from now on; None: it has no key for it from now on"""
         ...
 
     def use_model(self, provider: str, model: str) -> None:

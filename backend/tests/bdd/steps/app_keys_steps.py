@@ -136,3 +136,34 @@ def told_no_provider(context, provider):
     response = context["response"]
     assert response.status_code == 404, response.text
     assert f"no provider {provider!r}" in response.json()["detail"]
+
+
+@when("I ask which keys the app has")
+def ask_keys(client, students, context):
+    context["response"] = client.get("/api/keys", headers=students.headers())
+    assert context["response"].status_code == 200, context["response"].text
+
+
+@then(parsers.re(r'I am told the app has the key of "(?P<has>[^"]+)", and not of "(?P<a>[^"]+)" nor "(?P<b>[^"]+)"$'))
+def told_which_keys(context, has, a, b):
+    given = {state["provider"]: state["given"] for state in context["response"].json()}
+    assert given == {has: True, a: False, b: False}, given
+
+
+@when(parsers.parse('I remove the app\'s key for "{provider}"'))
+def remove_key(client, students, context, provider):
+    context["response"] = client.delete(f"/api/keys/{provider}", headers=students.headers())
+
+
+@then(parsers.parse('I am told the app\'s settings give its "{name}" key'))
+def told_settings_give_it(context, name):
+    response = context["response"]
+    assert response.status_code == 409, response.text
+    assert f"settings give its {name} key" in response.json()["detail"]
+
+
+@then(parsers.parse('I am told the app was given no "{name}" key'))
+def told_given_no_key(context, name):
+    response = context["response"]
+    assert response.status_code == 404, response.text
+    assert f"given no {name} key" in response.json()["detail"]

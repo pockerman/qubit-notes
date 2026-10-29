@@ -4,6 +4,9 @@ Feature: Notes in the browser
   I want to take notes on what I read and watch, on screen
   So that my thoughts stay next to the material
 
+  Selecting a passage of a text opens a new note over the text, just above the passage (or just
+  below it, near the top of the window), from where the passage starts, not in a margin.
+
   Scenario: Take a note on a passage of a text
     Given I am signed in as "maria"
     And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
@@ -17,7 +20,7 @@ Feature: Notes in the browser
     Then I see my note "compare with Galerkin's method"
     And the passage "divides a domain into small elements" is highlighted
 
-  Scenario: The note opens beside the passage
+  Scenario: The note opens by the passage, over the text
     Given I am signed in as "maria"
     And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
       """
@@ -34,7 +37,7 @@ Feature: Notes in the browser
     And I open "fem-notes.md" to read it
     And I choose the section "2 Shape functions"
     And I select the passage "interpolates linearly between its two nodes"
-    Then the new note opens to the left of the text, level with "interpolates linearly between its two nodes"
+    Then the new note opens over the text, just above or below "interpolates linearly between its two nodes"
 
   Scenario: Take a note on a video
     Given I am signed in as "maria"

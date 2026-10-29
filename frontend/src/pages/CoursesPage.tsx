@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { Course, StudyApi } from '../api'
+import { LibraryTabs } from '../components/LibraryTabs'
 import { RenameForm } from '../components/RenameForm'
 import { slug } from '../names'
 import { href, navigate } from '../router'
@@ -65,6 +66,7 @@ export function CoursesPage({ api }: { api: StudyApi }) {
 
   return (
     <section className="courses-page" aria-labelledby="courses-title">
+      <LibraryTabs current="courses" />
       <header className="page-header">
         <h2 id="courses-title">My courses</h2>
         {!creating && (

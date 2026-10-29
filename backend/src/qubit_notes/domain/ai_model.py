@@ -67,6 +67,18 @@ class AIModel:
         self.restore()
         return self.in_use()
 
+    def chosen(self, provider: str) -> tuple[str, str] | None:
+        """the provider a student chose to answer them, with the app's model if it is the app's provider, else the
+        provider's own; None if the app has no such provider, or not its key, so the app's answers"""
+        if provider not in DEFAULT_MODELS:
+            return None
+        current = self.current()
+        if provider == current[0]:
+            return current
+        if not self._platform.has_key(provider):
+            return None
+        return provider, DEFAULT_MODELS[provider]
+
     def restore(self) -> None:
         """gives the platform the model to answer with"""
         self._platform.use_model(*self.current())

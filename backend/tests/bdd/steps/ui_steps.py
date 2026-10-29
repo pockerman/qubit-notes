@@ -423,22 +423,26 @@ PASSAGE_BOX = """(passage) => {
         range.setStart(node, at)
         range.setEnd(node, at + passage.length)
         const box = range.getBoundingClientRect()
-        return { top: box.top, bottom: box.bottom }
+        return { top: box.top, bottom: box.bottom, left: box.left }
     }
     return null
 }"""
 
 
-@then(parsers.parse('the new note opens to the left of the text, level with "{passage}"'))
-def note_opens_beside(page, passage):
+@then(parsers.parse('the new note opens over the text, just above or below "{passage}"'))
+def note_opens_by_passage(page, passage):
     form = page.get_by_role("form", name="New note")
     expect(form).to_be_visible()
     note = form.bounding_box()
     text = page.get_by_role("article", name="Section text").bounding_box()
     words = page.evaluate(PASSAGE_BOX, passage)
-    assert note["x"] + note["width"] <= text["x"], (note, text)
-    # the note starts on the passage's line
-    assert words["top"] - 4 <= note["y"] <= words["bottom"] + 4, (note, words)
+    # over the text, from where the passage starts, not in a margin beside it
+    assert text["x"] - 1 <= note["x"] <= words["left"] + 1, (note, text, words)
+    # next to the passage, without covering it
+    bottom = note["y"] + note["height"]
+    above = words["top"] - 24 <= bottom <= words["top"]
+    below = words["bottom"] <= note["y"] <= words["bottom"] + 24
+    assert above or below, (note, words)
 
 
 @when(parsers.parse('I note "{text}" at the current moment of the video'))
@@ -476,6 +480,24 @@ def _assistant(page: Page):
 def open_assistant(page):
     page.get_by_role("button", name="AI", exact=True).click()
     expect(_assistant(page)).to_be_visible()
+
+
+@then(parsers.parse('I can choose the AI from "{choices}"'))
+def can_choose_ai(page, choices):
+    choice = page.get_by_role("complementary", name="Assistant").get_by_role("combobox", name="AI")
+    expect(choice.locator("option")).to_have_text([c.strip() for c in choices.split(",")])
+
+
+@when(parsers.parse('I choose the AI "{choice}"'))
+def choose_ai(page, choice):
+    page.get_by_role("complementary", name="Assistant").get_by_role("combobox", name="AI").select_option(label=choice)
+
+
+@then("I am not offered to choose the AI")
+def not_offered_ai_choice(page):
+    assistant = page.get_by_role("complementary", name="Assistant")
+    expect(assistant.get_by_role("form", name="Ask the assistant")).to_be_visible()
+    expect(assistant.get_by_role("combobox", name="AI")).to_have_count(0)
 
 
 @when(parsers.parse('I ask "{question}"'))
@@ -1614,80 +1636,83 @@ def told_ai_model_chosen(page, model, provider):
     )
 
 
-def _give_key(form, key: str):
-    """gives the key in its form; the form's field has its name"""
-    form.locator("input[type=password]").fill(key)
+def _keys(page: Page):
+    expect(page.locator("#settings-title")).to_be_visible()
+    return page.get_by_role("region", name="Keys")
+
+
+def _key(page: Page, name: str):
+    """the provider's row among the keys"""
+    return _keys(page).get_by_role("listitem", name=f"{name} key")
+
+
+@then(parsers.re(r"I am told the app has no (?P<name>.+) key yet$"))
+def told_no_key_yet(page, name):
+    expect(_ai_model_section(page)).to_contain_text(f"The app has no {name} key yet")
+
+
+@then(parsers.re(r'I see the "(?P<name>[^"]+)" key is "(?P<state>[^"]+)"$'))
+def see_key_state(page, name, state):
+    expect(_key(page, name).locator(".badge")).to_have_text(state)
+
+
+@when(parsers.re(r'I give the "(?P<name>[^"]+)" key "(?P<key>[^"]+)" in the settings$'))
+def give_key_in_settings(page, name, key):
+    form = _key(page, name).get_by_role("form", name=f"{name} key")
+    form.get_by_label(f"{name} key").fill(key)
     form.get_by_role("button", name="Save").click()
+    expect(_keys(page).get_by_role("status")).to_have_text(f"The {name} key is saved.")
 
 
-def _provider_key(page: Page):
-    return _ai_model_section(page).get_by_role("form", name="Provider key")
+@when(parsers.re(r'I replace the "(?P<name>[^"]+)" key with "(?P<key>[^"]+)" in the settings$'))
+def replace_key_in_settings(page, name, key):
+    _key(page, name).get_by_role("button", name="Replace").click()
+    give_key_in_settings(page, name, key)
 
 
-@then("I am offered the provider's key")
-def offered_provider_key(page):
-    expect(_provider_key(page).get_by_role("button", name="Save")).to_be_visible()
+@when(parsers.re(r'I remove the "(?P<name>[^"]+)" key in the settings$'))
+def remove_key_in_settings(page, name):
+    _key(page, name).get_by_role("button", name="Remove").click()
+    page.get_by_role("alertdialog", name=f"Remove the {name} key").get_by_role("button", name="Yes, remove it").click()
 
 
-@then(parsers.re(r'I am not told "(?P<text>[^"]+)"$'))
-def not_told(page, text):
-    expect(page.locator("#settings-title")).to_be_visible()
+@then(parsers.re(r'I am told "(?P<text>[^"]+)"$'))
+def told_in_settings(page, text):
+    expect(_keys(page).get_by_role("status")).to_have_text(text)
+
+
+@when("I come back to the settings")
+def come_back_to_settings(page):
+    page.reload()
+    expect(_keys(page)).to_be_visible()
+
+
+@then(parsers.re(r'I am not shown "(?P<text>[^"]+)" in the settings$'))
+def not_shown_in_settings(page, text):
+    expect(_keys(page)).to_be_visible()
     expect(page.locator("main")).not_to_contain_text(text)
+    for field in page.locator("input").all():
+        assert text not in (field.input_value() or ""), text
 
 
-@when(parsers.re(r'I give the provider\'s key "(?P<key>[^"]+)" in the settings$'))
-def give_provider_key(page, key):
-    _give_key(_provider_key(page), key)
-    # the field is emptied once the key is given
-    expect(_provider_key(page).locator("input[type=password]")).to_have_value("")
+@then(parsers.re(r'the key of "(?P<provider>[^"]+)" is gone$'))
+def key_gone(app, provider):
+    assert provider not in app.state.platform.keys, app.state.platform.keys
 
 
-@then("I am told the provider's key is saved")
-def told_provider_key_saved(page):
-    expect(_provider_key(page).get_by_role("status")).to_have_text("Saved.")
+@then(parsers.re(r'I am not offered to change the "(?P<name>[^"]+)" key$'))
+def not_offered_to_change_key(page, name):
+    row = _key(page, name)
+    expect(row).to_be_visible()
+    expect(row.locator("input")).to_have_count(0)
+    expect(row.get_by_role("button")).to_have_count(0)
 
 
-@then("I am offered no other key")
-def offered_no_other_key(page):
-    expect(page.locator("#settings-title")).to_be_visible()
-    expect(page.locator("input[type=password]")).to_have_count(1)
-
-
-@then("I am told the app's settings give the provider's key")
-def told_settings_give_key(page):
-    expect(_ai_model_section(page).get_by_role("group", name="Provider key")).to_have_text(
-        "The app's settings give this key."
-    )
-
-
-def _embedding_model(page: Page):
-    expect(page.locator("#settings-title")).to_be_visible()
-    return page.get_by_role("region", name="Embedding model")
-
-
-@then(parsers.re(r'I am told the app is missing its embedding model\'s key, of "(?P<provider>[^"]+)"$'))
-def told_missing_embedding_key(page, provider):
-    expect(_embedding_model(page)).to_contain_text(f"The app is missing the key of its embedding model, of {provider}.")
-
-
-@when(parsers.re(r'I give the embedding model\'s key "(?P<key>[^"]+)" in the settings$'))
-def give_embedding_key(page, key):
-    _give_key(_embedding_model(page).get_by_role("form", name="Embedding model key"), key)
-    # the section goes once the key is given
-    expect(page.get_by_role("region", name="Embedding model")).to_have_count(0)
-
-
-@then("I am offered no embedding model's key")
-def offered_no_embedding_key(page):
-    expect(page.locator("#settings-title")).to_be_visible()
-    expect(page.get_by_role("region", name="Embedding model")).to_have_count(0)
-
-
-@then("I am not offered to change the provider's key")
 @then("I am offered no key")
 def offered_no_key(page):
     expect(page.locator("#settings-title")).to_be_visible()
     expect(page.locator("input[type=password]")).to_have_count(0)
+    expect(page.get_by_role("region", name="Keys")).to_have_count(0)
 
 
 @then("I am not offered to change it")

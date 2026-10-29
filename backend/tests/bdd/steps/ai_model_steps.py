@@ -45,6 +45,8 @@ def has_key_in_settings(app, platform, key, provider):
     app.state.settings = app.state.settings.model_copy(update={f"{provider}_api_key": key})
     platform.keys[provider] = key
     app.state.ai_model = AIModel(app.state.database, app.state.settings, app.state.platform)
+    keys = app.state.app_keys
+    keys._settings = keys._settings.model_copy(update={f"{provider}_api_key": key})
 
 
 @when(parsers.re(r"I ask which model the AI uses$"))
@@ -123,3 +125,19 @@ def told_providers(context):
     response = context["response"]
     assert response.status_code == 422, response.text
     assert "Anthropic's or OpenAI's" in response.json()["detail"]
+
+
+@when(parsers.re(r'I ask the assistant about "(?P<filename>[^"]+)", choosing "(?P<provider>[^"]+)"$'))
+def ask_choosing(app, students, filename, provider):
+    material = students.find_material(filename)
+    response = students.client.post(
+        "/api/assistant/requests",
+        headers={**students.headers(), "X-AI-Provider": provider},
+        json={"course_id": material["course_id"], "document_id": material["document_id"], "question": "What is it?"},
+    )
+    assert response.status_code == 200, response.text
+
+
+@then(parsers.re(r'the AI answered with "(?P<model>[^"]+)" of "(?P<provider>[^"]+)"$'))
+def answered_with(app, model, provider):
+    assert app.state.platform.answered_with[-1] == (provider, model), app.state.platform.answered_with

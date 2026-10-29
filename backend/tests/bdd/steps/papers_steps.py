@@ -279,6 +279,25 @@ def go_to_papers(page):
     expect(page.get_by_role("heading", name="My papers", level=2)).to_be_visible()
 
 
+@then(parsers.parse('I see the tabs "{tabs}", with "{chosen}" chosen'))
+def see_tabs(page, tabs, chosen):
+    links = page.get_by_role("navigation", name="My library").get_by_role("link")
+    expect(links).to_have_text([tab.strip() for tab in tabs.split(",")])
+    expect(links.and_(page.locator("[aria-current=page]"))).to_have_text([chosen])
+    expect(page.get_by_role("heading", name=chosen, level=2)).to_be_visible()
+
+
+@when(parsers.parse('I choose the tab "{tab}"'))
+def choose_tab(page, tab):
+    page.get_by_role("navigation", name="My library").get_by_role("link", name=tab).click()
+    expect(page.get_by_role("heading", name=tab, level=2)).to_be_visible()
+
+
+@then("I see that I have no collections yet")
+def no_collections_yet(page):
+    expect(page.get_by_text("You have no collections of papers yet.")).to_be_visible()
+
+
 @when(parsers.re(r'I create the collection "(?P<title>[^"]+)"$'))
 def create_in_browser(page, title):
     page.get_by_role("button", name="Create new collection").click()

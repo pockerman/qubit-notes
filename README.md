@@ -32,8 +32,8 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
 - **References between topics.** Refer to another topic, material or section with `[[...]]`; references become
   links, broken ones are reported, and a topic's page shows where it is mentioned
   ([References between topics](#references-between-topics)).
-- **Notes.** Take notes on passages of text, or at moments of a video; notes follow their passage when the material
-  is edited.
+- **Notes.** Take notes on passages of text, in a note that opens by the passage selected, or at moments of a video;
+  notes follow their passage when the material is edited.
 - **Asking the assistant.** Ask about the material being read or the whole course and get answers that cite their
   sources, in conversations the assistant remembers, kept private to each student.
 - **Summaries and quizzes.** Summaries and quizzes of 1 to 20 questions on a section, a document or a whole topic,
@@ -45,8 +45,9 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
 - **Sharing.** Share a course with classmates as readers or co-owners, and stop sharing it.
 - **Accounts.** Sign in with Amazon Cognito where deployed, and change your email and password under
   Settings › Account ([Signing in with Amazon Cognito](#signing-in-with-amazon-cognito)).
-- **Administration.** Admins choose the AI's provider (Anthropic or OpenAI) and model, and give the app keys it is
-  missing; the bar shows the platform's health ([The app's keys](#the-apps-keys), [The AI's model](#the-ais-model)).
+- **Administration.** Admins choose the AI's provider (Anthropic or OpenAI) and model, and give, replace and remove the
+  app's keys; the bar shows the platform's health ([The app's keys](#the-apps-keys), [The AI's model](#the-ais-model)).
+  Where the app has the keys of both providers, each student chooses which answers them.
 - **Platforms.** Runs on its own (SQLite or Postgres with pgvector, local files or S3, in-app or hosted embedding
   models) or as an application of gogi; ships as a container image with Terraform for AWS.
 
@@ -138,7 +139,7 @@ kept.
 
 ## Papers
 
-**My papers**, in the app's menu, keeps papers in collections, e.g. "Reinforcement learning", apart from courses
+**My papers**, a tab beside **My courses** (where the app opens) and in the app's menu, keeps papers in collections, e.g. "Reinforcement learning", apart from courses
 (`features/papers.feature`, `features/ui_papers.feature`, `backend/src/qubit_notes/domain/papers.py`). A paper is
 uploaded to a collection as a PDF, an EPUB, Markdown or text, and stays one paper: it is converted and read by its own
 sections, but never made into lessons. Its title, authors, year, venue and DOI are filled in from it where they can be
@@ -271,13 +272,17 @@ model provider. Unfinished ingestions are resumed when the app starts again, so 
 
 A key the settings don't give the app, such as its Anthropic key, its admins can give it from the app
 (`features/app_keys.feature`, `features/ui_navigation.feature`): the platform's status, next to the app's name, says
-"Platform degraded" and opens to show what is missing, with a field for each missing key. The admins are named in
-`QUBIT_NOTES_ADMINS` (e.g. `alex,maria`, as they sign in); anyone else is told to ask one.
+"Platform degraded" and opens to show what is missing, and sends an admin to Settings, whose **Keys** list each
+provider with whether the app has its key: "Saved", "No key" or "Given by the app's settings". An admin gives a missing
+key there and is told it is saved; a saved key can be replaced, or removed, after which the app has none for that
+provider (`DELETE /api/keys/{provider}`). `GET /api/keys` tells whether the app has each key, never the key. The admins
+are named in `QUBIT_NOTES_ADMINS` (e.g. `alex,maria`, as they sign in); anyone else is told to ask one.
 
 The app keeps a key it is given in its database (`app_keys`), encrypted with `QUBIT_NOTES_SECRET_KEY`, and gives it to
 its platform again when it starts; without the secret it keeps none. A key is never shown back, and a key in the
-settings is used rather than one kept. Changing the secret makes the keys kept unreadable: give them again. Where the
-platform is gogi, the key is stored in gogi as the app's credential instead, as `qubit-notes store-provider-key` does.
+settings is used rather than one kept, and isn't removed from the app. Changing the secret makes the keys kept
+unreadable: give them again. Where the platform is gogi, the key is stored in gogi as the app's credential instead, as
+`qubit-notes store-provider-key` does; gogi has no way to remove one, so it can only be replaced.
 
 A missing key is described in plain words, e.g. "The app is missing its Anthropic key.": the health check lists missing
 keys by their provider (`missing_keys`), and never names the setting that holds one.
@@ -286,11 +291,16 @@ keys by their provider (`missing_keys`), and never names the setting that holds 
 
 The admins choose the AI's provider and model on the app's Settings page, from the menu (`features/ai_model.feature`,
 `features/ui_settings.feature`): Anthropic or OpenAI, and any of its models by name, with some suggested. Choosing a
-provider fills in its own model, and if the app is missing that provider's key, an admin can give it there. The choice
+provider fills in its own model, and if the app has no key for that provider, the page says so. The choice
 is kept in the app's database (`app_settings`) and used for everyone, and again after a restart, rather than
 `QUBIT_NOTES_LLM_PROVIDER` and `QUBIT_NOTES_LLM_MODEL`; where the platform is gogi, it is given to gogi with each
 request. Anyone else sees the provider and model in use. The embedding model isn't chosen there: changing it means
 embedding the material again.
+
+Where the app has the keys of both Anthropic and OpenAI, the assistant, and Generate, offer each student a choice of
+which answers them: the app's provider with the model chosen, or the other with its own model, e.g. "OpenAI · gpt-5".
+The choice is kept in the student's browser and sent with each request (`X-AI-Provider`); the app answers with the
+app's provider where it hasn't the key of the one chosen (`ChosenProvider` in `backend/src/qubit_notes/api/ai_model.py`).
 
 ## Running on a gogi that serves many applications
 

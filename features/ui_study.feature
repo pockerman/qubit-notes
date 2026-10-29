@@ -7,6 +7,10 @@ Feature: Asking the assistant in the browser
   An "AI" button next to "Edit" and "Download" opens the assistant beside the text. Summaries
   and quizzes are asked for there, in words: there are no separate buttons for them.
 
+  Where the app has the keys of both Anthropic and OpenAI, the assistant offers to choose which
+  answers, each with its model (see The AI's model). The choice is the student's, kept in their
+  browser, for everything the AI does for them.
+
   Background:
     Given I am signed in as "maria"
     And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
@@ -53,3 +57,22 @@ Feature: Asking the assistant in the browser
     And I open "fem-notes.md" to read it
     Then I see the buttons "Edit", "Download" and "AI" together
     But I see no "Summarise" or "Quiz me" button
+
+  Scenario: Choose which provider answers, where the app has the keys of both
+    Given qubit-notes has the key "sk-ant-test" for "anthropic" in its settings
+    And qubit-notes has the key "sk-openai-test" for "openai" in its settings
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    And I open the assistant
+    Then I can choose the AI from "Anthropic · claude-sonnet-5-5, OpenAI · gpt-5"
+    When I choose the AI "OpenAI · gpt-5"
+    And I ask "What does the finite element method divide a domain into?"
+    Then I see an answer that cites "1 Introduction"
+    And the AI answered with "gpt-5" of "openai"
+
+  Scenario: No choice of provider where the app has the key of one
+    Given qubit-notes has the key "sk-ant-test" for "anthropic" in its settings
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    And I open the assistant
+    Then I am not offered to choose the AI

@@ -4,7 +4,7 @@ choose, called with the app's key."""
 import json
 from typing import Any, Protocol
 
-from qubit_notes.platform.port import Message, PlatformError
+from qubit_notes.platform.port import Message, PlatformError, chosen_ai
 from qubit_notes.settings import DEFAULT_MODELS, Settings, missing_key
 
 PROVIDERS = tuple(DEFAULT_MODELS)
@@ -27,8 +27,8 @@ class AI(Protocol):
         """the model provider whose key the AI needs and doesn't have"""
         ...
 
-    def use_key(self, provider: str, key: str) -> None:
-        """calls the model provider with this key from now on, if it calls that provider"""
+    def use_key(self, provider: str, key: str | None) -> None:
+        """calls the model provider with this key from now on, if it calls that provider; None: with none"""
         ...
 
     def use_model(self, provider: str, model: str) -> None:
@@ -59,7 +59,7 @@ class ProviderAI:
     def missing_key(self) -> str | None:
         return None if self._key else self._provider
 
-    def use_key(self, provider: str, key: str) -> None:
+    def use_key(self, provider: str, key: str | None) -> None:
         if provider in self._keys:
             self._keys[provider] = key
 
@@ -78,19 +78,22 @@ class ProviderAI:
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
     ) -> str:
-        if why := self.missing():
-            raise PlatformError("FAILED_PRECONDITION", why)
+        # the model the student chose, else the app's
+        provider, model = chosen_ai.get() or (self._provider, self._model)
+        key = self._keys.get(provider)
+        if not key:
+            raise PlatformError("FAILED_PRECONDITION", missing_key(provider))
         messages = [{"role": m.role, "content": m.content} for m in history or []]
         messages.append({"role": "user", "content": prompt})
-        if self._provider == "anthropic":
-            return self._anthropic(system, messages, json_schema)
-        return self._openai(system, messages, json_schema)
+        if provider == "anthropic":
+            return self._anthropic(model, key, system, messages, json_schema)
+        return self._openai(model, key, system, messages, json_schema)
 
-    def _anthropic(self, system: str, messages: list[dict], json_schema: dict | None) -> str:
+    def _anthropic(self, model: str, key: str, system: str, messages: list[dict], json_schema: dict | None) -> str:
         import anthropic
 
         arguments: dict[str, Any] = {
-            "model": self._model,
+            "model": model,
             "max_tokens": self._settings.llm_max_tokens,
             "system": system,
             "messages": messages,
@@ -101,7 +104,7 @@ class ProviderAI:
             ]
             arguments["tool_choice"] = {"type": "tool", "name": "answer"}
         try:
-            response = anthropic.Anthropic(api_key=self._key).messages.create(**arguments)
+            response = anthropic.Anthropic(api_key=key).messages.create(**arguments)
         except anthropic.APIError as e:
             raise PlatformError("AI_FAILED", f"Anthropic refused: {e}") from e
         if json_schema:
@@ -111,11 +114,11 @@ class ProviderAI:
             return json.dumps(answer)
         return "".join(block.text for block in response.content if block.type == "text")
 
-    def _openai(self, system: str, messages: list[dict], json_schema: dict | None) -> str:
+    def _openai(self, model: str, key: str, system: str, messages: list[dict], json_schema: dict | None) -> str:
         import openai
 
         arguments: dict[str, Any] = {
-            "model": self._model,
+            "model": model,
             "max_completion_tokens": self._settings.llm_max_tokens,
             "messages": [{"role": "system", "content": system}, *messages],
         }
@@ -125,7 +128,7 @@ class ProviderAI:
                 "json_schema": {"name": "answer", "schema": json_schema},
             }
         try:
-            response = openai.OpenAI(api_key=self._key).chat.completions.create(**arguments)
+            response = openai.OpenAI(api_key=key).chat.completions.create(**arguments)
         except openai.OpenAIError as e:
             raise PlatformError("AI_FAILED", f"OpenAI refused: {e}") from e
         return response.choices[0].message.content or ""

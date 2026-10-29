@@ -8,18 +8,27 @@ import hashlib
 
 from cryptography.fernet import Fernet, InvalidToken
 from loguru import logger
+from pydantic import BaseModel
 from sqlalchemy import delete, insert, select
 from sqlalchemy.engine import Engine
 
 from qubit_notes import storage
 from qubit_notes.domain.errors import Conflict, NotAllowed, NotFound
 from qubit_notes.platform.port import StudyPlatform
-from qubit_notes.settings import Settings
+from qubit_notes.settings import PROVIDER_NAMES, Settings
 
 table = storage.app_keys
 
 # the model providers the app has keys for: its AI's and its embedding model's
 PROVIDERS = ("anthropic", "openai", "voyage")
+
+
+class KeyState(BaseModel):
+    provider: str
+    # whether the app has the provider's key, given by an admin or by its settings; the key itself is never given
+    given: bool
+    # whether the app's settings give it, which is used rather than one an admin gives, and isn't removed from the app
+    in_settings: bool
 
 
 class AppKeys:
@@ -50,6 +59,29 @@ class AppKeys:
                 )
         if not self._in_settings(provider):
             self._platform.use_key(provider, key)
+
+    def states(self) -> list[KeyState]:
+        """whether the app has each provider's key, and where from"""
+        return [
+            KeyState(provider=p, given=self._platform.has_key(p), in_settings=self._in_settings(p)) for p in PROVIDERS
+        ]
+
+    def take_back(self, student: str, provider: str) -> None:
+        """the app has no key for the provider from now on, nor when it restarts; one its settings give stays"""
+        if not self.is_admin(student):
+            raise NotAllowed("only the app's admins can remove its keys")
+        if provider not in PROVIDERS:
+            raise NotFound(f"the app has no provider {provider!r}: its providers are {', '.join(PROVIDERS)}")
+        name = PROVIDER_NAMES[provider]
+        if self._in_settings(provider):
+            raise Conflict(f"the app's settings give its {name} key, so it can't be removed here")
+        if self._platform.keeps_keys:
+            raise Conflict(f"gogi keeps the app's keys: its {name} key can be replaced, but not removed, here")
+        with self._engine.begin() as connection:
+            removed = connection.execute(delete(table).where(table.c.provider == provider)).rowcount
+        if not removed:
+            raise NotFound(f"the app was given no {name} key")
+        self._platform.use_key(provider, None)
 
     def restore(self) -> None:
         """gives the platform the keys kept, but for those the settings give"""

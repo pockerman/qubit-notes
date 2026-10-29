@@ -14,6 +14,7 @@ from qubit_notes.platform.port import (
     PlatformHealth,
     Section,
     SectionText,
+    chosen_ai,
 )
 from qubit_notes.platform.standalone import parsing
 from tests.fakes.fake_ai import FakeAI
@@ -52,6 +53,7 @@ class FakePlatform:
         # new ingestions stay pending while set
         self.hold_ingestion = False
         self.ai = FakeAI()
+        self.answered_with: list[tuple[str, str] | None] = []
         # conversation id to (its user, its messages)
         self.conversations: dict[str, tuple[str, list[Message]]] = {}
 
@@ -80,8 +82,11 @@ class FakePlatform:
     # the app keeps its keys, as it does on its own platform
     keeps_keys = False
 
-    def use_key(self, provider: str, key: str) -> None:
-        self.keys[provider] = key
+    def use_key(self, provider: str, key: str | None) -> None:
+        if key is None:
+            self.keys.pop(provider, None)
+        else:
+            self.keys[provider] = key
 
     def use_model(self, provider: str, model: str) -> None:
         # the fake's AI needs no key for the provider it started with, as the scenarios give none; another provider
@@ -265,6 +270,8 @@ class FakePlatform:
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
     ) -> str:
+        # the provider and model that answered: the one the student chose, else the app's
+        self.answered_with.append(chosen_ai.get() or self.ai_model)
         return self.ai.complete(system, prompt, json_schema=json_schema, history=history)
 
     # conversations

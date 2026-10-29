@@ -33,6 +33,7 @@ from qubit_notes.platform.port import (
     PlatformHealth,
     Section,
     SectionText,
+    chosen_ai,
 )
 from qubit_notes.settings import Settings
 
@@ -116,7 +117,10 @@ class GogiPlatform:
     # gogi keeps the app's keys, as its credentials
     keeps_keys = True
 
-    def use_key(self, provider: str, key: str) -> None:
+    def use_key(self, provider: str, key: str | None) -> None:
+        if key is None:
+            # gogi keeps its credentials until they are replaced: it has no way to remove one
+            raise PlatformError("FAILED_PRECONDITION", "gogi keeps the app's keys: replace it there instead")
         self.store_credential(provider, key)
 
     # the model gogi is asked to answer with: the settings', until the admins choose another
@@ -330,8 +334,8 @@ class GogiPlatform:
         response = self._gogi.llm_clients.run(
             LLMRunRequest(
                 config=LLMRunRequestConfig(
-                    provider=self._ai_model[0],
-                    model=self._ai_model[1],
+                    provider=(chosen_ai.get() or self._ai_model)[0],
+                    model=(chosen_ai.get() or self._ai_model)[1],
                     max_tokens=self._settings.llm_max_tokens,
                 ),
                 messages=[

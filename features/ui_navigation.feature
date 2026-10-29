@@ -45,7 +45,7 @@ Feature: The navigation bar
     And I am not shown the setting "QUBIT_NOTES_ANTHROPIC_API_KEY"
     And I am not offered to give it a key
     When I head to Settings from the platform's status
-    And I give the provider's key "sk-ant-test" in the settings
+    And I give the "Anthropic" key "sk-ant-test" in the settings
     Then the platform's status says "Platform connected"
 
   Scenario: A student who is not an admin is told to ask one

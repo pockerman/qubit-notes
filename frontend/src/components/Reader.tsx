@@ -164,20 +164,40 @@ function sectionLabel(title: string, filename: string): string {
   return title || filename
 }
 
-// the words selected in one section of the text, to take a note on, and how far down the reader they are
-type Selection = { section: number; passage: string; top: number }
+// where a note on a passage opens: over the text, just above the passage, or just below it if it is near the top of
+// the window, as wide as the note's form, from where the passage starts, as far as the reader goes
+type Place = { top: number; left: number; width: number; above: boolean }
+
+// the words selected in one section of the text, to take a note on, and where the note opens
+type Selection = { section: number; passage: string; place: Place }
+
+// the note's form is this wide, if the reader is, and this tall, or about
+const NOTE_WIDTH = 352
+const NOTE_HEIGHT = 220
 
 function selectedPassage(body: HTMLElement | null): Selection | null {
   const selection = window.getSelection()
   const passage = selection?.toString().trim()
-  if (!selection || !passage || selection.rangeCount === 0) return null
+  if (!body || !selection || !passage || selection.rangeCount === 0) return null
   const sectionOf = (node: Node | null) =>
     (node instanceof Element ? node : node?.parentElement)?.closest<HTMLElement>('[data-section]')
   const start = sectionOf(selection.anchorNode)
   // a note is on the words of a single section
   if (!start || start !== sectionOf(selection.focusNode)) return null
-  const top = selection.getRangeAt(0).getBoundingClientRect().top - (body?.getBoundingClientRect().top ?? 0)
-  return { section: Number(start.dataset.section), passage, top: Math.max(0, top) }
+  const words = selection.getRangeAt(0).getBoundingClientRect()
+  const reader = body.getBoundingClientRect()
+  const width = Math.min(NOTE_WIDTH, reader.width)
+  const above = words.top > NOTE_HEIGHT
+  return {
+    section: Number(start.dataset.section),
+    passage,
+    place: {
+      top: (above ? words.top : words.bottom) - reader.top,
+      left: Math.min(Math.max(0, words.left - reader.left), reader.width - width),
+      width,
+      above,
+    },
+  }
 }
 
 /** The paragraph, with the passages that have notes marked. */
@@ -206,16 +226,16 @@ type NoteFormProps = {
   label: string
   onSave: (text: string) => Promise<void>
   onCancel: () => void
-  // how far down the reader to open it, beside the passage, to the left of the text
-  top?: number
+  // where to open it over the text, by the passage it is on
+  place?: Place
 }
 
-function NoteForm({ label, onSave, onCancel, top }: NoteFormProps) {
+function NoteForm({ label, onSave, onCancel, place }: NoteFormProps) {
   const [text, setText] = useState('')
   return (
     <form
-      className={top === undefined ? 'note-form card' : 'note-form card beside'}
-      style={top === undefined ? undefined : { top }}
+      className={place === undefined ? 'note-form card' : `note-form card by-passage ${place.above ? 'above' : 'below'}`}
+      style={place === undefined ? undefined : { top: place.top, left: place.left, width: place.width }}
       aria-label="New note"
       onSubmit={async (e) => {
         e.preventDefault()
@@ -557,7 +577,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
           {selection && (
             <NoteForm
               label={`On “${selection.passage}”`}
-              top={selection.top}
+              place={selection.place}
               onSave={(text) => addNote({ text, section: selection.section, passage: selection.passage })}
               onCancel={() => setSelection(null)}
             />

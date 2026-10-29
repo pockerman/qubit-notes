@@ -14,6 +14,11 @@ Feature: The app's keys, set by its admins
   settings is used rather than one kept in the database. Where the platform is gogi, the key is
   stored in gogi as the app's credential, as `qubit-notes store-provider-key` does.
 
+  An admin can also remove a key the app was given, and the app has no key for that provider
+  then, nor when it restarts. A key in the settings isn't removed from the app, and gogi keeps
+  its credentials until they are replaced. Anyone can ask whether the app has each provider's
+  key, and whether its settings give it, never the key itself.
+
   Background:
     Given qubit-notes is running without a key for "anthropic"
     And "alex" is an admin of qubit-notes
@@ -71,3 +76,39 @@ Feature: The app's keys, set by its admins
     Given I am the student "alex"
     When I give the app the key "abc" for "acme"
     Then I am told the app has no provider "acme"
+
+  Scenario: The app tells whether it has each provider's key
+    Given I am the student "alex"
+    And I have given the app the key "sk-ant-test" for "anthropic"
+    And I am the student "maria"
+    When I ask which keys the app has
+    Then I am told the app has the key of "anthropic", and not of "openai" nor "voyage"
+    And nothing the app answers holds "sk-ant-test"
+
+  Scenario: An admin removes a key the app was given
+    Given I am the student "alex"
+    And I have given the app the key "sk-ant-test" for "anthropic"
+    When I remove the app's key for "anthropic"
+    Then the key of "anthropic" is still missing
+    When qubit-notes restarts
+    Then the key of "anthropic" is still missing
+
+  Scenario: A key the settings give is not removed
+    Given qubit-notes has the key "sk-ant-settings" for "anthropic" in its settings
+    And I am the student "alex"
+    When I remove the app's key for "anthropic"
+    Then I am told the app's settings give its "Anthropic" key
+    And the app uses the key "sk-ant-settings" for "anthropic"
+
+  Scenario: Only admins remove keys
+    Given I am the student "alex"
+    And I have given the app the key "sk-ant-test" for "anthropic"
+    And I am the student "maria"
+    When I remove the app's key for "anthropic"
+    Then I am not allowed to do that
+    And the app uses the key "sk-ant-test" for "anthropic"
+
+  Scenario: Only a key the app was given is removed
+    Given I am the student "alex"
+    When I remove the app's key for "openai"
+    Then I am told the app was given no "OpenAI" key

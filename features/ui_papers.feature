@@ -4,6 +4,15 @@ Feature: Papers in the browser
   I want my papers under My papers, apart from my courses
   So that I can read, note and ask about each paper on screen
 
+  Scenario: My courses and My papers are tabs, opening on My courses
+    Given I am signed in as "maria"
+    Then I see the tabs "My courses, My papers", with "My courses" chosen
+    When I choose the tab "My papers"
+    Then I see the tabs "My courses, My papers", with "My papers" chosen
+    And I see that I have no collections yet
+    When I choose the tab "My courses"
+    Then I see that I have no courses yet
+
   Scenario: Create a collection under My papers, apart from my courses
     Given I am signed in as "maria"
     When I go to my papers

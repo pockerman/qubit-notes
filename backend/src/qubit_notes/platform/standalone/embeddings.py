@@ -37,7 +37,7 @@ class Embedder(Protocol):
         """the model provider whose key the model needs and doesn't have"""
         ...
 
-    def use_key(self, provider: str, key: str) -> None:
+    def use_key(self, provider: str, key: str | None) -> None:
         """embeds with this key from now on, if the model is that provider's"""
         ...
 
@@ -74,7 +74,7 @@ class InAppEmbedder:
     def missing_key(self) -> str | None:
         return None
 
-    def use_key(self, provider: str, key: str) -> None:
+    def use_key(self, provider: str, key: str | None) -> None:
         pass
 
 
@@ -113,7 +113,7 @@ class VoyageEmbedder:
     def missing_key(self) -> str | None:
         return None if self._api_key else "voyage"
 
-    def use_key(self, provider: str, key: str) -> None:
+    def use_key(self, provider: str, key: str | None) -> None:
         if provider == "voyage":
             self._api_key = key
 
@@ -145,7 +145,7 @@ class OpenAIEmbedder:
     def missing_key(self) -> str | None:
         return None if self._api_key else "openai"
 
-    def use_key(self, provider: str, key: str) -> None:
+    def use_key(self, provider: str, key: str | None) -> None:
         if provider == "openai":
             self._api_key = key
 

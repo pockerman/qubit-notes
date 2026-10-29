@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { Course, Generated, GeneratedKind, Material, StudyApi, Topic } from '../api'
 import { MaterialsMenu } from '../components/MaterialsMenu'
+import { ProviderChoice } from '../components/ProviderChoice'
 import { namesOf } from '../names'
 import { href, navigate } from '../router'
 import { WriteMaterialPage } from './WriteMaterialPage'
@@ -103,6 +104,7 @@ export function GeneratePage({ api, courseId, subject, topic }: Props) {
             <option value="">Only my instructions</option>
           </select>
         </label>
+        <ProviderChoice api={api} />
         <label>
           Instructions
           <textarea

@@ -19,6 +19,10 @@ Feature: The AI's model
   and whether its settings give it, never the key itself. Where the platform is gogi, the choice
   is given to gogi with each request to the AI. The model that embeds material is not chosen here (see The app on its own).
 
+  Where the app has the keys of both providers, each student chooses which answers them (the
+  X-AI-Provider header of their requests): the app's provider with the model the admins chose,
+  or the other with its own model. Without the key of the provider chosen, the app's answers.
+
   Background:
     Given qubit-notes is running with the model provider "anthropic", and no model set
     And "alex" is an admin of qubit-notes
@@ -85,3 +89,28 @@ Feature: The AI's model
     Given I am the student "alex"
     When I choose the model "acme-1" of "acme"
     Then I am told the app's AI is Anthropic's or OpenAI's
+
+  Scenario: A student chooses the provider that answers them
+    Given qubit-notes has a secret to keep the keys it is given with
+    And I am the student "alex"
+    And I have given the app the key "sk-openai-test" for "openai"
+    And I am the student "maria"
+    And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements"
+    When I ask the assistant about "fem-notes.md", choosing "openai"
+    Then the AI answered with "gpt-5" of "openai"
+    When I ask the assistant about "fem-notes.md", choosing "anthropic"
+    Then the AI answered with "claude-sonnet-5-5" of "anthropic"
+
+  Scenario: The app's provider answers with the model the admins chose
+    Given I am the student "alex"
+    And I have chosen the model "claude-opus-5-5" of "anthropic"
+    And I am the student "maria"
+    And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements"
+    When I ask the assistant about "fem-notes.md", choosing "anthropic"
+    Then the AI answered with "claude-opus-5-5" of "anthropic"
+
+  Scenario: Without the key of the provider chosen, the app's answers
+    Given I am the student "maria"
+    And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements"
+    When I ask the assistant about "fem-notes.md", choosing "openai"
+    Then the AI answered with "claude-sonnet-5-5" of "anthropic"

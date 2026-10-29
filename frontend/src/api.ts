@@ -1,4 +1,5 @@
 import type { AuthConfig, Identity } from './auth'
+import { providerHeader } from './providers'
 export type Health = {
   status: 'ok' | 'degraded'
   // platform service name to its status, e.g. SERVING or NOT_SERVING
@@ -24,6 +25,13 @@ export type AIModel = {
   // whether the app has each provider's key, and whether its settings give it, which is used rather than one given
   keys: Record<string, boolean>
   in_settings: Record<string, boolean>
+}
+
+/** Whether the app has a model provider's key, and whether its settings give it; never the key itself. */
+export type KeyState = {
+  provider: string
+  given: boolean
+  in_settings: boolean
 }
 
 export type Account = {
@@ -409,7 +417,7 @@ export class StudyApi {
   private async fetch(path: string, init: RequestInit = {}): Promise<Response> {
     const response = await fetch(`/api${path}`, {
       ...init,
-      headers: { ...(await this.identity.headers()), ...init.headers },
+      headers: { ...(await this.identity.headers()), ...providerHeader(), ...init.headers },
     })
     if (response.status === 401) this.identity.refused()
     if (!response.ok) {
@@ -537,6 +545,16 @@ export class StudyApi {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ key }),
     })
+  }
+
+  /** Whether the app has each model provider's key. */
+  keys(): Promise<KeyState[]> {
+    return this.request('/keys')
+  }
+
+  /** The app has no key for the model provider from now on. Admins only, and not a key the app's settings give. */
+  async removeKey(provider: string): Promise<void> {
+    await this.fetch(`/keys/${encodeURIComponent(provider)}`, { method: 'DELETE' })
   }
 
   account(): Promise<Account> {

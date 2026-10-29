@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { Attempt, Deck, OutOfDate, Quiz, Scope, Source, StudyApi, Turn } from '../api'
 import { href } from '../router'
 import { Markdown } from './Markdown'
+import { ProviderChoice } from './ProviderChoice'
 
 type Props = {
   api: StudyApi
@@ -262,6 +263,7 @@ export function Assistant({ api, where, label, onClose }: Props) {
         <button type="button" className="link" aria-label="Close the assistant" onClick={onClose}>
           ✕
         </button>
+        <ProviderChoice api={api} />
       </header>
 
       <ol className="turns" aria-label="Conversation">

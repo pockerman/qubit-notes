@@ -1,29 +1,28 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
-import type { AIModel, Health, Me, StudyApi } from '../api'
+import type { AIModel, Health, KeyState, Me, StudyApi } from '../api'
 import { KeyForm } from '../components/KeyForm'
-import { PROVIDER } from '../providers'
+import { KEY_GIVEN, PROVIDER } from '../providers'
 import { href } from '../router'
 
-/** The app's settings: the AI's provider and model, which its admins choose, with the provider's key, and the
- * embedding model's key while the app is missing it (features/ui_settings.feature). */
+/** The app's settings: the AI's provider and model, which its admins choose, and the model providers' keys, which
+ * they give, replace and remove (features/ui_settings.feature). */
 export function SettingsPage({ api }: { api: StudyApi }) {
   const [inUse, setInUse] = useState<AIModel | null>(null)
   const [me, setMe] = useState<Me | null>(null)
   const [health, setHealth] = useState<Health | null>(null)
+  const [keys, setKeys] = useState<KeyState[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(() => {
     api.aiModel().then(setInUse, (e: Error) => setError(e.message))
     api.health().then(setHealth, () => setHealth(null))
+    api.keys().then(setKeys, () => setKeys(null))
   }, [api])
 
   useEffect(load, [load])
   useEffect(() => {
     api.me().then(setMe, () => setMe(null))
   }, [api])
-
-  // the keys the app is missing but the AI's provider's: its embedding model's
-  const embeddingKeys = (health?.missing_keys ?? []).filter((provider) => provider !== inUse?.provider)
 
   return (
     <section className="settings" aria-labelledby="settings-title">
@@ -49,40 +48,112 @@ export function SettingsPage({ api }: { api: StudyApi }) {
           ) : (
             <p className="note">Only the app's admins can change it.</p>
           )}
-          {me?.admin && <ProviderKey api={api} inUse={inUse} onGiven={load} />}
+          {keys && !keys.some((k) => k.provider === inUse.provider && k.given) && (
+            <p className="warning">
+              The app has no {PROVIDER[inUse.provider] ?? inUse.provider} key yet
+              {me?.admin ? ': give it under Keys, below.' : ': ask an admin of the app to give it.'}
+            </p>
+          )}
         </section>
       )}
-      {inUse && me?.admin && embeddingKeys.length > 0 && (
-        <section className="card" aria-labelledby="embedding-model-title">
-          <h3 id="embedding-model-title">Embedding model</h3>
-          {embeddingKeys.map((provider) => (
-            <KeyForm
-              key={provider}
-              api={api}
-              provider={provider}
-              label="Embedding model key"
-              about={`The app is missing the key of its embedding model, of ${PROVIDER[provider] ?? provider}.`}
-              onGiven={load}
-            />
-          ))}
-        </section>
+      {inUse && keys && me?.admin && (
+        <ProviderKeys api={api} keys={keys} missing={health?.missing_keys ?? []} onChanged={load} />
       )}
     </section>
   )
 }
 
-type ProviderKeyProps = { api: StudyApi; inUse: AIModel; onGiven: () => void }
+type ProviderKeysProps = { api: StudyApi; keys: KeyState[]; missing: string[]; onChanged: () => void }
 
-/** The key of the AI's provider: given or replaced by an admin, unless the app's settings give it. */
-function ProviderKey({ api, inUse, onGiven }: ProviderKeyProps) {
-  if (inUse.in_settings[inUse.provider]) {
-    return (
-      <div className="key-form" role="group" aria-label="Provider key">
-        <p>The app's settings give this key.</p>
-      </div>
-    )
+/** The model providers' keys: whether the app has each, and an admin giving, replacing or removing it. A key the
+ * app's settings give is used rather than one given, so it is neither replaced nor removed here. The AI's providers
+ * are always listed; the embedding model's, Voyage AI, once the app needs or has its key. */
+function ProviderKeys({ api, keys, missing, onChanged }: ProviderKeysProps) {
+  const [replacing, setReplacing] = useState<string | null>(null)
+  const [removing, setRemoving] = useState<string | null>(null)
+  const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null)
+  const listed = keys.filter((k) => k.provider !== 'voyage' || k.given || missing.includes('voyage'))
+
+  function given(provider: string) {
+    setReplacing(null)
+    setMessage({ text: `The ${PROVIDER[provider] ?? provider} key is saved.` })
+    onChanged()
   }
-  return <KeyForm key={inUse.provider} api={api} provider={inUse.provider} label="Provider key" onGiven={onGiven} />
+
+  async function remove(provider: string) {
+    try {
+      await api.removeKey(provider)
+      setMessage({ text: `The ${PROVIDER[provider] ?? provider} key is removed.` })
+      window.dispatchEvent(new Event(KEY_GIVEN))
+      onChanged()
+    } catch (e) {
+      setMessage({ text: (e as Error).message, error: true })
+    }
+    setRemoving(null)
+  }
+
+  return (
+    <section className="card" aria-labelledby="keys-title">
+      <h3 id="keys-title">Keys</h3>
+      <p className="note">The model providers' keys, kept encrypted, and never shown again once saved.</p>
+      {message && (
+        <p role={message.error ? 'alert' : 'status'} className={message.error ? 'error' : 'saved'}>
+          {message.text}
+        </p>
+      )}
+      <ul className="provider-keys" aria-label="Keys">
+        {listed.map(({ provider, given: has, in_settings }) => {
+          const name = PROVIDER[provider] ?? provider
+          return (
+            <li key={provider} aria-label={`${name} key`}>
+              <div className="provider-key">
+                <strong>{name}</strong>
+                {provider === 'voyage' && <span className="note">the embedding model</span>}
+                {in_settings ? (
+                  <span className="badge good">Given by the app's settings</span>
+                ) : has ? (
+                  <span className="badge good">Saved</span>
+                ) : (
+                  <span className="badge bad">No key</span>
+                )}
+                {has && !in_settings && replacing !== provider && removing !== provider && (
+                  <span className="topic-actions">
+                    <button type="button" className="link" onClick={() => setReplacing(provider)}>
+                      Replace
+                    </button>
+                    <button type="button" className="link danger" onClick={() => setRemoving(provider)}>
+                      Remove
+                    </button>
+                  </span>
+                )}
+              </div>
+              {!in_settings && (!has || replacing === provider) && (
+                <KeyForm
+                  api={api}
+                  provider={provider}
+                  onGiven={() => given(provider)}
+                  onCancel={has ? () => setReplacing(null) : undefined}
+                />
+              )}
+              {removing === provider && (
+                <div className="confirm" role="alertdialog" aria-label={`Remove the ${name} key`}>
+                  <p>Remove the {name} key? The app can't use {name} without it.</p>
+                  <div className="actions">
+                    <button type="button" className="danger" onClick={() => remove(provider)}>
+                      Yes, remove it
+                    </button>
+                    <button type="button" className="link" onClick={() => setRemoving(null)}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
 }
 
 type ModelFormProps = { api: StudyApi; inUse: AIModel; onChosen: (inUse: AIModel) => void }

@@ -156,6 +156,8 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 
     add_error_handlers(app)
+    # a student's AI requests answered by the provider they chose
+    app.add_middleware(ai_model.ChosenProvider)
     for router in (
         health.router,
         app_keys.router,

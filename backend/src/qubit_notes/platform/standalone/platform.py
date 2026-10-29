@@ -141,7 +141,7 @@ class StandalonePlatform:
     # the app's credentials: its settings, or the keys its admins give it, which the app keeps
     keeps_keys = False
 
-    def use_key(self, provider: str, key: str) -> None:
+    def use_key(self, provider: str, key: str | None) -> None:
         self.ai.use_key(provider, key)
         self.embedder.use_key(provider, key)
 

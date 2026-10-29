@@ -15,9 +15,9 @@ behaviour is specified in [`features/papers.feature`](../features/papers.feature
 
 ## Collections
 
-Papers are kept in collections, e.g. "Reinforcement learning", listed under **My papers** in the app's menu. A
-collection is created there with a name, which becomes its id in links (`reinforcement-learning`), and is shown by the
-name as it was typed; its creator can rename it.
+Papers are kept in collections, e.g. "Reinforcement learning", listed under **My papers**: a tab beside **My
+courses**, where the app opens, and an item of the app's menu. A collection is created there with a name, which becomes
+its id in links (`reinforcement-learning`), and is shown by the name as it was typed; its creator can rename it.
 
 Collections and courses are listed apart: a collection is never among **My courses**, nor a course among **My
 papers**. They share one set of names, though: a student can't have a course and a collection called the same.
