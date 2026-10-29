@@ -1081,3 +1081,48 @@ a.button {
   border: 1px solid var(--border);
   border-radius: 6px;
 }
+
+/* a collection of papers: each paper by its title, with who wrote it, when and where below */
+.collection-page .papers li {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.collection-page .paper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.collection-page .paper-title {
+  font-weight: 600;
+}
+
+.collection-page .paper-details {
+  flex-basis: 100%;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.paper-details-row {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.6rem;
+}
+
+.upload-paper {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .paper-details-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

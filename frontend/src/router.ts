@@ -16,6 +16,11 @@ import { useEffect, useState } from 'react'
  *   #/courses/<id>/materials/<document>    reading a material
  *   #/courses/<id>/materials/<document>?section=<position>  reading it at a section
  *   #/courses/<id>/topics/<subject>/<topic> a topic: its material, and the assistant on all of it
+ *   #/papers                               my collections of papers
+ *   #/papers/<id>                          a collection: its papers, and the assistant on all of them
+ *   #/papers/<id>/members                  who it is shared with
+ *   #/papers/<id>/read/<document>          reading a paper
+ *   #/papers/<id>/read/<document>?section=<position>  reading it at a section
  */
 // the settings' views, under Settings in the app's menu
 export type SettingsView = 'ai-model' | 'account'
@@ -32,6 +37,10 @@ export type Route =
   | { page: 'generate'; courseId: string; subject: string; topic: string }
   | { page: 'material'; courseId: string; documentId: string; section?: number }
   | { page: 'topic'; courseId: string; subject: string; topic: string }
+  | { page: 'papers' }
+  | { page: 'collection'; collectionId: string }
+  | { page: 'collection-members'; collectionId: string }
+  | { page: 'paper'; collectionId: string; documentId: string; section?: number }
 
 export function parse(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#/, '').split('?')
@@ -39,6 +48,16 @@ export function parse(hash: string): Route {
   const params = new URLSearchParams(query)
   if (parts[0] === 'reviews') return { page: 'reviews' }
   if (parts[0] === 'settings') return { page: 'settings', view: parts[1] === 'account' ? 'account' : 'ai-model' }
+  if (parts[0] === 'papers') {
+    const collectionId = parts[1]
+    if (!collectionId) return { page: 'papers' }
+    if (parts[2] === 'members') return { page: 'collection-members', collectionId }
+    if (parts[2] === 'read' && parts[3]) {
+      const section = Number(params.get('section'))
+      return { page: 'paper', collectionId, documentId: parts[3], ...(section > 0 ? { section } : {}) }
+    }
+    return { page: 'collection', collectionId }
+  }
   if (parts[0] !== 'courses' || !parts[1]) return { page: 'courses' }
   const courseId = parts[1]
   if (parts[2] === 'add') {
@@ -64,6 +83,7 @@ export function parse(hash: string): Route {
 
 export function href(route: Route): string {
   const course = (id: string) => `#/courses/${encodeURIComponent(id)}`
+  const collection = (id: string) => `#/papers/${encodeURIComponent(id)}`
   switch (route.page) {
     case 'courses':
       return '#/'
@@ -95,6 +115,16 @@ export function href(route: Route): string {
     }
     case 'topic':
       return `${course(route.courseId)}/topics/${encodeURIComponent(route.subject)}/${encodeURIComponent(route.topic)}`
+    case 'papers':
+      return '#/papers'
+    case 'collection':
+      return collection(route.collectionId)
+    case 'collection-members':
+      return `${collection(route.collectionId)}/members`
+    case 'paper': {
+      const paper = `${collection(route.collectionId)}/read/${encodeURIComponent(route.documentId)}`
+      return route.section ? `${paper}?section=${route.section}` : paper
+    }
   }
 }
 

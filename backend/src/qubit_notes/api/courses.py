@@ -4,14 +4,16 @@ from fastapi import APIRouter, Depends
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel
 
-from qubit_notes.api.deps import Student, course_titles, courses
+from qubit_notes.api.deps import Student, course_titles, courses, paper_records
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Course, Courses
+from qubit_notes.domain.papers import PaperRecords
 from qubit_notes.platform.port import MemberRole
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 CoursesDep = Annotated[Courses, Depends(courses)]
 TitlesDep = Annotated[CourseTitles, Depends(course_titles)]
+RecordsDep = Annotated[PaperRecords, Depends(paper_records)]
 
 
 class CourseResponse(BaseModel):
@@ -57,8 +59,13 @@ def _members(course: Course) -> list[MemberResponse]:
 
 
 @router.get("", response_model=list[CourseResponse])
-async def list_courses(student: Student, catalog: CoursesDep, titles: TitlesDep) -> list[CourseResponse]:
-    return _courses(await run_in_threadpool(catalog.list, student), student, titles)
+async def list_courses(
+    student: Student, catalog: CoursesDep, titles: TitlesDep, records: RecordsDep
+) -> list[CourseResponse]:
+    """the student's courses, and those shared with them; their collections of papers are under /papers"""
+    collections = await run_in_threadpool(records.collections)
+    listed = await run_in_threadpool(catalog.list, student)
+    return _courses([course for course in listed if course.id not in collections], student, titles)
 
 
 @router.post("", response_model=CourseResponse, status_code=201)

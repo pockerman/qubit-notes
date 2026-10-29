@@ -101,6 +101,12 @@ class Materials:
     ) -> Upload:
         """``metadata`` is more for the material's own, e.g. the original of a lesson made from a document"""
         where = Location.parse(location)
+        self.content_type(filename, content)
+        course = self._courses.get_or_create(student, where.course)
+        return self.upload_to(student, course, where.subject, where.topic, filename, content, metadata)
+
+    def content_type(self, filename: str, content: bytes) -> str:
+        """the type of the file, which must be one that can be material, and neither empty nor too large"""
         content_type = CONTENT_TYPES.get(PurePosixPath(filename).suffix.lower())
         if content_type is None:
             raise InvalidRequest(f"unsupported file type {filename!r}: upload {', '.join(CONTENT_TYPES)} files")
@@ -108,13 +114,25 @@ class Materials:
             raise InvalidRequest(f"{filename!r} is empty")
         if len(content) > self.max_upload_mb * MB:
             raise TooLarge(f"{filename!r} is {len(content) / MB:.1f} MB; the limit is {self.max_upload_mb:g} MB")
+        return content_type
 
-        course = self._courses.get_or_create(student, where.course)
+    def upload_to(
+        self,
+        student: str,
+        course: Course,
+        subject: str,
+        topic: str,
+        filename: str,
+        content: bytes,
+        metadata: dict[str, str] | None = None,
+    ) -> Upload:
+        """uploads to a topic of the course, which the student must own"""
+        content_type = self.content_type(filename, content)
         self._courses.require_owner(student, course)
         metadata = {
             **(metadata or {}),
-            "subject": where.subject,
-            "topic": where.topic,
+            "subject": subject,
+            "topic": topic,
             "filename": filename,
             "uploaded_by": student,
         }
@@ -130,9 +148,9 @@ class Materials:
                 course.id, filename, content, content_type, metadata=metadata, store_only=video
             )
         for keep in self._on_upload:
-            keep(course.id, where.subject, where.topic)
+            keep(course.id, subject, topic)
         # new material goes after the topic's other material
-        self._order.append(course.id, where.subject, where.topic, job.document_id)
+        self._order.append(course.id, subject, topic, job.document_id)
         return Upload(
             job_id=job.job_id,
             document_id=job.document_id,
@@ -165,7 +183,10 @@ class Materials:
         return job
 
     def list(self, student: str, course: str, subject: str | None = None, topic: str | None = None) -> list[Material]:
-        found = self._courses.get(student, course)
+        return self.list_of(self._courses.get(student, course), subject, topic)
+
+    def list_of(self, found: Course, subject: str | None = None, topic: str | None = None) -> list[Material]:
+        """the material of a course the student is a member of"""
         metadata_filter = {key: value for key, value in (("subject", subject), ("topic", topic)) if value}
         materials = [
             Material(
@@ -271,7 +292,11 @@ class Materials:
         )
         if material is None:
             raise NotFound(f"no material {filename!r} in {where}")
+        return self.delete_from(student, course, material)
 
+    def delete_from(self, student: str, course: Course, material: Material) -> Material:
+        """deletes the material of the course, which the student must own, and everything made from it"""
+        self._courses.require_owner(student, course)
         self._platform.delete_document(course.id, material.document_id)
         self._forget(course, material.document_id)
         return material

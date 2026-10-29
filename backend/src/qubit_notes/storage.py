@@ -279,6 +279,27 @@ lesson_imports = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
 
+# the courses that are collections of papers, under My Papers: see domain/papers.py
+paper_collections = Table(
+    "paper_collections",
+    metadata,
+    Column("course_id", String, primary_key=True),
+)
+
+# a paper's details, filled in from it when uploaded and changed by its collection's owners
+paper_details = Table(
+    "paper_details",
+    metadata,
+    Column("document_id", String, primary_key=True),
+    Column("course_id", String, nullable=False, index=True),
+    Column("title", String, nullable=False),
+    # in order
+    Column("authors", JSON, nullable=False),
+    Column("year", Integer),
+    Column("venue", String, nullable=False),
+    Column("doi", String, nullable=False),
+)
+
 
 # the app's own platform (platform/standalone): courses are its indexes, and material is its documents
 

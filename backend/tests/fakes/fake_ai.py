@@ -111,9 +111,9 @@ def _content_words(text: str) -> set[str]:
 
 def _understand(prompt: str, number: int) -> dict:
     """The fake assistant's reading of the student's words, the last part of the prompt: "quiz" asks for a quiz,
-    "flashcard..." for flashcards, "summar..." for a summary, of the "topic", the "document" or else the section,
-    "new" for a new one, "N questions" or "N flashcards" for its size. Anything else is a question, answered from the
-    passages that share a word with it."""
+    "flashcard..." for flashcards, "summar..." for a summary, of the "topic" (or "collection"), the "document" (or
+    "paper") or else the section, "new" for a new one, "N questions" or "N flashcards" for its size. Anything else is
+    a question, answered from the passages that share a word with it."""
     words = prompt.rsplit("The student says:", 1)[-1].strip()
     lowered = words.lower()
     request = (
@@ -125,7 +125,13 @@ def _understand(prompt: str, number: int) -> dict:
         if "summar" in lowered
         else "question"
     )
-    of = "topic" if "topic" in lowered else "document" if "document" in lowered else "section"
+    of = (
+        "topic"
+        if re.search(r"\b(topic|collection)\b", lowered)
+        else "document"
+        if re.search(r"\b(document|paper)\b", lowered)
+        else "section"
+    )
     count = re.search(r"(\d+) (?:questions|flashcards)", lowered)
     cited = []
     if request == "question":

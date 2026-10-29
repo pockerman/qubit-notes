@@ -87,6 +87,27 @@ export type Topic = {
   name: string
 }
 
+/** A collection of papers, under My Papers: shared and deleted as a course is. */
+export type Collection = Course & {
+  // how many papers it has
+  papers: number
+}
+
+/** What a paper is, as far as it tells, or as its collection's owners have said. */
+export type PaperDetails = {
+  title: string
+  authors: string[]
+  year: number | null
+  venue: string
+  doi: string
+}
+
+/** A paper: material of its collection, read, noted and asked about as material is, with its details. */
+export type Paper = {
+  material: Material
+  details: PaperDetails
+}
+
 export type Upload = {
   job_id: string
   document_id: string
@@ -790,6 +811,90 @@ export class StudyApi {
   async deleteCourse(course: string): Promise<void> {
     await this.fetch(`/courses/${encodeURIComponent(course)}`, { method: 'DELETE' })
   }
+
+  // papers
+
+  collections(): Promise<Collection[]> {
+    return this.request('/papers/collections')
+  }
+
+  createCollection(name: string, title: string): Promise<Collection> {
+    return this.request('/papers/collections', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, title }),
+    })
+  }
+
+  private collectionPath(collectionId: string): string {
+    return `/papers/collections/${encodeURIComponent(collectionId)}`
+  }
+
+  collection(collectionId: string): Promise<Collection> {
+    return this.request(this.collectionPath(collectionId))
+  }
+
+  changeCollectionTitle(collectionId: string, title: string): Promise<Collection> {
+    return this.request(`${this.collectionPath(collectionId)}/title`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    })
+  }
+
+  async deleteCollection(collectionId: string): Promise<void> {
+    await this.fetch(this.collectionPath(collectionId), { method: 'DELETE' })
+  }
+
+  collectionMembers(collectionId: string): Promise<Member[]> {
+    return this.request(`${this.collectionPath(collectionId)}/members`)
+  }
+
+  shareCollection(collectionId: string, student: string, role: Role): Promise<Member[]> {
+    return this.request(`${this.collectionPath(collectionId)}/members`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ student, role }),
+    })
+  }
+
+  unshareCollection(collectionId: string, student: string): Promise<Member[]> {
+    return this.request(`${this.collectionPath(collectionId)}/members/${encodeURIComponent(student)}`, {
+      method: 'DELETE',
+    })
+  }
+
+  /** the collection's papers, by their titles */
+  papers(collectionId: string): Promise<Paper[]> {
+    return this.request(`${this.collectionPath(collectionId)}/papers`)
+  }
+
+  paper(collectionId: string, documentId: string): Promise<Paper> {
+    return this.request(`${this.collectionPath(collectionId)}/papers/${encodeURIComponent(documentId)}`)
+  }
+
+  /** adds a paper, processed in the background as material is */
+  uploadPaper(collectionId: string, file: File): Promise<Upload> {
+    const form = new FormData()
+    form.append('file', file)
+    return this.request(`${this.collectionPath(collectionId)}/papers`, { method: 'POST', body: form })
+  }
+
+  describePaper(collectionId: string, documentId: string, details: PaperDetails): Promise<Paper> {
+    return this.request(`${this.collectionPath(collectionId)}/papers/${encodeURIComponent(documentId)}/details`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(details),
+    })
+  }
+
+  deletePaper(collectionId: string, documentId: string): Promise<Paper> {
+    return this.request(`${this.collectionPath(collectionId)}/papers/${encodeURIComponent(documentId)}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // members
 
   members(course: string): Promise<Member[]> {
     return this.request(`/courses/${encodeURIComponent(course)}/members`)

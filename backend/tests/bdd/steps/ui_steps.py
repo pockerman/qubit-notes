@@ -223,7 +223,8 @@ def no_longer_see(page, filename):
 
 @when(parsers.parse('I share it with "{name}" as {role}'))
 def share_in_browser(page, students, name, role):
-    form = page.get_by_role("form", name="Share this course")
+    # a course, or a collection of papers
+    form = page.get_by_role("form", name=re.compile("^Share this (course|collection)$"))
     form.get_by_label("Classmate").fill(students.id(name))
     form.get_by_label("Role").select_option({"a reader": "reader", "an owner": "owner"}[role])
     form.get_by_role("button", name="Share").click()

@@ -15,6 +15,7 @@ from qubit_notes.domain.images import Images
 from qubit_notes.domain.lessons import Lessons
 from qubit_notes.domain.materials import Materials
 from qubit_notes.domain.notes import Notes
+from qubit_notes.domain.papers import PaperRecords, Papers
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.reading_order import ReadingOrder
@@ -74,6 +75,14 @@ def generator(request: Request) -> Generator:
 
 def notes(request: Request) -> Notes:
     return request.app.state.notes
+
+
+def papers(request: Request) -> Papers:
+    return request.app.state.papers
+
+
+def paper_records(request: Request) -> PaperRecords:
+    return request.app.state.paper_records
 
 
 def topics(request: Request) -> Topics:

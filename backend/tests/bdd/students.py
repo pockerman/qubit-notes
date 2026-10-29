@@ -105,7 +105,28 @@ class Students:
             for material in self.materials(course["name"], name=name):
                 if material["filename"] == filename:
                     return material
+        # or a paper, in a collection of papers
+        for collection in self.collections(name=name):
+            for paper in self.papers(collection["id"], name=name):
+                if paper["material"]["filename"] == filename:
+                    return paper["material"]
         raise AssertionError(f"no material {filename!r}")
+
+    # papers
+
+    def collections(self, *, name: str | None = None) -> list[dict]:
+        response = self.client.get("/api/papers/collections", headers=self.headers(name))
+        assert response.status_code == 200, response.text
+        return response.json()
+
+    def collection(self, collection: str, *, name: str | None = None) -> dict:
+        """the collection called so that the student sees"""
+        return next(c for c in self.collections(name=name) if c["name"] == collection)
+
+    def papers(self, collection_id: str, *, name: str | None = None) -> list[dict]:
+        response = self.client.get(f"/api/papers/collections/{collection_id}/papers", headers=self.headers(name))
+        assert response.status_code == 200, response.text
+        return response.json()
 
     def open(self, material: dict, *, name: str | None = None) -> Response:
         return self.client.get(

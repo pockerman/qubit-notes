@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { authConfig, StudyApi, type Course } from './api'
+import { authConfig, StudyApi, type Collection, type Course, type Paper } from './api'
 import {
   cognitoIdentity,
   cognitoTokens,
@@ -14,10 +14,12 @@ import { PlatformStatus } from './components/PlatformStatus'
 import { Reader } from './components/Reader'
 import { SignIn } from './components/SignIn'
 import { AddMaterialPage } from './pages/AddMaterialPage'
+import { CollectionMembersPage, CollectionPage } from './pages/CollectionPage'
 import { CoursePage } from './pages/CoursePage'
 import { CoursesPage } from './pages/CoursesPage'
 import { GeneratePage } from './pages/GeneratePage'
 import { MembersPage } from './pages/MembersPage'
+import { PapersPage } from './pages/PapersPage'
 import { ReviewsPage } from './pages/ReviewsPage'
 import { AccountPage } from './pages/AccountPage'
 import { SettingsPage } from './pages/SettingsPage'
@@ -68,6 +70,29 @@ function MaterialPage({ api, courseId, documentId, section }: MaterialPageProps)
   )
 }
 
+type PaperPageProps = { api: StudyApi; collectionId: string; documentId: string; section?: number }
+
+/** A paper opened for reading, by its title in its collection, with whether the student may edit it. */
+function PaperPage({ api, collectionId, documentId, section }: PaperPageProps) {
+  const [collection, setCollection] = useState<Collection | null>(null)
+  const [paper, setPaper] = useState<Paper | null>(null)
+  useEffect(() => {
+    api.collection(collectionId).then(setCollection, () => setCollection(null))
+    api.paper(collectionId, documentId).then(setPaper, () => setPaper(null))
+  }, [api, collectionId, documentId])
+  return (
+    <Reader
+      api={api}
+      courseId={collectionId}
+      documentId={documentId}
+      section={section}
+      canEdit={collection?.role === 'owner'}
+      paper={{ title: paper?.details.title ?? '', collection: collection?.title ?? '' }}
+      onClose={() => navigate({ page: 'collection', collectionId })}
+    />
+  )
+}
+
 function Pages({ api }: { api: StudyApi }) {
   const route = useRoute()
   switch (route.page) {
@@ -102,6 +127,22 @@ function Pages({ api }: { api: StudyApi }) {
           key={`${route.documentId}:${route.section ?? ''}`}
           api={api}
           courseId={route.courseId}
+          documentId={route.documentId}
+          section={route.section}
+        />
+      )
+    case 'papers':
+      return <PapersPage api={api} />
+    case 'collection':
+      return <CollectionPage key={route.collectionId} api={api} collectionId={route.collectionId} />
+    case 'collection-members':
+      return <CollectionMembersPage key={route.collectionId} api={api} collectionId={route.collectionId} />
+    case 'paper':
+      return (
+        <PaperPage
+          key={`${route.documentId}:${route.section ?? ''}`}
+          api={api}
+          collectionId={route.collectionId}
           documentId={route.documentId}
           section={route.section}
         />

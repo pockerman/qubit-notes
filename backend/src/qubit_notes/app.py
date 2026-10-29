@@ -16,6 +16,7 @@ from qubit_notes.api import (
     lessons,
     materials,
     notes,
+    papers,
     reading,
     references,
     study,
@@ -37,6 +38,7 @@ from qubit_notes.domain.material_order import MaterialOrder
 from qubit_notes.domain.materials import Materials
 from qubit_notes.domain.memory import StudentMemory
 from qubit_notes.domain.notes import Notes
+from qubit_notes.domain.papers import PaperRecords, Papers
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.reading_order import ReadingOrder
@@ -86,6 +88,8 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.ai_model.restore()
     app.state.memory = StudentMemory(platform)
     app.state.courses = Courses(platform)
+    # which courses are collections of papers, and the papers' details
+    app.state.paper_records = PaperRecords(database)
     app.state.images = Images(platform, app.state.courses)
     app.state.conversions = Conversions(database, platform, app.state.courses, app.state.images)
     app.state.topics = Topics(database, platform, app.state.courses)
@@ -132,6 +136,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.summaries,
         app.state.quizzes,
         app.state.flashcards,
+        app.state.paper_records,
     )
     # what is written about the material: everyone's notes, summaries, quizzes, flashcards and conversations on it
     written = (app.state.notes, app.state.summaries, app.state.quizzes, app.state.flashcards, app.state.assistant)
@@ -141,8 +146,12 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     # deleting a course deletes all of that, its topics, and what the assistant learned from its material
     app.state.courses.on_delete(app.state.materials.forget_course)
     app.state.courses.on_delete(lambda course: app.state.material_order.forget_course(course.id))
-    app.state.course_titles = CourseTitles(database, app.state.courses)
+    app.state.course_titles = CourseTitles(database, app.state.courses, app.state.paper_records.collections)
     app.state.courses.on_delete(app.state.course_titles.forget)
+    # collections of papers: courses of their own, apart from the student's courses
+    app.state.papers = Papers(app.state.paper_records, app.state.courses, app.state.course_titles, app.state.materials)
+    app.state.materials.on_delete(app.state.paper_records.forget_material)
+    app.state.courses.on_delete(lambda course: app.state.paper_records.forget_course(course.id))
     for service in (*written, app.state.topics):
         app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 
@@ -155,6 +164,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         courses.router,
         materials.router,
         lessons.router,
+        papers.router,
         images.router,
         reading.router,
         references.router,

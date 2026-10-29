@@ -119,7 +119,9 @@ class Courses:
 
     def delete(self, student: str, name: str) -> Course:
         """deletes the course and everything in it, for every member; only its creator can"""
-        course = self.get(student, name)
+        return self.delete_course(student, self.get(student, name))
+
+    def delete_course(self, student: str, course: Course) -> Course:
         if course.owner != student:
             raise NotAllowed(f"only {course.owner}, who created {course.name!r}, can delete it")
         for forget in self._on_delete:
@@ -128,15 +130,19 @@ class Courses:
         return course
 
     def share(self, student: str, name: str, with_student: str, role: MemberRole) -> Course:
-        course = self.get(student, name)
+        return self.share_course(student, self.get(student, name), with_student, role)
+
+    def share_course(self, student: str, course: Course, with_student: str, role: MemberRole) -> Course:
         self.require_owner(student, course)
         return Course.from_index(self._platform.set_index_member(course.id, with_student, role))
 
     def unshare(self, student: str, name: str, with_student: str) -> Course:
-        course = self.get(student, name)
+        return self.unshare_course(student, self.get(student, name), with_student)
+
+    def unshare_course(self, student: str, course: Course, with_student: str) -> Course:
         self.require_owner(student, course)
         if with_student not in course.members:
-            raise NotFound(f"{name!r} is not shared with {with_student!r}")
+            raise NotFound(f"{course.name!r} is not shared with {with_student!r}")
         owners = [member for member, role in course.members.items() if role == MemberRole.OWNER]
         if owners == [with_student]:
             raise Conflict("a course must keep at least one owner")

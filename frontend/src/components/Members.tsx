@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { Course, Member, Role, StudyApi } from '../api'
 
-export function Members({ api, course }: { api: StudyApi; course: Course }) {
+type Props = {
+  api: StudyApi
+  course: Course
+  // a collection of papers, shared as a course is, but known by its id
+  collection?: boolean
+}
+
+/** Who a course, or a collection of papers, is shared with; any member sees them, only owners share it. */
+export function Members({ api, course, collection = false }: Props) {
   const [members, setMembers] = useState<Member[]>([])
   const [student, setStudent] = useState('')
   const [role, setRole] = useState<Role>('reader')
@@ -20,14 +28,24 @@ export function Members({ api, course }: { api: StudyApi; course: Course }) {
     [],
   )
 
+  const calls = collection
+    ? {
+        share: (student: string, role: Role) => api.shareCollection(course.id, student, role),
+        unshare: (student: string) => api.unshareCollection(course.id, student),
+      }
+    : {
+        share: (student: string, role: Role) => api.share(course.name, student, role),
+        unshare: (student: string) => api.unshare(course.name, student),
+      }
+
   useEffect(() => {
-    run(() => api.members(course.name))
-  }, [api, course.name, run])
+    run(collection ? () => api.collectionMembers(course.id) : () => api.members(course.name))
+  }, [api, course.id, course.name, collection, run])
 
   function share(event: FormEvent) {
     event.preventDefault()
     if (!student.trim()) return
-    run(() => api.share(course.name, student.trim(), role)).then(() => setStudent(''))
+    run(() => calls.share(student.trim(), role)).then(() => setStudent(''))
   }
 
   return (
@@ -42,7 +60,7 @@ export function Members({ api, course }: { api: StudyApi; course: Course }) {
                 type="button"
                 className="link"
                 aria-label={`Stop sharing with ${member.student}`}
-                onClick={() => run(() => api.unshare(course.name, member.student))}
+                onClick={() => run(() => calls.unshare(member.student))}
               >
                 Remove
               </button>
@@ -52,7 +70,7 @@ export function Members({ api, course }: { api: StudyApi; course: Course }) {
       </ul>
 
       {isOwner && (
-        <form className="share" onSubmit={share} aria-label="Share this course">
+        <form className="share" onSubmit={share} aria-label={collection ? 'Share this collection' : 'Share this course'}>
           <label>
             Classmate
             <input value={student} onChange={(e) => setStudent(e.target.value)} />

@@ -19,6 +19,7 @@ from qubit_notes import storage
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import InvalidRequest
 from qubit_notes.domain.flashcards import Deck, Flashcards
+from qubit_notes.domain.papers import PAPER, PaperRecords
 from qubit_notes.domain.quizzes import AIFailed, Quiz, Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.sources import Scope, Source
@@ -45,7 +46,8 @@ First decide what they ask for, as "request":
 - "question" for everything else: whatever they ask about the material, e.g. "What is a shape function?", "How is a
   mesh generated?" or "Explain assembly", is a question, which you answer.
 For a summary, a quiz or flashcards, "of" is what it is of: "section" (the section they are reading, the default),
-"document" (the whole material) or "topic" (all the material of the topic); "new" is true if they ask for a new one
+"document" (the whole material, e.g. the paper) or "topic" (all the material of the topic, e.g. all the papers of
+the collection); "new" is true if they ask for a new one
 rather than the one they had; "questions" is how many questions or cards they ask for, or 0 if they don't say. Leave
 "answer" empty.
 
@@ -119,8 +121,11 @@ class Assistant:
         summaries: Summaries,
         quizzes: Quizzes,
         flashcards: Flashcards,
+        papers: PaperRecords | None = None,
     ):
         self._engine = engine
+        # which courses are collections of papers: a paper being read is answered about from that paper alone
+        self._papers = papers
         self._platform = platform
         self._courses = courses
         self._reading = reading
@@ -137,7 +142,7 @@ class Assistant:
         reading = self._describe(student, where)
         conversation_id = self._conversation_id(student, where, create=True)
 
-        passages = self._passages(course.id, question)
+        passages = self._passages(course.id, question, self._paper(where))
         understood = self._understand(conversation_id, reading, passages, question)
 
         turn = {"id": uuid.uuid4().hex, "question": question, "created_at": now()}
@@ -247,21 +252,45 @@ class Assistant:
                 logger.warning(f"the AI's reply is not valid: {e}")
         raise AIFailed("the assistant could not understand that; try asking another way")
 
-    def _passages(self, course_id: str, question: str) -> dict[str, tuple[Source, str]]:
-        """the passages of the course's material a search finds for the question, with their sections, by
-        reference, e.g. P1"""
-        chunks = self._platform.search(course_id, question, top_k=PASSAGES)
+    def _passages(self, course_id: str, question: str, paper: str | None = None) -> dict[str, tuple[Source, str]]:
+        """the passages of the course's material, or of the paper if one is given, that a search finds for the
+        question, with their sections, by reference, e.g. P1"""
+        only = {PAPER: paper} if paper else None
+        chunks = self._platform.search(course_id, question, top_k=PASSAGES, metadata_filter=only)
         return {
             f"P{i}": (_source(chunk), chunk.content[:PASSAGE_CHARACTERS]) for i, chunk in enumerate(chunks, start=1)
         }
 
+    def _in_collection(self, course_id: str) -> bool:
+        return self._papers is not None and self._papers.is_collection(course_id)
+
+    def _paper(self, where: Scope) -> str | None:
+        """the paper being read, by the id it's marked with, if the student is reading one"""
+        if not where.document_id or not self._in_collection(where.course_id):
+            return None
+        document = self._platform.get_document(where.course_id, where.document_id)
+        return document.metadata.get(PAPER) if document else None
+
     def _describe(self, student: str, where: Scope) -> str:
+        if self._in_collection(where.course_id):
+            return self._describe_paper(student, where)
         if not where.document_id:
             return f"studying the topic {where.subject} › {where.topic}"
         opened = self._reading.open(student, where.course_id, where.document_id)
         title = next((s.title for s in opened.sections if s.position == where.section), "")
         section = f'the section "{title}" of ' if title else ""
         return f'reading {section}"{opened.filename}", of the topic {opened.subject} › {opened.topic}'
+
+    def _describe_paper(self, student: str, where: Scope) -> str:
+        collection = self._courses.get_by_id(student, where.course_id).name
+        if not where.document_id:
+            return f"studying all the papers of the collection {collection}"
+        opened = self._reading.open(student, where.course_id, where.document_id)
+        title = next((s.title for s in opened.sections if s.position == where.section), "")
+        section = f'the section "{title}" of ' if title else ""
+        kept = self._papers.details([where.document_id]).get(where.document_id)
+        paper = f'"{kept.title}" ({opened.filename})' if kept else f'"{opened.filename}"'
+        return f"reading {section}the paper {paper}, of the collection {collection}"
 
     def _scope(self, student: str, where: Scope, of: str) -> Scope:
         """what a summary, a quiz or flashcards asked for are of, given where the student is"""

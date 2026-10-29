@@ -34,6 +34,8 @@ type Props = {
   canEdit: boolean
   // back to the material's topic, once it's known which
   onClose: (material: OpenedMaterial | null) => void
+  // a paper, shown by its title in its collection, read on its own rather than in an order of material
+  paper?: { title: string; collection: string }
 }
 
 // the material whose text can be edited
@@ -235,8 +237,9 @@ function NoteForm({ label, onSave, onCancel, top }: NoteFormProps) {
   )
 }
 
-export function Reader({ api, courseId, documentId, section, canEdit, onClose }: Props) {
+export function Reader({ api, courseId, documentId, section, canEdit, onClose, paper }: Props) {
   const [material, setMaterial] = useState<OpenedMaterial | null>(null)
+  const isPaper = paper !== undefined
   const [position, setPosition] = useState<number | null>(null)
   const [parts, setParts] = useState<SectionText[]>([])
   const [notes, setNotes] = useState<Note[]>([])
@@ -287,10 +290,12 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
   }, [api, courseId, documentId, material, version])
 
   useEffect(() => {
+    if (isPaper) return
     api.neighbours(courseId, documentId).then(setNeighbours, () => setNeighbours(null))
-  }, [api, courseId, documentId])
+  }, [api, courseId, documentId, isPaper])
 
   useEffect(() => {
+    if (isPaper) return
     api
       .courses()
       .then((courses) => {
@@ -298,7 +303,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
         return course ? api.topics(course.name) : []
       })
       .then(setTopics, () => setTopics([]))
-  }, [api, courseId])
+  }, [api, courseId, isPaper])
 
   useEffect(() => {
     if (position === null) return
@@ -367,7 +372,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
       key={documentId}
       api={api}
       where={{ course_id: courseId, document_id: documentId, section: material?.kind === 'text' ? position : null }}
-      label={material?.filename ?? ''}
+      label={paper?.title || material?.filename || ''}
       onClose={() => setAssistant(false)}
     />
   ) : (
@@ -381,11 +386,13 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose }:
         <button type="button" className="link" onClick={() => onClose(material)}>
           ← Back
         </button>
-        <h2 id="reader-title">{material?.filename ?? 'Opening…'}</h2>
+        <h2 id="reader-title">{material ? paper?.title || material.filename : 'Opening…'}</h2>
         {material && (
           <>
             <span className="note">
-              {namesOf(topics).subject(material.subject)} › {namesOf(topics).topic(material.subject, material.topic)}
+              {paper
+                ? `${paper.collection} · ${material.filename}`
+                : `${namesOf(topics).subject(material.subject)} › ${namesOf(topics).topic(material.subject, material.topic)}`}
             </span>
             <div role="group" aria-label="Material actions" className="reader-actions">
               {canEdit && EDITABLE.includes(material.content_type) && !editing && (

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { href } from '../router'
 
-/** The app's menu: My courses, Reviews, Settings, which opens a submenu of its views, and Sign out. */
+/** The app's menu: My courses, My papers, Reviews, Settings, which opens a submenu of its views, and Sign out. */
 export function NavigationMenu({ onSignOut }: { onSignOut: () => void }) {
   const [open, setOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -40,6 +40,11 @@ export function NavigationMenu({ onSignOut }: { onSignOut: () => void }) {
           <li role="none">
             <a role="menuitem" href={href({ page: 'courses' })} onClick={() => setOpen(false)}>
               My courses
+            </a>
+          </li>
+          <li role="none">
+            <a role="menuitem" href={href({ page: 'papers' })} onClick={() => setOpen(false)}>
+              My papers
             </a>
           </li>
           <li role="none">

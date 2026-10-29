@@ -22,6 +22,9 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
   material in the editor, with a preview, and edit it later. Markdown material keeps its images.
 - **Lessons from a document.** Upload a textbook as a PDF, an EPUB or Markdown to a subject, and get a topic of each
   of its chapters, with the chapter's text as its material ([Lessons from a document](#lessons-from-a-document)).
+- **Papers.** Keep the papers you read under My papers, in collections apart from your courses: each paper stays
+  whole, with its title, authors, year, venue and DOI, and is read, noted and asked about on its own or with the rest
+  of its collection ([Papers](#papers)).
 - **PDFs and EPUBs as Markdown.** Uploaded PDFs and EPUBs are converted to Markdown to read, edit and search, and can
   be downloaded as they were or as they are now ([PDFs and EPUBs](#pdfs-and-epubs)).
 - **Reading.** Read material section by section, with mathematics typeset by KaTeX, each topic's material in the
@@ -132,6 +135,16 @@ now, e.g. `2-shape-functions.pdf`. The subject's page lists its lessons' origina
 download, and a PDF can be shown there and hidden again (`GET /api/courses/{course}/subjects/{subject}/originals`).
 The original is deleted with the last of its lessons. A Markdown document's lessons are their own text, so it isn't
 kept.
+
+## Papers
+
+**My papers**, in the app's menu, keeps papers in collections, e.g. "Reinforcement learning", apart from courses
+(`features/papers.feature`, `features/ui_papers.feature`, `backend/src/qubit_notes/domain/papers.py`). A paper is
+uploaded to a collection as a PDF, an EPUB, Markdown or text, and stays one paper: it is converted and read by its own
+sections, but never made into lessons. Its title, authors, year, venue and DOI are filled in from it where they can be
+and can be changed by the collection's owners. Notes, summaries and the assistant work on a paper as on material; the
+assistant answers about the paper being read from that paper alone, and, opened on the collection, from all of its
+papers. A collection is shared and deleted as a course is. See [docs/papers.md](docs/papers.md).
 
 ## Mathematics
 
