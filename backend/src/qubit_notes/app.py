@@ -20,6 +20,7 @@ from qubit_notes.api import (
     reading,
     references,
     study,
+    usage,
 )
 from qubit_notes.api.auth import authenticator
 from qubit_notes.api.errors import add_error_handlers
@@ -42,11 +43,13 @@ from qubit_notes.domain.papers import PaperRecords, Papers
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.reading_order import ReadingOrder
+from qubit_notes.domain.reading_progress import ReadingProgress
 from qubit_notes.domain.references import References
 from qubit_notes.domain.reviews import Reviews
 from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
+from qubit_notes.domain.usage import AIUsage
 from qubit_notes.platform import platform_from
 from qubit_notes.platform.named import NamedDocuments
 from qubit_notes.platform.port import StudyPlatform
@@ -112,6 +115,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.conversions.resume()
     app.state.database = database
     app.state.notes = Notes(app.state.database, app.state.reading)
+    app.state.reading_progress = ReadingProgress(app.state.database, app.state.reading)
     app.state.materials.on_upload(app.state.topics.ensure)
     app.state.lessons = Lessons(
         database, platform, app.state.courses, app.state.topics, app.state.materials, app.state.images
@@ -122,12 +126,14 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     # a deleted topic's material goes with it
     app.state.topics.on_delete(app.state.materials.delete_topic)
     app.state.reading_order = ReadingOrder(app.state.courses, app.state.topics, app.state.materials)
-    app.state.generator = Generator(platform, app.state.courses, app.state.reading)
+    # every call to the AI goes through it, so that it is counted
+    app.state.ai_usage = AIUsage(database, platform)
+    app.state.generator = Generator(platform, app.state.ai_usage, app.state.courses, app.state.reading)
     sources = Sources(platform, app.state.courses, app.state.reading)
-    app.state.summaries = Summaries(app.state.database, platform, sources)
-    app.state.quizzes = Quizzes(app.state.database, platform, sources)
+    app.state.summaries = Summaries(app.state.database, app.state.ai_usage, sources)
+    app.state.quizzes = Quizzes(app.state.database, app.state.ai_usage, sources)
     app.state.reviews = Reviews(app.state.database, app.state.courses)
-    app.state.flashcards = Flashcards(app.state.database, platform, sources, app.state.reviews)
+    app.state.flashcards = Flashcards(app.state.database, app.state.ai_usage, sources, app.state.reviews)
     app.state.assistant = Assistant(
         app.state.database,
         platform,
@@ -136,10 +142,18 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.summaries,
         app.state.quizzes,
         app.state.flashcards,
+        app.state.ai_usage,
         app.state.paper_records,
     )
     # what is written about the material: everyone's notes, summaries, quizzes, flashcards and conversations on it
-    written = (app.state.notes, app.state.summaries, app.state.quizzes, app.state.flashcards, app.state.assistant)
+    written = (
+        app.state.notes,
+        app.state.reading_progress,
+        app.state.summaries,
+        app.state.quizzes,
+        app.state.flashcards,
+        app.state.assistant,
+    )
     # deleting a material deletes all of that
     for service in written:
         app.state.materials.on_delete(service.forget_material)
@@ -174,6 +188,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         notes.router,
         study.router,
         assistant.router,
+        usage.router,
     ):
         app.include_router(router, prefix="/api")
     if settings.frontend_dir:

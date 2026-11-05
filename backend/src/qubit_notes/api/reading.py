@@ -4,9 +4,10 @@ from urllib.parse import quote
 from fastapi import APIRouter, Depends, Header, Response
 from fastapi.concurrency import run_in_threadpool
 
-from qubit_notes.api.deps import Student, StudentInLink, conversions, reading
+from qubit_notes.api.deps import Student, StudentInLink, conversions, reading, reading_progress
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.reading import OpenedMaterial, Reading
+from qubit_notes.domain.reading_progress import Progress, ReadingProgress
 from qubit_notes.platform.port import SectionText
 
 # a course is addressed by its id here, e.g. "maria--aeronautics": a student who isn't one of its
@@ -14,6 +15,7 @@ from qubit_notes.platform.port import SectionText
 router = APIRouter(prefix="/courses/{course_id}/materials/{document_id}", tags=["reading"])
 ReadingDep = Annotated[Reading, Depends(reading)]
 ConversionsDep = Annotated[Conversions, Depends(conversions)]
+ProgressDep = Annotated[ReadingProgress, Depends(reading_progress)]
 
 
 @router.get("", response_model=OpenedMaterial)
@@ -26,6 +28,20 @@ async def read_section(
     course_id: str, document_id: str, position: int, student: Student, service: ReadingDep
 ) -> list[SectionText]:
     return await run_in_threadpool(service.read, student, course_id, document_id, position)
+
+
+@router.post("/sections/{position}/opened", response_model=Progress)
+async def opened_section(
+    course_id: str, document_id: str, position: int, student: Student, service: ProgressDep
+) -> Progress:
+    """the student was shown the section, and its subsections with it"""
+    return await run_in_threadpool(service.opened, student, course_id, document_id, position)
+
+
+@router.get("/progress", response_model=Progress)
+async def progress(course_id: str, document_id: str, student: Student, service: ProgressDep) -> Progress:
+    """the sections of the material the student has opened"""
+    return await run_in_threadpool(service.progress, student, course_id, document_id)
 
 
 def _byte_range(header: str | None) -> tuple[int, int] | None:

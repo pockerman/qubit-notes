@@ -19,10 +19,12 @@ from qubit_notes.domain.papers import PaperRecords, Papers
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.reading_order import ReadingOrder
+from qubit_notes.domain.reading_progress import ReadingProgress
 from qubit_notes.domain.references import References
 from qubit_notes.domain.reviews import Reviews
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
+from qubit_notes.domain.usage import AIUsage
 
 
 def account(request: Request) -> Account:
@@ -103,6 +105,14 @@ def lessons(request: Request) -> Lessons:
 
 def flashcards(request: Request) -> Flashcards:
     return request.app.state.flashcards
+
+
+def ai_usage(request: Request) -> AIUsage:
+    return request.app.state.ai_usage
+
+
+def reading_progress(request: Request) -> ReadingProgress:
+    return request.app.state.reading_progress
 
 
 def reviews(request: Request) -> Reviews:

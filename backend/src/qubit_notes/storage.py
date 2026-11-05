@@ -181,6 +181,53 @@ quiz_attempts = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
 )
 
+# a row for every review of a card, kept as it was made: the card's own row has only its latest schedule
+card_reviews = Table(
+    "card_reviews",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("card_id", String, nullable=False, index=True),
+    Column("deck_id", String, nullable=False, index=True),
+    Column("student", String, nullable=False, index=True),
+    Column("course_id", String, nullable=False),
+    # again, hard, good or easy
+    Column("answer", String, nullable=False),
+    # when the card was due, to tell how late it was reviewed
+    Column("due_at", DateTime(timezone=True), nullable=False),
+    Column("ease_before", Float, nullable=False),
+    Column("ease_after", Float, nullable=False),
+    Column("interval_before", Integer, nullable=False),
+    Column("interval_after", Integer, nullable=False),
+    Column("reviewed_at", DateTime(timezone=True), nullable=False, index=True),
+)
+
+# a row for every call to the AI. It outlives what the call was about: the tokens were used all the same
+ai_usage = Table(
+    "ai_usage",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("student", String, nullable=False, index=True),
+    # assistant, summary, quiz, flashcards or generating
+    Column("purpose", String, nullable=False),
+    Column("provider", String, nullable=False),
+    Column("model", String, nullable=False),
+    Column("input_tokens", Integer, nullable=False),
+    Column("output_tokens", Integer, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False, index=True),
+)
+
+# a row for every time a student is shown a section: what they have opened, and when, can be told from it
+section_opens = Table(
+    "section_opens",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("student", String, nullable=False, index=True),
+    Column("course_id", String, nullable=False, index=True),
+    Column("document_id", String, nullable=False, index=True),
+    Column("section", Integer, nullable=False),
+    Column("opened_at", DateTime(timezone=True), nullable=False, index=True),
+)
+
 flashcard_decks = Table(
     "flashcard_decks",
     metadata,

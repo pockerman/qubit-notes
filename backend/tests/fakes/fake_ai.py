@@ -2,7 +2,7 @@ import json
 import re
 from typing import Any
 
-from qubit_notes.platform.port import Message
+from qubit_notes.platform.port import Completion, Message, chosen_ai
 
 
 class FakeAI:
@@ -13,6 +13,9 @@ class FakeAI:
         # was given with each prompt
         self.completions: list[str] = []
         self.histories: list[list[Message]] = []
+        # the input and output tokens each answer takes
+        self.tokens = (0, 0)
+        self.model = ("fake", "fake")
 
     def missing(self) -> str | None:
         return None
@@ -36,7 +39,14 @@ class FakeAI:
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
-    ) -> str:
+    ) -> Completion:
+        provider, model = chosen_ai.get() or self.model
+        text = self._answer(prompt, json_schema, history)
+        return Completion(
+            text=text, provider=provider, model=model, input_tokens=self.tokens[0], output_tokens=self.tokens[1]
+        )
+
+    def _answer(self, prompt: str, json_schema: dict[str, Any] | None, history: list[Message] | None) -> str:
         """A deterministic stand-in: each answer is numbered, so no two are alike. New material has a line from each
         labelled part of the material it is written from, citing it. A quiz has the questions the
         prompt asks for, each from one of the sections the prompt gives, in turn, with the first choice correct;

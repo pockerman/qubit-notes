@@ -39,12 +39,15 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
 - **Summaries and quizzes.** Summaries and quizzes of 1 to 20 questions on a section, a document or a whole topic,
   saved, retaken, and marked out of date when the material changes.
 - **Flashcards and reviews.** Decks of 1 to 30 flashcards on a section, a document or a topic, whose cards come back
-  for review by spaced repetition ([Flashcards and reviews](#flashcards-and-reviews)).
+  for review by spaced repetition, with every review kept ([Flashcards and reviews](#flashcards-and-reviews)).
+- **Reading progress.** The sections a student has opened are recorded and marked ([Reading progress](#reading-progress)).
 - **Generating material.** Have the AI write revision notes, cheat sheets, combined notes or worked examples from
   chosen materials, citing them as references ([Generating material with the AI](#generating-material-with-the-ai)).
 - **Sharing.** Share a course with classmates as readers or co-owners, and stop sharing it.
 - **Accounts.** Sign in with Amazon Cognito where deployed, and change your email and password under
   Settings › Account ([Signing in with Amazon Cognito](#signing-in-with-amazon-cognito)).
+- **The AI's usage.** The tokens the AI uses are recorded by student, purpose and model, and shown under
+  Settings › Usage ([The AI's usage](#the-ais-usage)).
 - **Administration.** Admins choose the AI's provider (Anthropic or OpenAI) and model, and give, replace and remove the
   app's keys; the bar shows the platform's health ([The app's keys](#the-apps-keys), [The AI's model](#the-ais-model)).
   Where the app has the keys of both providers, each student chooses which answers them.
@@ -235,6 +238,33 @@ after a day, then 6 days, then its interval times its ease (2.5 to start with), 
 less and less often. A new deck of the same scope takes the place of the earlier ones in the reviews, and a reader
 removed from a course no longer reviews its cards, until it is shared with them again. Each card's
 schedule is kept in the app's database (`flashcards`, with the decks in `flashcard_decks`).
+
+Each card's row has only its latest schedule, so every review is also kept as it was made, in `card_reviews`: the
+answer, when the card was due and when it was reviewed, and its ease and interval before and after. `GET
+/api/reviews/history` gives a student's, newest first, in all their courses or in one (`course_id`), up to `limit`
+(100 by default, at most 5,000). A reader removed from a course doesn't see its reviews until it is shared with them
+again; a new deck leaves the reviews of the earlier one in the history, and they are deleted with their material.
+
+## Reading progress
+
+The reader tells the app each section it shows a student, and that section's subsections are shown with it
+(`features/reading_progress.feature`, `backend/src/qubit_notes/domain/reading_progress.py`). Every time is kept in
+`section_opens`, and the sections opened are marked ✓ in the reader. This says a student opened a section, not that
+they read it. `GET /api/courses/{course}/materials/{document}/progress` gives how many sections a material has and
+which of them are opened; sections since removed from the material aren't counted, and the record is deleted with the
+material.
+
+## The AI's usage
+
+Every call to the AI goes through `AIUsage` (`features/ai_usage.feature`, `backend/src/qubit_notes/domain/usage.py`),
+which keeps in `ai_usage` who it was for, what for (`assistant`, `summary`, `quiz`, `flashcards` or `generating`), the
+provider and model that answered, and its input and output tokens. A reply the app can't use and asks for again is
+counted each time, as it used tokens; a call the provider refused isn't. Usage is kept when the material or course it
+was for is deleted. Where a provider, or gogi, doesn't tell the tokens used, they are recorded as 0.
+
+**Settings › Usage** shows a student theirs over the last 30 days, and admins each student's. `GET /api/usage` and
+`GET /api/usage/students` (admins only) take `days`, 1 to 366. It counts tokens, not money: prices differ by model and
+change, so a cost has to be worked out from the tokens by model. Nothing limits usage yet.
 
 ## The app's own platform
 

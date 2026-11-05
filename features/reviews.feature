@@ -21,6 +21,10 @@ Feature: Reviews
   until it is shared with them again. When a new deck of a scope is written, the cards of
   the earlier decks of it are no longer reviewed, so the same material isn't reviewed twice.
 
+  Every review is kept as it was made, whatever happens to the card's schedule afterwards: what
+  the student answered, when, when the card had been due, and its ease and interval before and
+  after. That history is what shows how well a student remembers their material over time.
+
   Background:
     Given I am the student "maria"
     And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
@@ -122,9 +126,79 @@ Feature: Reviews
       When I share the course "aeronautics" with "tom" as a reader
       Then the student "tom" has 2 cards due for review
 
+  Rule: Every review is kept
+
+    Scenario: My reviews are in my history, newest first
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      When I review the card each time it is due, and remember it:
+        | answer | due again in |
+        | good   | 1 day        |
+        | again  | 10 minutes   |
+      Then my review history is:
+        | answer | interval before | interval after |
+        | again  | 1               | 0              |
+        | good   | 0               | 1              |
+
+    Scenario: A review says when the card was due and how it changed the card's ease
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      When I review the card and remembered it "again"
+      Then my latest review was of the card, when it was due
+      And my latest review took the card's ease from 2.5 to 2.3
+
+    Scenario: Nothing is in my history before I review
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      Then my review history is empty
+
+    Scenario: The history of one course
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      And I have reviewed the card and remembered it "good"
+      And I have uploaded "intervals.md" to "music/theory/harmony"
+      And I have asked for 1 flashcard of "intervals.md"
+      And I have reviewed the card and remembered it "easy"
+      Then my review history has 2 reviews
+      And my review history in the course "music" has 1 review
+
+    Scenario: A new deck leaves the reviews of the earlier one in my history
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      And I have reviewed the card and remembered it "good"
+      When I ask for 2 new flashcards of "fem-notes.md"
+      Then my review history has 1 review
+
+    Scenario: A refused answer is not in my history
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      When I review the card and remembered it "maybe"
+      Then my review history is empty
+
+    Scenario: My history is my own
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      And I have reviewed the card and remembered it "good"
+      And I have shared the course "aeronautics" with "tom" as a reader
+      Then the student "tom" has an empty review history
+
+    Scenario: A reader's history is hidden once they are removed from the course
+      Given I have shared the course "aeronautics" with "tom" as a reader
+      And the student "tom" has asked for 2 flashcards of "fem-notes.md"
+      And the student "tom" has reviewed their card
+      When I stop sharing the course "aeronautics" with "tom"
+      Then the student "tom" has an empty review history
+      When I share the course "aeronautics" with "tom" as a reader
+      Then the student "tom" has 1 review in their history
+
   Rule: Reviews go with their material
 
     Scenario: Deleting a material deletes its reviews
       Given I have asked for 3 flashcards of "fem-notes.md"
       When I delete the material "fem-notes.md" from "aeronautics/numerical-methods/finite-elements"
       Then I have no cards due for review
+
+    Scenario: Deleting a material deletes the history of its cards
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      And I have reviewed the card and remembered it "good"
+      When I delete the material "fem-notes.md" from "aeronautics/numerical-methods/finite-elements"
+      Then my review history is empty
+
+    Scenario: Deleting a course deletes the history of its cards
+      Given I have asked for 1 flashcard of "fem-notes.md"
+      And I have reviewed the card and remembered it "good"
+      When I delete the course "aeronautics"
+      Then my review history is empty

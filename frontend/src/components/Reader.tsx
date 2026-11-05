@@ -258,6 +258,8 @@ function NoteForm({ label, onSave, onCancel, place }: NoteFormProps) {
 }
 
 export function Reader({ api, courseId, documentId, section, canEdit, onClose, paper }: Props) {
+  // the sections of the material the student has opened
+  const [opened, setOpened] = useState<Set<number>>(new Set())
   const [material, setMaterial] = useState<OpenedMaterial | null>(null)
   const isPaper = paper !== undefined
   const [position, setPosition] = useState<number | null>(null)
@@ -329,6 +331,15 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
     if (position === null) return
     api.readSection(courseId, documentId, position).then(setParts, (e: Error) => setError(e.message))
   }, [api, courseId, documentId, position, version])
+
+  useEffect(() => {
+    if (position === null) return
+    // the student can read on without it, so a failure isn't shown
+    api.openedSection(courseId, documentId, position).then(
+      (progress) => setOpened(new Set(progress.opened)),
+      () => undefined,
+    )
+  }, [api, courseId, documentId, position])
 
   // the uploaded file, or a converted material as it is now
   async function download(asItIsNow = false) {
@@ -531,8 +542,15 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                 <li key={section.position} style={{ paddingLeft: `${(section.level - 1) * 0.9}rem` }}>
                   <button
                     type="button"
-                    className={section.position === position ? 'section-link selected' : 'section-link'}
+                    className={[
+                      'section-link',
+                      section.position === position ? 'selected' : '',
+                      opened.has(section.position) ? 'opened' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
                     aria-current={section.position === position ? 'true' : undefined}
+                    aria-description={opened.has(section.position) ? 'Opened' : undefined}
                     onClick={() => setPosition(section.position)}
                   >
                     {sectionLabel(section.title, material.filename)}

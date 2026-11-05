@@ -10,6 +10,7 @@ from sqlalchemy.engine import Engine
 from qubit_notes import storage
 from qubit_notes.domain.errors import InvalidRequest, NotFound, StudyAssistantError
 from qubit_notes.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
+from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.written import (
     Row,
     forget_course_rows,
@@ -20,7 +21,6 @@ from qubit_notes.domain.written import (
     scope_of,
     scope_values,
 )
-from qubit_notes.platform.port import StudyPlatform
 
 MIN_QUESTIONS, MAX_QUESTIONS = 1, 20
 CHOICES = 4
@@ -90,9 +90,9 @@ class Quizzes:
     student's attempts at them. Each student's quizzes are their own; the newest of a scope and size is shown until
     they ask for a new one."""
 
-    def __init__(self, engine: Engine, platform: StudyPlatform, sources: Sources):
+    def __init__(self, engine: Engine, ai: AIUsage, sources: Sources):
         self._engine = engine
-        self._platform = platform
+        self._ai = ai
         self._sources = sources
 
     def get(self, student: str, scope: Scope, count: int, new: bool = False) -> Quiz:
@@ -177,7 +177,7 @@ class Quizzes:
 
         questions = None
         for _ in range(2):
-            questions = self._questions(prompt, cited, count)
+            questions = self._questions(student, prompt, cited, count)
             if questions:
                 break
         if not questions:
@@ -197,9 +197,9 @@ class Quizzes:
             connection.execute(insert(storage.quizzes).values(**row))
         return self._quiz(student, Row(row))
 
-    def _questions(self, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
+    def _questions(self, student: str, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
         """the questions the AI writes, if there are at least ``count`` well-formed ones"""
-        answer = self._platform.complete(SYSTEM, prompt, json_schema=WrittenQuiz.model_json_schema())
+        answer = self._ai.complete(student, "quiz", SYSTEM, prompt, json_schema=WrittenQuiz.model_json_schema())
         try:
             written = WrittenQuiz.model_validate(json.loads(answer))
         except (ValueError, ValidationError) as e:

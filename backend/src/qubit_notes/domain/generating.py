@@ -14,6 +14,7 @@ from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound
 from qubit_notes.domain.images import is_image
 from qubit_notes.domain.materials import is_video
 from qubit_notes.domain.reading import Reading
+from qubit_notes.domain.usage import AIUsage
 from qubit_notes.platform.port import IngestStatus, StudyPlatform
 
 Kind = Literal["revision notes", "cheat sheet", "combined notes", "worked examples"]
@@ -47,8 +48,9 @@ class Generated(BaseModel):
 
 
 class Generator:
-    def __init__(self, platform: StudyPlatform, courses: Courses, reading: Reading):
+    def __init__(self, platform: StudyPlatform, ai: AIUsage, courses: Courses, reading: Reading):
         self._platform = platform
+        self._ai = ai
         self._courses = courses
         self._reading = reading
         self.max_characters = MAX_CHARACTERS
@@ -93,7 +95,7 @@ class Generator:
         asked = f"Write {ASKED[kind]}." if kind else "Write what the student asks for."
         if instructions:
             asked += f"\n\nThe student asks: {instructions}"
-        text = self._platform.complete(SYSTEM, f"{asked}\n\nThe material:\n\n{material}").strip()
+        text = self._ai.complete(student, "generating", SYSTEM, f"{asked}\n\nThe material:\n\n{material}").strip()
 
         references = {f"S{i}": reference for i, (_, _, reference) in enumerate(labelled, start=1)}
         # a label the material doesn't have is dropped

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from qubit_notes.api.deps import Student, flashcards, quizzes, reviews, summaries
 from qubit_notes.domain.flashcards import Deck, Flashcards
 from qubit_notes.domain.quizzes import Attempt, Quiz, Quizzes
-from qubit_notes.domain.reviews import Due, ReviewCard, Reviews
+from qubit_notes.domain.reviews import Due, ReviewCard, ReviewRecord, Reviews
 from qubit_notes.domain.sources import Scope
 from qubit_notes.domain.summaries import Summaries, Summary
 
@@ -97,6 +97,17 @@ async def decks_of(scope: Annotated[Scope, Query()], student: Student, service: 
 async def due(student: Student, service: ReviewsDep, course_id: str | None = None) -> Due:
     """the student's cards due for review, in all their courses or in one, oldest due first"""
     return await run_in_threadpool(service.due, student, course_id)
+
+
+@router.get("/reviews/history", response_model=list[ReviewRecord])
+async def review_history(
+    student: Student,
+    service: ReviewsDep,
+    course_id: str | None = None,
+    limit: Annotated[int, Query(ge=1, le=5000)] = 100,
+) -> list[ReviewRecord]:
+    """the student's reviews, newest first, in all their courses or in one"""
+    return await run_in_threadpool(service.history, student, course_id, limit)
 
 
 @router.post("/reviews/{card_id}", response_model=ReviewCard)

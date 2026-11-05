@@ -4,6 +4,7 @@ from typing import Any
 
 from qubit_notes.platform.port import (
     Chunk,
+    Completion,
     DocumentInfo,
     DownloadedFile,
     IndexInfo,
@@ -269,10 +270,14 @@ class FakePlatform:
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
-    ) -> str:
+    ) -> Completion:
         # the provider and model that answered: the one the student chose, else the app's
-        self.answered_with.append(chosen_ai.get() or self.ai_model)
-        return self.ai.complete(system, prompt, json_schema=json_schema, history=history)
+        answering = chosen_ai.get() or self.ai_model
+        self.answered_with.append(answering)
+        completion = self.ai.complete(system, prompt, json_schema=json_schema, history=history)
+        if answering is None:
+            return completion
+        return completion.model_copy(update={"provider": answering[0], "model": answering[1]})
 
     # conversations
 

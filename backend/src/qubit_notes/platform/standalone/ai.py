@@ -4,7 +4,7 @@ choose, called with the app's key."""
 import json
 from typing import Any, Protocol
 
-from qubit_notes.platform.port import Message, PlatformError, chosen_ai
+from qubit_notes.platform.port import Completion, Message, PlatformError, chosen_ai
 from qubit_notes.settings import DEFAULT_MODELS, Settings, missing_key
 
 PROVIDERS = tuple(DEFAULT_MODELS)
@@ -17,7 +17,7 @@ class AI(Protocol):
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
-    ) -> str: ...
+    ) -> Completion: ...
 
     def missing(self) -> str | None:
         """what the AI needs and doesn't have, e.g. its key; None if it can answer"""
@@ -77,7 +77,7 @@ class ProviderAI:
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
-    ) -> str:
+    ) -> Completion:
         # the model the student chose, else the app's
         provider, model = chosen_ai.get() or (self._provider, self._model)
         key = self._keys.get(provider)
@@ -89,7 +89,9 @@ class ProviderAI:
             return self._anthropic(model, key, system, messages, json_schema)
         return self._openai(model, key, system, messages, json_schema)
 
-    def _anthropic(self, model: str, key: str, system: str, messages: list[dict], json_schema: dict | None) -> str:
+    def _anthropic(
+        self, model: str, key: str, system: str, messages: list[dict], json_schema: dict | None
+    ) -> Completion:
         import anthropic
 
         arguments: dict[str, Any] = {
@@ -111,10 +113,18 @@ class ProviderAI:
             answer = next((block.input for block in response.content if block.type == "tool_use"), None)
             if answer is None:
                 raise PlatformError("AI_FAILED", "Anthropic's model gave no answer")
-            return json.dumps(answer)
-        return "".join(block.text for block in response.content if block.type == "text")
+            text = json.dumps(answer)
+        else:
+            text = "".join(block.text for block in response.content if block.type == "text")
+        return Completion(
+            text=text,
+            provider="anthropic",
+            model=model,
+            input_tokens=response.usage.input_tokens,
+            output_tokens=response.usage.output_tokens,
+        )
 
-    def _openai(self, model: str, key: str, system: str, messages: list[dict], json_schema: dict | None) -> str:
+    def _openai(self, model: str, key: str, system: str, messages: list[dict], json_schema: dict | None) -> Completion:
         import openai
 
         arguments: dict[str, Any] = {
@@ -131,4 +141,10 @@ class ProviderAI:
             response = openai.OpenAI(api_key=key).chat.completions.create(**arguments)
         except openai.OpenAIError as e:
             raise PlatformError("AI_FAILED", f"OpenAI refused: {e}") from e
-        return response.choices[0].message.content or ""
+        return Completion(
+            text=response.choices[0].message.content or "",
+            provider="openai",
+            model=model,
+            input_tokens=response.usage.prompt_tokens if response.usage else 0,
+            output_tokens=response.usage.completion_tokens if response.usage else 0,
+        )

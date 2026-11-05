@@ -22,6 +22,7 @@ from loguru import logger
 
 from qubit_notes.platform.port import (
     Chunk,
+    Completion,
     DocumentInfo,
     DownloadedFile,
     IndexInfo,
@@ -330,7 +331,7 @@ class GogiPlatform:
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
-    ) -> str:
+    ) -> Completion:
         response = self._gogi.llm_clients.run(
             LLMRunRequest(
                 config=LLMRunRequestConfig(
@@ -350,7 +351,14 @@ class GogiPlatform:
                 ),
             )
         )
-        return response.content
+        usage = response.token_usage
+        return Completion(
+            text=response.content,
+            provider=response.provider,
+            model=response.model,
+            input_tokens=(usage.prompt_tokens or 0) if usage else 0,
+            output_tokens=(usage.completion_tokens or 0) if usage else 0,
+        )
 
     # conversations: gogi's sessions
 

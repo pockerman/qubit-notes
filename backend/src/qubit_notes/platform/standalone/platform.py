@@ -12,6 +12,7 @@ from sqlalchemy.engine import Engine
 from qubit_notes import storage
 from qubit_notes.platform.port import (
     Chunk,
+    Completion,
     DocumentInfo,
     DownloadedFile,
     IndexInfo,
@@ -632,7 +633,7 @@ class StandalonePlatform:
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
-    ) -> str:
+    ) -> Completion:
         return self.ai.complete(system, prompt, json_schema=json_schema, history=history)
 
     # conversations

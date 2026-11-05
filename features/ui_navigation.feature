@@ -6,7 +6,8 @@ Feature: The navigation bar
 
   The bar has the app's name, with the platform's status next to it, and on the right "Signed in
   as …" beside a menu of My courses, My papers, Reviews, Settings and Sign out. Settings opens a submenu of its views:
-  AI model (see Settings in the browser) and Account (see My account in the browser). Where the
+  AI model (see Settings in the browser), Account (see My account in the browser) and Usage (see
+  The AI's usage in the browser). Where the
   platform is degraded, its status can be opened to see why, in plain words. A missing key is
   "The app is missing a key.", naming neither the provider nor the setting that holds it: an
   admin is told to head to Settings to give it, with a link to its AI model view (see Settings in
@@ -19,7 +20,7 @@ Feature: The navigation bar
     When I open the menu
     Then it offers "My courses, My papers, Reviews, Settings, Sign out"
     When I open "Settings" in the menu
-    Then it offers "AI model, Account" under "Settings"
+    Then it offers "AI model, Account, Usage" under "Settings"
 
   Scenario: My courses, from the menu
     Given I am signed in as "maria"
