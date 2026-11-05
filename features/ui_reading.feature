@@ -24,6 +24,28 @@ Feature: Reading material in the browser
     When I choose the section "2.1 Linear elements"
     Then I see the text "A linear element interpolates linearly between its two nodes."
 
+  Scenario: The sections I have opened are marked
+    Given I am signed in as "maria"
+    And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
+      """
+      # 1 Introduction
+      The finite element method divides a domain into small elements.
+
+      # 2 Shape functions
+      Shape functions interpolate the solution inside each element.
+
+      ## 2.1 Linear elements
+      A linear element interpolates linearly between its two nodes.
+
+      # 3 Assembly
+      The element matrices are assembled into the global stiffness matrix.
+      """
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    And I choose the section "2 Shape functions"
+    Then the sections "1 Introduction, 2 Shape functions, 2.1 Linear elements" are marked as opened
+    And the section "3 Assembly" is not marked as opened
+
   Scenario: The text takes most of the page
     Given I am signed in as "maria"
     And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:

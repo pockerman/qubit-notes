@@ -4,6 +4,7 @@ in an instant."""
 import re
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from pytest_bdd import given, parsers, then, when
 from sqlalchemy import select
 
@@ -286,3 +287,76 @@ def they_review_my_card(students, context, name):
 @then("they are told there is no such card")
 def no_such_card(context):
     assert context["review"].status_code == 404, context["review"].text
+
+
+# the history of reviews
+
+
+def _history_of_reviews(students, name=None, course_id=None) -> list[dict]:
+    params = {"course_id": course_id} if course_id else {}
+    response = students.client.get("/api/reviews/history", headers=students.headers(name), params=params)
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+@given(parsers.parse('I have reviewed the card and remembered it "{answer}"'))
+def have_reviewed_the_card(students, context, answer):
+    response = _review(students, _card(context)["id"], answer)
+    assert response.status_code == 200, response.text
+
+
+@given(parsers.parse('the student "{name}" has reviewed their card'))
+def they_reviewed(students, context, name):
+    card = context["their_response"].json()["cards"][0]
+    response = _review(students, card["id"], "good", name=name)
+    assert response.status_code == 200, response.text
+
+
+@then("my review history is:")
+def review_history_is(students, datatable):
+    wanted = [(row["answer"], int(row["interval before"]), int(row["interval after"])) for row in _rows(datatable)]
+    history = _history_of_reviews(students)
+    assert [(r["answer"], r["interval_before"], r["interval_after"]) for r in history] == wanted
+
+
+@then("my review history is empty")
+def review_history_is_empty(students):
+    assert _history_of_reviews(students) == []
+
+
+@then(parsers.parse("my review history has {count:d} reviews"))
+@then(parsers.parse("my review history has {count:d} review"))
+def review_history_has(students, count):
+    assert len(_history_of_reviews(students)) == count
+
+
+@then(parsers.parse('my review history in the course "{course}" has {count:d} review'))
+def review_history_in(students, course, count):
+    course_id = next(c["id"] for c in students.courses() if c["name"] == course)
+    history = _history_of_reviews(students, course_id=course_id)
+    assert len(history) == count
+    assert {review["course_id"] for review in history} == {course_id}
+
+
+@then("my latest review was of the card, when it was due")
+def latest_review_of_the_card(students, context):
+    card, latest = _card(context), _history_of_reviews(students)[0]
+    assert (latest["card_id"], latest["front"]) == (card["id"], card["front"])
+    assert datetime.fromisoformat(latest["due_at"]) == datetime.fromisoformat(latest["reviewed_at"])
+
+
+@then(parsers.parse("my latest review took the card's ease from {before:g} to {after:g}"))
+def latest_review_ease(students, before, after):
+    latest = _history_of_reviews(students)[0]
+    assert latest["ease_before"] == pytest.approx(before)
+    assert latest["ease_after"] == pytest.approx(after)
+
+
+@then(parsers.parse('the student "{name}" has an empty review history'))
+def their_history_is_empty(students, name):
+    assert _history_of_reviews(students, name=name) == []
+
+
+@then(parsers.parse('the student "{name}" has {count:d} review in their history'))
+def their_history_has(students, name, count):
+    assert len(_history_of_reviews(students, name=name)) == count

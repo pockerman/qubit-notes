@@ -181,7 +181,7 @@ class FakeAnthropic:
 
     def create(self, **arguments):
         self.asked.update(arguments)
-        return SimpleNamespace(content=self._content)
+        return SimpleNamespace(content=self._content, usage=SimpleNamespace(input_tokens=11, output_tokens=7))
 
 
 def test_anthropic_answers_in_json_through_a_tool(monkeypatch):
@@ -197,7 +197,9 @@ def test_anthropic_answers_in_json_through_a_tool(monkeypatch):
         "be brief", "what is assembled?", json_schema=schema, history=[Message(role="user", content="hi")]
     )
 
-    assert json.loads(reply) == answer
+    assert json.loads(reply.text) == answer
+    assert (reply.provider, reply.model) == ("anthropic", "claude-sonnet-5-5")
+    assert (reply.input_tokens, reply.output_tokens) == (11, 7)
     assert fake.asked["api_key"] == "key"
     assert fake.asked["model"] == "claude-sonnet-5-5"
     assert fake.asked["system"] == "be brief"
@@ -216,7 +218,7 @@ def test_anthropic_answers_in_text(monkeypatch):
     monkeypatch.setattr(anthropic, "Anthropic", fake)
     ai = ProviderAI(Settings(llm_provider="anthropic", anthropic_api_key="key"))
 
-    assert ai.complete("summarise", "the text") == "A summary."
+    assert ai.complete("summarise", "the text").text == "A summary."
     assert "tools" not in fake.asked
 
 
@@ -232,13 +234,17 @@ def test_openai_answers_in_json_by_its_response_format(monkeypatch):
         def create(self, **arguments):
             asked.update(arguments)
             message = SimpleNamespace(content='{"answer": "yes"}')
-            return SimpleNamespace(choices=[SimpleNamespace(message=message)])
+            usage = SimpleNamespace(prompt_tokens=13, completion_tokens=5)
+            return SimpleNamespace(choices=[SimpleNamespace(message=message)], usage=usage)
 
     monkeypatch.setattr(openai, "OpenAI", Client)
     ai = ProviderAI(Settings(llm_provider="openai", openai_api_key="key", llm_model="gpt-5"))
     schema = {"type": "object"}
 
-    assert ai.complete("be brief", "yes?", json_schema=schema) == '{"answer": "yes"}'
+    reply = ai.complete("be brief", "yes?", json_schema=schema)
+
+    assert reply.text == '{"answer": "yes"}'
+    assert (reply.provider, reply.model, reply.input_tokens, reply.output_tokens) == ("openai", "gpt-5", 13, 5)
     assert asked["messages"][0] == {"role": "system", "content": "be brief"}
     assert asked["response_format"]["json_schema"]["schema"] == schema
 
@@ -264,7 +270,9 @@ def test_the_ai_answers_with_the_provider_chosen_with_its_key(monkeypatch):
 
         def create(self, **arguments):
             asked.update(arguments)
-            return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(content="From OpenAI."))])
+            message = SimpleNamespace(content="From OpenAI.")
+            # a provider that doesn't say what it used
+            return SimpleNamespace(choices=[SimpleNamespace(message=message)], usage=None)
 
     monkeypatch.setattr(openai, "OpenAI", Client)
     ai = ProviderAI(Settings(llm_provider="anthropic", anthropic_api_key="ant-key", openai_api_key=None))
@@ -272,7 +280,9 @@ def test_the_ai_answers_with_the_provider_chosen_with_its_key(monkeypatch):
 
     token = chosen_ai.set(("openai", "gpt-5-mini"))
     try:
-        assert ai.complete("be brief", "who?") == "From OpenAI."
+        reply = ai.complete("be brief", "who?")
+        assert reply.text == "From OpenAI."
+        assert (reply.input_tokens, reply.output_tokens) == (0, 0)
     finally:
         chosen_ai.reset(token)
     assert (asked["api_key"], asked["model"]) == ("openai-key", "gpt-5-mini")

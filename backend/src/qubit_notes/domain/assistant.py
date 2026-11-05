@@ -24,6 +24,7 @@ from qubit_notes.domain.quizzes import AIFailed, Quiz, Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.sources import Scope, Source
 from qubit_notes.domain.summaries import Summaries, Summary
+from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.written import now
 from qubit_notes.platform.port import Chunk, Message, StudyPlatform
 
@@ -121,9 +122,11 @@ class Assistant:
         summaries: Summaries,
         quizzes: Quizzes,
         flashcards: Flashcards,
+        ai: AIUsage,
         papers: PaperRecords | None = None,
     ):
         self._engine = engine
+        self._ai = ai
         # which courses are collections of papers: a paper being read is answered about from that paper alone
         self._papers = papers
         self._platform = platform
@@ -143,7 +146,7 @@ class Assistant:
         conversation_id = self._conversation_id(student, where, create=True)
 
         passages = self._passages(course.id, question, self._paper(where))
-        understood = self._understand(conversation_id, reading, passages, question)
+        understood = self._understand(student, conversation_id, reading, passages, question)
 
         turn = {"id": uuid.uuid4().hex, "question": question, "created_at": now()}
         if understood.request == "question":
@@ -232,7 +235,7 @@ class Assistant:
     # understanding
 
     def _understand(
-        self, conversation_id: str, reading: str, passages: dict[str, tuple[Source, str]], question: str
+        self, student: str, conversation_id: str, reading: str, passages: dict[str, tuple[Source, str]], question: str
     ) -> Understood:
         material = "\n\n".join(
             f"[{reference}] {source.filename} › {source.title}\n{text}"
@@ -245,7 +248,9 @@ class Assistant:
         )
         history = self._platform.conversation_context(conversation_id)
         for _ in range(2):
-            reply = self._platform.complete(SYSTEM, prompt, json_schema=Understood.model_json_schema(), history=history)
+            reply = self._ai.complete(
+                student, "assistant", SYSTEM, prompt, json_schema=Understood.model_json_schema(), history=history
+            )
             try:
                 return Understood.model_validate(json.loads(reply))
             except (ValueError, ValidationError) as e:

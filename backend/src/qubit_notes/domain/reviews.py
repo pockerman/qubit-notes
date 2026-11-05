@@ -3,14 +3,16 @@
 A card is due as soon as its deck is written. Reviewing it, the student says how well they remembered it, and that
 changes its ease and decides its next interval: the better they remember it, the longer until it is due again. Only
 the cards of the courses the student is a member of are reviewed: a reader's are hidden once they're removed from the
-course, and come back, as they were, if it is shared with them again.
+course, and come back, as they were, if it is shared with them again. Every review is also kept as it was made, in
+``card_reviews``, for what the schedule of a card can't tell: how the student's memory of it has gone over time.
 """
 
+import uuid
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
 from pydantic import BaseModel
-from sqlalchemy import and_, func, select, update
+from sqlalchemy import and_, func, insert, select, update
 from sqlalchemy.engine import Engine
 
 from qubit_notes import storage
@@ -43,6 +45,23 @@ class Due(BaseModel):
 
     cards: list[ReviewCard]
     next_due_at: datetime | None = None
+
+
+class ReviewRecord(BaseModel):
+    """a review of a card, as it was made"""
+
+    id: str
+    card_id: str
+    course_id: str
+    front: str
+    answer: str
+    # when the card was due
+    due_at: datetime
+    ease_before: float
+    ease_after: float
+    interval_before: int
+    interval_after: int
+    reviewed_at: datetime
 
 
 def next_schedule(ease: float, interval_days: int, repetitions: int, answer: str) -> tuple[float, int, int]:
@@ -124,8 +143,55 @@ class Reviews:
                 .where(mine)
                 .values(ease=ease, interval_days=interval, repetitions=repetitions, due_at=due_at, reviewed_at=at)
             )
+            connection.execute(
+                insert(storage.card_reviews).values(
+                    id=uuid.uuid4().hex,
+                    card_id=row.id,
+                    deck_id=row.deck_id,
+                    student=student,
+                    course_id=row.course_id,
+                    answer=answer,
+                    due_at=row.due_at,
+                    ease_before=row.ease,
+                    ease_after=ease,
+                    interval_before=row.interval_days,
+                    interval_after=interval,
+                    reviewed_at=at,
+                )
+            )
             reviewed = connection.execute(select(cards).where(mine)).first()
         return _card(reviewed)
+
+    def history(self, student: str, course_id: str | None = None, limit: int = 100) -> list[ReviewRecord]:
+        """the student's reviews, newest first, in all their courses or in one"""
+        reviews, cards = storage.card_reviews, storage.flashcards
+        courses = [course.id for course in self._courses.list(student)]
+        if course_id is not None:
+            courses = [course for course in courses if course == course_id]
+        with self._engine.connect() as connection:
+            rows = connection.execute(
+                select(reviews, cards.c.front)
+                .join(cards, cards.c.id == reviews.c.card_id)
+                .where(reviews.c.student == student, reviews.c.course_id.in_(courses))
+                .order_by(reviews.c.reviewed_at.desc())
+                .limit(limit)
+            ).all()
+        return [
+            ReviewRecord(
+                id=row.id,
+                card_id=row.card_id,
+                course_id=row.course_id,
+                front=row.front,
+                answer=row.answer,
+                due_at=_utc(row.due_at),
+                ease_before=row.ease_before,
+                ease_after=row.ease_after,
+                interval_before=row.interval_before,
+                interval_after=row.interval_after,
+                reviewed_at=_utc(row.reviewed_at),
+            )
+            for row in rows
+        ]
 
 
 def _card(row) -> ReviewCard:

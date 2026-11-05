@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
  *   #/reviews                              the flashcards due for review
  *   #/settings                             the app's settings: the AI's model
  *   #/settings/account                     the student's account: their email and password
+ *   #/settings/usage                       the tokens the AI has used
  *   #/courses/<id>                         a course
  *   #/courses/<id>/subjects/<subject>      a subject: its topics
  *   #/courses/<id>/add?subject=…&topic=…   adding material to it
@@ -23,7 +24,7 @@ import { useEffect, useState } from 'react'
  *   #/papers/<id>/read/<document>?section=<position>  reading it at a section
  */
 // the settings' views, under Settings in the app's menu
-export type SettingsView = 'ai-model' | 'account'
+export type SettingsView = 'ai-model' | 'account' | 'usage'
 
 export type Route =
   | { page: 'courses' }
@@ -47,7 +48,9 @@ export function parse(hash: string): Route {
   const parts = path.split('/').filter(Boolean).map(decodeURIComponent)
   const params = new URLSearchParams(query)
   if (parts[0] === 'reviews') return { page: 'reviews' }
-  if (parts[0] === 'settings') return { page: 'settings', view: parts[1] === 'account' ? 'account' : 'ai-model' }
+  if (parts[0] === 'settings') {
+    return { page: 'settings', view: parts[1] === 'account' || parts[1] === 'usage' ? parts[1] : 'ai-model' }
+  }
   if (parts[0] === 'papers') {
     const collectionId = parts[1]
     if (!collectionId) return { page: 'papers' }
@@ -90,7 +93,7 @@ export function href(route: Route): string {
     case 'reviews':
       return '#/reviews'
     case 'settings':
-      return route.view === 'account' ? '#/settings/account' : '#/settings'
+      return route.view === 'ai-model' ? '#/settings' : `#/settings/${route.view}`
     case 'course':
       return course(route.courseId)
     case 'subject':

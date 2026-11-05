@@ -116,6 +116,16 @@ class Message(BaseModel):
     content: str
 
 
+class Completion(BaseModel):
+    """what the AI answered, who answered it, and the tokens it took; 0 where the provider doesn't tell"""
+
+    text: str
+    provider: str
+    model: str
+    input_tokens: int = 0
+    output_tokens: int = 0
+
+
 class StudyPlatform(Protocol):
     """What qubit-notes needs of a platform.
 
@@ -219,7 +229,7 @@ class StudyPlatform(Protocol):
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
-    ) -> str: ...
+    ) -> Completion: ...
 
     # conversations with the AI, kept by the platform; a conversation's id is the caller's
     def start_conversation(self, user: str, conversation_id: str) -> None: ...

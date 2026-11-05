@@ -75,6 +75,11 @@ export function NavigationMenu({ onSignOut }: { onSignOut: () => void }) {
                     Account
                   </a>
                 </li>
+                <li role="none">
+                  <a role="menuitem" href={href({ page: 'settings', view: 'usage' })} onClick={() => setOpen(false)}>
+                    Usage
+                  </a>
+                </li>
               </ul>
             )}
           </li>

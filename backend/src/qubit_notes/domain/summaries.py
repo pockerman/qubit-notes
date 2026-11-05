@@ -7,8 +7,8 @@ from sqlalchemy.engine import Engine
 
 from qubit_notes import storage
 from qubit_notes.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
+from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.written import forget_course_rows, forget_document, now, of_scope, scope_of, scope_values
-from qubit_notes.platform.port import StudyPlatform
 
 SYSTEM = """You help a student revise. You write summaries of their study material: clear, accurate and concise,
 in Markdown, keeping the key definitions, results and reasoning. Use only the material you are given."""
@@ -47,9 +47,9 @@ class Summaries:
     """Summaries of a section, a document or a topic, written by the AI from the material. Each student's
     summaries are their own; the newest is shown until they ask for a new one."""
 
-    def __init__(self, engine: Engine, platform: StudyPlatform, sources: Sources):
+    def __init__(self, engine: Engine, ai: AIUsage, sources: Sources):
         self._engine = engine
-        self._platform = platform
+        self._ai = ai
         self._sources = sources
 
     def get(self, student: str, scope: Scope, new: bool = False) -> Summary:
@@ -84,10 +84,10 @@ class Summaries:
         gathered = self._sources.gather(student, scope)
         batches = _batches(gathered.sources)
         if len(batches) == 1:
-            content = self._summarise(_material(batches[0]))
+            content = self._summarise(student, _material(batches[0]))
         else:
-            parts = [self._summarise(_material(batch)) for batch in batches]
-            content = self._summarise("\n\n".join(parts), of_summaries=True)
+            parts = [self._summarise(student, _material(batch)) for batch in batches]
+            content = self._summarise(student, "\n\n".join(parts), of_summaries=True)
 
         sources = [Source(**source.model_dump(exclude={"content"})) for source in gathered.sources]
         row = {
@@ -102,9 +102,9 @@ class Summaries:
             connection.execute(insert(storage.summaries).values(**row))
         return Summary(id=row["id"], scope=scope, content=content, sources=sources, created_at=row["created_at"])
 
-    def _summarise(self, material: str, of_summaries: bool = False) -> str:
+    def _summarise(self, student: str, material: str, of_summaries: bool = False) -> str:
         what = "these summaries of parts of the material into one summary" if of_summaries else "this material"
-        return self._platform.complete(SYSTEM, f"Summarise {what}.\n\n{material}").strip()
+        return self._ai.complete(student, "summary", SYSTEM, f"Summarise {what}.\n\n{material}").strip()
 
     def _summary(self, student: str, row) -> Summary:
         scope = scope_of(row)

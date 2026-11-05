@@ -344,6 +344,28 @@ export type Due = {
   next_due_at: string | null
 }
 
+/** How many sections a material has, and the positions of those the student has opened. */
+export type ReadingProgress = {
+  sections: number
+  opened: number[]
+}
+
+/** Tokens the AI has used, and in how many calls to it. */
+export type Spent = {
+  requests: number
+  input_tokens: number
+  output_tokens: number
+}
+
+/** The tokens the AI has used for the student over the last days, in all, by purpose and by model. */
+export type Usage = Spent & {
+  days: number
+  purposes: (Spent & { purpose: string })[]
+  models: (Spent & { provider: string; model: string })[]
+}
+
+export type StudentUsage = Spent & { student: string }
+
 /** What the student asked the assistant, and its reply: an answer citing sections, a summary, a quiz or flashcards. */
 export type Turn = {
   id: string
@@ -441,6 +463,11 @@ export class StudyApi {
   }
 
   /** The section at the position, followed by its subsections. */
+  /** Tells the app the student was shown the section; the answer is what they have opened of the material. */
+  openedSection(courseId: string, documentId: string, position: number): Promise<ReadingProgress> {
+    return this.request(`${this.materialPath(courseId, documentId)}/sections/${position}/opened`, { method: 'POST' })
+  }
+
   readSection(courseId: string, documentId: string, position: number): Promise<SectionText[]> {
     return this.request(`${this.materialPath(courseId, documentId)}/sections/${position}`)
   }
@@ -584,6 +611,15 @@ export class StudyApi {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code }),
     })
+  }
+
+  usage(): Promise<Usage> {
+    return this.request('/usage')
+  }
+
+  /** Every student's usage; only the app's admins can see it. */
+  studentsUsage(): Promise<StudentUsage[]> {
+    return this.request('/usage/students')
   }
 
   aiModel(): Promise<AIModel> {

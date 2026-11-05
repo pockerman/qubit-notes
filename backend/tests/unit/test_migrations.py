@@ -83,6 +83,9 @@ def test_a_database_made_before_migrations_keeps_its_data(database_url):
         "flashcard",
         "lesson_imports",
         "paper_",
+        "card_reviews",
+        "ai_usage",
+        "section_opens",
     )
     # and the columns added to them since
     added = {"topics": {"name"}, "conversation_turns": {"deck_id"}}

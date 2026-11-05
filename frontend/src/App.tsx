@@ -23,6 +23,7 @@ import { PapersPage } from './pages/PapersPage'
 import { ReviewsPage } from './pages/ReviewsPage'
 import { AccountPage } from './pages/AccountPage'
 import { SettingsPage } from './pages/SettingsPage'
+import { UsagePage } from './pages/UsagePage'
 import { SubjectPage } from './pages/SubjectPage'
 import { TopicPage } from './pages/TopicPage'
 import { WriteMaterialPage } from './pages/WriteMaterialPage'
@@ -101,7 +102,8 @@ function Pages({ api }: { api: StudyApi }) {
     case 'reviews':
       return <ReviewsPage api={api} />
     case 'settings':
-      return route.view === 'account' ? <AccountPage api={api} /> : <SettingsPage api={api} />
+      if (route.view === 'account') return <AccountPage api={api} />
+      return route.view === 'usage' ? <UsagePage api={api} /> : <SettingsPage api={api} />
     case 'course':
       return <CoursePage key={route.courseId} api={api} courseId={route.courseId} />
     case 'subject':

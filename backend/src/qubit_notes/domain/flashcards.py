@@ -12,6 +12,7 @@ from qubit_notes.domain.errors import InvalidRequest
 from qubit_notes.domain.quizzes import AIFailed
 from qubit_notes.domain.reviews import Reviews
 from qubit_notes.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
+from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.written import (
     Row,
     forget_course_rows,
@@ -22,7 +23,6 @@ from qubit_notes.domain.written import (
     scope_of,
     scope_values,
 )
-from qubit_notes.platform.port import StudyPlatform
 
 MIN_CARDS, MAX_CARDS = 1, 30
 # the most text a deck is written from; each section gets an equal share of it
@@ -66,9 +66,9 @@ class Flashcards:
     decks are their own; the newest of a scope and size is shown until they ask for a new one. A deck's cards are
     reviewed (see reviews.py); a new deck of a scope takes the place of the earlier ones in the reviews."""
 
-    def __init__(self, engine: Engine, platform: StudyPlatform, sources: Sources, reviews: Reviews):
+    def __init__(self, engine: Engine, ai: AIUsage, sources: Sources, reviews: Reviews):
         self._engine = engine
-        self._platform = platform
+        self._ai = ai
         self._sources = sources
         self._reviews = reviews
 
@@ -96,12 +96,14 @@ class Flashcards:
             ids = forget_document(connection, storage.flashcard_decks, document_id)
             if ids:
                 connection.execute(delete(storage.flashcards).where(storage.flashcards.c.deck_id.in_(ids)))
+                connection.execute(delete(storage.card_reviews).where(storage.card_reviews.c.deck_id.in_(ids)))
 
     def forget_course(self, course_id: str) -> None:
         with self._engine.begin() as connection:
             ids = forget_course_rows(connection, storage.flashcard_decks, course_id)
             if ids:
                 connection.execute(delete(storage.flashcards).where(storage.flashcards.c.deck_id.in_(ids)))
+                connection.execute(delete(storage.card_reviews).where(storage.card_reviews.c.deck_id.in_(ids)))
 
     def _write(self, student: str, scope: Scope, count: int) -> Deck:
         gathered = self._sources.gather(student, scope)
@@ -110,7 +112,7 @@ class Flashcards:
 
         cards = None
         for _ in range(2):
-            cards = self._cards(prompt, cited, count)
+            cards = self._cards(student, prompt, cited, count)
             if cards:
                 break
         if not cards:
@@ -150,9 +152,9 @@ class Flashcards:
                 )
         return self._deck(student, Row(row))
 
-    def _cards(self, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
+    def _cards(self, student: str, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
         """the cards the AI writes, if there are at least ``count`` well-formed ones"""
-        answer = self._platform.complete(SYSTEM, prompt, json_schema=WrittenDeck.model_json_schema())
+        answer = self._ai.complete(student, "flashcards", SYSTEM, prompt, json_schema=WrittenDeck.model_json_schema())
         try:
             written = WrittenDeck.model_validate(json.loads(answer))
         except (ValueError, ValidationError) as e:

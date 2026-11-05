@@ -337,6 +337,12 @@ main:has(.reader) {
   color: var(--accent);
 }
 
+.section-link.opened::after {
+  /* no alternative text: aria-description says it, and the section keeps its name */
+  content: ' ✓' / '';
+  color: var(--muted);
+}
+
 .section-text {
   min-width: 0;
   line-height: 1.6;
@@ -1205,4 +1211,25 @@ a.button {
 
 .assistant-header .provider-choice {
   flex-basis: 100%;
+}
+
+.usage-table {
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+}
+
+.usage-table th,
+.usage-table td {
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.6rem;
+  text-align: left;
+}
+
+.usage-table th {
+  background: var(--surface);
+}
+
+.usage-table .tokens {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
