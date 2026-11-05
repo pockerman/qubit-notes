@@ -244,6 +244,8 @@ answer, when the card was due and when it was reviewed, and its ease and interva
 /api/reviews/history` gives a student's, newest first, in all their courses or in one (`course_id`), up to `limit`
 (100 by default, at most 5,000). A reader removed from a course doesn't see its reviews until it is shared with them
 again; a new deck leaves the reviews of the earlier one in the history, and they are deleted with their material.
+**History**, on the Reviews page, shows the latest 50, with each card, how well it was remembered and how long until
+it was due again.
 
 ## Reading progress
 

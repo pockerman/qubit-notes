@@ -1213,23 +1213,23 @@ a.button {
   flex-basis: 100%;
 }
 
-.usage-table {
+.data-table {
   border-collapse: collapse;
   margin: 0.75rem 0;
 }
 
-.usage-table th,
-.usage-table td {
+.data-table th,
+.data-table td {
   border: 1px solid var(--border);
   padding: 0.35rem 0.6rem;
   text-align: left;
 }
 
-.usage-table th {
+.data-table th {
   background: var(--surface);
 }
 
-.usage-table .tokens {
+.data-table .tokens {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }

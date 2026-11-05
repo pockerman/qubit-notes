@@ -89,7 +89,7 @@ export function UsagePage({ api }: { api: StudyApi }) {
 function SpentTable({ label, heading, children }: { label: string; heading: string; children: ReactNode }) {
   return (
     <div className="table-scroll">
-      <table className="usage-table" aria-label={label}>
+      <table className="data-table" aria-label={label}>
         <thead>
           <tr>
             <th scope="col">{heading}</th>

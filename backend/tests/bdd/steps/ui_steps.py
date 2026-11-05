@@ -588,6 +588,26 @@ def nothing_to_review_until(page):
     expect(page.get_by_role("article", name="Card")).to_have_count(0)
 
 
+def _review_history(page):
+    return page.get_by_role("region", name="History", exact=True)
+
+
+@then("I am told I haven't reviewed anything yet")
+def reviewed_nothing_yet(page):
+    expect(_review_history(page)).to_contain_text("You haven't reviewed any cards yet.")
+
+
+@then("my history shows:")
+def history_shows(page, datatable):
+    rows = _review_history(page).get_by_role("row")
+    header, *wanted = datatable
+    expect(rows).to_have_count(len(wanted) + 1)
+    columns = {name: i for i, name in enumerate(header)}
+    for i, row in enumerate(wanted, start=1):
+        expect(rows.nth(i).get_by_role("cell", name=row[columns["remembered"]], exact=True)).to_be_visible()
+        expect(rows.nth(i).get_by_role("cell", name=row[columns["due again in"]], exact=True)).to_be_visible()
+
+
 @then("I am told there is nothing to review now")
 def nothing_to_review(page):
     expect(_reviews_status(page)).to_have_text("Nothing to review now.")

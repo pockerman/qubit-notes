@@ -7,7 +7,9 @@ Feature: Flashcards and reviews in the browser
   Flashcards are asked for from the assistant, in words, as summaries and quizzes are. A card
   is turned over to show its answer. Reviews, in the app's menu, shows the cards due in all of
   the student's courses one at a time: the student shows its answer and says how well they
-  remembered it, Again, Hard, Good or Easy, and the next card due follows.
+  remembered it, Again, Hard, Good or Easy, and the next card due follows. Below them, History
+  shows the student's latest 50 reviews, newest first, each with its card, its course, how well
+  they remembered it and when, and how long until it was due again.
 
   Background:
     Given I am signed in as "maria"
@@ -37,6 +39,19 @@ Feature: Flashcards and reviews in the browser
     Then I see that 1 card is due
     When I show the answer and remembered it "Again"
     Then I am told there is nothing to review now, and when the next card is due
+
+  Scenario: My reviews are in my history, newest first
+    Given I have asked for 2 flashcards of "fem-notes.md"
+    When I choose "Reviews" from the menu
+    Then I am told I haven't reviewed anything yet
+    When I show the answer and remembered it "Good"
+    Then I see that 1 card is due
+    When a minute passes
+    And I show the answer and remembered it "Again"
+    Then my history shows:
+      | remembered | due again in |
+      | Again      | 10 minutes   |
+      | Good       | 1 day        |
 
   Scenario: Nothing to review
     When I choose "Reviews" from the menu
