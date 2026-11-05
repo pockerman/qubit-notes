@@ -257,6 +257,11 @@ def due_after(client, students, count, due):
     assert len(_due(students)["cards"]) == count
 
 
+@when("a minute passes")
+def a_minute_passes(client):
+    _clock(client).at += timedelta(minutes=1)
+
+
 @when("I review the card each time it is due, and remember it:")
 def review_each_time(client, students, context, datatable):
     clock, card_id = _clock(client), _card(context)["id"]

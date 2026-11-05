@@ -344,6 +344,22 @@ export type Due = {
   next_due_at: string | null
 }
 
+/** A review of a card, as it was made. */
+export type ReviewRecord = {
+  id: string
+  card_id: string
+  course_id: string
+  front: string
+  answer: Remembered
+  due_at: string
+  ease_before: number
+  ease_after: number
+  interval_before: number
+  // days until it was due again; 0: in 10 minutes
+  interval_after: number
+  reviewed_at: string
+}
+
 /** How many sections a material has, and the positions of those the student has opened. */
 export type ReadingProgress = {
   sections: number
@@ -531,6 +547,11 @@ export class StudyApi {
 
   attempts(quizId: string): Promise<Attempt[]> {
     return this.request(`/quizzes/${encodeURIComponent(quizId)}/attempts`)
+  }
+
+  /** The student's latest reviews, newest first. */
+  reviewHistory(limit: number): Promise<ReviewRecord[]> {
+    return this.request(`/reviews/history?limit=${limit}`)
   }
 
   /** The student's cards due for review, in all their courses. */
