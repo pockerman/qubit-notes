@@ -60,6 +60,10 @@ class ReviewRecord(BaseModel):
     id: str
     card_id: str
     course_id: str
+    # the material of the card, and its subject, as on ReviewCard
+    document_id: str
+    subject: str = ""
+    subject_name: str = ""
     front: str
     answer: str
     # when the card was due
@@ -122,7 +126,7 @@ class Reviews:
         """the student's cards due for review, in all their courses or in one"""
         cards = storage.flashcards
         at = self.now()
-        courses = [course for course in self._courses.list(student) if course_id in (None, course.id)]
+        courses = self._of(student, course_id)
         ids = [course.id for course in courses]
         conditions = [cards.c.student == student, cards.c.due_at.is_not(None), cards.c.course_id.in_(ids)]
         with self._engine.connect() as connection:
@@ -133,16 +137,23 @@ class Reviews:
             ).all()
             later = connection.execute(select(func.min(cards.c.due_at)).where(*conditions, cards.c.due_at > at))
             next_due_at = later.scalar()
-        due_in = {row.course_id for row in rows}
-        subjects = self._subjects([course for course in courses if course.id in due_in])
-        cards_due = [_card(row).model_copy(update=subjects.get(row.source["document_id"], {})) for row in rows]
-        return Due(cards=cards_due, next_due_at=_utc(next_due_at))
+        return Due(cards=self._with_subjects(rows, courses), next_due_at=_utc(next_due_at))
 
-    def _subjects(self, courses: list[Course]) -> dict[str, dict[str, str]]:
-        """the subject of each material of the courses, but for the papers of collections, by the material's id"""
+    def _of(self, student: str, course_id: str | None) -> list[Course]:
+        """the student's courses, or the one if they are a member of it"""
+        return [course for course in self._courses.list(student) if course_id in (None, course.id)]
+
+    def _with_subjects(self, rows, courses: list[Course]) -> list[ReviewCard]:
+        subjects = self._subjects(rows, courses)
+        return [_card(row).model_copy(update=subjects.get(row.source["document_id"], {})) for row in rows]
+
+    def _subjects(self, rows, courses: list[Course]) -> dict[str, dict[str, str]]:
+        """the subject of each material of the courses of the rows, but for the papers of collections, by the
+        material's id"""
         found = {}
+        among = {row.course_id for row in rows}
         for course in courses:
-            if self._papers.is_collection(course.id):
+            if course.id not in among or self._papers.is_collection(course.id):
                 continue
             names = {subject.subject: subject.name for subject in self._topics.subjects_of(course)}
             for document in self._platform.list_documents(course.id):
@@ -194,25 +205,45 @@ class Reviews:
             reviewed = connection.execute(select(cards).where(mine)).first()
         return _card(reviewed)
 
+    def not_reviewed(self, student: str, course_id: str | None = None, limit: int = 100) -> list[ReviewCard]:
+        """the student's cards they have never reviewed, oldest first, in all their courses or in one; those of an
+        earlier deck are no longer reviewed, so are not among them"""
+        cards = storage.flashcards
+        courses = self._of(student, course_id)
+        with self._engine.connect() as connection:
+            rows = connection.execute(
+                select(cards)
+                .where(
+                    cards.c.student == student,
+                    cards.c.course_id.in_([course.id for course in courses]),
+                    cards.c.due_at.is_not(None),
+                    cards.c.reviewed_at.is_(None),
+                )
+                .order_by(cards.c.due_at, cards.c.deck_id, cards.c.position)
+                .limit(limit)
+            ).all()
+        return self._with_subjects(rows, courses)
+
     def history(self, student: str, course_id: str | None = None, limit: int = 100) -> list[ReviewRecord]:
         """the student's reviews, newest first, in all their courses or in one"""
         reviews, cards = storage.card_reviews, storage.flashcards
-        courses = [course.id for course in self._courses.list(student)]
-        if course_id is not None:
-            courses = [course for course in courses if course == course_id]
+        courses = self._of(student, course_id)
         with self._engine.connect() as connection:
             rows = connection.execute(
-                select(reviews, cards.c.front)
+                select(reviews, cards.c.front, cards.c.source)
                 .join(cards, cards.c.id == reviews.c.card_id)
-                .where(reviews.c.student == student, reviews.c.course_id.in_(courses))
+                .where(reviews.c.student == student, reviews.c.course_id.in_([course.id for course in courses]))
                 .order_by(reviews.c.reviewed_at.desc())
                 .limit(limit)
             ).all()
+        subjects = self._subjects(rows, courses)
         return [
             ReviewRecord(
                 id=row.id,
                 card_id=row.card_id,
                 course_id=row.course_id,
+                document_id=row.source["document_id"],
+                **subjects.get(row.source["document_id"], {}),
                 front=row.front,
                 answer=row.answer,
                 due_at=_utc(row.due_at),

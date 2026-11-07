@@ -162,6 +162,23 @@ Feature: Reviews
       Then my latest review was of the card, when it was due
       And my latest review took the card's ease from 2.5 to 2.3
 
+    Scenario: A review and a card not reviewed say their subject
+      Given I have asked for 2 flashcards of "fem-notes.md"
+      When I review the card and remembered it "good"
+      Then my latest review is of the subject "Numerical methods"
+      And the card I have not reviewed is of the subject "Numerical methods"
+
+    Scenario: A paper's review has no subject
+      Given I have created the collection "reinforcement-learning" titled "Reinforcement Learning"
+      And I have uploaded the paper "atari.md" to "reinforcement-learning" with the content:
+        """
+        # 1 Introduction
+        A network learns to play from its pixels.
+        """
+      And I have asked for 1 flashcard of "atari.md"
+      When I review the card and remembered it "good"
+      Then my latest review has no subject
+
     Scenario: Nothing is in my history before I review
       Given I have asked for 1 flashcard of "fem-notes.md"
       Then my review history is empty
@@ -200,6 +217,24 @@ Feature: Reviews
       Then the student "tom" has an empty review history
       When I share the course "aeronautics" with "tom" as a reader
       Then the student "tom" has 1 review in their history
+
+  Rule: The cards I have not reviewed are known
+
+    Scenario: A card is not reviewed until I review it
+      Given I have asked for 2 flashcards of "fem-notes.md"
+      Then I have 2 cards I have not reviewed
+      When I review the card and remembered it "again"
+      Then I have 1 card I have not reviewed
+
+    Scenario: The cards of an earlier deck are not among them
+      Given I have asked for 3 flashcards of "fem-notes.md"
+      When I ask for 2 new flashcards of "fem-notes.md"
+      Then I have 2 cards I have not reviewed
+
+    Scenario: Another student's cards are not among mine
+      Given I have asked for 3 flashcards of "fem-notes.md"
+      And I have shared the course "aeronautics" with "tom" as a reader
+      Then the student "tom" has no cards they have not reviewed
 
   Rule: Reviews go with their material
 
