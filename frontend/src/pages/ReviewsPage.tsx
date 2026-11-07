@@ -33,12 +33,14 @@ function groups<K>(cards: ReviewCard[], key: (card: ReviewCard) => K): [K, Revie
   return [...grouped]
 }
 
-/** The flashcards due for review, a card for each course with how many are due, as in My courses. A course shows its
- * subjects and sections, each with how many; choosing one reviews its cards one at a time: the student turns it over
- * and says how well they remembered it, which decides when it is due again. Below, History: the reviews they have made
- * and the cards they have not reviewed yet (features/ui_reviews.feature). */
+/** The flashcards to review: first the subjects, each a card with how many cards it has, due or not, and nothing else.
+ * A subject shows its sections, each with how many, and its History: the reviews made and the cards not reviewed yet.
+ * Choosing a section reviews its cards due one at a time: the student turns it over and says how well they remembered it, which
+ * decides when it is due again (features/ui_reviews.feature). */
 export function ReviewsPage({ api, scope }: { api: StudyApi; scope?: ReviewScope }) {
   const [due, setDue] = useState<Due | null>(null)
+  // every card to review, due or not
+  const [every, setEvery] = useState<ReviewCard[] | null>(null)
   const [history, setHistory] = useState<ReviewRecord[] | null>(null)
   const [notReviewed, setNotReviewed] = useState<ReviewCard[]>([])
   // the courses' titles, by id
@@ -47,13 +49,26 @@ export function ReviewsPage({ api, scope }: { api: StudyApi; scope?: ReviewScope
   const [reviewing, setReviewing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const load = useCallback(() => {
-    api.reviews().then(setDue, (e: Error) => setError(e.message))
-    api.reviewHistory(FETCHED).then(setHistory, (e: Error) => setError(e.message))
-    api.notReviewed(FETCHED).then(setNotReviewed, (e: Error) => setError(e.message))
+  const load = useCallback(async () => {
+    try {
+      const [dueNow, cards, reviews, waiting] = await Promise.all([
+        api.reviews(),
+        api.reviewCards(),
+        api.reviewHistory(FETCHED),
+        api.notReviewed(FETCHED),
+      ])
+      setDue(dueNow)
+      setEvery(cards)
+      setHistory(reviews)
+      setNotReviewed(waiting)
+    } catch (e) {
+      setError((e as Error).message)
+    }
   }, [api])
 
-  useEffect(load, [load])
+  useEffect(() => {
+    void load()
+  }, [load])
 
   useEffect(() => {
     // cards of papers are in collections, which aren't among the courses
@@ -69,8 +84,8 @@ export function ReviewsPage({ api, scope }: { api: StudyApi; scope?: ReviewScope
     setError(null)
     try {
       await api.review(cardId, remembered)
+      await load()
       setTurned(false)
-      load()
     } catch (e) {
       setError((e as Error).message)
     } finally {
@@ -78,21 +93,28 @@ export function ReviewsPage({ api, scope }: { api: StudyApi; scope?: ReviewScope
     }
   }
 
-  const cards = due && scope ? due.cards.filter((c) => inScope(c, scope)) : (due?.cards ?? [])
-  // a course is chosen from; a subject or a section of it is reviewed
-  const chosen = Boolean(scope?.subject || scope?.section)
+  const here = (cards: ReviewCard[]) => (scope ? cards.filter((c) => inScope(c, scope)) : cards)
+  const cards = here(due?.cards ?? [])
+  const allCards = here(every ?? [])
+  const nextDue = allCards.length > 0 ? Math.min(...allCards.map((c) => Date.parse(c.due_at))) : null
+  // a section is reviewed; a subject is chosen from
+  const chosen = Boolean(scope?.section)
   const card = chosen ? cards[0] : undefined
+
+  const heading = scope && allCards.length > 0 ? allCards[0].subject_name || titles[scope.courseId] : undefined
 
   return (
     <section className="reviews" aria-labelledby="reviews-title">
       <header className="page-header">
-        {chosen && scope ? (
-          <a className="link" href={href({ page: 'reviews', scope: { courseId: scope.courseId } })}>
-            ← Sections
-          </a>
-        ) : (
-          <a className="link" href={href(scope ? { page: 'reviews' } : { page: 'courses' })}>
-            {scope ? '← All my courses' : '← My courses'}
+        {scope && (
+          <a
+            className="link"
+            href={href({
+              page: 'reviews',
+              ...(chosen ? { scope: { courseId: scope.courseId, subject: scope.subject } } : {}),
+            })}
+          >
+            {chosen ? '← Sections' : '← Subjects'}
           </a>
         )}
         <h2 id="reviews-title">Reviews</h2>
@@ -102,20 +124,20 @@ export function ReviewsPage({ api, scope }: { api: StudyApi; scope?: ReviewScope
           {error}
         </p>
       )}
-      {due && (
+      {due && every && (scope || allCards.length === 0) && (
         <p role="status" className="note">
           {cards.length > 0
             ? `${plural(cards.length, 'card')} due`
             : scope
-              ? 'Nothing left to review here.'
-              : 'Nothing to review now.' +
-                (due.next_due_at ? ` The next card is due ${new Date(due.next_due_at).toLocaleString()}.` : '')}
+              ? 'Nothing left to review here.' +
+                (nextDue ? ` The next card is due ${new Date(nextDue).toLocaleString()}.` : '')
+              : 'Nothing to review now.'}
         </p>
       )}
-      {scope && <h3>{titles[scope.courseId]}</h3>}
-      {!scope && cards.length > 0 && <Courses cards={cards} titles={titles} />}
-      {scope && !chosen && cards.length > 0 && <Sections courseId={scope.courseId} cards={cards} />}
-      {due && !scope && cards.length === 0 && !due.next_due_at && (
+      {heading && <h3>{heading}</h3>}
+      {!scope && allCards.length > 0 && <Subjects cards={allCards} titles={titles} />}
+      {scope && !chosen && allCards.length > 0 && <Sections scope={scope} cards={allCards} />}
+      {every && !scope && allCards.length === 0 && (
         <p className="note">Ask the assistant for flashcards, e.g. “Make flashcards of this section”, to review them.</p>
       )}
       {card && (
@@ -152,24 +174,30 @@ export function ReviewsPage({ api, scope }: { api: StudyApi; scope?: ReviewScope
           )}
         </article>
       )}
-      {history && <History reviews={history} notReviewed={notReviewed} titles={titles} scope={scope} />}
+      {scope && history && <History reviews={history} notReviewed={notReviewed} titles={titles} scope={scope} />}
     </section>
   )
 }
 
-/** A card for each course with cards due, and how many. */
-function Courses({ cards, titles }: { cards: ReviewCard[]; titles: Record<string, string> }) {
-  const courses = groups(cards, (c) => c.course_id)
-    .map(([courseId, due]) => ({ courseId, due, title: titles[courseId] ?? due[0].source.filename }))
-    .sort((a, b) => a.title.localeCompare(b.title))
+/** A card for each subject with cards, and how many; a collection of papers has none, so is one itself. */
+function Subjects({ cards, titles }: { cards: ReviewCard[]; titles: Record<string, string> }) {
+  const subjects = groups(cards, (c) => `${c.course_id}/${c.subject ?? ''}`)
+    .map(([key, ofSubject]) => {
+      const { course_id: courseId, subject, subject_name: name } = ofSubject[0]
+      const course = titles[courseId] ?? ofSubject[0].source.filename
+      return { key, ofSubject, course, title: name || course, scope: { courseId, ...(subject ? { subject } : {}) } }
+    })
+    .sort((a, b) => a.title.localeCompare(b.title) || a.course.localeCompare(b.course))
+  // subjects of different courses may be called the same
+  const named = (title: string) => subjects.filter((s) => s.title === title).length
   return (
-    <nav aria-label="Cards due">
+    <nav aria-label="Cards">
       <ul className="course-cards">
-        {courses.map(({ courseId, due, title }) => (
-          <li key={courseId}>
-            <a className="card course-card" href={href({ page: 'reviews', scope: { courseId } })}>
-              <strong>{title}</strong>
-              <span className="note">{plural(due.length, 'card')}</span>
+        {subjects.map(({ key, ofSubject, course, title, scope }) => (
+          <li key={key}>
+            <a className="card course-card" href={href({ page: 'reviews', scope })}>
+              <strong>{named(title) > 1 ? `${title} (${course})` : title}</strong>
+              <span className="note">{plural(ofSubject.length, 'card')}</span>
             </a>
           </li>
         ))}
@@ -178,48 +206,33 @@ function Courses({ cards, titles }: { cards: ReviewCard[]; titles: Record<string
   )
 }
 
-/** A course's subjects, to review all of one, each with a card for each section with cards due. A paper has no
- * subject: its sections are alone. */
-function Sections({ courseId, cards }: { courseId: string; cards: ReviewCard[] }) {
-  const subjects = groups(cards, (c) => c.subject ?? '').sort(([, a], [, b]) =>
-    (a[0].subject_name ?? '').localeCompare(b[0].subject_name ?? ''),
-  )
+/** A card for each section with cards, and how many. */
+function Sections({ scope, cards }: { scope: ReviewScope; cards: ReviewCard[] }) {
   return (
-    <nav aria-label="Cards due">
-      {subjects.map(([subject, ofSubject]) => (
-        <div key={subject}>
-          {subject && (
-            <h4>
-              <a href={href({ page: 'reviews', scope: { courseId, subject } })}>
-                {ofSubject[0].subject_name ?? subject} · {plural(ofSubject.length, 'card')}
-              </a>
-            </h4>
-          )}
-          <ul className="course-cards">
-            {groups(ofSubject, (c) => `${c.source.document_id}-${c.source.section}`)
-              .sort(
-                ([, [a]], [, [b]]) =>
-                  a.source.filename.localeCompare(b.source.filename) || a.source.section - b.source.section,
-              )
-              .map(([key, ofSection]) => {
-                const { document_id: documentId, section, title, filename } = ofSection[0].source
-                return (
-                  <li key={key}>
-                    <a
-                      className="card course-card"
-                      href={href({ page: 'reviews', scope: { courseId, documentId, section } })}
-                    >
-                      <strong>{title}</strong>
-                      <span className="note">
-                        {plural(ofSection.length, 'card')} · {filename}
-                      </span>
-                    </a>
-                  </li>
-                )
-              })}
-          </ul>
-        </div>
-      ))}
+    <nav aria-label="Cards">
+      <ul className="course-cards">
+        {groups(cards, (c) => `${c.source.document_id}-${c.source.section}`)
+          .sort(
+            ([, [a]], [, [b]]) =>
+              a.source.filename.localeCompare(b.source.filename) || a.source.section - b.source.section,
+          )
+          .map(([key, ofSection]) => {
+            const { document_id: documentId, section, title, filename } = ofSection[0].source
+            return (
+              <li key={key}>
+                <a
+                  className="card course-card"
+                  href={href({ page: 'reviews', scope: { ...scope, documentId, section } })}
+                >
+                  <strong>{title}</strong>
+                  <span className="note">
+                    {plural(ofSection.length, 'card')} · {filename}
+                  </span>
+                </a>
+              </li>
+            )
+          })}
+      </ul>
     </nav>
   )
 }
@@ -228,18 +241,13 @@ type HistoryProps = {
   reviews: ReviewRecord[]
   notReviewed: ReviewCard[]
   titles: Record<string, string>
-  scope?: ReviewScope
+  scope: ReviewScope
 }
 
-/** What the student has reviewed, then what they haven't, of each subject on its own: all of them, those of the course
- * they are in, or the one they are reviewing, a section's being its material's subject. */
+/** What the student has reviewed of the subject, then what they haven't. */
 function History({ reviews, notReviewed, titles, scope }: HistoryProps) {
-  const documentOf = (item: ReviewRecord | ReviewCard) =>
-    'document_id' in item ? item.document_id : item.source.document_id
-  const inSubject =
-    scope?.subject ?? [...reviews, ...notReviewed].find((item) => documentOf(item) === scope?.documentId)?.subject
   const shown = (item: ReviewRecord | ReviewCard) =>
-    (!scope || item.course_id === scope.courseId) && (!inSubject || item.subject === inSubject)
+    item.course_id === scope.courseId && (!scope.subject || item.subject === scope.subject)
 
   const subjects = new Map<string, { title: string; reviews: ReviewRecord[]; cards: ReviewCard[] }>()
   const subjectOf = (item: ReviewRecord | ReviewCard) => {

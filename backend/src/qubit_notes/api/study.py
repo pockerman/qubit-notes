@@ -110,6 +110,12 @@ async def review_history(
     return await run_in_threadpool(service.history, student, course_id, limit)
 
 
+@router.get("/reviews/cards", response_model=list[ReviewCard])
+async def cards(student: Student, service: ReviewsDep, course_id: str | None = None) -> list[ReviewCard]:
+    """all the cards the student reviews, due or not, in all their courses or in one"""
+    return await run_in_threadpool(service.cards, student, course_id)
+
+
 @router.get("/reviews/not-reviewed", response_model=list[ReviewCard])
 async def not_reviewed(
     student: Student,

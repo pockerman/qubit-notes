@@ -205,6 +205,23 @@ class Reviews:
             reviewed = connection.execute(select(cards).where(mine)).first()
         return _card(reviewed)
 
+    def cards(self, student: str, course_id: str | None = None) -> list[ReviewCard]:
+        """all the cards the student reviews, due or not, in all their courses or in one; those of an earlier deck
+        are no longer reviewed, so are not among them"""
+        cards = storage.flashcards
+        courses = self._of(student, course_id)
+        with self._engine.connect() as connection:
+            rows = connection.execute(
+                select(cards)
+                .where(
+                    cards.c.student == student,
+                    cards.c.course_id.in_([course.id for course in courses]),
+                    cards.c.due_at.is_not(None),
+                )
+                .order_by(cards.c.due_at, cards.c.deck_id, cards.c.position)
+            ).all()
+        return self._with_subjects(rows, courses)
+
     def not_reviewed(self, student: str, course_id: str | None = None, limit: int = 100) -> list[ReviewCard]:
         """the student's cards they have never reviewed, oldest first, in all their courses or in one; those of an
         earlier deck are no longer reviewed, so are not among them"""
