@@ -230,6 +230,43 @@ def cards_due_without_subject(students):
     assert {card["subject"] for card in cards} == {""}
 
 
+def _not_reviewed(students, name=None) -> list[dict]:
+    response = students.client.get("/api/reviews/not-reviewed", headers=students.headers(name))
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+@then(parsers.re(r"I have (?P<count>\d+) cards? I have not reviewed$"))
+def cards_not_reviewed(students, count):
+    assert len(_not_reviewed(students)) == int(count)
+
+
+@then(parsers.parse('the student "{name}" has no cards they have not reviewed'))
+def student_has_none_not_reviewed(students, name):
+    assert _not_reviewed(students, name) == []
+
+
+def _latest_review(students) -> dict:
+    response = students.client.get("/api/reviews/history", headers=students.headers())
+    assert response.status_code == 200, response.text
+    return response.json()[0]
+
+
+@then(parsers.parse('my latest review is of the subject "{name}"'))
+def latest_review_of_subject(students, name):
+    assert _latest_review(students)["subject_name"] == name
+
+
+@then("my latest review has no subject")
+def latest_review_without_subject(students):
+    assert _latest_review(students)["subject"] == ""
+
+
+@then(parsers.parse('the card I have not reviewed is of the subject "{name}"'))
+def not_reviewed_of_subject(students, name):
+    assert [card["subject_name"] for card in _not_reviewed(students)] == [name]
+
+
 @then("they are the cards of the new deck")
 def cards_of_new_deck(students, context):
     assert {card["deck_id"] for card in _due(students)["cards"]} == {context["deck"]["id"]}

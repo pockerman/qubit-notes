@@ -352,6 +352,10 @@ export type ReviewRecord = {
   id: string
   card_id: string
   course_id: string
+  document_id: string
+  // the subject of its material, by id and by name; none for a paper
+  subject?: string
+  subject_name?: string
   front: string
   answer: Remembered
   due_at: string
@@ -555,6 +559,11 @@ export class StudyApi {
   /** The student's latest reviews, newest first. */
   reviewHistory(limit: number): Promise<ReviewRecord[]> {
     return this.request(`/reviews/history?limit=${limit}`)
+  }
+
+  /** The student's cards they have never reviewed, oldest first. */
+  notReviewed(limit: number): Promise<ReviewCard[]> {
+    return this.request(`/reviews/not-reviewed?limit=${limit}`)
   }
 
   /** The student's cards due for review, in all their courses. */

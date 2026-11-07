@@ -596,13 +596,17 @@ def _cards_due(page):
 
 @when(parsers.parse('I choose to review "{what}"'))
 def choose_what_to_review(page, what):
-    _cards_due(page).get_by_role("link", name=re.compile(f"^{re.escape(what)} · ")).click()
+    _cards_due(page).get_by_role("link", name=re.compile(f"^{re.escape(what)}")).click()
 
 
 @then("I see the cards due:")
 def see_the_cards_due(page, datatable):
     _, *wanted = datatable
-    expect(_cards_due(page).get_by_role("link")).to_have_text([f"{what} · {cards}" for what, cards in wanted])
+    links = _cards_due(page).get_by_role("link")
+    expect(links).to_have_count(len(wanted))
+    for i, (what, cards) in enumerate(wanted):
+        expect(links.nth(i)).to_contain_text(what)
+        expect(links.nth(i)).to_contain_text(cards)
 
 
 @then("I am shown no card until I choose what to review")
@@ -620,9 +624,9 @@ def nothing_left_here(page):
     expect(_reviews_status(page)).to_have_text("Nothing left to review here.")
 
 
-@when("I go back to everything due")
-def back_to_everything_due(page):
-    page.get_by_role("link", name="Everything due").click()
+@when("I go back to the sections")
+def back_to_sections(page):
+    page.get_by_role("link", name="Sections").click()
 
 
 @when(parsers.parse('I show the answer and remembered it "{remembered}"'))
@@ -657,6 +661,18 @@ def history_shows(page, datatable):
     for i, row in enumerate(wanted, start=1):
         expect(rows.nth(i).get_by_role("cell", name=row[columns["remembered"]], exact=True)).to_be_visible()
         expect(rows.nth(i).get_by_role("cell", name=row[columns["due again in"]], exact=True)).to_be_visible()
+
+
+@then(parsers.re(r"my history shows (?P<count>\d+) cards? not reviewed yet$"))
+def history_shows_not_reviewed(page, count):
+    expect(_review_history(page).get_by_role("row").filter(has_text="Not reviewed yet")).to_have_count(int(count))
+
+
+@then(parsers.parse('my history has "{subjects}"'))
+def history_has_subjects(page, subjects):
+    expect(_review_history(page).get_by_role("heading", level=4)).to_have_text(
+        [subject.strip() for subject in subjects.split(",")]
+    )
 
 
 @then("I am told there is nothing to review now")

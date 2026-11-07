@@ -110,6 +110,17 @@ async def review_history(
     return await run_in_threadpool(service.history, student, course_id, limit)
 
 
+@router.get("/reviews/not-reviewed", response_model=list[ReviewCard])
+async def not_reviewed(
+    student: Student,
+    service: ReviewsDep,
+    course_id: str | None = None,
+    limit: Annotated[int, Query(ge=1, le=5000)] = 100,
+) -> list[ReviewCard]:
+    """the student's cards they have never reviewed, oldest first, in all their courses or in one"""
+    return await run_in_threadpool(service.not_reviewed, student, course_id, limit)
+
+
 @router.post("/reviews/{card_id}", response_model=ReviewCard)
 async def review(card_id: str, remembered: Remembered, student: Student, service: ReviewsDep) -> ReviewCard:
     return await run_in_threadpool(service.review, student, card_id, remembered.answer)

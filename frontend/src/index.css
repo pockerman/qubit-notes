@@ -1055,21 +1055,6 @@ a.button {
   max-width: 40rem;
 }
 
-/* what is due: each section under its material, under its course */
-.review-groups {
-  max-width: 40rem;
-}
-
-.review-groups ul {
-  list-style: none;
-  margin: 0.25rem 0 0.25rem 1rem;
-  padding: 0;
-}
-
-.review-groups li {
-  margin: 0.25rem 0;
-}
-
 .review-card .actions {
   display: flex;
   flex-wrap: wrap;
