@@ -476,6 +476,10 @@ def _assistant(page: Page):
     return page.get_by_role("complementary", name="Assistant")
 
 
+def _ai_choice(page: Page):
+    return _assistant(page).get_by_role("radiogroup", name="AI")
+
+
 @when("I open the assistant")
 def open_assistant(page):
     page.get_by_role("button", name="AI", exact=True).click()
@@ -484,20 +488,32 @@ def open_assistant(page):
 
 @then(parsers.parse('I can choose the AI from "{choices}"'))
 def can_choose_ai(page, choices):
-    choice = page.get_by_role("complementary", name="Assistant").get_by_role("combobox", name="AI")
-    expect(choice.locator("option")).to_have_text([c.strip() for c in choices.split(",")])
+    expect(_ai_choice(page).get_by_role("radio")).to_have_count(len(choices.split(",")))
+    for choice in choices.split(","):
+        expect(_ai_choice(page).get_by_role("radio", name=choice.strip(), exact=True)).to_be_visible()
 
 
 @when(parsers.parse('I choose the AI "{choice}"'))
 def choose_ai(page, choice):
-    page.get_by_role("complementary", name="Assistant").get_by_role("combobox", name="AI").select_option(label=choice)
+    _ai_choice(page).get_by_text(choice, exact=True).click(force=True)  # as a student can, though it does nothing
 
 
-@then("I am not offered to choose the AI")
-def not_offered_ai_choice(page):
-    assistant = page.get_by_role("complementary", name="Assistant")
-    expect(assistant.get_by_role("form", name="Ask the assistant")).to_be_visible()
-    expect(assistant.get_by_role("combobox", name="AI")).to_have_count(0)
+@then(parsers.parse('the AI chosen is "{choice}"'))
+def ai_chosen(page, choice):
+    expect(_ai_choice(page).get_by_role("radio", name=choice, exact=True)).to_be_checked()
+
+
+@when(parsers.parse('I point at the AI "{choice}"'))
+def point_at_ai(page, choice):
+    _ai_choice(page).get_by_text(choice, exact=True).hover()
+
+
+@then("I am told above it that it is not available, as its API key is missing")
+def told_ai_not_available(page):
+    tooltip = _ai_choice(page).get_by_role("tooltip").locator("visible=true")
+    expect(tooltip).to_have_text("Not available: the API key is missing")
+    tip, radio = tooltip.bounding_box(), _ai_choice(page).get_by_role("radio").first.bounding_box()
+    assert tip["y"] + tip["height"] <= radio["y"], (tip, radio)
 
 
 @when(parsers.parse('I ask "{question}"'))
@@ -572,6 +588,41 @@ def _reviews_status(page):
 @then(parsers.re(r"I see that (?P<count>\d+) cards? (?:is|are) due$"))
 def see_cards_due(page, count):
     expect(_reviews_status(page)).to_have_text(f"{count} card{'' if count == '1' else 's'} due")
+
+
+def _cards_due(page):
+    return page.get_by_role("navigation", name="Cards due")
+
+
+@when(parsers.parse('I choose to review "{what}"'))
+def choose_what_to_review(page, what):
+    _cards_due(page).get_by_role("link", name=re.compile(f"^{re.escape(what)} · ")).click()
+
+
+@then("I see the cards due:")
+def see_the_cards_due(page, datatable):
+    _, *wanted = datatable
+    expect(_cards_due(page).get_by_role("link")).to_have_text([f"{what} · {cards}" for what, cards in wanted])
+
+
+@then("I am shown no card until I choose what to review")
+def no_card_shown(page):
+    expect(page.get_by_role("article", name="Card")).to_have_count(0)
+
+
+@then(parsers.parse('the card shown is from "{source}"'))
+def card_from(page, source):
+    expect(page.get_by_role("article", name="Card")).to_contain_text(source)
+
+
+@then("I am told there is nothing left to review here")
+def nothing_left_here(page):
+    expect(_reviews_status(page)).to_have_text("Nothing left to review here.")
+
+
+@when("I go back to everything due")
+def back_to_everything_due(page):
+    page.get_by_role("link", name="Everything due").click()
 
 
 @when(parsers.parse('I show the answer and remembered it "{remembered}"'))

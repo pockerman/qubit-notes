@@ -16,10 +16,13 @@ from sqlalchemy import and_, func, insert, select, update
 from sqlalchemy.engine import Engine
 
 from qubit_notes import storage
-from qubit_notes.domain.courses import Courses
+from qubit_notes.domain.courses import Course, Courses
 from qubit_notes.domain.errors import InvalidRequest, NotFound
+from qubit_notes.domain.papers import PaperRecords
 from qubit_notes.domain.sources import Source
+from qubit_notes.domain.topics import Topics, named
 from qubit_notes.domain.written import now
+from qubit_notes.platform.port import StudyPlatform
 
 ANSWERS = ("again", "hard", "good", "easy")
 FIRST_EASE, MIN_EASE = 2.5, 1.3
@@ -34,6 +37,10 @@ class ReviewCard(BaseModel):
     front: str
     back: str
     source: Source
+    # the subject of its material, by id and by what it is called, which the student sees as it is now; none for a
+    # paper, whose subject no one sees
+    subject: str = ""
+    subject_name: str = ""
     due_at: datetime
     # how long until it was due again, the last time it was reviewed
     interval_days: int
@@ -91,9 +98,20 @@ def _utc(moment: datetime | None) -> datetime | None:
 class Reviews:
     """Each student's reviews of the cards of their decks. ``now`` is the clock the reviews go by."""
 
-    def __init__(self, engine: Engine, courses: Courses, clock: Callable[[], datetime] = now):
+    def __init__(
+        self,
+        engine: Engine,
+        courses: Courses,
+        platform: StudyPlatform,
+        topics: Topics,
+        papers: PaperRecords,
+        clock: Callable[[], datetime] = now,
+    ):
         self._engine = engine
         self._courses = courses
+        self._platform = platform
+        self._topics = topics
+        self._papers = papers
         self.now = clock
 
     def new_schedule(self) -> dict:
@@ -104,10 +122,9 @@ class Reviews:
         """the student's cards due for review, in all their courses or in one"""
         cards = storage.flashcards
         at = self.now()
-        courses = [course.id for course in self._courses.list(student)]
-        if course_id is not None:
-            courses = [course for course in courses if course == course_id]
-        conditions = [cards.c.student == student, cards.c.due_at.is_not(None), cards.c.course_id.in_(courses)]
+        courses = [course for course in self._courses.list(student) if course_id in (None, course.id)]
+        ids = [course.id for course in courses]
+        conditions = [cards.c.student == student, cards.c.due_at.is_not(None), cards.c.course_id.in_(ids)]
         with self._engine.connect() as connection:
             rows = connection.execute(
                 select(cards)
@@ -116,7 +133,22 @@ class Reviews:
             ).all()
             later = connection.execute(select(func.min(cards.c.due_at)).where(*conditions, cards.c.due_at > at))
             next_due_at = later.scalar()
-        return Due(cards=[_card(row) for row in rows], next_due_at=_utc(next_due_at))
+        due_in = {row.course_id for row in rows}
+        subjects = self._subjects([course for course in courses if course.id in due_in])
+        cards_due = [_card(row).model_copy(update=subjects.get(row.source["document_id"], {})) for row in rows]
+        return Due(cards=cards_due, next_due_at=_utc(next_due_at))
+
+    def _subjects(self, courses: list[Course]) -> dict[str, dict[str, str]]:
+        """the subject of each material of the courses, but for the papers of collections, by the material's id"""
+        found = {}
+        for course in courses:
+            if self._papers.is_collection(course.id):
+                continue
+            names = {subject.subject: subject.name for subject in self._topics.subjects_of(course)}
+            for document in self._platform.list_documents(course.id):
+                subject = document.metadata.get("subject", "")
+                found[document.document_id] = {"subject": subject, "subject_name": names.get(subject, named(subject))}
+        return found
 
     def review(self, student: str, card_id: str, answer: str) -> ReviewCard:
         """schedules the card's next review by how well the student remembered it: again, hard, good or easy"""

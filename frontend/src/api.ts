@@ -333,6 +333,9 @@ export type ReviewCard = {
   front: string
   back: string
   source: Source
+  // the subject of its material, by id and by name; none for a paper
+  subject?: string
+  subject_name?: string
   due_at: string
   interval_days: number
   reviewed_at: string | null

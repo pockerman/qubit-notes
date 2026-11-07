@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import type { AIModel, StudyApi } from '../api'
 import { KEY_GIVEN, PROVIDER, PROVIDER_CHOSEN, chooseProvider, chosenProvider } from '../providers'
 
-/** The providers the app has keys for, to choose which answers: offered only where there are two or more. The
- * choice is the student's, kept in their browser, for all the AI does for them. */
+/** The providers that can answer, each with its model; one the app has no key for is shown, but can't be chosen, and
+ * says why (features/ui_study.feature). The choice is the student's, kept in their browser, for all the AI does for
+ * them. */
 export function ProviderChoice({ api }: { api: StudyApi }) {
   const [inUse, setInUse] = useState<AIModel | null>(null)
   const [chosen, setChosen] = useState(chosenProvider)
+  const name = useId()
 
   useEffect(() => {
     const load = () => api.aiModel().then(setInUse, () => setInUse(null))
@@ -33,19 +35,37 @@ export function ProviderChoice({ api }: { api: StudyApi }) {
     if (provider && inUse && provider !== inUse.provider && provider !== chosen) chooseProvider(provider)
   }, [provider, inUse, chosen])
 
-  if (!inUse || providers.length < 2) return null
+  if (!inUse) return null
   const model = (p: string) => (p === inUse.provider ? inUse.model : inUse.defaults[p])
 
   return (
-    <label className="provider-choice">
+    <div className="provider-choice" role="radiogroup" aria-label="AI">
       <span aria-hidden="true">AI</span>
-      <select aria-label="AI" value={provider} onChange={(e) => chooseProvider(e.target.value)}>
-        {providers.map((p) => (
-          <option key={p} value={p}>
-            {PROVIDER[p] ?? p} · {model(p)}
-          </option>
-        ))}
-      </select>
-    </label>
+      {Object.keys(inUse.defaults).map((p) => {
+        const available = inUse.keys[p]
+        const why = `${name}-${p}-why`
+        return (
+          <span key={p} className={available ? 'provider-option' : 'provider-option unavailable'}>
+            <label>
+              {/* not disabled, or it could neither be pointed at nor reached to say why */}
+              <input
+                type="radio"
+                name={name}
+                checked={p === provider}
+                aria-disabled={!available}
+                aria-describedby={available ? undefined : why}
+                onChange={() => available && chooseProvider(p)}
+              />
+              {PROVIDER[p] ?? p} · {model(p)}
+            </label>
+            {!available && (
+              <span id={why} role="tooltip" className="provider-tooltip">
+                Not available: the API key is missing
+              </span>
+            )}
+          </span>
+        )
+      })}
+    </div>
   )
 }

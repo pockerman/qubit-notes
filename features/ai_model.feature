@@ -19,7 +19,7 @@ Feature: The AI's model
   and whether its settings give it, never the key itself. Where the platform is gogi, the choice
   is given to gogi with each request to the AI. The model that embeds material is not chosen here (see The app on its own).
 
-  Where the app has the keys of both providers, each student chooses which answers them (the
+  Each student chooses which of the providers the app has the key of answers them (the
   X-AI-Provider header of their requests): the app's provider with the model the admins chose,
   or the other with its own model. Without the key of the provider chosen, the app's answers.
 

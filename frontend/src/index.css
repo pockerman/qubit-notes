@@ -1055,6 +1055,21 @@ a.button {
   max-width: 40rem;
 }
 
+/* what is due: each section under its material, under its course */
+.review-groups {
+  max-width: 40rem;
+}
+
+.review-groups ul {
+  list-style: none;
+  margin: 0.25rem 0 0.25rem 1rem;
+  padding: 0;
+}
+
+.review-groups li {
+  margin: 0.25rem 0;
+}
+
 .review-card .actions {
   display: flex;
   flex-wrap: wrap;
@@ -1160,16 +1175,58 @@ a.button {
 }
 
 /* which provider answers, where the app has the keys of more than one */
+/* the tooltips are placed from it, as an option may be at the panel's edge */
 .provider-choice {
+  position: relative;
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.2rem 0.75rem;
   font-size: 0.85rem;
   color: var(--muted);
 }
 
-.provider-choice select {
-  font-size: 0.85rem;
+.provider-option label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.provider-option input {
+  width: auto;
+  margin: 0;
+}
+
+/* a provider the app has no key for: shown, not chosen, and says why */
+.provider-option.unavailable label {
+  color: var(--muted);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.provider-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 0.3rem);
+  left: 0;
+  z-index: 10;
+  width: max-content;
+  max-width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.8rem;
+}
+
+.provider-option:hover .provider-tooltip,
+.provider-option:focus-within .provider-tooltip {
+  display: block;
 }
 
 /* a key saved, or removed: said where the keys are, until another is changed */
