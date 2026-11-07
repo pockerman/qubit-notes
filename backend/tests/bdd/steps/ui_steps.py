@@ -591,7 +591,7 @@ def see_cards_due(page, count):
 
 
 def _cards_due(page):
-    return page.get_by_role("navigation", name="Cards due")
+    return page.get_by_role("navigation", name="Cards")
 
 
 @when(parsers.parse('I choose to review "{what}"'))
@@ -599,14 +599,28 @@ def choose_what_to_review(page, what):
     _cards_due(page).get_by_role("link", name=re.compile(f"^{re.escape(what)}")).click()
 
 
-@then("I see the cards due:")
-def see_the_cards_due(page, datatable):
+@then("I see the cards:")
+def see_the_cards(page, datatable):
     _, *wanted = datatable
     links = _cards_due(page).get_by_role("link")
     expect(links).to_have_count(len(wanted))
     for i, (what, cards) in enumerate(wanted):
         expect(links.nth(i)).to_contain_text(what)
         expect(links.nth(i)).to_contain_text(cards)
+
+
+@then("I am shown nothing but the subjects")
+def nothing_but_the_subjects(page):
+    reviews = page.get_by_role("region", name="Reviews")
+    expect(reviews.get_by_role("article", name="Card")).to_have_count(0)
+    expect(reviews.get_by_role("status")).to_have_count(0)
+    expect(_review_history(page)).to_have_count(0)
+    expect(reviews.get_by_role("link")).to_have_count(_cards_due(page).get_by_role("link").count())
+
+
+@when("I go back to the subjects")
+def back_to_subjects(page):
+    page.get_by_role("link", name="Subjects").click()
 
 
 @then("I am shown no card until I choose what to review")
@@ -621,7 +635,7 @@ def card_from(page, source):
 
 @then("I am told there is nothing left to review here")
 def nothing_left_here(page):
-    expect(_reviews_status(page)).to_have_text("Nothing left to review here.")
+    expect(_reviews_status(page)).to_contain_text("Nothing left to review here.")
 
 
 @when("I go back to the sections")
@@ -637,19 +651,14 @@ def show_and_remember(page, remembered):
     card.get_by_role("group", name="How well did you remember it?").get_by_role("button", name=remembered).click()
 
 
-@then("I am told there is nothing to review now, and when the next card is due")
+@then("I am told there is nothing left to review here, and when the next card is due")
 def nothing_to_review_until(page):
-    expect(_reviews_status(page)).to_contain_text("Nothing to review now. The next card is due")
+    expect(_reviews_status(page)).to_contain_text("Nothing left to review here. The next card is due")
     expect(page.get_by_role("article", name="Card")).to_have_count(0)
 
 
 def _review_history(page):
     return page.get_by_role("region", name="History", exact=True)
-
-
-@then("I am told I haven't reviewed anything yet")
-def reviewed_nothing_yet(page):
-    expect(_review_history(page)).to_contain_text("You haven't reviewed any cards yet.")
 
 
 @then("my history shows:")

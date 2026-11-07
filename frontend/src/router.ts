@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
  * The page shown, from the address's hash, so the browser's back button and a refresh keep the student where
  * they were:
  *   #/                                     my courses
- *   #/reviews                              the flashcards due for review, by course
- *   #/reviews/courses/<id>                 a course's, by subject and section
- *   #/reviews/courses/<id>/subjects/<subject>   reviewing a subject's
- *   #/reviews/courses/<id>/materials/<document>?section=<position>  reviewing a section's
+ *   #/reviews                              the subjects with flashcards due, and how many
+ *   #/reviews/courses/<id>/subjects/<subject>  a subject's cards due, by section
+ *   #/reviews/courses/<id>                 a collection of papers' cards due, by section
+ *   #/reviews/courses/<id>/materials/<document>?section=<position>&subject=<subject>  reviewing a section's
  *   #/settings                             the app's settings: the AI's model
  *   #/settings/account                     the student's account: their email and password
  *   #/settings/usage                       the tokens the AI has used
@@ -29,7 +29,8 @@ import { useEffect, useState } from 'react'
 // the settings' views, under Settings in the app's menu
 export type SettingsView = 'ai-model' | 'account' | 'usage'
 
-// where in the reviews the student is: a course, to choose from, or a subject or a section of it, being reviewed
+// where in the reviews the student is: a subject, or a collection of papers, which has none, to choose a section of;
+// or one of those sections, being reviewed
 export type ReviewScope = { courseId: string; subject?: string; documentId?: string; section?: number }
 
 export type Route =
@@ -59,7 +60,8 @@ export function parse(hash: string): Route {
     if (parts[3] === 'subjects' && parts[4]) return { page: 'reviews', scope: { courseId, subject: parts[4] } }
     const section = Number(params.get('section'))
     if (parts[3] === 'materials' && parts[4] && section > 0) {
-      return { page: 'reviews', scope: { courseId, documentId: parts[4], section } }
+      const subject = params.get('subject')
+      return { page: 'reviews', scope: { courseId, documentId: parts[4], section, ...(subject ? { subject } : {}) } }
     }
     return { page: 'reviews', scope: { courseId } }
   }
@@ -109,9 +111,14 @@ export function href(route: Route): string {
       const { scope } = route
       if (!scope) return '#/reviews'
       const courseReviews = `#/reviews/courses/${encodeURIComponent(scope.courseId)}`
-      if (scope.subject) return `${courseReviews}/subjects/${encodeURIComponent(scope.subject)}`
-      if (!scope.documentId) return courseReviews
-      return `${courseReviews}/materials/${encodeURIComponent(scope.documentId)}?section=${scope.section}`
+      if (scope.documentId) {
+        const query = new URLSearchParams({
+          section: String(scope.section),
+          ...(scope.subject ? { subject: scope.subject } : {}),
+        })
+        return `${courseReviews}/materials/${encodeURIComponent(scope.documentId)}?${query}`
+      }
+      return scope.subject ? `${courseReviews}/subjects/${encodeURIComponent(scope.subject)}` : courseReviews
     }
     case 'settings':
       return route.view === 'ai-model' ? '#/settings' : `#/settings/${route.view}`

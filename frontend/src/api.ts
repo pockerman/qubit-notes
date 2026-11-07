@@ -561,6 +561,11 @@ export class StudyApi {
     return this.request(`/reviews/history?limit=${limit}`)
   }
 
+  /** All the cards the student reviews, due or not. */
+  reviewCards(): Promise<ReviewCard[]> {
+    return this.request('/reviews/cards')
+  }
+
   /** The student's cards they have never reviewed, oldest first. */
   notReviewed(limit: number): Promise<ReviewCard[]> {
     return this.request(`/reviews/not-reviewed?limit=${limit}`)

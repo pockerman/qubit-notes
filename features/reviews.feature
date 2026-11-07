@@ -218,6 +218,24 @@ Feature: Reviews
       When I share the course "aeronautics" with "tom" as a reader
       Then the student "tom" has 1 review in their history
 
+  Rule: All the cards I review are known, due or not
+
+    Scenario: A card I have reviewed is still one of my cards
+      Given I have asked for 2 flashcards of "fem-notes.md"
+      When I review the card and remembered it "good"
+      Then I have 1 card due for review
+      But I have 2 cards to review, due or not
+
+    Scenario: The cards of an earlier deck are no longer my cards
+      Given I have asked for 3 flashcards of "fem-notes.md"
+      When I ask for 2 new flashcards of "fem-notes.md"
+      Then I have 2 cards to review, due or not
+
+    Scenario: Another student's cards are not my cards
+      Given I have asked for 3 flashcards of "fem-notes.md"
+      And I have shared the course "aeronautics" with "tom" as a reader
+      Then the student "tom" has no cards to review, due or not
+
   Rule: The cards I have not reviewed are known
 
     Scenario: A card is not reviewed until I review it

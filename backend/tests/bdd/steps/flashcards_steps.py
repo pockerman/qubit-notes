@@ -230,6 +230,22 @@ def cards_due_without_subject(students):
     assert {card["subject"] for card in cards} == {""}
 
 
+def _all_cards(students, name=None) -> list[dict]:
+    response = students.client.get("/api/reviews/cards", headers=students.headers(name))
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+@then(parsers.parse("I have {count:d} cards to review, due or not"))
+def all_cards(students, count):
+    assert len(_all_cards(students)) == count
+
+
+@then(parsers.parse('the student "{name}" has no cards to review, due or not'))
+def student_has_no_cards(students, name):
+    assert _all_cards(students, name) == []
+
+
 def _not_reviewed(students, name=None) -> list[dict]:
     response = students.client.get("/api/reviews/not-reviewed", headers=students.headers(name))
     assert response.status_code == 200, response.text

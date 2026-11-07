@@ -230,9 +230,9 @@ Students ask the assistant for flashcards, e.g. "Make 10 flashcards of this sect
 `backend/src/qubit_notes/domain/flashcards.py`). The AI writes a deck from the section, the document or the topic, each
 card with a front, a back and the section it is from; decks are saved and marked out of date as quizzes are.
 
-Every card is due for review as soon as its deck is written, and **Reviews**, in the app's menu, has a card for each
-course with how many are due, and a course shows its subjects and sections with how many; the student chooses one and
-reviews its cards one at a time. Its History has each subject on its own: its reviews, then the cards not reviewed yet
+Every card is due for review as soon as its deck is written, and **Reviews**, in the app's menu, shows the subjects and how many
+cards each has, due or not, and nothing else. A subject shows its sections with how many, and its History: its reviews, then the
+cards not reviewed yet. The student chooses a section and reviews its cards due one at a time
 (`features/reviews.feature`, `features/ui_reviews.feature`, `backend/src/qubit_notes/domain/reviews.py`). The student shows a card's answer and says how well they remembered it,
 Again, Hard, Good or Easy, which schedules it as SM-2 does: Again brings it back in 10 minutes and starts it over, Good
 after a day, then 6 days, then its interval times its ease (2.5 to start with), so cards the student knows come back
