@@ -24,3 +24,11 @@ class TooLarge(StudyAssistantError):
 
 class OutOfRange(StudyAssistantError):
     pass
+
+
+class Busy(StudyAssistantError):
+    pass
+
+
+class Unavailable(StudyAssistantError):
+    pass

@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from qubit_notes.api.deps import Student, materials, reading_order, topics
 from qubit_notes.domain.materials import Material, Materials, Upload
 from qubit_notes.domain.reading_order import Neighbours, ReadingOrder
+from qubit_notes.domain.tools import TOOLS, Tool
 from qubit_notes.domain.topics import Subject, Topic, Topics
 from qubit_notes.platform.port import IngestJob
 
@@ -27,6 +28,14 @@ class NewTopic(BaseModel):
 
 class NewName(BaseModel):
     name: str
+
+
+class NewSubject(NewName):
+    tools: list[str] = []
+
+
+class SubjectTools(BaseModel):
+    tools: list[str]
 
 
 class TopicOrder(BaseModel):
@@ -100,9 +109,21 @@ async def list_subjects(course: str, student: Student, service: TopicsDep) -> li
 
 
 @router.post("/courses/{course}/subjects", response_model=Subject, status_code=201)
-async def create_subject(course: str, body: NewName, student: Student, service: TopicsDep) -> Subject:
-    """a subject, before any of its topics; its id is made from its name"""
-    return await run_in_threadpool(service.create_subject, student, course, body.name)
+async def create_subject(course: str, body: NewSubject, student: Student, service: TopicsDep) -> Subject:
+    """a subject, before any of its topics, with the tools attached to it; its id is made from its name"""
+    return await run_in_threadpool(service.create_subject, student, course, body.name, tuple(body.tools))
+
+
+@router.get("/tools", response_model=list[Tool])
+async def tools(student: Student) -> list[Tool]:
+    """what can be attached to a subject"""
+    return TOOLS
+
+
+@router.put("/courses/{course}/subjects/{subject}/tools", response_model=Subject)
+async def attach_tools(course: str, subject: str, body: SubjectTools, student: Student, service: TopicsDep) -> Subject:
+    """the subject has these tools from now on, and no others"""
+    return await run_in_threadpool(service.attach_tools, student, course, subject, body.tools)
 
 
 @router.delete("/courses/{course}/subjects/{subject}", status_code=204)

@@ -214,6 +214,23 @@ A course likewise keeps its name (e.g. `computer-science`) in its links and is s
 created (`features/course_names.feature`); one without a title is titled after its name. Only its creator changes its
 title, from My courses or the course's page; it is kept in `course_titles`. Owners rename a topic from its page too.
 
+## The tools of a subject
+
+Tools, for now the Go compiler, are attached to a subject when it is created, or on its page by the course's owners
+(`features/subject_tools.feature`, `features/ui_subject_tools.feature`, `backend/src/qubit_notes/domain/tools.py`). A
+tool appears where the subject's material is read, edited and written, and nowhere else.
+
+## Running Go programs
+
+With the Go compiler attached to a subject, a "Go" button beside its material opens an editor to write and run Go in,
+and a Go code block has "Open in the Go editor" (`features/go_programs.feature`, `features/ui_go_editor.feature`,
+`backend/src/qubit_notes/domain/go_programs.py`). Each
+program is built and run in a container of its own, thrown away afterwards, of the image `make go-runner` makes: no
+network, an unprivileged user without capabilities, and limits on memory, CPU, processes, file sizes and time (20
+seconds to build and run). `./start_local.sh` builds the image and sets `QUBIT_NOTES_GO_RUNNER=docker`. It is `off`
+by default, and the container image doesn't run programs: whatever can start Docker containers controls the machine, so
+a deployment needs a runner of its own, on a machine that does nothing else, before this is turned on there.
+
 ## Generating material with the AI
 
 On a topic's page, owners choose **Generate material** (`features/generating.feature`,

@@ -2,17 +2,19 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { Course, StudyApi, Subject } from '../api'
 import { NewTopicForm } from '../components/NewTopicForm'
 import { RenameForm } from '../components/RenameForm'
+import { ToolChoice } from '../components/ToolChoice'
 import { href, navigate } from '../router'
 
 // a subject, before any of its topics
 function NewSubjectForm({ api, course, onCreated }: { api: StudyApi; course: Course; onCreated: () => void }) {
   const [name, setName] = useState('')
+  const [tools, setTools] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
 
   async function submit(event: FormEvent) {
     event.preventDefault()
     try {
-      await api.createSubject(course.name, name)
+      await api.createSubject(course.name, name, tools)
       onCreated()
     } catch (e) {
       setError((e as Error).message)
@@ -25,6 +27,7 @@ function NewSubjectForm({ api, course, onCreated }: { api: StudyApi; course: Cou
         Subject
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Distributed systems" required />
       </label>
+      <ToolChoice api={api} chosen={tools} onChange={setTools} />
       {error && (
         <p role="alert" className="error">
           {error}

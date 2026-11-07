@@ -69,6 +69,12 @@ if [[ -z "${QUBIT_NOTES_ANTHROPIC_API_KEY:-}${QUBIT_NOTES_OPENAI_API_KEY:-}" ]];
         "(sign in as $QUBIT_NOTES_ADMINS and open the platform's status), the AI won't work" >&2
 fi
 
+# students' Go programs, each in a container of the image, where Docker is here
+export QUBIT_NOTES_GO_RUNNER="${QUBIT_NOTES_GO_RUNNER:-docker}"
+if [[ "$QUBIT_NOTES_GO_RUNNER" == docker ]] && ! docker image inspect qubit-notes-go-runner >/dev/null 2>&1; then
+    make -C "$ROOT" go-runner
+fi
+
 # keeps the test tools (make install) and gogi-python (make install-gogi), which a plain sync would remove
 (cd "$ROOT/backend" && "$UV" sync -q --extra dev --inexact && "$UV" run qubit-notes migrate)
 [[ -d "$ROOT/frontend/node_modules" ]] || (cd "$ROOT/frontend" && npm install)

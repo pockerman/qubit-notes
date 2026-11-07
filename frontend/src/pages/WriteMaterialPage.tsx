@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { Course, StudyApi, Topic } from '../api'
 import { AddImage } from '../components/AddImage'
 import { AddReference } from '../components/AddReference'
+import { GoEditor, STARTER } from '../components/GoEditor'
 import { Markdown, type ImageRenderer } from '../components/Markdown'
 import { useImageDrafts } from '../imageDrafts'
 import { namesOf, slug } from '../names'
 import { brokenReferences, leaveNotice } from '../notices'
 import { insertAtCursor, referenceLinks, useReferencesIn } from '../referenceLinks'
 import { href, navigate } from '../router'
+import { useSubjectTools } from '../subjectTools'
 
 type Props = {
   api: StudyApi
@@ -41,6 +43,9 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
   const textarea = useRef<HTMLTextAreaElement>(null)
   const images = useImageDrafts({ text, setText, textarea, setError })
   const references = useReferencesIn(api, courseId, text, tab === 'preview')
+  const [goEditor, setGoEditor] = useState(false)
+  const [goSource, setGoSource] = useState(STARTER)
+  const hasGo = useSubjectTools(api, courseId, savingIn.split('/')[0]).includes('go')
 
   useEffect(() => {
     api.courses().then(
@@ -121,123 +126,141 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
         </h2>
       </header>
 
-      <form className="editor card" aria-label="Write material" onSubmit={save}>
-        <label>
-          Name
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Shape functions" required />
-        </label>
-        {filename && (
-          <p className="note" aria-live="polite">
-            Saved as <code>{filename}</code>
-          </p>
-        )}
-        {chooseTopic && (
+      <div className={hasGo && goEditor ? 'edit-beside with-tool' : 'edit-beside'}>
+        <form className="editor card" aria-label="Write material" onSubmit={save}>
           <label>
-            Save in
-            <select value={savingIn} onChange={(e) => setSavingIn(e.target.value)}>
-              {topics.length === 0 && (
-                <option value={`${subject}/${topic}`}>
-                  {names.subject(subject)} › {names.topic(subject, topic)}
-                </option>
-              )}
-              {topics.map((t) => (
-                <option key={`${t.subject}/${t.topic}`} value={`${t.subject}/${t.topic}`}>
-                  {t.subject_name} › {t.name}
-                </option>
-              ))}
-            </select>
+            Name
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Shape functions" required />
           </label>
-        )}
+          {filename && (
+            <p className="note" aria-live="polite">
+              Saved as <code>{filename}</code>
+            </p>
+          )}
+          {chooseTopic && (
+            <label>
+              Save in
+              <select value={savingIn} onChange={(e) => setSavingIn(e.target.value)}>
+                {topics.length === 0 && (
+                  <option value={`${subject}/${topic}`}>
+                    {names.subject(subject)} › {names.topic(subject, topic)}
+                  </option>
+                )}
+                {topics.map((t) => (
+                  <option key={`${t.subject}/${t.topic}`} value={`${t.subject}/${t.topic}`}>
+                    {t.subject_name} › {t.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
-        <div className="tabs" role="tablist" aria-label="Editor">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'write'}
-            className={tab === 'write' ? 'tab selected' : 'tab'}
-            onClick={() => setTab('write')}
-          >
-            Write
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'preview'}
-            className={tab === 'preview' ? 'tab selected' : 'tab'}
-            onClick={() => setTab('preview')}
-          >
-            Preview
-          </button>
-        </div>
-
-        {tab === 'write' ? (
-          <label>
-            Text
-            <textarea
-              ref={textarea}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onPaste={(e) => images.pasteOrDrop(e.clipboardData?.files, e)}
-              onDrop={(e) => images.pasteOrDrop(e.dataTransfer?.files, e)}
-              rows={24}
-              spellCheck
-              autoFocus
-              placeholder={'# 1 Introduction\nType or paste Markdown here.'}
-            />
-          </label>
-        ) : (
-          <article className="section-text preview" aria-label="Preview">
-            {text.trim() ? (
-              <Markdown
-                text={text}
-                headingOffset={3}
-                image={preview}
-                reference={referenceLinks(courseId, references)}
-              />
-            ) : (
-              <p className="note">Nothing to preview yet.</p>
-            )}
-          </article>
-        )}
-
-        {tab === 'write' && <AddImage onInsert={images.insert} />}
-        {tab === 'write' && (
-          <AddReference
-            api={api}
-            courseId={courseId}
-            onInsert={(reference) => insertAtCursor(text, setText, textarea, reference)}
-          />
-        )}
-
-        {error && (
-          <p role="alert" className="error">
-            {error}
-          </p>
-        )}
-
-        {leaving ? (
-          <div className="confirm" role="alertdialog" aria-label="Leave without saving">
-            <p>Leave without saving? What you wrote will be lost.</p>
-            <div className="actions">
-              <button type="button" className="danger" onClick={back}>
-                Discard
+          <div className="tabs" role="tablist" aria-label="Editor">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'write'}
+              className={tab === 'write' ? 'tab selected' : 'tab'}
+              onClick={() => setTab('write')}
+            >
+              Write
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'preview'}
+              className={tab === 'preview' ? 'tab selected' : 'tab'}
+              onClick={() => setTab('preview')}
+            >
+              Preview
+            </button>
+            {hasGo && (
+              <button type="button" className="tab" aria-pressed={goEditor} onClick={() => setGoEditor(!goEditor)}>
+                Go
               </button>
-              <button type="button" className="link" onClick={() => setLeaving(false)}>
-                Keep writing
+            )}
+          </div>
+
+          {tab === 'write' ? (
+            <label>
+              Text
+              <textarea
+                ref={textarea}
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                onPaste={(e) => images.pasteOrDrop(e.clipboardData?.files, e)}
+                onDrop={(e) => images.pasteOrDrop(e.dataTransfer?.files, e)}
+                rows={24}
+                spellCheck
+                autoFocus
+                placeholder={'# 1 Introduction\nType or paste Markdown here.'}
+              />
+            </label>
+          ) : (
+            <article className="section-text preview" aria-label="Preview">
+              {text.trim() ? (
+                <Markdown
+                  text={text}
+                  headingOffset={3}
+                  image={preview}
+                  reference={referenceLinks(courseId, references)}
+                  openGo={
+                    hasGo
+                      ? (code) => {
+                          setGoSource(code)
+                          setGoEditor(true)
+                        }
+                      : undefined
+                  }
+                />
+              ) : (
+                <p className="note">Nothing to preview yet.</p>
+              )}
+            </article>
+          )}
+
+          {tab === 'write' && <AddImage onInsert={images.insert} />}
+          {tab === 'write' && (
+            <AddReference
+              api={api}
+              courseId={courseId}
+              onInsert={(reference) => insertAtCursor(text, setText, textarea, reference)}
+            />
+          )}
+
+          {error && (
+            <p role="alert" className="error">
+              {error}
+            </p>
+          )}
+
+          {leaving ? (
+            <div className="confirm" role="alertdialog" aria-label="Leave without saving">
+              <p>Leave without saving? What you wrote will be lost.</p>
+              <div className="actions">
+                <button type="button" className="danger" onClick={back}>
+                  Discard
+                </button>
+                <button type="button" className="link" onClick={() => setLeaving(false)}>
+                  Keep writing
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="actions">
+              <button type="submit" disabled={saving || !course}>
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+              <button type="button" className="link" onClick={cancel} disabled={saving}>
+                Cancel
               </button>
             </div>
-          </div>
-        ) : (
-          <div className="actions">
-            <button type="submit" disabled={saving || !course}>
-              {saving ? 'Saving…' : 'Save'}
-            </button>
-            <button type="button" className="link" onClick={cancel} disabled={saving}>
-              Cancel
-            </button>
-          </div>
+          )}
+        </form>
+        {hasGo && goEditor && (
+          <GoEditor api={api} source={goSource} onChange={setGoSource} onClose={() => setGoEditor(false)} />
         )}
-      </form>
+      </div>
     </section>
   )
 }

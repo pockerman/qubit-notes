@@ -77,6 +77,7 @@ def test_a_database_made_before_migrations_keeps_its_data(database_url):
         "material_order",
         "app_keys",
         "subject_names",
+        "subject_tools",
         "course_titles",
         "subjects",
         "app_settings",
