@@ -50,7 +50,7 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
   Settings › Usage ([The AI's usage](#the-ais-usage)).
 - **Administration.** Admins choose the AI's provider (Anthropic or OpenAI) and model, and give, replace and remove the
   app's keys; the bar shows the platform's health ([The app's keys](#the-apps-keys), [The AI's model](#the-ais-model)).
-  Where the app has the keys of both providers, each student chooses which answers them.
+  Each student chooses which provider answers them; one the app has no key for is shown as unavailable, and says why.
 - **Platforms.** Runs on its own (SQLite or Postgres with pgvector, local files or S3, in-app or hosted embedding
   models) or as an application of gogi; ships as a container image with Terraform for AWS.
 

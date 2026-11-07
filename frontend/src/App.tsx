@@ -100,7 +100,7 @@ function Pages({ api }: { api: StudyApi }) {
     case 'courses':
       return <CoursesPage api={api} />
     case 'reviews':
-      return <ReviewsPage api={api} />
+      return <ReviewsPage key={href(route)} api={api} scope={route.scope} />
     case 'settings':
       if (route.view === 'account') return <AccountPage api={api} />
       return route.view === 'usage' ? <UsagePage api={api} /> : <SettingsPage api={api} />

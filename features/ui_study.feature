@@ -7,9 +7,10 @@ Feature: Asking the assistant in the browser
   An "AI" button next to "Edit" and "Download" opens the assistant beside the text. Summaries
   and quizzes are asked for there, in words: there are no separate buttons for them.
 
-  Where the app has the keys of both Anthropic and OpenAI, the assistant offers to choose which
-  answers, each with its model (see The AI's model). The choice is the student's, kept in their
-  browser, for everything the AI does for them.
+  The assistant offers to choose which of Anthropic and OpenAI answers, each with its model (see
+  The AI's model). One the app has no key for is shown, but can't be chosen: pointing at it, or
+  moving to it from the keyboard, says above it that it isn't available as its API key is missing.
+  The choice is the student's, kept in their browser, for everything the AI does for them.
 
   Background:
     Given I am signed in as "maria"
@@ -70,9 +71,14 @@ Feature: Asking the assistant in the browser
     Then I see an answer that cites "1 Introduction"
     And the AI answered with "gpt-5" of "openai"
 
-  Scenario: No choice of provider where the app has the key of one
+  Scenario: A provider without its key can't be chosen, and says why
     Given qubit-notes has the key "sk-ant-test" for "anthropic" in its settings
     When I open the course "Aeronautics"
     And I open "fem-notes.md" to read it
     And I open the assistant
-    Then I am not offered to choose the AI
+    Then I can choose the AI from "Anthropic · claude-sonnet-5-5, OpenAI · gpt-5"
+    And the AI chosen is "Anthropic · claude-sonnet-5-5"
+    When I point at the AI "OpenAI · gpt-5"
+    Then I am told above it that it is not available, as its API key is missing
+    When I choose the AI "OpenAI · gpt-5"
+    Then the AI chosen is "Anthropic · claude-sonnet-5-5"

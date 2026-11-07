@@ -18,7 +18,8 @@ Feature: Reviews
   0.15, before its next interval is worked out; it is never below 1.3. Intervals are
   whole days, rounded. The reviews due are those of all the student's courses, or of one
   course, oldest due first; a course the student is no longer a member of is not reviewed,
-  until it is shared with them again. When a new deck of a scope is written, the cards of
+  until it is shared with them again. A card due says the subject of its material, by the name
+  the subject has now. When a new deck of a scope is written, the cards of
   the earlier decks of it are no longer reviewed, so the same material isn't reviewed twice.
 
   Every review is kept as it was made, whatever happens to the card's schedule afterwards: what
@@ -51,6 +52,22 @@ Feature: Reviews
       And I have asked for 2 flashcards of "intervals.md"
       Then I have 5 cards due for review
       And I have 2 cards due for review in the course "music"
+
+    Scenario: A card due says its subject, as it is called now
+      Given I have asked for 3 flashcards of "fem-notes.md"
+      Then the cards due are of the subject "Numerical methods"
+      When I rename the subject "numerical-methods" of "aeronautics" to "Numerics"
+      Then the cards due are of the subject "Numerics"
+
+    Scenario: A paper's card has no subject
+      Given I have created the collection "reinforcement-learning" titled "Reinforcement Learning"
+      And I have uploaded the paper "atari.md" to "reinforcement-learning" with the content:
+        """
+        # 1 Introduction
+        A network learns to play from its pixels.
+        """
+      And I have asked for 1 flashcard of "atari.md"
+      Then the cards due have no subject
 
     Scenario: A new deck takes the place of the earlier one in reviews
       Given I have asked for 3 flashcards of "fem-notes.md"

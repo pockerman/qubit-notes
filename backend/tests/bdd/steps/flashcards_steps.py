@@ -216,6 +216,20 @@ def cards_due_in(students, count, course):
     assert {card["course_id"] for card in due} == {course_id}
 
 
+@then(parsers.parse('the cards due are of the subject "{name}"'))
+def cards_due_of_subject(students, name):
+    cards = _due(students)["cards"]
+    assert {card["subject"] for card in cards} == {"numerical-methods"}
+    assert {card["subject_name"] for card in cards} == {name}
+
+
+@then("the cards due have no subject")
+def cards_due_without_subject(students):
+    cards = _due(students)["cards"]
+    assert cards
+    assert {card["subject"] for card in cards} == {""}
+
+
 @then("they are the cards of the new deck")
 def cards_of_new_deck(students, context):
     assert {card["deck_id"] for card in _due(students)["cards"]} == {context["deck"]["id"]}

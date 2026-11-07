@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react'
  * The page shown, from the address's hash, so the browser's back button and a refresh keep the student where
  * they were:
  *   #/                                     my courses
- *   #/reviews                              the flashcards due for review
+ *   #/reviews                              the flashcards due for review, by course, subject, material and section
+ *   #/reviews/all                          reviewing them all
+ *   #/reviews/courses/<id>                 reviewing a course's
+ *   #/reviews/courses/<id>/subjects/<subject>   reviewing a subject's
+ *   #/reviews/courses/<id>/materials/<document>  reviewing a material's
+ *   #/reviews/courses/<id>/materials/<document>?section=<position>  reviewing a section's
  *   #/settings                             the app's settings: the AI's model
  *   #/settings/account                     the student's account: their email and password
  *   #/settings/usage                       the tokens the AI has used
@@ -26,9 +31,12 @@ import { useEffect, useState } from 'react'
 // the settings' views, under Settings in the app's menu
 export type SettingsView = 'ai-model' | 'account' | 'usage'
 
+// what is being reviewed: a section of a material, a material, a subject, a course, or, with none, all that is due
+export type ReviewScope = { courseId?: string; subject?: string; documentId?: string; section?: number }
+
 export type Route =
   | { page: 'courses' }
-  | { page: 'reviews' }
+  | { page: 'reviews'; scope?: ReviewScope }
   | { page: 'settings'; view: SettingsView }
   | { page: 'course'; courseId: string }
   | { page: 'subject'; courseId: string; subject: string }
@@ -47,7 +55,15 @@ export function parse(hash: string): Route {
   const [path, query = ''] = hash.replace(/^#/, '').split('?')
   const parts = path.split('/').filter(Boolean).map(decodeURIComponent)
   const params = new URLSearchParams(query)
-  if (parts[0] === 'reviews') return { page: 'reviews' }
+  if (parts[0] === 'reviews') {
+    if (parts[1] === 'all') return { page: 'reviews', scope: {} }
+    if (parts[1] !== 'courses' || !parts[2]) return { page: 'reviews' }
+    const courseId = parts[2]
+    if (parts[3] === 'subjects' && parts[4]) return { page: 'reviews', scope: { courseId, subject: parts[4] } }
+    if (parts[3] !== 'materials' || !parts[4]) return { page: 'reviews', scope: { courseId } }
+    const section = Number(params.get('section'))
+    return { page: 'reviews', scope: { courseId, documentId: parts[4], ...(section > 0 ? { section } : {}) } }
+  }
   if (parts[0] === 'settings') {
     return { page: 'settings', view: parts[1] === 'account' || parts[1] === 'usage' ? parts[1] : 'ai-model' }
   }
@@ -90,8 +106,16 @@ export function href(route: Route): string {
   switch (route.page) {
     case 'courses':
       return '#/'
-    case 'reviews':
-      return '#/reviews'
+    case 'reviews': {
+      const { scope } = route
+      if (!scope) return '#/reviews'
+      if (!scope.courseId) return '#/reviews/all'
+      const courseReviews = `#/reviews/courses/${encodeURIComponent(scope.courseId)}`
+      if (scope.subject) return `${courseReviews}/subjects/${encodeURIComponent(scope.subject)}`
+      if (!scope.documentId) return courseReviews
+      const material = `${courseReviews}/materials/${encodeURIComponent(scope.documentId)}`
+      return scope.section ? `${material}?section=${scope.section}` : material
+    }
     case 'settings':
       return route.view === 'ai-model' ? '#/settings' : `#/settings/${route.view}`
     case 'course':
