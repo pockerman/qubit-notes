@@ -1360,7 +1360,3 @@ a.button {
   background: var(--accent);
   color: #fff;
 }
-
-.tool-choice .choice .note {
-  margin-left: 0.25rem;
-}
