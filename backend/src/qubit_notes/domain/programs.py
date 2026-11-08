@@ -1,15 +1,17 @@
-"""Running a student's Go program (features/go_programs.feature).
+"""Running a student's program, in Go or Python (features/go_programs.feature, features/python_programs.feature).
 
 A program is anything anyone typed, so it never runs in the app. Each run is a container of its own, thrown away
-afterwards, of the image in backend/go-runner: no network, an unprivileged user with no capabilities, and limits on its
-memory, CPU, processes, file sizes and time. The program reaches ``docker run`` on its standard input, never in its
-command line. Where the app has no Docker (QUBIT_NOTES_GO_RUNNER=off, the default), programs aren't run at all: the app
-must never be given the Docker socket of a machine it shares with anything else.
+afterwards, of its language's image (backend/go-runner, backend/python-runner): no network, an unprivileged user with
+no capabilities, and limits on its memory, CPU, processes, file sizes and time. The program reaches ``docker run`` on
+its standard input, never in its command line. Where the app has no Docker for a language
+(QUBIT_NOTES_GO_RUNNER=off, QUBIT_NOTES_PYTHON_RUNNER=off, the defaults), its programs aren't run at all: the app must
+never be given the Docker socket of a machine it shares with anything else.
 """
 
 import subprocess
 import threading
 import uuid
+from dataclasses import dataclass
 from typing import Protocol
 
 from loguru import logger
@@ -28,12 +30,25 @@ DOCKER_FAILED = 125
 # how long docker is given to stop a container
 STOPPING_SECONDS = 10
 
-BUILD_AND_RUN = "cat > main.go && go build -o program main.go && exec ./program"
-NOT_HERE = "Go programs can't be run here."
+
+@dataclass(frozen=True)
+class Language:
+    id: str
+    name: str
+    # what the container does with the program it's given on its standard input
+    command: str
 
 
-class GoRun(BaseModel):
-    # what the compiler or the program printed, as it printed it
+GO = Language("go", "Go", "cat > main.go && go build -o program main.go 2>&1 && exec ./program 2>&1")
+PYTHON = Language("python", "Python", "cat > main.py && exec python3 main.py 2>&1")
+
+
+def _not_here(language: Language) -> str:
+    return f"{language.name} programs can't be run here."
+
+
+class ProgramRun(BaseModel):
+    # what the compiler, the interpreter or the program printed, as it printed it
     output: str
     # None if it was stopped before it ended
     exit_code: int | None
@@ -41,18 +56,19 @@ class GoRun(BaseModel):
     truncated: bool = False
 
 
-class GoRunner(Protocol):
-    def run(self, source: str) -> GoRun: ...
+class Runner(Protocol):
+    def run(self, source: str) -> ProgramRun: ...
 
 
-class DockerGoRunner:
-    """Each program in a container of its own (see the top of this file)."""
+class DockerRunner:
+    """Each program in a container of its own, of its language's image (see the top of this file)."""
 
-    def __init__(self, settings: Settings):
-        self._image = settings.go_image
-        self._timeout = settings.go_timeout_seconds
-        self._memory = settings.go_memory
-        self._cpus = settings.go_cpus
+    def __init__(self, settings: Settings, language: Language, image: str):
+        self._language = language
+        self._image = image
+        self._timeout = settings.programs_timeout_seconds
+        self._memory = settings.programs_memory
+        self._cpus = settings.programs_cpus
 
     def _command(self, name: str) -> list[str]:
         return [
@@ -85,18 +101,18 @@ class DockerGoRunner:
             self._image,
             "sh",
             "-c",
-            BUILD_AND_RUN,
+            self._language.command,
         ]
 
-    def run(self, source: str) -> GoRun:
-        name = f"qubit-notes-go-{uuid.uuid4().hex}"
+    def run(self, source: str) -> ProgramRun:
+        name = f"qubit-notes-{self._language.id}-{uuid.uuid4().hex}"
         try:
             process = subprocess.Popen(
                 self._command(name), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
             )
         except OSError as e:
             logger.error(f"docker could not be run: {e}")
-            raise Unavailable(NOT_HERE) from e
+            raise Unavailable(_not_here(self._language)) from e
 
         output = bytearray()
         truncated = threading.Event()
@@ -130,10 +146,11 @@ class DockerGoRunner:
         reader.join(STOPPING_SECONDS)
 
         if exit_code == DOCKER_FAILED:
-            logger.error(f"docker could not run a Go program: {bytes(output).decode(errors='replace')}")
-            raise Unavailable(NOT_HERE)
+            printed = bytes(output).decode(errors="replace")
+            logger.error(f"docker could not run a {self._language.name} program: {printed}")
+            raise Unavailable(_not_here(self._language))
         stopped = timed_out or truncated.is_set()
-        return GoRun(
+        return ProgramRun(
             output=bytes(output[:MAX_OUTPUT_BYTES]).decode(errors="replace"),
             exit_code=None if stopped else exit_code,
             timed_out=timed_out,
@@ -158,28 +175,36 @@ def _end(process: subprocess.Popen) -> int:
         return process.wait()
 
 
-class GoPrograms:
-    """Runs students' programs, a few at a time, so that they can't take the machine's memory between them."""
+class Programs:
+    """Runs students' programs in one language. The languages share their slots, a few runs at a time, so that they
+    can't take the machine's memory between them."""
 
-    def __init__(self, runner: GoRunner | None, concurrent_runs: int):
+    def __init__(self, language: Language, runner: Runner | None, slots: threading.BoundedSemaphore):
+        self.language = language
         self.runner = runner
-        self._slots = threading.BoundedSemaphore(concurrent_runs)
+        self._slots = slots
 
-    def run(self, source: str) -> GoRun:
+    def run(self, source: str) -> ProgramRun:
+        name = self.language.name
         if not source.strip():
-            raise InvalidRequest("write a Go program to run")
+            raise InvalidRequest(f"write a {name} program to run")
         if len(source.encode()) > MAX_SOURCE_BYTES:
-            raise TooLarge(f"a Go program can be at most {MAX_SOURCE_BYTES // 1024} KB")
+            raise TooLarge(f"a {name} program can be at most {MAX_SOURCE_BYTES // 1024} KB")
         if self.runner is None:
-            raise Unavailable(NOT_HERE)
+            raise Unavailable(_not_here(self.language))
         if not self._slots.acquire(blocking=False):
-            raise Busy("Other Go programs are running; try again in a moment.")
+            raise Busy("Other programs are running; try again in a moment.")
         try:
             return self.runner.run(source)
         finally:
             self._slots.release()
 
 
-def go_programs(settings: Settings) -> GoPrograms:
-    runner = DockerGoRunner(settings) if settings.go_runner == "docker" else None
-    return GoPrograms(runner, settings.go_concurrent_runs)
+def programs(settings: Settings) -> dict[str, Programs]:
+    """each language's programs, by its id"""
+    slots = threading.BoundedSemaphore(settings.programs_concurrent_runs)
+    images = {GO: (settings.go_runner, settings.go_image), PYTHON: (settings.python_runner, settings.python_image)}
+    return {
+        language.id: Programs(language, DockerRunner(settings, language, image) if runner == "docker" else None, slots)
+        for language, (runner, image) in images.items()
+    }

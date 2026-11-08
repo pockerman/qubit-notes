@@ -11,12 +11,12 @@ from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.flashcards import Flashcards
 from qubit_notes.domain.generating import Generator
-from qubit_notes.domain.go_programs import GoPrograms
 from qubit_notes.domain.images import Images
 from qubit_notes.domain.lessons import Lessons
 from qubit_notes.domain.materials import Materials
 from qubit_notes.domain.notes import Notes
 from qubit_notes.domain.papers import PaperRecords, Papers
+from qubit_notes.domain.programs import Programs
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.reading_order import ReadingOrder
@@ -104,8 +104,8 @@ def lessons(request: Request) -> Lessons:
     return request.app.state.lessons
 
 
-def go_programs(request: Request) -> GoPrograms:
-    return request.app.state.go_programs
+def programs(request: Request) -> dict[str, Programs]:
+    return request.app.state.programs
 
 
 def flashcards(request: Request) -> Flashcards:

@@ -220,16 +220,18 @@ Tools, for now the Go compiler, are attached to a subject when it is created, or
 (`features/subject_tools.feature`, `features/ui_subject_tools.feature`, `backend/src/qubit_notes/domain/tools.py`). A
 tool appears where the subject's material is read, edited and written, and nowhere else.
 
-## Running Go programs
+## Running Go and Python programs
 
-With the Go compiler attached to a subject, a "Go" button beside its material opens an editor to write and run Go in,
-and a Go code block has "Open in the Go editor" (`features/go_programs.feature`, `features/ui_go_editor.feature`,
-`backend/src/qubit_notes/domain/go_programs.py`). Each
-program is built and run in a container of its own, thrown away afterwards, of the image `make go-runner` makes: no
+With the Go compiler or the Python interpreter attached to a subject, its material's "Tools" menu opens an editor to
+write and run Go or Python in, and a Go or Python code block has "Open in the Go editor" or "Open in the Python editor"
+(`features/go_programs.feature`, `features/python_programs.feature`, `features/ui_go_editor.feature`,
+`features/ui_python_editor.feature`, `backend/src/qubit_notes/domain/programs.py`). Each program is run in a container
+of its own, thrown away afterwards, of its language's image, which `make go-runner` and `make python-runner` make: no
 network, an unprivileged user without capabilities, and limits on memory, CPU, processes, file sizes and time (20
-seconds to build and run). `./start_local.sh` builds the image and sets `QUBIT_NOTES_GO_RUNNER=docker`. It is `off`
-by default, and the container image doesn't run programs: whatever can start Docker containers controls the machine, so
-a deployment needs a runner of its own, on a machine that does nothing else, before this is turned on there.
+seconds to build and run). Python has only its standard library. `./start_local.sh` builds the images and sets
+`QUBIT_NOTES_GO_RUNNER=docker` and `QUBIT_NOTES_PYTHON_RUNNER=docker`. They are `off` by default, and the container
+image doesn't run programs: whatever can start Docker containers controls the machine, so a deployment needs a runner
+of its own, on a machine that does nothing else, before this is turned on there.
 
 ## Generating material with the AI
 

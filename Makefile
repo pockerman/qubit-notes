@@ -3,7 +3,7 @@ UV ?= uv
 BACKEND := backend
 FRONTEND := frontend
 
-.PHONY: go-runner install install-gogi bdd bdd-ui bdd-standalone bdd-standalone-ai bdd-gogi bdd-gogi-ai lint serve dev-backend dev-frontend
+.PHONY: go-runner python-runner install install-gogi bdd bdd-ui bdd-standalone bdd-standalone-ai bdd-gogi bdd-gogi-ai lint serve dev-backend dev-frontend
 
 install:
 	cd $(BACKEND) && $(UV) sync --extra dev && $(UV) run playwright install chromium
@@ -42,6 +42,10 @@ bdd-gogi-ai:
 # the image students' Go programs run in
 go-runner:
 	docker build -t qubit-notes-go-runner $(BACKEND)/go-runner
+
+# the image students' Python programs run in
+python-runner:
+	docker build -t qubit-notes-python-runner $(BACKEND)/python-runner
 
 lint:
 	cd $(BACKEND) && $(UV) run ruff check . && $(UV) run ruff format --check .

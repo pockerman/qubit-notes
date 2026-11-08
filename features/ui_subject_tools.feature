@@ -31,7 +31,7 @@ Feature: The tools of a subject in the browser
   Scenario: "New subject" offers the tools to attach
     When I open the course "Go"
     And I start a new subject
-    Then I can attach the tools "Go compiler"
+    Then I can attach the tools "Go compiler,Python interpreter"
 
   Scenario: A subject's page shows its tools only when asked
     When I open the course "Go"
@@ -53,6 +53,14 @@ Feature: The tools of a subject in the browser
     When I open the course "Go"
     And I write material in the topic "Basics"
     Then the Tools menu has "Go compiler"
+
+  Scenario: A subject with both tools has both in the Tools menu
+    Given I have attached the tools "go,python" to the subject "programming" of "go"
+    When I open the course "Go"
+    And I open "go-basics.md" to read it
+    Then the Tools menu has "Go compiler,Python interpreter"
+    When I choose "Python interpreter" from the Tools menu
+    Then I see the Python editor but not the assistant
 
   Scenario: Without the tool there is no Go editor
     When I open the course "Go"

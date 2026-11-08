@@ -36,7 +36,6 @@ export function ToolChoice({ api, chosen, onChange }: Props) {
             }
           />
           {tool.name}
-          <span className="note">{tool.kind}</span>
         </label>
       ))}
     </fieldset>

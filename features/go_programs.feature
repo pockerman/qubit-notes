@@ -73,7 +73,7 @@ Feature: Running Go programs
         """
         package main
         """
-      Then I am told other Go programs are running
+      Then I am told other programs are running
       And no program was run
 
     Scenario: Only signed-in students run programs
