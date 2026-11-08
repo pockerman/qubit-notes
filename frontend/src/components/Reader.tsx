@@ -22,6 +22,7 @@ import { AddReference } from './AddReference'
 import { Assistant } from './Assistant'
 import { GoEditor, STARTER } from './GoEditor'
 import { useSubjectTools } from '../subjectTools'
+import { ToolsMenu } from './ToolsMenu'
 import { Markdown, type ImageRenderer } from './Markdown'
 import { MaterialImage } from './MaterialImage'
 import { NotesPanel } from './NotesPanel'
@@ -279,7 +280,8 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
   // the Go editor takes their place too; what is in it stays while the material is open
   const [goEditor, setGoEditor] = useState(false)
   const [goSource, setGoSource] = useState(STARTER)
-  const hasGo = useSubjectTools(api, courseId, material?.subject).includes('go')
+  const tools = useSubjectTools(api, courseId, material?.subject).filter(() => material?.kind === 'text')
+  const hasGo = tools.some((tool) => tool.id === 'go')
   // bumped when the material was edited, so it's opened again
   const [version, setVersion] = useState(0)
   // the images a Markdown material refers to, which it has or is missing
@@ -477,18 +479,14 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
               >
                 AI
               </button>
-              {hasGo && material.kind === 'text' && (
-                <button
-                  type="button"
-                  aria-pressed={goEditor}
-                  onClick={() => {
-                    setAssistant(false)
-                    setGoEditor(!goEditor)
-                  }}
-                >
-                  Go
-                </button>
-              )}
+              <ToolsMenu
+                tools={tools}
+                open={goEditor ? 'go' : null}
+                onOpen={() => {
+                  setAssistant(false)
+                  setGoEditor(!goEditor)
+                }}
+              />
             </div>
           </>
         )}

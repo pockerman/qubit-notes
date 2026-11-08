@@ -1326,3 +1326,41 @@ a.button {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* "Tools": the tools of the material's subject, to open one */
+.tools-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.tools-menu [role='menu'] {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
+  padding: 0.25rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 15%);
+}
+
+.tools-menu [role='menuitemcheckbox'] {
+  text-align: left;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+.tools-menu [role='menuitemcheckbox']:hover,
+.tools-menu [role='menuitemcheckbox'][aria-checked='true'] {
+  background: var(--accent);
+  color: #fff;
+}
+
+.tool-choice .choice .note {
+  margin-left: 0.25rem;
+}

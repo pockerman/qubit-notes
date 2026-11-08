@@ -9,17 +9,24 @@ type Props = {
 
 /** The tools that can be attached to a subject, to choose some of. */
 export function ToolChoice({ api, chosen, onChange }: Props) {
-  const [tools, setTools] = useState<Tool[]>([])
+  // undefined while they're asked for, null when they couldn't be
+  const [tools, setTools] = useState<Tool[] | null | undefined>(undefined)
 
   useEffect(() => {
-    api.tools().then(setTools, () => setTools([]))
+    api.tools().then(setTools, () => setTools(null))
   }, [api])
 
-  if (tools.length === 0) return null
   return (
     <fieldset className="tool-choice">
       <legend>Tools</legend>
-      {tools.map((tool) => (
+      <p className="note">Attach tools to the subject's notes. They are under "Tools" when you read or write them.</p>
+      {tools === undefined && <p className="note">Finding the tools…</p>}
+      {tools === null && (
+        <p role="alert" className="error">
+          The tools couldn't be found.
+        </p>
+      )}
+      {tools?.map((tool) => (
         <label key={tool.id} className="choice">
           <input
             type="checkbox"
@@ -29,6 +36,7 @@ export function ToolChoice({ api, chosen, onChange }: Props) {
             }
           />
           {tool.name}
+          <span className="note">{tool.kind}</span>
         </label>
       ))}
     </fieldset>

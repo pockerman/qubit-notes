@@ -10,6 +10,7 @@ import { brokenReferences, leaveNotice } from '../notices'
 import { insertAtCursor, referenceLinks, useReferencesIn } from '../referenceLinks'
 import { href, navigate } from '../router'
 import { useSubjectTools } from '../subjectTools'
+import { ToolsMenu } from '../components/ToolsMenu'
 
 type Props = {
   api: StudyApi
@@ -45,7 +46,8 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
   const references = useReferencesIn(api, courseId, text, tab === 'preview')
   const [goEditor, setGoEditor] = useState(false)
   const [goSource, setGoSource] = useState(STARTER)
-  const hasGo = useSubjectTools(api, courseId, savingIn.split('/')[0]).includes('go')
+  const tools = useSubjectTools(api, courseId, savingIn.split('/')[0])
+  const hasGo = tools.some((tool) => tool.id === 'go')
 
   useEffect(() => {
     api.courses().then(
@@ -174,11 +176,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
             >
               Preview
             </button>
-            {hasGo && (
-              <button type="button" className="tab" aria-pressed={goEditor} onClick={() => setGoEditor(!goEditor)}>
-                Go
-              </button>
-            )}
+            <ToolsMenu tools={tools} open={goEditor ? 'go' : null} onOpen={() => setGoEditor(!goEditor)} className="tab" />
           </div>
 
           {tab === 'write' ? (

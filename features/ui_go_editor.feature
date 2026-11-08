@@ -4,9 +4,9 @@ Feature: The Go editor in the browser
   I want to run Go beside the notes I am reading
   So that I can try things out without leaving them
 
-  Where the Go compiler is attached to a subject (see The tools of a subject), its material has a
-  "Go" button next to "Edit", "Download" and "AI", also while it is edited or written, which opens
-  the Go editor beside the text, in the place of the notes or the assistant, with a small program
+  Where the Go compiler is attached to a subject (see The tools of a subject), "Go compiler" is in
+  the "Tools" menu of its material, next to "Edit", "Download" and "AI", also while it is edited or
+  written, and opens the Go editor beside the text, in the place of the notes or the assistant, with a small program
   to start from. "Run", or Ctrl+Enter,
   runs what is in it, and what it printed is shown below as it was printed, whatever it says. A Go
   code block in a material has "Open in the Go editor", which puts its code there. What is typed
