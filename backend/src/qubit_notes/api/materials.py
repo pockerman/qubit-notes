@@ -1,12 +1,16 @@
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, Form, UploadFile
 from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from starlette.background import BackgroundTask
 
-from qubit_notes.api.deps import Student, materials, reading_order, topics
+from qubit_notes.api.deps import Student, materials, reading_order, subject_download, topics
 from qubit_notes.domain.materials import Material, Materials, Upload
 from qubit_notes.domain.reading_order import Neighbours, ReadingOrder
+from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.tools import TOOLS, Tool
 from qubit_notes.domain.topics import Subject, Topic, Topics
 from qubit_notes.platform.port import IngestJob
@@ -15,6 +19,7 @@ router = APIRouter(tags=["materials"])
 MaterialsDep = Annotated[Materials, Depends(materials)]
 TopicsDep = Annotated[Topics, Depends(topics)]
 ReadingOrderDep = Annotated[ReadingOrder, Depends(reading_order)]
+SubjectDownloadDep = Annotated[SubjectDownload, Depends(subject_download)]
 
 
 class NewTopic(BaseModel):
@@ -186,3 +191,15 @@ async def edit_material(
 ) -> Upload:
     """gives the material new text, which is processed again"""
     return await run_in_threadpool(service.edit, student, course_id, document_id, body.text)
+
+
+@router.get("/courses/{course}/subjects/{subject}/zip")
+async def download_subject(course: str, subject: str, student: Student, service: SubjectDownloadDep) -> FileResponse:
+    """the subject's material, topic by topic, and the student's flashcards of it, as a zip"""
+    made = await run_in_threadpool(service.zip, student, course, subject)
+    return FileResponse(
+        made.path,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(made.filename)}"},
+        background=BackgroundTask(made.path.unlink, missing_ok=True),
+    )

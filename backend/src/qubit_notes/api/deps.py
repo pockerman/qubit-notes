@@ -23,6 +23,7 @@ from qubit_notes.domain.reading_order import ReadingOrder
 from qubit_notes.domain.reading_progress import ReadingProgress
 from qubit_notes.domain.references import References
 from qubit_notes.domain.reviews import Reviews
+from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
 from qubit_notes.domain.usage import AIUsage
@@ -90,6 +91,10 @@ def paper_records(request: Request) -> PaperRecords:
 
 def topics(request: Request) -> Topics:
     return request.app.state.topics
+
+
+def subject_download(request: Request) -> SubjectDownload:
+    return request.app.state.subject_download
 
 
 def summaries(request: Request) -> Summaries:
