@@ -27,6 +27,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
   const [makingLessons, setMakingLessons] = useState(false)
   // the subject's tools are shown only when asked for
   const [choosingTools, setChoosingTools] = useState(false)
+  // while the zip of the subject is being made
+  const [zipping, setZipping] = useState(false)
   // e.g. how many lessons were just made
   const [notice, setNotice] = useState<string | null>(null)
   // what is being renamed: the subject (SUBJECT) or one of its topics
@@ -153,6 +155,24 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
     }
   }
 
+  async function downloadZip() {
+    if (!course) return
+    setZipping(true)
+    try {
+      const file = await api.downloadSubject(course.name, subject)
+      const url = URL.createObjectURL(file.blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = file.filename ?? `${subjectName}.zip`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (e) {
+      setError((e as Error).message)
+    } finally {
+      setZipping(false)
+    }
+  }
+
   return (
     <section className="subject-page" aria-labelledby="subject-title">
       <header className="page-header">
@@ -171,6 +191,14 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
               Rename
             </button>
           )}
+          <button
+            type="button"
+            className="link"
+            disabled={zipping}
+            onClick={downloadZip}
+          >
+            {zipping ? 'Preparing the zip…' : 'Download as zip'}
+          </button>
         </div>
         {renaming === SUBJECT && (
           <RenameForm name={subjectName} onRename={renameSubject} onCancel={() => setRenaming(null)} />

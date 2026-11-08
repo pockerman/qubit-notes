@@ -214,6 +214,16 @@ A course likewise keeps its name (e.g. `computer-science`) in its links and is s
 created (`features/course_names.feature`); one without a title is titled after its name. Only its creator changes its
 title, from My courses or the course's page; it is kept in `course_titles`. Owners rename a topic from its page too.
 
+## Downloading a subject
+
+A subject's page has **Download as zip** (`features/subject_download.feature`,
+`backend/src/qubit_notes/domain/subject_download.py`): a folder for each topic, numbered in reading order, with its
+material as it is now in its order. A Markdown material with images gets a folder of its own, with the images where it
+refers to them, and a material converted from a PDF or an EPUB comes as Markdown beside its original. The student's
+flashcards of the subject, every card they review, are in `flashcards.csv` (front, back, topic, material, section),
+to import into a flashcard app, and `flashcards.md`. The zip is made when it is asked for, in a temporary file deleted
+once it is sent.
+
 ## The tools of a subject
 
 Tools, for now the Go compiler, are attached to a subject when it is created, or on its page by the course's owners

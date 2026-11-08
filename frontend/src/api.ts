@@ -619,6 +619,13 @@ export class StudyApi {
   }
 
   /** A material converted from a PDF or an EPUB as it is now, as a PDF or an EPUB laid out anew. */
+  /** The subject's material, topic by topic, and the student's flashcards of it, as a zip. */
+  async downloadSubject(course: string, subject: string): Promise<DownloadedFile> {
+    return downloaded(
+      await this.fetch(`/courses/${encodeURIComponent(course)}/subjects/${encodeURIComponent(subject)}/zip`),
+    )
+  }
+
   async export(courseId: string, documentId: string): Promise<DownloadedFile> {
     return downloaded(await this.fetch(`${this.materialPath(courseId, documentId)}/export`))
   }

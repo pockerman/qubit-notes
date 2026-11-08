@@ -102,7 +102,7 @@ Feature: Subjects and topics in the browser
       And I open the subject "Numerical methods"
       Then I see the topics "Finite elements, Finite volumes" under "Numerical methods"
       And I am not offered to move or delete topics
-      And I am not offered to rename the subject, or add topics to it
+      And I am not offered to rename the subject, or add topics to it, only to download it
 
   Rule: Subjects and topics are created before their material
 
@@ -112,7 +112,7 @@ Feature: Subjects and topics in the browser
       Then I see the subjects "Fluid Dynamics, Heat Transfer, Numerical methods"
       When I open the subject "Heat Transfer"
       Then I see the subject "Heat Transfer" with no topics yet
-      And the subject offers "Rename", "Add topic", "Make lessons from a document", "Tools" and "Delete"
+      And the subject offers "Rename", "Download as zip", "Add topic", "Make lessons from a document", "Tools" and "Delete"
 
     Scenario: Add a topic to a subject without topics
       When I open the course "Aeronautics"

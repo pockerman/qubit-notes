@@ -49,6 +49,7 @@ from qubit_notes.domain.reading_progress import ReadingProgress
 from qubit_notes.domain.references import References
 from qubit_notes.domain.reviews import Reviews
 from qubit_notes.domain.sources import Sources
+from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
 from qubit_notes.domain.usage import AIUsage
@@ -139,6 +140,15 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.database, app.state.courses, platform, app.state.topics, app.state.paper_records
     )
     app.state.flashcards = Flashcards(app.state.database, app.state.ai_usage, sources, app.state.reviews)
+    app.state.subject_download = SubjectDownload(
+        platform,
+        app.state.courses,
+        app.state.topics,
+        app.state.materials,
+        app.state.conversions,
+        app.state.images,
+        app.state.reviews,
+    )
     app.state.assistant = Assistant(
         app.state.database,
         platform,
