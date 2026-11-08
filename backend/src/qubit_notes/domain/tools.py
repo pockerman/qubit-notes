@@ -14,4 +14,6 @@ class Tool(BaseModel):
 TOOLS = [
     Tool(id="go", name="Go compiler", kind="compiler"),
     Tool(id="python", name="Python interpreter", kind="interpreter"),
+    Tool(id="cpp", name="C++ compiler", kind="compiler"),
+    Tool(id="sql", name="SQL interpreter", kind="interpreter"),
 ]

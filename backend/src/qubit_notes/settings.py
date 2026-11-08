@@ -73,13 +73,17 @@ class Settings(BaseSettings):
     # how many documents the app's own platform processes at once
     ingestion_workers: int = 2
 
-    # how students' Go and Python programs run: in a Docker container each (the images are made by make go-runner and
-    # make python-runner), or not at all. Giving the app Docker gives it the machine: only for a machine that runs
-    # nothing else, see domain/programs.py
+    # how students' Go, Python, C++ and SQL programs run: in a Docker container each (the images are made by
+    # make go-runner, python-runner, cpp-runner and sql-runner), or not at all. Giving the app Docker gives it the
+    # machine: only for a machine that runs nothing else, see domain/programs.py
     go_runner: Literal["off", "docker"] = "off"
     go_image: str = "qubit-notes-go-runner"
     python_runner: Literal["off", "docker"] = "off"
     python_image: str = "qubit-notes-python-runner"
+    cpp_runner: Literal["off", "docker"] = "off"
+    cpp_image: str = "qubit-notes-cpp-runner"
+    sql_runner: Literal["off", "docker"] = "off"
+    sql_image: str = "qubit-notes-sql-runner"
     # how long a program may take to compile and run, and what its container may use
     programs_timeout_seconds: float = 20
     programs_memory: str = "512m"

@@ -1,11 +1,12 @@
-"""Running a student's program, in Go or Python (features/go_programs.feature, features/python_programs.feature).
+"""Running a student's program, in Go, Python, C++ or SQL (features/go_programs.feature,
+features/python_programs.feature, features/cpp_programs.feature, features/sql_programs.feature).
 
 A program is anything anyone typed, so it never runs in the app. Each run is a container of its own, thrown away
-afterwards, of its language's image (backend/go-runner, backend/python-runner): no network, an unprivileged user with
-no capabilities, and limits on its memory, CPU, processes, file sizes and time. The program reaches ``docker run`` on
-its standard input, never in its command line. Where the app has no Docker for a language
-(QUBIT_NOTES_GO_RUNNER=off, QUBIT_NOTES_PYTHON_RUNNER=off, the defaults), its programs aren't run at all: the app must
-never be given the Docker socket of a machine it shares with anything else.
+afterwards, of its language's image (backend/go-runner, python-runner, cpp-runner, sql-runner): no network, an
+unprivileged user with no capabilities, and limits on its memory, CPU, processes, file sizes and time. The program
+reaches ``docker run`` on its standard input, never in its command line. Where the app has no Docker for a language
+(QUBIT_NOTES_GO_RUNNER=off, QUBIT_NOTES_PYTHON_RUNNER=off and so on, the defaults), its programs aren't run at all:
+the app must never be given the Docker socket of a machine it shares with anything else.
 """
 
 import subprocess
@@ -41,6 +42,10 @@ class Language:
 
 GO = Language("go", "Go", "cat > main.go && go build -o program main.go 2>&1 && exec ./program 2>&1")
 PYTHON = Language("python", "Python", "cat > main.py && exec python3 main.py 2>&1")
+CPP = Language("cpp", "C++", "cat > main.cpp && g++ -std=c++20 -O1 -o program main.cpp 2>&1 && exec ./program 2>&1")
+# a database of its own in memory; -safe keeps what is typed from files and the shell, -bail stops at the first error
+SQL = Language("sql", "SQL", "exec sqlite3 -safe -bail -batch -header -box :memory: 2>&1")
+LANGUAGES = [GO, PYTHON, CPP, SQL]
 
 
 def _not_here(language: Language) -> str:
@@ -203,7 +208,12 @@ class Programs:
 def programs(settings: Settings) -> dict[str, Programs]:
     """each language's programs, by its id"""
     slots = threading.BoundedSemaphore(settings.programs_concurrent_runs)
-    images = {GO: (settings.go_runner, settings.go_image), PYTHON: (settings.python_runner, settings.python_image)}
+    images = {
+        GO: (settings.go_runner, settings.go_image),
+        PYTHON: (settings.python_runner, settings.python_image),
+        CPP: (settings.cpp_runner, settings.cpp_image),
+        SQL: (settings.sql_runner, settings.sql_image),
+    }
     return {
         language.id: Programs(language, DockerRunner(settings, language, image) if runner == "docker" else None, slots)
         for language, (runner, image) in images.items()
