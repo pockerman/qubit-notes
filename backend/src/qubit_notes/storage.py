@@ -78,6 +78,15 @@ subject_names = Table(
     Column("name", String, nullable=False),
 )
 
+# the tools attached to a subject (domain/tools.py)
+subject_tools = Table(
+    "subject_tools",
+    metadata,
+    Column("course_id", String, primary_key=True),
+    Column("subject", String, primary_key=True),
+    Column("tool", String, primary_key=True),
+)
+
 # where the owners put a topic among its subject's topics, 0 first; topics without one come after, oldest first
 topic_order = Table(
     "topic_order",

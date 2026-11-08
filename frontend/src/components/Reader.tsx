@@ -20,6 +20,8 @@ import { href } from '../router'
 import { AddImage } from './AddImage'
 import { AddReference } from './AddReference'
 import { Assistant } from './Assistant'
+import { GoEditor, STARTER } from './GoEditor'
+import { useSubjectTools } from '../subjectTools'
 import { Markdown, type ImageRenderer } from './Markdown'
 import { MaterialImage } from './MaterialImage'
 import { NotesPanel } from './NotesPanel'
@@ -274,6 +276,10 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
   const [editing, setEditing] = useState(false)
   // the assistant takes the place of the notes beside the text while it's open
   const [assistant, setAssistant] = useState(false)
+  // the Go editor takes their place too; what is in it stays while the material is open
+  const [goEditor, setGoEditor] = useState(false)
+  const [goSource, setGoSource] = useState(STARTER)
+  const hasGo = useSubjectTools(api, courseId, material?.subject).includes('go')
   // bumped when the material was edited, so it's opened again
   const [version, setVersion] = useState(0)
   // the images a Markdown material refers to, which it has or is missing
@@ -398,7 +404,17 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
     }
   }
 
-  const beside = assistant ? (
+  const openGo = (code: string) => {
+    setGoSource(code)
+    setAssistant(false)
+    setGoEditor(true)
+  }
+
+  const goPanel = <GoEditor api={api} source={goSource} onChange={setGoSource} onClose={() => setGoEditor(false)} />
+
+  const beside = goEditor ? (
+    goPanel
+  ) : assistant ? (
     <Assistant
       key={documentId}
       api={api}
@@ -451,9 +467,28 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                   Download
                 </button>
               )}
-              <button type="button" aria-pressed={assistant} onClick={() => setAssistant(!assistant)}>
+              <button
+                type="button"
+                aria-pressed={assistant}
+                onClick={() => {
+                  setGoEditor(false)
+                  setAssistant(!assistant)
+                }}
+              >
                 AI
               </button>
+              {hasGo && material.kind === 'text' && (
+                <button
+                  type="button"
+                  aria-pressed={goEditor}
+                  onClick={() => {
+                    setAssistant(false)
+                    setGoEditor(!goEditor)
+                  }}
+                >
+                  Go
+                </button>
+              )}
             </div>
           </>
         )}
@@ -493,18 +528,21 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
       )}
 
       {editing && (
-        <Editor
-          api={api}
-          courseId={courseId}
-          documentId={documentId}
-          markdown={material?.content_type === 'text/markdown'}
-          onCancel={() => setEditing(false)}
-          onSaved={(broken) => {
-            setSaved(brokenReferences(material?.filename ?? 'The material', broken))
-            setEditing(false)
-            setVersion((v) => v + 1)
-          }}
-        />
+        <div className={goEditor ? 'edit-beside with-tool' : 'edit-beside'}>
+          <Editor
+            api={api}
+            courseId={courseId}
+            documentId={documentId}
+            markdown={material?.content_type === 'text/markdown'}
+            onCancel={() => setEditing(false)}
+            onSaved={(broken) => {
+              setSaved(brokenReferences(material?.filename ?? 'The material', broken))
+              setEditing(false)
+              setVersion((v) => v + 1)
+            }}
+          />
+          {goEditor && goPanel}
+        </div>
       )}
 
       {!editing && material?.kind === 'video' && (
@@ -535,7 +573,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
       )}
 
       {!editing && material?.kind === 'text' && (
-        <div ref={body} className={assistant ? 'reader-body with-assistant' : 'reader-body'}>
+        <div ref={body} className={assistant || goEditor ? 'reader-body with-assistant' : 'reader-body'}>
           <nav aria-label="Sections" className="outline">
             <ol>
               {material.sections.map((section) => (
@@ -578,6 +616,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                       mark={(text) => highlight(text, passages)}
                       image={materialImages(api, courseId, documentId, images, canEdit ? setImages : undefined)}
                       reference={referenceLinks(courseId, references)}
+                      openGo={hasGo ? openGo : undefined}
                     />
                   ) : (
                     content

@@ -73,6 +73,17 @@ class Settings(BaseSettings):
     # how many documents the app's own platform processes at once
     ingestion_workers: int = 2
 
+    # how students' Go programs run: in a Docker container each (the image is made by make go-runner), or not at all.
+    # Giving the app Docker gives it the machine: only for a machine that runs nothing else, see domain/go_programs.py
+    go_runner: Literal["off", "docker"] = "off"
+    go_image: str = "qubit-notes-go-runner"
+    # how long a program may take to compile and run, and what its container may use
+    go_timeout_seconds: float = 20
+    go_memory: str = "512m"
+    go_cpus: float = 1
+    # how many programs run at once
+    go_concurrent_runs: int = 2
+
     # the model that writes summaries and quizzes: anthropic or openai, and its model, by default the provider's own
     # (DEFAULT_MODELS); the app's admins can choose others from the app, which are used instead
     llm_provider: str = "anthropic"

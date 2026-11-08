@@ -14,6 +14,7 @@ pytest_plugins = [
     "tests.bdd.steps.notes_steps",
     "tests.bdd.steps.study_steps",
     "tests.bdd.steps.flashcards_steps",
+    "tests.bdd.steps.go_steps",
     "tests.bdd.steps.usage_steps",
     "tests.bdd.steps.progress_steps",
     "tests.bdd.steps.assistant_steps",

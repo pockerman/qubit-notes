@@ -11,6 +11,7 @@ from qubit_notes.api import (
     assistant,
     courses,
     generating,
+    go_programs,
     health,
     images,
     lessons,
@@ -33,6 +34,7 @@ from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.flashcards import Flashcards
 from qubit_notes.domain.generating import Generator
+from qubit_notes.domain.go_programs import go_programs as go_programs_from
 from qubit_notes.domain.images import Images
 from qubit_notes.domain.lessons import Lessons
 from qubit_notes.domain.material_order import MaterialOrder
@@ -107,6 +109,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.references,
         app.state.material_order,
     )
+    app.state.go_programs = go_programs_from(settings)
     app.state.reading = Reading(platform, app.state.courses, app.state.conversions)
     # a deleted material's images go with it, as does a converted one's original
     app.state.materials.on_delete_in_course(app.state.images.forget)
@@ -189,6 +192,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         generating.router,
         notes.router,
         study.router,
+        go_programs.router,
         assistant.router,
         usage.router,
     ):

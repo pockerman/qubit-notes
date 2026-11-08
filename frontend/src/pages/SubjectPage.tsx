@@ -5,6 +5,7 @@ import { NewTopicForm } from '../components/NewTopicForm'
 import { Originals } from '../components/Originals'
 import { RenameForm } from '../components/RenameForm'
 import { namesOf } from '../names'
+import { ToolChoice } from '../components/ToolChoice'
 import { href, navigate } from '../router'
 import { topicStatus } from '../status'
 
@@ -127,6 +128,19 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
     load()
   }
 
+  async function attachTools(tools: string[]) {
+    if (!course) return
+    setError(null)
+    // shown at once; put back by loading again if it fails
+    setSubjects((all) => all?.map((s) => (s.subject === subject ? { ...s, tools } : s)) ?? all)
+    try {
+      await api.attachTools(course.name, subject, tools)
+    } catch (e) {
+      setError((e as Error).message)
+      load()
+    }
+  }
+
   async function deleteSubject() {
     if (!course) return
     try {
@@ -190,6 +204,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
           </div>
         )}
       </header>
+
+      {isOwner && <ToolChoice api={api} chosen={found.tools} onChange={attachTools} />}
 
       {error && (
         <p role="alert" className="error">

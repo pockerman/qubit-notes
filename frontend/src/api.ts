@@ -75,6 +75,13 @@ export type Material = {
   error: string | null
 }
 
+/** What can be attached to a subject, e.g. a compiler. */
+export type Tool = {
+  id: string
+  name: string
+  kind: string
+}
+
 export type Subject = {
   // its id, in links and references
   subject: string
@@ -82,6 +89,8 @@ export type Subject = {
   name: string
   // how many topics it has
   topics: number
+  // the tools attached to it, by id
+  tools: string[]
 }
 
 export type Topic = {
@@ -323,6 +332,14 @@ export type Deck = {
   out_of_date: OutOfDate | null
 }
 
+/** What a Go program printed, and how it ended: exit_code is null if it was stopped. */
+export type GoRun = {
+  output: string
+  exit_code: number | null
+  timed_out: boolean
+  truncated: boolean
+}
+
 /** How well the student remembered a card they reviewed, which decides when it is due again. */
 export type Remembered = 'again' | 'hard' | 'good' | 'easy'
 
@@ -561,6 +578,15 @@ export class StudyApi {
     return this.request(`/reviews/history?limit=${limit}`)
   }
 
+  /** Runs the Go program in a sandbox of its own. */
+  runGo(source: string): Promise<GoRun> {
+    return this.request('/go/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source }),
+    })
+  }
+
   /** All the cards the student reviews, due or not. */
   reviewCards(): Promise<ReviewCard[]> {
     return this.request('/reviews/cards')
@@ -700,11 +726,25 @@ export class StudyApi {
   }
 
   /** A subject, before any of its topics; its id is made from its name. */
-  createSubject(course: string, name: string): Promise<Subject> {
+  createSubject(course: string, name: string, tools: string[] = []): Promise<Subject> {
     return this.request(`/courses/${encodeURIComponent(course)}/subjects`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, tools }),
+    })
+  }
+
+  /** What can be attached to a subject. */
+  tools(): Promise<Tool[]> {
+    return this.request('/tools')
+  }
+
+  /** The subject has these tools from now on, and no others. Its course's owners only. */
+  attachTools(course: string, subject: string, tools: string[]): Promise<Subject> {
+    return this.request(`/courses/${encodeURIComponent(course)}/subjects/${encodeURIComponent(subject)}/tools`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tools }),
     })
   }
 

@@ -15,6 +15,7 @@ from qubit_notes.domain.conversions import is_original
 from qubit_notes.domain.courses import SLUG, Course, Courses
 from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound
 from qubit_notes.domain.images import is_image
+from qubit_notes.domain.tools import TOOLS
 from qubit_notes.platform.port import StudyPlatform
 
 
@@ -36,6 +37,17 @@ class Subject(BaseModel):
     name: str
     # how many topics it has
     topics: int
+    # the tools attached to it, by id
+    tools: list[str] = []
+
+
+def _known(tools: list[str]) -> list[str]:
+    """the tools, once each; all must be tools there are"""
+    known = {tool.id for tool in TOOLS}
+    for tool in tools:
+        if tool not in known:
+            raise InvalidRequest(f"there is no tool {tool!r}")
+    return sorted(set(tools))
 
 
 def slug(name: str) -> str:
@@ -101,10 +113,11 @@ class Topics:
                 )
         return next(t for t in self.list(student, course_name) if (t.subject, t.topic) == (subject, topic))
 
-    def create_subject(self, student: str, course_name: str, name: str) -> Subject:
-        """the subject, with the name given and an id made from it"""
+    def create_subject(self, student: str, course_name: str, name: str, tools: tuple[str, ...] = ()) -> Subject:
+        """the subject, with the name given and an id made from it, and the tools attached to it"""
         course = self._courses.get(student, course_name)
         self._courses.require_owner(student, course)
+        attached = _known(list(tools))
         name = " ".join(name.split())
         subject = slug(name)
         if not subject:
@@ -115,6 +128,25 @@ class Topics:
         with self._engine.begin() as connection:
             _insert_new(connection, storage.subjects, _row(course.id, subject))
             connection.execute(insert(storage.subject_names).values(course_id=course.id, subject=subject, name=name))
+            self._attach(connection, course.id, subject, attached)
+        return next(s for s in self.subjects_of(course) if s.subject == subject)
+
+    @staticmethod
+    def _attach(connection, course_id: str, subject: str, tools: list[str]) -> None:
+        for tool in tools:
+            connection.execute(insert(storage.subject_tools).values(course_id=course_id, subject=subject, tool=tool))
+
+    def attach_tools(self, student: str, course_name: str, subject: str, tools: list[str]) -> Subject:
+        """the subject has these tools from now on, and no others; only its course's owners change them"""
+        course = self._courses.get(student, course_name)
+        self._courses.require_owner(student, course)
+        attached = _known(tools)
+        if subject not in {s.subject for s in self.subjects_of(course)}:
+            raise NotFound(f"no subject {subject!r} in {course.name!r}")
+        table = storage.subject_tools
+        with self._engine.begin() as connection:
+            connection.execute(delete(table).where(table.c.course_id == course.id, table.c.subject == subject))
+            self._attach(connection, course.id, subject, attached)
         return next(s for s in self.subjects_of(course) if s.subject == subject)
 
     def subjects(self, student: str, course_name: str) -> list[Subject]:
@@ -133,10 +165,21 @@ class Topics:
             subject_names = dict(
                 connection.execute(select(names.c.subject, names.c.name).where(names.c.course_id == course.id)).all()
             )
+            attached = storage.subject_tools
+            tools: dict[str, list[str]] = {}
+            for row in connection.execute(
+                select(attached.c.subject, attached.c.tool)
+                .where(attached.c.course_id == course.id)
+                .order_by(attached.c.tool)
+            ):
+                tools.setdefault(row.subject, []).append(row.tool)
         counts = dict.fromkeys(kept, 0)
         for topic in topics:
             counts[topic.subject] = counts.get(topic.subject, 0) + 1
-        return [Subject(subject=s, name=subject_names.get(s) or named(s), topics=counts[s]) for s in sorted(counts)]
+        return [
+            Subject(subject=s, name=subject_names.get(s) or named(s), topics=counts[s], tools=tools.get(s, []))
+            for s in sorted(counts)
+        ]
 
     def delete_subject(self, student: str, course_name: str, subject: str) -> None:
         """deletes a subject that has no topics; one that has is deleted by deleting them first"""
@@ -148,7 +191,7 @@ class Topics:
         if found.topics:
             raise InvalidRequest(f"delete the topics of {found.name!r} first")
         with self._engine.begin() as connection:
-            for table in (storage.subjects, storage.subject_names):
+            for table in (storage.subjects, storage.subject_names, storage.subject_tools):
                 connection.execute(delete(table).where(table.c.course_id == course.id, table.c.subject == subject))
 
     def rename(self, student: str, course_name: str, subject: str, topic: str, name: str) -> Topic:
@@ -238,7 +281,13 @@ class Topics:
 
     def forget_course(self, course_id: str) -> None:
         with self._engine.begin() as connection:
-            for table in (storage.topics, storage.topic_order, storage.subjects, storage.subject_names):
+            for table in (
+                storage.topics,
+                storage.topic_order,
+                storage.subjects,
+                storage.subject_names,
+                storage.subject_tools,
+            ):
                 connection.execute(delete(table).where(table.c.course_id == course_id))
 
     def of_course(self, course: Course) -> list[Topic]:

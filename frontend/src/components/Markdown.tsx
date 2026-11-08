@@ -177,10 +177,19 @@ type Props = {
   mark?: Highlighter
   image?: ImageRenderer
   reference?: ReferenceRenderer
+  // given the code of a Go code block, if it can be opened in the Go editor
+  openGo?: (code: string) => void
 }
 
 /** Markdown: headings, paragraphs, bullet and numbered lists, tables, code blocks, quotes, rules and mathematics. */
-export function Markdown({ text, headingOffset = 3, mark = plain, image = webOnly, reference = asText }: Props) {
+export function Markdown({
+  text,
+  headingOffset = 3,
+  mark = plain,
+  image = webOnly,
+  reference = asText,
+  openGo,
+}: Props) {
   const blocks: ReactNode[] = []
   let list: { ordered: boolean; items: string[] } | null = null
   let paragraph: string[] = []
@@ -211,10 +220,24 @@ export function Markdown({ text, headingOffset = 3, mark = plain, image = webOnl
       flush()
       const code: string[] = []
       for (i++; i < lines.length && !lines[i].trim().startsWith(fence[1]); i++) code.push(lines[i])
-      blocks.push(
+      const language = line.trim().slice(fence[1].length).trim().split(/\s/)[0].toLowerCase()
+      const source = code.join('\n')
+      const block = (
         <pre key={blocks.length}>
-          <code>{code.join('\n')}</code>
-        </pre>,
+          <code>{source}</code>
+        </pre>
+      )
+      blocks.push(
+        openGo && (language === 'go' || language === 'golang') ? (
+          <div key={blocks.length} className="go-block">
+            {block}
+            <button type="button" className="link" onClick={() => openGo(source)}>
+              Open in the Go editor
+            </button>
+          </div>
+        ) : (
+          block
+        ),
       )
       continue
     }

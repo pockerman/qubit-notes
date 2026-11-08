@@ -3,7 +3,7 @@ UV ?= uv
 BACKEND := backend
 FRONTEND := frontend
 
-.PHONY: install install-gogi bdd bdd-ui bdd-standalone bdd-standalone-ai bdd-gogi bdd-gogi-ai lint serve dev-backend dev-frontend
+.PHONY: go-runner install install-gogi bdd bdd-ui bdd-standalone bdd-standalone-ai bdd-gogi bdd-gogi-ai lint serve dev-backend dev-frontend
 
 install:
 	cd $(BACKEND) && $(UV) sync --extra dev && $(UV) run playwright install chromium
@@ -38,6 +38,10 @@ bdd-gogi:
 # the @platform scenarios including those that need the AI: gogi needs a model provider's API key
 bdd-gogi-ai:
 	cd $(BACKEND) && $(UV) run pytest --platform=gogi --with-ai
+
+# the image students' Go programs run in
+go-runner:
+	docker build -t qubit-notes-go-runner $(BACKEND)/go-runner
 
 lint:
 	cd $(BACKEND) && $(UV) run ruff check . && $(UV) run ruff format --check .

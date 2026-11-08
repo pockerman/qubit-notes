@@ -895,6 +895,16 @@ def create_subject_in_browser(page, name):
     expect(form).to_have_count(0)
 
 
+@when(parsers.re(r'I create the subject "(?P<name>[^"]+)" with the tool "(?P<tool>[^"]+)"$'))
+def create_subject_with_tool(page, name, tool):
+    page.get_by_role("button", name="New subject").click()
+    form = page.get_by_role("form", name="New subject")
+    form.get_by_label("Subject").fill(name)
+    form.get_by_role("group", name="Tools").get_by_role("checkbox", name=tool).check()
+    form.get_by_role("button", name="Create subject").click()
+    expect(form).to_have_count(0)
+
+
 @then(parsers.re(r'I see the subject "(?P<subject>[^"]+)" with no topics yet$'))
 def see_subject_without_topics(page, subject):
     expect(page.locator("#subject-title")).to_have_text(subject)

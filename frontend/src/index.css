@@ -1275,3 +1275,54 @@ a.button {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+/* the tools a subject has attached to it */
+.tool-choice {
+  margin: 0.5rem 0;
+}
+
+/* a tool beside the material being edited or written */
+.edit-beside.with-tool {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 30rem);
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .edit-beside.with-tool {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* a Go code block, with what opens it in the Go editor */
+.go-block {
+  margin: 0.75rem 0;
+}
+
+.go-block pre {
+  margin-bottom: 0.25rem;
+}
+
+.go-editor textarea {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  tab-size: 4;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.go-output {
+  margin: 0;
+  padding: 0.5rem 0.6rem;
+  max-height: 16rem;
+  min-height: 2rem;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

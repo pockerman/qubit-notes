@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 
 from qubit_notes.domain.errors import (
+    Busy,
     Conflict,
     InvalidRequest,
     NotAllowed,
@@ -10,6 +11,7 @@ from qubit_notes.domain.errors import (
     OutOfRange,
     StudyAssistantError,
     TooLarge,
+    Unavailable,
 )
 from qubit_notes.domain.quizzes import AIFailed
 from qubit_notes.platform.port import PlatformError
@@ -21,6 +23,8 @@ STATUS = {
     Conflict: 409,
     TooLarge: 413,
     OutOfRange: 416,
+    Busy: 429,
+    Unavailable: 503,
     AIFailed: 502,
 }
 
