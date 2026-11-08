@@ -333,7 +333,8 @@ export type Deck = {
 }
 
 /** What a Go program printed, and how it ended: exit_code is null if it was stopped. */
-export type GoRun = {
+/** How a student's program ran, in Go or Python. */
+export type ProgramRun = {
   output: string
   exit_code: number | null
   timed_out: boolean
@@ -579,8 +580,9 @@ export class StudyApi {
   }
 
   /** Runs the Go program in a sandbox of its own. */
-  runGo(source: string): Promise<GoRun> {
-    return this.request('/go/run', {
+  /** Runs a student's program in a sandbox of its own: language is "go" or "python". */
+  runProgram(language: string, source: string): Promise<ProgramRun> {
+    return this.request(`/${language}/run`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ source }),

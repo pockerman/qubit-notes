@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { shownAs } from '../references'
+import type { Language } from '../programs'
 
 // marks passages in the plain text of a block, e.g. those that have notes; the text is never treated as HTML
 export type Highlighter = (text: string) => ReactNode
@@ -177,8 +178,8 @@ type Props = {
   mark?: Highlighter
   image?: ImageRenderer
   reference?: ReferenceRenderer
-  // given the code of a Go code block, if it can be opened in the Go editor
-  openGo?: (code: string) => void
+  // the languages whose code blocks can be opened in their editors, and how
+  editors?: { languages: Language[]; open: (language: Language, code: string) => void }
 }
 
 /** Markdown: headings, paragraphs, bullet and numbered lists, tables, code blocks, quotes, rules and mathematics. */
@@ -188,7 +189,7 @@ export function Markdown({
   mark = plain,
   image = webOnly,
   reference = asText,
-  openGo,
+  editors,
 }: Props) {
   const blocks: ReactNode[] = []
   let list: { ordered: boolean; items: string[] } | null = null
@@ -227,12 +228,13 @@ export function Markdown({
           <code>{source}</code>
         </pre>
       )
+      const runnable = editors?.languages.find((l) => l.fences.includes(language))
       blocks.push(
-        openGo && (language === 'go' || language === 'golang') ? (
-          <div key={blocks.length} className="go-block">
+        editors && runnable ? (
+          <div key={blocks.length} className="program-block">
             {block}
-            <button type="button" className="link" onClick={() => openGo(source)}>
-              Open in the Go editor
+            <button type="button" className="link" onClick={() => editors.open(runnable, source)}>
+              Open in the {runnable.name} editor
             </button>
           </div>
         ) : (

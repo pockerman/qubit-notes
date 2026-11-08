@@ -11,4 +11,7 @@ class Tool(BaseModel):
     kind: str
 
 
-TOOLS = [Tool(id="go", name="Go compiler", kind="compiler")]
+TOOLS = [
+    Tool(id="go", name="Go compiler", kind="compiler"),
+    Tool(id="python", name="Python interpreter", kind="interpreter"),
+]

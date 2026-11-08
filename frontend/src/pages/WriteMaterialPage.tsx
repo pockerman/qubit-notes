@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import type { Course, StudyApi, Topic } from '../api'
 import { AddImage } from '../components/AddImage'
 import { AddReference } from '../components/AddReference'
-import { GoEditor, STARTER } from '../components/GoEditor'
+import { ProgramEditor } from '../components/ProgramEditor'
+import { useProgramEditors } from '../programs'
 import { Markdown, type ImageRenderer } from '../components/Markdown'
 import { useImageDrafts } from '../imageDrafts'
 import { namesOf, slug } from '../names'
@@ -44,10 +45,8 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
   const textarea = useRef<HTMLTextAreaElement>(null)
   const images = useImageDrafts({ text, setText, textarea, setError })
   const references = useReferencesIn(api, courseId, text, tab === 'preview')
-  const [goEditor, setGoEditor] = useState(false)
-  const [goSource, setGoSource] = useState(STARTER)
   const tools = useSubjectTools(api, courseId, savingIn.split('/')[0])
-  const hasGo = tools.some((tool) => tool.id === 'go')
+  const programs = useProgramEditors(tools)
 
   useEffect(() => {
     api.courses().then(
@@ -128,7 +127,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
         </h2>
       </header>
 
-      <div className={hasGo && goEditor ? 'edit-beside with-tool' : 'edit-beside'}>
+      <div className={programs.language ? 'edit-beside with-tool' : 'edit-beside'}>
         <form className="editor card" aria-label="Write material" onSubmit={save}>
           <label>
             Name
@@ -176,7 +175,12 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
             >
               Preview
             </button>
-            <ToolsMenu tools={tools} open={goEditor ? 'go' : null} onOpen={() => setGoEditor(!goEditor)} className="tab" />
+            <ToolsMenu
+              tools={tools}
+              open={programs.language?.id ?? null}
+              onOpen={programs.toggle}
+              className="tab"
+            />
           </div>
 
           {tab === 'write' ? (
@@ -202,14 +206,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
                   headingOffset={3}
                   image={preview}
                   reference={referenceLinks(courseId, references)}
-                  openGo={
-                    hasGo
-                      ? (code) => {
-                          setGoSource(code)
-                          setGoEditor(true)
-                        }
-                      : undefined
-                  }
+                  editors={{ languages: programs.languages, open: programs.openCode }}
                 />
               ) : (
                 <p className="note">Nothing to preview yet.</p>
@@ -255,8 +252,15 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
             </div>
           )}
         </form>
-        {hasGo && goEditor && (
-          <GoEditor api={api} source={goSource} onChange={setGoSource} onClose={() => setGoEditor(false)} />
+        {programs.language && (
+          <ProgramEditor
+            key={programs.language.id}
+            api={api}
+            language={programs.language}
+            source={programs.source}
+            onChange={programs.setSource}
+            onClose={programs.close}
+          />
         )}
       </div>
     </section>

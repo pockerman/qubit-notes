@@ -1296,15 +1296,15 @@ a.button {
 }
 
 /* a Go code block, with what opens it in the Go editor */
-.go-block {
+.program-block {
   margin: 0.75rem 0;
 }
 
-.go-block pre {
+.program-block pre {
   margin-bottom: 0.25rem;
 }
 
-.go-editor textarea {
+.program-editor textarea {
   width: 100%;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.85rem;
@@ -1313,7 +1313,7 @@ a.button {
   overflow-x: auto;
 }
 
-.go-output {
+.program-output {
   margin: 0;
   padding: 0.5rem 0.6rem;
   max-height: 16rem;
