@@ -13,6 +13,8 @@ type Props = {
 function ended(run: ProgramRun): string {
   if (run.timed_out) return 'It ran out of time, and was stopped.'
   if (run.truncated) return 'It printed too much, and was stopped.'
+  // killed: in the sandbox, by its limit on memory
+  if (run.exit_code === 137) return 'It ran out of memory, and was stopped (exit code 137).'
   return run.exit_code === 0 ? 'It ended normally.' : `It ended with exit code ${run.exit_code}.`
 }
 

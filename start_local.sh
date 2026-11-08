@@ -69,15 +69,14 @@ if [[ -z "${QUBIT_NOTES_ANTHROPIC_API_KEY:-}${QUBIT_NOTES_OPENAI_API_KEY:-}" ]];
         "(sign in as $QUBIT_NOTES_ADMINS and open the platform's status), the AI won't work" >&2
 fi
 
-# students' Go and Python programs, each in a container of its language's image, where Docker is here
-export QUBIT_NOTES_GO_RUNNER="${QUBIT_NOTES_GO_RUNNER:-docker}"
-if [[ "$QUBIT_NOTES_GO_RUNNER" == docker ]] && ! docker image inspect qubit-notes-go-runner >/dev/null 2>&1; then
-    make -C "$ROOT" go-runner
-fi
-export QUBIT_NOTES_PYTHON_RUNNER="${QUBIT_NOTES_PYTHON_RUNNER:-docker}"
-if [[ "$QUBIT_NOTES_PYTHON_RUNNER" == docker ]] && ! docker image inspect qubit-notes-python-runner >/dev/null 2>&1; then
-    make -C "$ROOT" python-runner
-fi
+# students' Go, Python, C++ and SQL programs, each in a container of its language's image, where Docker is here
+for language in go python cpp sql; do
+    setting="QUBIT_NOTES_${language^^}_RUNNER"
+    export "$setting"="${!setting:-docker}"
+    if [[ "${!setting}" == docker ]] && ! docker image inspect "qubit-notes-$language-runner" >/dev/null 2>&1; then
+        make -C "$ROOT" "$language-runner"
+    fi
+done
 
 # keeps the test tools (make install) and gogi-python (make install-gogi), which a plain sync would remove
 (cd "$ROOT/backend" && "$UV" sync -q --extra dev --inexact && "$UV" run qubit-notes migrate)

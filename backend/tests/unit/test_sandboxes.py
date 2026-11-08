@@ -1,4 +1,5 @@
-"""The real sandboxes, in Docker, with the images of `make go-runner` and `make python-runner`; each language's tests
+"""The real sandboxes, in Docker, with the images of `make go-runner`, python-runner, cpp-runner and sql-runner; each
+language's tests
 are skipped where there's no Docker or no image. These are what keep a student's program from the machine, so they try
 what a hostile program would."""
 
@@ -9,11 +10,13 @@ import time
 import pytest
 
 from qubit_notes.domain.errors import Unavailable
-from qubit_notes.domain.programs import GO, MAX_OUTPUT_BYTES, PYTHON, DockerRunner, Language
+from qubit_notes.domain.programs import CPP, GO, MAX_OUTPUT_BYTES, PYTHON, SQL, DockerRunner, Language
 from qubit_notes.settings import Settings
 
 IMAGE = "qubit-notes-go-runner"
 PYTHON_IMAGE = "qubit-notes-python-runner"
+CPP_IMAGE = "qubit-notes-cpp-runner"
+SQL_IMAGE = "qubit-notes-sql-runner"
 
 
 def _has_image(image: str) -> bool:
@@ -26,6 +29,8 @@ go = pytest.mark.skipif(not _has_image(IMAGE), reason=f"needs Docker and the ima
 python = pytest.mark.skipif(
     not _has_image(PYTHON_IMAGE), reason=f"needs Docker and the image {PYTHON_IMAGE}: make python-runner"
 )
+cpp = pytest.mark.skipif(not _has_image(CPP_IMAGE), reason=f"needs Docker and the image {CPP_IMAGE}: make cpp-runner")
+sql = pytest.mark.skipif(not _has_image(SQL_IMAGE), reason=f"needs Docker and the image {SQL_IMAGE}: make sql-runner")
 
 
 def _runner(language: Language = GO, image: str = IMAGE, **settings) -> DockerRunner:
@@ -34,6 +39,14 @@ def _runner(language: Language = GO, image: str = IMAGE, **settings) -> DockerRu
 
 def _python(**settings) -> DockerRunner:
     return _runner(PYTHON, PYTHON_IMAGE, **settings)
+
+
+def _cpp(**settings) -> DockerRunner:
+    return _runner(CPP, CPP_IMAGE, **settings)
+
+
+def _sql(**settings) -> DockerRunner:
+    return _runner(SQL, SQL_IMAGE, **settings)
 
 
 def _main(body: str, imports: str = '"fmt"') -> str:
@@ -274,3 +287,156 @@ except OSError:
 def test_a_missing_python_image_says_programs_cannot_be_run():
     with pytest.raises(Unavailable, match="Python programs can't be run here"):
         _runner(PYTHON, "no-such-image-here").run("print(1)\n")
+
+
+# C++
+
+
+def _cpp_main(body: str, includes: str = "#include <iostream>") -> str:
+    return f"{includes}\n\nint main() {{\n{body}\n}}\n"
+
+
+@cpp
+def test_a_cpp_program_compiles_runs_and_leaves_nothing():
+    started = time.monotonic()
+    run = _cpp().run(_cpp_main('std::cout << "hello" << std::endl;\nstd::cerr << "oops" << std::endl;\nreturn 3;'))
+    assert run.output == "hello\noops\n"
+    assert run.exit_code == 3
+    assert time.monotonic() - started < 10
+    assert _containers() == []
+
+
+@cpp
+def test_the_cpp_compiler_says_what_is_wrong():
+    run = _cpp().run(_cpp_main("undefined_thing();"))
+    assert "undefined_thing" in run.output
+    assert "error" in run.output
+    assert run.exit_code == 1
+
+
+@cpp
+def test_cpp20_and_threads_work():
+    body = """std::vector<int> v{3, 1, 2};
+std::ranges::sort(v);
+std::thread t([&] { v.push_back(4); });
+t.join();
+for (int x : v) std::cout << x;
+std::cout << std::endl;"""
+    run = _cpp().run(_cpp_main(body, "#include <algorithm>\n#include <iostream>\n#include <thread>\n#include <vector>"))
+    assert run.output == "1234\n"
+
+
+@cpp
+def test_a_cpp_program_that_never_ends_is_stopped_and_removed():
+    run = _cpp(programs_timeout_seconds=5).run(_cpp_main("volatile bool on = true;\nwhile (on) {}"))
+    assert run.timed_out
+    assert run.exit_code is None
+    assert _containers() == []
+
+
+@cpp
+def test_cpp_printing_forever_is_cut_off_and_stopped():
+    run = _cpp().run(_cpp_main('while (true) std::cout << "yes" << std::endl;'))
+    assert run.truncated
+    assert len(run.output.encode()) <= MAX_OUTPUT_BYTES
+    assert _containers() == []
+
+
+@cpp
+def test_cpp_has_no_network_and_is_not_root():
+    body = """int s = socket(AF_INET, SOCK_STREAM, 0);
+sockaddr_in a{};
+a.sin_family = AF_INET;
+a.sin_port = htons(53);
+inet_pton(AF_INET, "1.1.1.1", &a.sin_addr);
+std::cout << (connect(s, (sockaddr*)&a, sizeof a) != 0) << std::endl;
+std::cout << getuid() << std::endl;
+std::cout << (setuid(0) != 0) << std::endl;
+std::cout << (access("/var/run/docker.sock", F_OK) != 0) << std::endl;
+std::cout << (getenv("QUBIT_NOTES_SECRET_KEY") == nullptr) << std::endl;"""
+    includes = (
+        "#include <iostream>\n#include <cstdlib>\n#include <arpa/inet.h>\n#include <sys/socket.h>\n#include <unistd.h>"
+    )
+    assert _cpp().run(_cpp_main(body, includes)).output == "1\n10001\n1\n1\n1\n"
+
+
+@cpp
+def test_too_much_memory_kills_a_cpp_program():
+    body = """std::vector<std::vector<char>> kept;
+while (true) kept.emplace_back(64 << 20, 1);"""
+    run = _cpp(programs_memory="256m").run(_cpp_main(body, "#include <vector>"))
+    # the kernel kills it, or new throws std::bad_alloc, which aborts it
+    assert run.exit_code in (134, 137)
+    assert _containers() == []
+
+
+@cpp
+def test_too_many_cpp_processes_are_refused():
+    body = """for (int i = 0; i < 1000; i++) {
+    pid_t p = fork();
+    if (p == 0) { sleep(30); _exit(0); }
+    if (p < 0) { std::cout << "refused" << std::endl; return 0; }
+}
+std::cout << "all started" << std::endl;"""
+    assert _cpp().run(_cpp_main(body, "#include <iostream>\n#include <unistd.h>")).output == "refused\n"
+
+
+# SQL
+
+
+@sql
+def test_sql_runs_in_a_database_of_its_own_and_leaves_nothing():
+    source = """CREATE TABLE people (name TEXT, age INTEGER);
+INSERT INTO people VALUES ('Ada', 36), ('Alan', 41);
+SELECT name FROM people WHERE age > 40;"""
+    run = _sql().run(source)
+    assert "Alan" in run.output
+    assert "Ada" not in run.output
+    assert run.exit_code == 0
+    assert _containers() == []
+    # each run's database is its own
+    assert "no such table: people" in _sql().run("SELECT * FROM people;").output
+
+
+@sql
+def test_sql_stops_at_the_first_error():
+    run = _sql().run("SELECT nope;\nSELECT 'after';")
+    assert "no such column: nope" in run.output
+    assert "after" not in run.output
+    assert run.exit_code == 1
+
+
+@sql
+def test_sql_cannot_reach_files_or_a_shell():
+    for source in (
+        ".shell id",
+        ".system id",
+        "SELECT readfile('/etc/passwd');",
+        "ATTACH '/sandbox/x.db' AS x;",
+        ".output /sandbox/x",
+        ".import /etc/passwd t",
+        "SELECT writefile('/sandbox/x', 'x');",
+        "SELECT load_extension('/lib/x');",
+    ):
+        run = _sql().run(source)
+        assert run.exit_code != 0, source
+        assert "root:" not in run.output, source
+
+
+@sql
+def test_sql_that_never_ends_is_stopped_and_removed():
+    run = _sql(programs_timeout_seconds=5).run(
+        "WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c) SELECT count(*) FROM c;"
+    )
+    assert run.timed_out
+    assert run.exit_code is None
+    assert _containers() == []
+
+
+@sql
+def test_sql_returning_rows_forever_is_stopped():
+    run = _sql().run("WITH RECURSIVE c(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM c) SELECT x FROM c;")
+    # a table is laid out once all its rows are in, so it is stopped by its memory, before it prints them
+    assert run.truncated or run.exit_code == 137
+    assert len(run.output.encode()) <= MAX_OUTPUT_BYTES
+    assert _containers() == []

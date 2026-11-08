@@ -1,24 +1,27 @@
-"""Steps of go_programs.feature, python_programs.feature and the editors in the browser (ui_go_editor.feature,
-ui_python_editor.feature); the programs run in stand-ins for the sandboxes."""
+"""Steps of go_programs.feature, python_programs.feature, cpp_programs.feature, sql_programs.feature and the editors in
+the browser (ui_go_editor.feature, ui_python_editor.feature, ui_cpp_and_sql_editors.feature); the programs run in
+stand-ins for the sandboxes."""
 
 import re
 
 from playwright.sync_api import expect
 from pytest_bdd import given, parsers, then, when
 
-from tests.fakes.fake_programs import FakeGoRunner, FakePythonRunner
+from tests.fakes.fake_programs import FakeCppRunner, FakeGoRunner, FakePythonRunner, FakeSqlRunner
 
-FAKES = {"Go": FakeGoRunner, "Python": FakePythonRunner}
-LANGUAGE = r"(?P<language>Go|Python)"
+FAKES = {"Go": FakeGoRunner, "Python": FakePythonRunner, "C++": FakeCppRunner, "SQL": FakeSqlRunner}
+LANGUAGE = r"(?P<language>Go|Python|C\+\+|SQL)"
+# each language's id, in its tool and its address
+IDS = {"Go": "go", "Python": "python", "C++": "cpp", "SQL": "sql"}
 
 
 def _programs(app, language: str):
-    return app.state.programs[language.lower()]
+    return app.state.programs[IDS[language]]
 
 
 def _run(students, context, language: str, source: str, name=None) -> None:
     headers = students.headers(name) if name is not False else {}
-    context["response"] = students.client.post(f"/api/{language.lower()}/run", json={"source": source}, headers=headers)
+    context["response"] = students.client.post(f"/api/{IDS[language]}/run", json={"source": source}, headers=headers)
 
 
 @given(parsers.re(rf"the app can run {LANGUAGE} programs$"))
@@ -107,9 +110,9 @@ def nothing_run(app):
 
 # the editors
 
-TOOLS = {"Go": "Go compiler", "Python": "Python interpreter"}
+TOOLS = {"Go": "Go compiler", "Python": "Python interpreter", "C++": "C++ compiler", "SQL": "SQL interpreter"}
 # what each editor starts with
-STARTERS = {"Go": "package main", "Python": "print"}
+STARTERS = {"Go": "package main", "Python": "print", "C++": "#include", "SQL": "SELECT"}
 LANGUAGE_OF = {tool: language for language, tool in TOOLS.items()}
 
 
@@ -206,7 +209,7 @@ def see_exit_code(page, context, code):
 
 @then(parsers.re(rf"only the {LANGUAGE} code block can be opened in the (?P=language) editor$"))
 def only_block(page, language):
-    expect(page.get_by_role("button", name=re.compile(r"^Open in the \w+ editor$"))).to_have_count(1)
+    expect(page.get_by_role("button", name=re.compile(r"^Open in the .+ editor$"))).to_have_count(1)
     expect(page.get_by_role("button", name=f"Open in the {language} editor")).to_have_count(1)
 
 

@@ -31,7 +31,7 @@ Feature: The tools of a subject in the browser
   Scenario: "New subject" offers the tools to attach
     When I open the course "Go"
     And I start a new subject
-    Then I can attach the tools "Go compiler,Python interpreter"
+    Then I can attach the tools "Go compiler,Python interpreter,C++ compiler,SQL interpreter"
 
   Scenario: A subject's page shows its tools only when asked
     When I open the course "Go"

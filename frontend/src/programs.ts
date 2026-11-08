@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Tool } from './api'
 
-/** A language whose programs can be run beside the notes, by the tool of the same id. */
+/** A language whose programs can be run beside the notes, by the tool of the same id: Go, Python, C++ or SQL. */
 export type Language = {
   id: string
   name: string
@@ -27,6 +27,23 @@ export const LANGUAGES: Language[] = [
     fences: ['python', 'py', 'python3'],
     starter: 'print("hello, world")\n',
     indent: '    ',
+  },
+  {
+    id: 'cpp',
+    name: 'C++',
+    fences: ['cpp', 'c++', 'cxx', 'cc', 'hpp'],
+    starter: '#include <iostream>\n\nint main() {\n    std::cout << "hello, world" << std::endl;\n}\n',
+    indent: '    ',
+  },
+  {
+    // SQLite, on a database of its own each run
+    id: 'sql',
+    name: 'SQL',
+    fences: ['sql', 'sqlite'],
+    starter:
+      "CREATE TABLE people (name TEXT, age INTEGER);\nINSERT INTO people VALUES ('Ada', 36), ('Alan', 41);\n\n" +
+      'SELECT name, age FROM people WHERE age > 40;\n',
+    indent: '  ',
   },
 ]
 

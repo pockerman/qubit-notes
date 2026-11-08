@@ -4,17 +4,19 @@ Feature: The tools of a subject
   So that its material comes with what it takes to try it out
 
   A tool, a compiler or an interpreter, is attached to a subject when it is created, or by its
-  owners afterwards. The app has the Go compiler ("go") and the Python interpreter ("python"). A subject has no tools unless they are attached,
+  owners afterwards. The app has the Go compiler ("go"), the Python interpreter ("python"), the
+  C++ compiler ("cpp") and the SQL interpreter ("sql"). A subject has no tools unless they are attached,
   and they go with the subject when it is deleted. Everyone who can see the subject sees its tools;
   only the owners of the course change them. A tool appears where the subject's material is read,
-  edited and written (see The Go editor in the browser, The Python editor in the browser).
+  edited and written (see The Go editor in the browser, The Python editor in the browser, The C++ and SQL editors
+  in the browser).
 
   Background:
     Given I am the student "maria"
     And I have created the course "languages"
 
   Scenario: The tools there are
-    Then the app offers the tools "go,python"
+    Then the app offers the tools "go,python,cpp,sql"
 
   Scenario: Create a subject with a tool
     When I create the subject "Programming in Go" in "languages" with the tools "go"
