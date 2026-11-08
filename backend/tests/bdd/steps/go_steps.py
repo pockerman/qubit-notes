@@ -101,10 +101,28 @@ def _editor(page):
     return page.get_by_role("complementary", name="Go editor")
 
 
+def _tools_menu(page):
+    page.get_by_role("button", name="Tools").click()
+    return page.get_by_role("menu", name="Tools")
+
+
 @when("I open the Go editor")
 def open_editor(page):
-    page.get_by_role("button", name="Go", exact=True).click()
+    choose_tool(page, "Go compiler")
+
+
+@when(parsers.parse('I choose "{tool}" from the Tools menu'))
+def choose_tool(page, tool):
+    _tools_menu(page).get_by_role("menuitemcheckbox", name=tool).click()
     _editor(page).wait_for()
+
+
+@then(parsers.parse('the Tools menu has "{tools}"'))
+def tools_menu_has(page, tools):
+    menu = _tools_menu(page)
+    expect(menu.get_by_role("menuitemcheckbox")).to_have_text(tools.split(","))
+    page.keyboard.press("Escape")
+    expect(menu).to_have_count(0)
 
 
 @when("I close the Go editor")
@@ -178,13 +196,51 @@ def still_editing(page, text):
     expect(page.get_by_role("form", name="Edit material").get_by_label("Text")).to_have_value(re.compile(text))
 
 
+def _subject_tools(page):
+    return page.get_by_role("button", name=re.compile("^The tools of "))
+
+
 def _tool(page, tool: str):
+    # a subject's page shows its tools only when asked for
+    shown = _subject_tools(page)
+    shown.wait_for()
+    if shown.get_attribute("aria-expanded") != "true":
+        shown.click()
     return page.get_by_role("group", name="Tools").get_by_role("checkbox", name=tool)
+
+
+@then("I don't see the subject's tools")
+def subject_tools_hidden(page):
+    expect(page.get_by_role("button", name=re.compile("^Add a topic to "))).to_be_visible()
+    expect(page.get_by_role("group", name="Tools")).to_have_count(0)
+
+
+@when("I choose to see the subject's tools")
+def show_subject_tools(page):
+    _subject_tools(page).click()
+
+
+@then(parsers.parse('I can attach the tool "{tool}"'))
+def can_attach_tool(page, tool):
+    expect(page.get_by_role("group", name="Tools").get_by_role("checkbox", name=tool)).to_be_visible()
 
 
 @then(parsers.parse('the tool "{tool}" is attached'))
 def tool_attached(page, tool):
     expect(_tool(page, tool)).to_be_checked()
+
+
+@when("I start a new subject")
+def start_new_subject(page):
+    page.get_by_role("button", name="New subject").click()
+
+
+@then(parsers.parse('I can attach the tools "{tools}"'))
+def can_attach(page, tools):
+    group = page.get_by_role("form", name="New subject").get_by_role("group", name="Tools")
+    expect(group.get_by_role("checkbox")).to_have_count(len(tools.split(",")))
+    for tool in tools.split(","):
+        expect(group.get_by_role("checkbox", name=tool)).not_to_be_checked()
 
 
 @when(parsers.parse('I attach the tool "{tool}"'))
@@ -199,8 +255,8 @@ def detach_tool(page, tool):
 
 @then("I am offered the Go editor")
 def offered(page):
-    expect(page.get_by_role("button", name="Go", exact=True)).to_be_visible()
     expect(page.get_by_role("button", name="Open in the Go editor")).to_be_visible()
+    tools_menu_has(page, "Go compiler")
 
 
 @then("I am not offered the Go editor")
@@ -208,5 +264,5 @@ def not_offered(page):
     actions = page.get_by_role("group", name="Material actions")
     expect(actions.get_by_role("button", name="AI", exact=True)).to_be_visible()
     expect(page.locator(".section-text pre, pre").first).to_be_visible()
-    expect(page.get_by_role("button", name="Go", exact=True)).to_have_count(0)
+    expect(page.get_by_role("button", name="Tools")).to_have_count(0)
     expect(page.get_by_role("button", name="Open in the Go editor")).to_have_count(0)

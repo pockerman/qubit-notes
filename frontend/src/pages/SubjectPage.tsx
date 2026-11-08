@@ -25,6 +25,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
   const [deletingTopic, setDeletingTopic] = useState<string | null>(null)
   const [addingTopic, setAddingTopic] = useState(false)
   const [makingLessons, setMakingLessons] = useState(false)
+  // the subject's tools are shown only when asked for
+  const [choosingTools, setChoosingTools] = useState(false)
   // e.g. how many lessons were just made
   const [notice, setNotice] = useState<string | null>(null)
   // what is being renamed: the subject (SUBJECT) or one of its topics
@@ -191,6 +193,15 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
             >
               Make lessons from a document
             </button>
+            <button
+              type="button"
+              className="link"
+              aria-label={`The tools of ${subjectName}`}
+              aria-expanded={choosingTools}
+              onClick={() => setChoosingTools(!choosingTools)}
+            >
+              Tools
+            </button>
             {of.length === 0 && (
               <button
                 type="button"
@@ -205,7 +216,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
         )}
       </header>
 
-      {isOwner && <ToolChoice api={api} chosen={found.tools} onChange={attachTools} />}
+      {isOwner && choosingTools && <ToolChoice api={api} chosen={found.tools} onChange={attachTools} />}
 
       {error && (
         <p role="alert" className="error">
