@@ -36,6 +36,7 @@ from qubit_notes.platform.port import (
     Section,
     SectionText,
     Speech,
+    Transcript,
     chosen_ai,
 )
 from qubit_notes.settings import Settings
@@ -341,6 +342,13 @@ class GogiPlatform:
 
     def speak(self, text: str, instructions: str, model: str) -> Speech:
         raise PlatformError("UNIMPLEMENTED", "gogi can't read text aloud")
+
+    # nor a transcription model, so answers are only spoken on the app's own platform
+    def can_transcribe(self) -> bool:
+        return False
+
+    def transcribe(self, audio: bytes, content_type: str, model: str) -> Transcript:
+        raise PlatformError("UNIMPLEMENTED", "gogi can't hear what is said")
 
     def complete(
         self,

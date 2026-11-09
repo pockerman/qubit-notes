@@ -220,7 +220,10 @@ def browser():
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as playwright:
-        browser = playwright.chromium.launch()
+        # a stand-in microphone, for answering by voice, that needs no one to allow it
+        browser = playwright.chromium.launch(
+            args=["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"]
+        )
         yield browser
         browser.close()
 

@@ -17,6 +17,7 @@ from qubit_notes.platform.port import (
     Section,
     SectionText,
     Speech,
+    Transcript,
     chosen_ai,
 )
 from qubit_notes.platform.standalone import parsing
@@ -277,6 +278,12 @@ class FakePlatform:
 
     def speak(self, text: str, instructions: str, model: str) -> Speech:
         return self.ai.speak(text, instructions, model)
+
+    def can_transcribe(self) -> bool:
+        return self.ai.hears
+
+    def transcribe(self, audio: bytes, content_type: str, model: str) -> Transcript:
+        return self.ai.transcribe(audio, content_type, model)
 
     def complete(
         self,

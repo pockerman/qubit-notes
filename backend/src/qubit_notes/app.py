@@ -10,6 +10,7 @@ from qubit_notes.api import (
     app_keys,
     assistant,
     audio,
+    comprehension,
     courses,
     generating,
     health,
@@ -32,6 +33,7 @@ from qubit_notes.domain.ai_model import AIModel
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.audio import Audios
+from qubit_notes.domain.comprehension import ComprehensionAssistantAgent
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
@@ -55,6 +57,7 @@ from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
+from qubit_notes.domain.transcription import Transcription
 from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.writing_assistant import WriteMaterialAssistantAgent
 from qubit_notes.platform import platform_from
@@ -175,6 +178,11 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         files_from(settings),
         settings.speech_model,
     )
+    # checks of a student's understanding, and what they say, heard, to answer by voice
+    app.state.comprehension = ComprehensionAssistantAgent(
+        app.state.database, platform, app.state.courses, sources, app.state.ai_usage
+    )
+    app.state.transcription = Transcription(platform, app.state.ai_usage, settings.transcription_model)
     # what is written about the material: everyone's notes, summaries, quizzes, flashcards and conversations on it
     written = (
         app.state.notes,
@@ -184,6 +192,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.flashcards,
         app.state.assistant,
         app.state.audios,
+        app.state.comprehension,
     )
     # deleting a material deletes all of that
     for service in written:
@@ -228,6 +237,8 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         audio.router,
         audio.models_router,
         writing_assistant.router,
+        comprehension.router,
+        comprehension.transcription_router,
         usage.router,
     ):
         app.include_router(router, prefix="/api")

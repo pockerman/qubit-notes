@@ -26,6 +26,7 @@ from qubit_notes.platform.port import (
     Section,
     SectionText,
     Speech,
+    Transcript,
 )
 from qubit_notes.platform.standalone import chunking, parsing
 from qubit_notes.platform.standalone.ai import AI, ProviderAI
@@ -649,6 +650,12 @@ class StandalonePlatform:
 
     def speak(self, text: str, instructions: str, model: str) -> Speech:
         return self.ai.speak(text, instructions, model)
+
+    def can_transcribe(self) -> bool:
+        return self.ai.has_key("openai")
+
+    def transcribe(self, audio: bytes, content_type: str, model: str) -> Transcript:
+        return self.ai.transcribe(audio, content_type, model)
 
     # conversations
 

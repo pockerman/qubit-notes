@@ -7,6 +7,7 @@ from qubit_notes.domain.ai_model import AIModel
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.audio import Audios
+from qubit_notes.domain.comprehension import ComprehensionAssistantAgent
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
@@ -27,6 +28,7 @@ from qubit_notes.domain.reviews import Reviews
 from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
+from qubit_notes.domain.transcription import Transcription
 from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.writing_assistant import WriteMaterialAssistantAgent
 
@@ -125,6 +127,14 @@ def ai_usage(request: Request) -> AIUsage:
 
 def writing_assistant(request: Request) -> WriteMaterialAssistantAgent:
     return request.app.state.writing_assistant
+
+
+def comprehension(request: Request) -> ComprehensionAssistantAgent:
+    return request.app.state.comprehension
+
+
+def transcription(request: Request) -> Transcription:
+    return request.app.state.transcription
 
 
 def audios(request: Request) -> Audios:

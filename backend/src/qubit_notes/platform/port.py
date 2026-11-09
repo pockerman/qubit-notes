@@ -136,6 +136,16 @@ class Speech(BaseModel):
     output_tokens: int = 0
 
 
+class Transcript(BaseModel):
+    """what a recording says, as text, and who heard it; 0 tokens where the provider doesn't tell"""
+
+    text: str
+    provider: str
+    model: str
+    input_tokens: int = 0
+    output_tokens: int = 0
+
+
 class WebSource(BaseModel):
     """a page of the web an answer drew on"""
 
@@ -267,6 +277,12 @@ class StudyPlatform(Protocol):
     def can_speak(self) -> bool: ...
 
     def speak(self, text: str, instructions: str, model: str) -> Speech: ...
+
+    # what a student says, recorded, as text heard by one of OpenAI's transcription models
+    # (features/transcription.feature); only where the platform can hear, which needs the app's OpenAI key
+    def can_transcribe(self) -> bool: ...
+
+    def transcribe(self, audio: bytes, content_type: str, model: str) -> Transcript: ...
 
     # the AI, searching the web for what it needs, unless told not to, and citing what it draws on
     # (features/writing_assistant.feature); where it can't search the web, it answers as complete does

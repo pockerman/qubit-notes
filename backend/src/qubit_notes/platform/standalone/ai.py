@@ -4,10 +4,29 @@ choose, called with the app's key."""
 import json
 from typing import Any, Protocol
 
-from qubit_notes.platform.port import Completion, Message, PlatformError, Researched, Speech, WebSource, chosen_ai
+from qubit_notes.platform.port import (
+    Completion,
+    Message,
+    PlatformError,
+    Researched,
+    Speech,
+    Transcript,
+    WebSource,
+    chosen_ai,
+)
 from qubit_notes.settings import DEFAULT_MODELS, Settings, missing_key
 
 PROVIDERS = tuple(DEFAULT_MODELS)
+# the file extension OpenAI tells a recording's format by
+_EXTENSIONS = {
+    "audio/webm": "webm",
+    "audio/ogg": "ogg",
+    "audio/mp4": "mp4",
+    "audio/mpeg": "mp3",
+    "audio/wav": "wav",
+    "audio/x-wav": "wav",
+    "audio/flac": "flac",
+}
 
 
 class AI(Protocol):
@@ -45,6 +64,10 @@ class AI(Protocol):
 
     def research(self, system: str, prompt: str, history: list[Message] | None, search_web: bool) -> Researched:
         """what the AI writes, searching the web, unless told not to, its text citing its sources by number"""
+        ...
+
+    def transcribe(self, audio: bytes, content_type: str, model: str) -> Transcript:
+        """what the recording says, heard by one of OpenAI's transcription models"""
         ...
 
 
@@ -112,6 +135,30 @@ class ProviderAI:
         except openai.OpenAIError as e:
             raise PlatformError("AI_FAILED", f"OpenAI refused: {e}") from e
         return Speech(audio=response.content, provider="openai", model=model)
+
+    def transcribe(self, audio: bytes, content_type: str, model: str) -> Transcript:
+        import openai
+
+        key = self._keys.get("openai")
+        if not key:
+            raise PlatformError("FAILED_PRECONDITION", missing_key("openai"))
+        # OpenAI tells the recording's format by its name
+        name = f"answer.{_EXTENSIONS.get(content_type.split(';')[0].strip(), 'webm')}"
+        try:
+            heard = openai.OpenAI(api_key=key).audio.transcriptions.create(
+                model=model, file=(name, audio, content_type)
+            )
+        except openai.OpenAIError as e:
+            raise PlatformError("AI_FAILED", f"OpenAI couldn't hear it: {e}") from e
+        # the gpt-4o models tell the tokens it took; whisper-1 only the recording's length
+        usage = getattr(heard, "usage", None)
+        return Transcript(
+            text=heard.text.strip(),
+            provider="openai",
+            model=model,
+            input_tokens=getattr(usage, "input_tokens", 0) or 0,
+            output_tokens=getattr(usage, "output_tokens", 0) or 0,
+        )
 
     def _anthropic(
         self, model: str, key: str, system: str, messages: list[dict], json_schema: dict | None

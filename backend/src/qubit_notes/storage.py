@@ -334,6 +334,21 @@ writing_replies = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
 )
 
+# a student's check of their understanding of a section, a document, a topic or a subject: the questions the AI
+# asked, the student's answers and how well they understood each, and, once it is ended, its verdict
+# (features/comprehension.feature)
+comprehension_checks = Table(
+    "comprehension_checks",
+    metadata,
+    Column("id", String, primary_key=True),
+    *_scope_columns(),
+    # each question, with the section it's from, the answer to it, whether it was spoken, and its assessment
+    Column("exchanges", JSON, nullable=False),
+    Column("verdict", JSON),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+    Column("ended_at", DateTime(timezone=True)),
+)
+
 # a student's audio of a material: a narration the AI wrote, read aloud; its MP3 is with the app's files, under audio/
 material_audio = Table(
     "material_audio",

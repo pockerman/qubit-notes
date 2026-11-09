@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Course, Material, Mention, StudyApi, Topic } from '../api'
 import { Assistant } from '../components/Assistant'
+import { ComprehensionPanel } from '../components/ComprehensionPanel'
 import { RenameForm } from '../components/RenameForm'
 import { namesOf } from '../names'
 import { takeNotice } from '../notices'
@@ -18,6 +19,8 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
   const [topics, setTopics] = useState<Topic[]>([])
   const [renaming, setRenaming] = useState(false)
   const [assistant, setAssistant] = useState(false)
+  // the comprehension assistant, in the assistant's place
+  const [checking, setChecking] = useState(false)
   // e.g. that the material just saved has broken references
   const [notice] = useState(takeNotice)
   const [error, setError] = useState<string | null>(null)
@@ -146,9 +149,28 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
             </>
           )}
           {ready && (
-            <button type="button" aria-pressed={assistant} onClick={() => setAssistant(!assistant)}>
-              AI
-            </button>
+            <>
+              <button
+                type="button"
+                aria-pressed={assistant}
+                onClick={() => {
+                  setChecking(false)
+                  setAssistant(!assistant)
+                }}
+              >
+                AI
+              </button>
+              <button
+                type="button"
+                aria-pressed={checking}
+                onClick={() => {
+                  setAssistant(false)
+                  setChecking(!checking)
+                }}
+              >
+                Check understanding
+              </button>
+            </>
           )}
         </div>
       </header>
@@ -164,7 +186,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
         </p>
       )}
 
-      <div className={assistant ? 'topic-body with-assistant' : 'topic-body'}>
+      <div className={assistant || checking ? 'topic-body with-assistant' : 'topic-body'}>
         <div>
           <h3>Materials</h3>
           {materials.length === 0 ? (
@@ -253,6 +275,15 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
             where={{ course_id: courseId, subject, topic }}
             label={`${subjectName} › ${name}`}
             onClose={() => setAssistant(false)}
+          />
+        )}
+        {checking && (
+          <ComprehensionPanel
+            key={`${courseId}/${subject}/${topic}`}
+            api={api}
+            of={[{ label: 'the topic', scope: { course_id: courseId, subject, topic } }]}
+            label={`${subjectName} › ${name}`}
+            onClose={() => setChecking(false)}
           />
         )}
       </div>

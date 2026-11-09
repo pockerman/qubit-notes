@@ -1381,11 +1381,11 @@ def rename_subject_on_course_page(page, name, new_name):
     _rename(page, name, new_name)
 
 
-@then("I am not offered to rename the subject, or add topics to it, only to download it")
+@then("I am not offered to rename the subject, or add topics to it, only to download it or check my understanding")
 def not_offered_to_change_subject(page):
     header = page.locator("header.page-header")
     expect(page.locator("#subject-title")).to_be_visible()
-    expect(header.get_by_role("button")).to_have_text(["Download as zip"])
+    expect(header.get_by_role("button")).to_have_text(["Download as zip", "Check understanding"])
 
 
 @then(parsers.parse('I see the topics "{topics}" under "{subject}"'))

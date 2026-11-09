@@ -21,6 +21,7 @@ import { AddImage } from './AddImage'
 import { AddReference } from './AddReference'
 import { Assistant } from './Assistant'
 import { AudioPanel } from './AudioPanel'
+import { ComprehensionPanel } from './ComprehensionPanel'
 import { ProgramEditor } from './ProgramEditor'
 import { useProgramEditors } from '../programs'
 import { useSubjectTools } from '../subjectTools'
@@ -319,6 +320,8 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
   const [assistant, setAssistant] = useState(false)
   // the student's audio of the material, likewise
   const [listening, setListening] = useState(false)
+  // the comprehension assistant, likewise
+  const [checking, setChecking] = useState(false)
   // the writing assistant, beside the material while it is edited
   const [writing, setWriting] = useState(false)
   // the subject's tools, e.g. the Go or Python editor, take their place too; what is in one stays while the material
@@ -454,6 +457,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
     open: (language: Parameters<typeof programs.openCode>[0], code: string) => {
       setAssistant(false)
       setListening(false)
+      setChecking(false)
       programs.openCode(language, code)
     },
   }
@@ -478,6 +482,24 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
       where={{ course_id: courseId, document_id: documentId, section: material?.kind === 'text' ? position : null }}
       label={paper?.title || material?.filename || ''}
       onClose={() => setAssistant(false)}
+    />
+  ) : checking ? (
+    <ComprehensionPanel
+      key={documentId}
+      api={api}
+      of={[
+        ...(position !== null
+          ? [
+              {
+                label: `this section (${parts[0]?.section.title || 'the one being read'})`,
+                scope: { course_id: courseId, document_id: documentId, section: position },
+              },
+            ]
+          : []),
+        { label: 'the whole material', scope: { course_id: courseId, document_id: documentId } },
+      ]}
+      label={paper?.title || material?.filename || ''}
+      onClose={() => setChecking(false)}
     />
   ) : listening ? (
     <AudioPanel
@@ -539,6 +561,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                 onClick={() => {
                   programs.close()
                   setListening(false)
+                  setChecking(false)
                   setAssistant(!assistant)
                 }}
               >
@@ -547,10 +570,25 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
               {material.kind === 'text' && (
                 <button
                   type="button"
+                  aria-pressed={checking}
+                  onClick={() => {
+                    programs.close()
+                    setAssistant(false)
+                    setListening(false)
+                    setChecking(!checking)
+                  }}
+                >
+                  Check understanding
+                </button>
+              )}
+              {material.kind === 'text' && (
+                <button
+                  type="button"
                   aria-pressed={listening}
                   onClick={() => {
                     programs.close()
                     setAssistant(false)
+                    setChecking(false)
                     setListening(!listening)
                   }}
                 >
@@ -563,6 +601,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                 onOpen={(tool) => {
                   setAssistant(false)
                   setListening(false)
+                  setChecking(false)
                   setWriting(false)
                   programs.toggle(tool)
                 }}
@@ -662,7 +701,10 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
       )}
 
       {!editing && material?.kind === 'text' && (
-        <div ref={body} className={assistant || listening || toolPanel ? 'reader-body with-assistant' : 'reader-body'}>
+        <div
+          ref={body}
+          className={assistant || listening || checking || toolPanel ? 'reader-body with-assistant' : 'reader-body'}
+        >
           <nav aria-label="Sections" className="outline">
             <ol>
               {material.sections.map((section) => (
