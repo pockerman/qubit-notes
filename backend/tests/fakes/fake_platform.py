@@ -15,6 +15,7 @@ from qubit_notes.platform.port import (
     PlatformHealth,
     Section,
     SectionText,
+    Speech,
     chosen_ai,
 )
 from qubit_notes.platform.standalone import parsing
@@ -263,6 +264,12 @@ class FakePlatform:
     @property
     def histories(self) -> list[list[Message]]:
         return self.ai.histories
+
+    def can_speak(self) -> bool:
+        return self.ai.speaks
+
+    def speak(self, text: str, instructions: str, model: str) -> Speech:
+        return self.ai.speak(text, instructions, model)
 
     def complete(
         self,

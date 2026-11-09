@@ -37,6 +37,7 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
 - **Asking the assistant.** Ask about the material being read or the whole course and get answers that cite their
   sources, in conversations the assistant remembers, kept private to each student.
 - **Copying and rating replies.** Copy any reply of the assistant as Markdown, and give it a thumbs up or down.
+- **Audio of a material.** Listen to a narration of a material the AI writes as you instruct, read aloud by OpenAI.
 - **Summaries and quizzes.** Summaries and quizzes of 1 to 20 questions on a section, a document or a whole topic,
   saved, retaken, and marked out of date when the material changes.
 - **Flashcards and reviews.** Decks of 1 to 30 flashcards on a section, a document or a topic, whose cards come back
@@ -280,6 +281,23 @@ answer, when the card was due and when it was reviewed, and its ease and interva
 again; a new deck leaves the reviews of the earlier one in the history, and they are deleted with their material.
 **History**, on the Reviews page, shows the latest 50, with each card, how well it was remembered and how long until
 it was due again.
+
+## Audio of a material
+
+"Audio" in the reader makes the student's own audio of a text material (`features/material_audio.feature`,
+`features/ui_material_audio.feature`). The AI the student chose first writes a narration of the material to be
+listened to, formulas said in words and code and tables described, following the student's instructions, and says how
+it is to be spoken; one of OpenAI's speech models then reads it aloud, in the voice `QUBIT_NOTES_SPEECH_VOICE`
+(`coral`), in parts of at most 3,000 characters whose MP3s are joined into one. As with the AI, each student chooses
+the speech model in the audio panel, kept in their browser: `gpt-4o-mini-tts`, the only one told how to speak it,
+`tts-1`, fast, or `tts-1-hd`, best sound (`GET /api/speech-models`); without a choice, the app's own reads it
+(`QUBIT_NOTES_SPEECH_MODEL`, `gpt-4o-mini-tts` by default). The model an audio was read by is kept with it. So audio needs the app's OpenAI key, and the app's own platform: gogi has no speech model. It is made in the
+background, "generating" until "ready" or "failed"; the reader asks after it until it is done. The student can delete
+it and ask for another, or improve it with suggestions, which the AI is given with its earlier narration. The MP3s are
+kept with the app's files (`QUBIT_NOTES_FILES_DIR` or `QUBIT_NOTES_FILES_BUCKET`) under `audio/`, the rest in
+`material_audio`; they're deleted with the material or the course. Writing the narration and reading it aloud are in
+the AI's usage as `audio`; OpenAI's speech model doesn't say what tokens it took, so reading aloud counts as requests
+only.
 
 ## Rating the assistant's replies
 

@@ -4,7 +4,8 @@ Feature: Asking the assistant in the browser
   I want to ask the assistant from the page I am reading
   So that I can get answers, summaries and quizzes as I read
 
-  An "AI" button next to "Edit" and "Download" opens the assistant beside the text. Summaries
+  An "AI" button next to "Edit" and "Download" opens the assistant beside the text ("Audio", after it, opens the
+  material's audio: see Audio of a material in the browser). Summaries
   and quizzes are asked for there, in words: there are no separate buttons for them.
 
   The assistant offers to choose which of Anthropic and OpenAI answers, each with its model (see
@@ -56,7 +57,7 @@ Feature: Asking the assistant in the browser
   Scenario: There are no separate summary and quiz buttons
     When I open the course "Aeronautics"
     And I open "fem-notes.md" to read it
-    Then I see the buttons "Edit", "Download" and "AI" together
+    Then I see the buttons "Edit, Download, AI, Audio" together
     But I see no "Summarise" or "Quiz me" button
 
   Scenario: Choose which provider answers, where the app has the keys of both

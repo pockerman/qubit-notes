@@ -23,6 +23,7 @@ from sqlalchemy import (
     Table,
     Text,
     TypeDecorator,
+    UniqueConstraint,
     create_engine,
     inspect,
 )
@@ -315,6 +316,30 @@ answer_ratings = Table(
     # up or down
     Column("rating", String, nullable=False),
     Column("rated_at", DateTime(timezone=True), nullable=False),
+)
+
+# a student's audio of a material: a narration the AI wrote, read aloud; its MP3 is with the app's files, under audio/
+material_audio = Table(
+    "material_audio",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("student", String, nullable=False),
+    Column("course_id", String, nullable=False, index=True),
+    Column("document_id", String, nullable=False, index=True),
+    # generating, ready or failed
+    Column("status", String, nullable=False),
+    Column("instructions", Text, nullable=False),
+    Column("suggestions", Text, nullable=False),
+    Column("narration", Text, nullable=False),
+    # how the narration is spoken, as the AI said
+    Column("voice", Text, nullable=False),
+    # the speech model it is read by
+    Column("model", String, nullable=False),
+    Column("error", Text),
+    Column("size", Integer),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+    UniqueConstraint("student", "document_id"),
 )
 
 # the conversion of an uploaded PDF or EPUB to the Markdown its material is: see domain/conversions.py

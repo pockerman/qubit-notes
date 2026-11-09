@@ -34,6 +34,7 @@ from qubit_notes.platform.port import (
     PlatformHealth,
     Section,
     SectionText,
+    Speech,
     chosen_ai,
 )
 from qubit_notes.settings import Settings
@@ -324,6 +325,13 @@ class GogiPlatform:
         ]
 
     # the AI
+
+    # gogi has no speech model, so the audio of a material is only made on the app's own platform
+    def can_speak(self) -> bool:
+        return False
+
+    def speak(self, text: str, instructions: str, model: str) -> Speech:
+        raise PlatformError("UNIMPLEMENTED", "gogi can't read text aloud")
 
     def complete(
         self,

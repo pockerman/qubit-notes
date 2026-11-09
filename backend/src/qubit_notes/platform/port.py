@@ -126,6 +126,16 @@ class Completion(BaseModel):
     output_tokens: int = 0
 
 
+class Speech(BaseModel):
+    """text read aloud, as MP3, and who read it; 0 tokens where the provider doesn't tell"""
+
+    audio: bytes
+    provider: str
+    model: str
+    input_tokens: int = 0
+    output_tokens: int = 0
+
+
 class StudyPlatform(Protocol):
     """What qubit-notes needs of a platform.
 
@@ -230,6 +240,12 @@ class StudyPlatform(Protocol):
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
     ) -> Completion: ...
+
+    # text read aloud by one of OpenAI's speech models, following the instructions on how to speak it, if any
+    # (features/material_audio.feature); only where the platform can speak, which needs the app's OpenAI key
+    def can_speak(self) -> bool: ...
+
+    def speak(self, text: str, instructions: str, model: str) -> Speech: ...
 
     # conversations with the AI, kept by the platform; a conversation's id is the caller's
     def start_conversation(self, user: str, conversation_id: str) -> None: ...

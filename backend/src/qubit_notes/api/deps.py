@@ -6,6 +6,7 @@ from qubit_notes.domain.account import Account
 from qubit_notes.domain.ai_model import AIModel
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
+from qubit_notes.domain.audio import Audios
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
@@ -119,6 +120,10 @@ def flashcards(request: Request) -> Flashcards:
 
 def ai_usage(request: Request) -> AIUsage:
     return request.app.state.ai_usage
+
+
+def audios(request: Request) -> Audios:
+    return request.app.state.audios
 
 
 def reading_progress(request: Request) -> ReadingProgress:

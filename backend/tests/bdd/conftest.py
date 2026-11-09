@@ -186,7 +186,8 @@ def app(request, platform, tmp_path):
     if ui and storage.in_memory(database_url):
         # a browser asks for several things at once, which one in-memory connection can't serve together
         database_url = f"sqlite:///{tmp_path / 'qubit-notes.db'}"
-    settings = Settings(frontend_dir=frontend, database_url=database_url)
+    # the app's own files, e.g. the audio of materials, in a directory of the scenario's
+    settings = Settings(frontend_dir=frontend, database_url=database_url, files_dir=str(tmp_path / "app-files"))
     if "cognito" in request.keywords:
         cognito = request.getfixturevalue("cognito")
         settings = settings.model_copy(
