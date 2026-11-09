@@ -1512,3 +1512,126 @@ main {
   overflow-y: auto;
   font-size: 0.925rem;
 }
+
+/* the writing assistant, beside the material being written or edited */
+.writing-assistant .writing-reply {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg);
+}
+
+.writing-assistant .references {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.writing-assistant .references a {
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.writing-assistant .ask {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.writing-assistant label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.writing-assistant label.checkbox input {
+  width: auto;
+}
+
+/* the comprehension assistant: its questions, the student's answers, how well each was understood, and its verdict */
+.comprehension .check-start,
+.comprehension .check-actions,
+.comprehension .answer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.comprehension .check-start {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.comprehension .check-start > button {
+  align-self: flex-start;
+}
+
+.comprehension .check-actions {
+  justify-content: space-between;
+}
+
+.comprehension .answer-actions button[type='submit'] {
+  margin-left: auto;
+}
+
+.earlier-checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.earlier-checks li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.earlier-checks li span {
+  margin-right: auto;
+}
+
+.exchange {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.exchange .question p:first-child {
+  margin-top: 0;
+}
+
+.exchange .answer {
+  margin: 0 0 0 auto;
+  width: fit-content;
+  max-width: 85%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.35rem 0.7rem;
+  white-space: pre-wrap;
+}
+
+.exchange .assessment {
+  border-left: 3px solid var(--border);
+  padding-left: 0.6rem;
+}
+
+.exchange .assessment.understood-yes {
+  border-left-color: #2e7d32;
+}
+
+.exchange .assessment.understood-partly {
+  border-left-color: #b26a00;
+}
+
+.exchange .assessment.understood-no {
+  border-left-color: #c62828;
+}
+
+.comprehension .recording {
+  background: #c62828;
+  border-color: #c62828;
+  color: #fff;
+}

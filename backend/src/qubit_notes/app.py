@@ -10,6 +10,7 @@ from qubit_notes.api import (
     app_keys,
     assistant,
     audio,
+    comprehension,
     courses,
     generating,
     health,
@@ -23,6 +24,7 @@ from qubit_notes.api import (
     references,
     study,
     usage,
+    writing_assistant,
 )
 from qubit_notes.api.auth import authenticator
 from qubit_notes.api.errors import add_error_handlers
@@ -31,6 +33,7 @@ from qubit_notes.domain.ai_model import AIModel
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
 from qubit_notes.domain.audio import Audios
+from qubit_notes.domain.comprehension import ComprehensionAssistantAgent
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
@@ -54,7 +57,9 @@ from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
+from qubit_notes.domain.transcription import Transcription
 from qubit_notes.domain.usage import AIUsage
+from qubit_notes.domain.writing_assistant import WriteMaterialAssistantAgent
 from qubit_notes.platform import platform_from
 from qubit_notes.platform.named import NamedDocuments
 from qubit_notes.platform.port import StudyPlatform
@@ -173,6 +178,11 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         files_from(settings),
         settings.speech_model,
     )
+    # checks of a student's understanding, and what they say, heard, to answer by voice
+    app.state.comprehension = ComprehensionAssistantAgent(
+        app.state.database, platform, app.state.courses, sources, app.state.ai_usage
+    )
+    app.state.transcription = Transcription(platform, app.state.ai_usage, settings.transcription_model)
     # what is written about the material: everyone's notes, summaries, quizzes, flashcards and conversations on it
     written = (
         app.state.notes,
@@ -182,6 +192,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.flashcards,
         app.state.assistant,
         app.state.audios,
+        app.state.comprehension,
     )
     # deleting a material deletes all of that
     for service in written:
@@ -192,6 +203,11 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.course_titles = CourseTitles(database, app.state.courses, app.state.paper_records.collections)
     app.state.courses.on_delete(app.state.course_titles.forget)
     # collections of papers: courses of their own, apart from the student's courses
+    # the writing assistant: help writing material, from the web
+    app.state.writing_assistant = WriteMaterialAssistantAgent(
+        database, platform, app.state.courses, app.state.course_titles, app.state.topics, app.state.ai_usage
+    )
+    app.state.courses.on_delete(lambda course: app.state.writing_assistant.forget_course(course.id))
     app.state.papers = Papers(app.state.paper_records, app.state.courses, app.state.course_titles, app.state.materials)
     app.state.materials.on_delete(app.state.paper_records.forget_material)
     app.state.courses.on_delete(lambda course: app.state.paper_records.forget_course(course.id))
@@ -220,6 +236,9 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         assistant.router,
         audio.router,
         audio.models_router,
+        writing_assistant.router,
+        comprehension.router,
+        comprehension.transcription_router,
         usage.router,
     ):
         app.include_router(router, prefix="/api")

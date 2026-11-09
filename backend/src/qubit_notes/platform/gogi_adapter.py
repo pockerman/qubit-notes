@@ -32,9 +32,11 @@ from qubit_notes.platform.port import (
     Message,
     PlatformError,
     PlatformHealth,
+    Researched,
     Section,
     SectionText,
     Speech,
+    Transcript,
     chosen_ai,
 )
 from qubit_notes.settings import Settings
@@ -326,12 +328,27 @@ class GogiPlatform:
 
     # the AI
 
+    # gogi's AI can't search the web, so it writes from what it knows
+    def can_search_web(self) -> bool:
+        return False
+
+    def research(self, system: str, prompt: str, history: list[Message] | None, search_web: bool) -> Researched:
+        completion = self.complete(system, prompt, history=history)
+        return Researched(**completion.model_dump(), sources=[], searched=False)
+
     # gogi has no speech model, so the audio of a material is only made on the app's own platform
     def can_speak(self) -> bool:
         return False
 
     def speak(self, text: str, instructions: str, model: str) -> Speech:
         raise PlatformError("UNIMPLEMENTED", "gogi can't read text aloud")
+
+    # nor a transcription model, so answers are only spoken on the app's own platform
+    def can_transcribe(self) -> bool:
+        return False
+
+    def transcribe(self, audio: bytes, content_type: str, model: str) -> Transcript:
+        raise PlatformError("UNIMPLEMENTED", "gogi can't hear what is said")
 
     def complete(
         self,

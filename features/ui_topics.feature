@@ -102,7 +102,7 @@ Feature: Subjects and topics in the browser
       And I open the subject "Numerical methods"
       Then I see the topics "Finite elements, Finite volumes" under "Numerical methods"
       And I am not offered to move or delete topics
-      And I am not offered to rename the subject, or add topics to it, only to download it
+      And I am not offered to rename the subject, or add topics to it, only to download it or check my understanding
 
   Rule: Subjects and topics are created before their material
 

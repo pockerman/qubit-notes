@@ -318,6 +318,37 @@ answer_ratings = Table(
     Column("rated_at", DateTime(timezone=True), nullable=False),
 )
 
+# what the writing assistant replied to a student, kept so they can rate it (features/writing_assistant.feature)
+writing_replies = Table(
+    "writing_replies",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("student", String, nullable=False, index=True),
+    Column("course_id", String, nullable=False, index=True),
+    Column("subject", String, nullable=False),
+    Column("topic", String, nullable=False),
+    Column("request", Text, nullable=False),
+    Column("reply", Text, nullable=False),
+    Column("sources", JSON, nullable=False),
+    Column("searched", Boolean, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
+# a student's check of their understanding of a section, a document, a topic or a subject: the questions the AI
+# asked, the student's answers and how well they understood each, and, once it is ended, its verdict
+# (features/comprehension.feature)
+comprehension_checks = Table(
+    "comprehension_checks",
+    metadata,
+    Column("id", String, primary_key=True),
+    *_scope_columns(),
+    # each question, with the section it's from, the answer to it, whether it was spoken, and its assessment
+    Column("exchanges", JSON, nullable=False),
+    Column("verdict", JSON),
+    Column("updated_at", DateTime(timezone=True), nullable=False),
+    Column("ended_at", DateTime(timezone=True)),
+)
+
 # a student's audio of a material: a narration the AI wrote, read aloud; its MP3 is with the app's files, under audio/
 material_audio = Table(
     "material_audio",

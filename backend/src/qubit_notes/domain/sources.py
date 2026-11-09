@@ -10,7 +10,8 @@ from qubit_notes.platform.port import IngestStatus, StudyPlatform
 
 
 class Scope(BaseModel):
-    """A section of a document (with its subsections), a whole document, or a topic: every text of the topic."""
+    """A section of a document (with its subsections), a whole document, a topic: every text of the topic, or a
+    subject: every text of every topic of it."""
 
     course_id: str
     document_id: str | None = None
@@ -20,8 +21,10 @@ class Scope(BaseModel):
 
     @model_validator(mode="after")
     def _one_kind(self) -> "Scope":
-        if self.document_id is None and not (self.subject and self.topic):
-            raise ValueError("a scope is a document, a section of one, or a subject and topic")
+        if self.document_id is None and not self.subject:
+            raise ValueError("a scope is a document, a section of one, a subject, or a subject and topic")
+        if self.topic and not self.subject:
+            raise ValueError("a topic is of a subject")
         if self.document_id is not None and (self.subject or self.topic):
             raise ValueError("a scope is either a document or a topic")
         if self.section is not None and self.document_id is None:
@@ -32,7 +35,14 @@ class Scope(BaseModel):
     def kind(self) -> str:
         if self.section is not None:
             return "section"
-        return "document" if self.document_id else "topic"
+        if self.document_id:
+            return "document"
+        return "topic" if self.topic else "subject"
+
+    @property
+    def of_material(self) -> bool:
+        """whether it is a section or a document, rather than every text of a topic or a subject"""
+        return self.document_id is not None
 
 
 class Source(BaseModel):
@@ -78,10 +88,11 @@ class Sources:
 
     def gather(self, student: str, scope: Scope) -> Gathered:
         course = self._courses.get_by_id(student, scope.course_id)
-        if scope.kind == "topic":
+        if not scope.of_material:
             documents = self._topic_documents(course.id, scope)
             if not documents:
-                raise NotFound(f"there is no material to work from in {scope.subject}/{scope.topic}")
+                where = f"{scope.subject}/{scope.topic}" if scope.topic else scope.subject
+                raise NotFound(f"there is no material to work from in {where}")
         else:
             opened = self._reading.open(student, scope.course_id, scope.document_id)
             if opened.kind == "video":
@@ -99,15 +110,14 @@ class Sources:
         return Gathered(sources=sources, documents=documents)
 
     def out_of_date(self, student: str, scope: Scope, documents: dict) -> OutOfDate | None:
-        """how the material changed since it was ``documents``: edited, or, for a topic, added or removed;
+        """how the material changed since it was ``documents``: edited, or, for a topic or subject, added or removed;
         None if it hasn't"""
         written = {d: ref if isinstance(ref, dict) else {"filename": ref} for d, ref in documents.items()}
         course = self._courses.get_by_id(student, scope.course_id)
         current = self._current(course.id, scope, completed_only=False)
-        added = sorted(current[d].filename for d in current.keys() - written.keys()) if scope.kind == "topic" else []
-        removed = (
-            sorted(written[d]["filename"] for d in written.keys() - current.keys()) if scope.kind == "topic" else []
-        )
+        many = not scope.of_material
+        added = sorted(current[d].filename for d in current.keys() - written.keys()) if many else []
+        removed = sorted(written[d]["filename"] for d in written.keys() - current.keys()) if many else []
         edited = sorted(
             current[d].filename
             for d in current.keys() & written.keys()
@@ -116,7 +126,7 @@ class Sources:
         return OutOfDate(added=added, removed=removed, edited=edited) if added or removed or edited else None
 
     def _current(self, course_id: str, scope: Scope, completed_only: bool = True) -> dict[str, DocumentRef]:
-        if scope.kind == "topic":
+        if not scope.of_material:
             return self._topic_documents(course_id, scope, completed_only)
         document = self._platform.get_document(course_id, scope.document_id)
         return (
@@ -126,7 +136,9 @@ class Sources:
         )
 
     def _topic_documents(self, course_id: str, scope: Scope, completed_only: bool = True) -> dict[str, DocumentRef]:
-        found = self._platform.list_documents(course_id, {"subject": scope.subject, "topic": scope.topic})
+        # a subject's are those of every topic of it
+        where = {"subject": scope.subject, **({"topic": scope.topic} if scope.topic else {})}
+        found = self._platform.list_documents(course_id, where)
         texts = [
             d
             for d in found
@@ -134,7 +146,7 @@ class Sources:
         ]
         return {
             d.document_id: DocumentRef(filename=d.filename, version=d.version)
-            for d in sorted(texts, key=lambda d: d.filename)
+            for d in sorted(texts, key=lambda d: (d.metadata.get("topic", ""), d.filename))
         }
 
     def _whole(self, student: str, course_id: str, document_id: str, filename: str) -> list[SourceText]:

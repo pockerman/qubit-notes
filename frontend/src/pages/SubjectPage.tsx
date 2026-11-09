@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Course, Material, Original, StudyApi, Subject, Topic } from '../api'
+import { ComprehensionPanel } from '../components/ComprehensionPanel'
 import { LessonsForm } from '../components/LessonsForm'
 import { NewTopicForm } from '../components/NewTopicForm'
 import { Originals } from '../components/Originals'
@@ -29,6 +30,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
   const [choosingTools, setChoosingTools] = useState(false)
   // while the zip of the subject is being made
   const [zipping, setZipping] = useState(false)
+  // the comprehension assistant, on the whole subject
+  const [checking, setChecking] = useState(false)
   // e.g. how many lessons were just made
   const [notice, setNotice] = useState<string | null>(null)
   // what is being renamed: the subject (SUBJECT) or one of its topics
@@ -91,6 +94,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
   const isOwner = course.role === 'owner'
   const names = namesOf(topics)
   const subjectName = found.name
+  // the subject has text to question the student on
+  const ready = materials.some((m) => m.subject === subject && m.kind === 'text' && m.status === 'completed')
   // the subject's topics, in their order, each with its materials
   const of: [string, Material[]][] = topics
     .filter((t) => t.subject === subject)
@@ -191,14 +196,14 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
               Rename
             </button>
           )}
-          <button
-            type="button"
-            className="secondary"
-            disabled={zipping}
-            onClick={downloadZip}
-          >
+          <button type="button" className="secondary" disabled={zipping} onClick={downloadZip}>
             {zipping ? 'Preparing the zip…' : 'Download as zip'}
           </button>
+          {ready && (
+            <button type="button" aria-pressed={checking} onClick={() => setChecking(!checking)}>
+              Check understanding
+            </button>
+          )}
         </div>
         {renaming === SUBJECT && (
           <RenameForm name={subjectName} onRename={renameSubject} onCancel={() => setRenaming(null)} />
@@ -286,108 +291,121 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
       )}
 
       {of.length === 0 && <p className="note">No topics yet</p>}
-      <ol className="topics" aria-label={`Topics of ${subjectName}`}>
-        {of.map(([topic, items], index) => {
-          const status = topicStatus(items)
-          const name = names.topic(subject, topic)
-          return (
-            <li key={topic}>
-              <section className="topic" aria-label={`${subjectName} › ${name}`}>
-                <header className="topic-header">
-                  <h4>
-                    <a href={href({ page: 'topic', courseId, subject, topic })}>{name}</a>
-                  </h4>
-                  <span className={`badge ${status.bad ? 'bad' : ''}`} aria-label={`Status of ${name}`}>
-                    {status.label}
-                  </span>
-                  {isOwner && (
-                    <span className="topic-actions">
-                      {of.length > 1 && (
-                        <>
+      <div className={checking ? 'topic-body with-assistant' : 'topic-body'}>
+        <div>
+          <ol className="topics" aria-label={`Topics of ${subjectName}`}>
+            {of.map(([topic, items], index) => {
+              const status = topicStatus(items)
+              const name = names.topic(subject, topic)
+              return (
+                <li key={topic}>
+                  <section className="topic" aria-label={`${subjectName} › ${name}`}>
+                    <header className="topic-header">
+                      <h4>
+                        <a href={href({ page: 'topic', courseId, subject, topic })}>{name}</a>
+                      </h4>
+                      <span className={`badge ${status.bad ? 'bad' : ''}`} aria-label={`Status of ${name}`}>
+                        {status.label}
+                      </span>
+                      {isOwner && (
+                        <span className="topic-actions">
+                          {of.length > 1 && (
+                            <>
+                              <button
+                                type="button"
+                                className="secondary"
+                                aria-label={`Move ${name} up`}
+                                disabled={index === 0}
+                                onClick={() =>
+                                  move(
+                                    of.map(([t]) => t),
+                                    index,
+                                    -1,
+                                  )
+                                }
+                              >
+                                ↑
+                              </button>
+                              <button
+                                type="button"
+                                className="secondary"
+                                aria-label={`Move ${name} down`}
+                                disabled={index === of.length - 1}
+                                onClick={() =>
+                                  move(
+                                    of.map(([t]) => t),
+                                    index,
+                                    1,
+                                  )
+                                }
+                              >
+                                ↓
+                              </button>
+                            </>
+                          )}
                           <button
                             type="button"
                             className="secondary"
-                            aria-label={`Move ${name} up`}
-                            disabled={index === 0}
-                            onClick={() =>
-                              move(
-                                of.map(([t]) => t),
-                                index,
-                                -1,
-                              )
-                            }
+                            aria-label={`Rename ${name}`}
+                            onClick={() => setRenaming(renaming === topic ? null : topic)}
                           >
-                            ↑
+                            Rename
                           </button>
                           <button
                             type="button"
-                            className="secondary"
-                            aria-label={`Move ${name} down`}
-                            disabled={index === of.length - 1}
-                            onClick={() =>
-                              move(
-                                of.map(([t]) => t),
-                                index,
-                                1,
-                              )
-                            }
+                            className="secondary danger"
+                            aria-label={`Delete ${name}`}
+                            onClick={() => setDeletingTopic(topic)}
                           >
-                            ↓
+                            Delete
                           </button>
-                        </>
+                        </span>
                       )}
-                      <button
-                        type="button"
-                        className="secondary"
-                        aria-label={`Rename ${name}`}
-                        onClick={() => setRenaming(renaming === topic ? null : topic)}
-                      >
-                        Rename
-                      </button>
-                      <button
-                        type="button"
-                        className="secondary danger"
-                        aria-label={`Delete ${name}`}
-                        onClick={() => setDeletingTopic(topic)}
-                      >
-                        Delete
-                      </button>
-                    </span>
-                  )}
-                </header>
-                {renaming === topic && (
-                  <RenameForm
-                    name={name}
-                    onRename={(newName) => renameTopic(topic, newName)}
-                    onCancel={() => setRenaming(null)}
-                  />
-                )}
-                {deletingTopic === topic && (
-                  <div className="card confirm" role="alertdialog" aria-label={`Delete the topic ${name}`}>
-                    <p>
-                      {items.length === 0
-                        ? `Delete ${name}? It has no material.`
-                        : `Delete ${name} and its ${items.length === 1 ? 'material' : `${items.length} materials`}? ` +
-                          'Their notes, summaries, quizzes, flashcards and conversations go for every member, and ' +
-                          'this cannot be undone.'}
-                    </p>
-                    <div className="actions">
-                      <button type="button" className="danger" onClick={() => deleteTopic(topic)}>
-                        Yes, delete {name}
-                      </button>
-                      <button type="button" className="secondary" onClick={() => setDeletingTopic(null)}>
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </section>
-            </li>
-          )
-        })}
-      </ol>
+                    </header>
+                    {renaming === topic && (
+                      <RenameForm
+                        name={name}
+                        onRename={(newName) => renameTopic(topic, newName)}
+                        onCancel={() => setRenaming(null)}
+                      />
+                    )}
+                    {deletingTopic === topic && (
+                      <div className="card confirm" role="alertdialog" aria-label={`Delete the topic ${name}`}>
+                        <p>
+                          {items.length === 0
+                            ? `Delete ${name}? It has no material.`
+                            : `Delete ${name} and its ${items.length === 1 ? 'material' : `${items.length} materials`}? ` +
+                              'Their notes, summaries, quizzes, flashcards and conversations go for every member, and ' +
+                              'this cannot be undone.'}
+                        </p>
+                        <div className="actions">
+                          <button type="button" className="danger" onClick={() => deleteTopic(topic)}>
+                            Yes, delete {name}
+                          </button>
+                          <button type="button" className="secondary" onClick={() => setDeletingTopic(null)}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                </li>
+              )
+            })}
+          </ol>
 
-      <Originals api={api} courseId={courseId} originals={originals} />
+          <Originals api={api} courseId={courseId} originals={originals} />
+        </div>
+        {checking && (
+          <ComprehensionPanel
+            key={`${courseId}/${subject}`}
+            api={api}
+            of={[{ label: 'the whole subject', scope: { course_id: courseId, subject } }]}
+            label={subjectName}
+            onClose={() => setChecking(false)}
+          />
+        )}
+      </div>
     </section>
   )
 }

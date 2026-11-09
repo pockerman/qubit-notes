@@ -99,6 +99,8 @@ class Settings(BaseSettings):
     # what reads the audio of a material aloud (features/material_audio.feature): OpenAI's speech model and its voice
     speech_model: str = "gpt-4o-mini-tts"
     speech_voice: str = "coral"
+    # the OpenAI transcription model that hears what a student says, if they choose none
+    transcription_model: str = "gpt-4o-mini-transcribe"
     # how much of a conversation with the assistant the model is given, in estimated tokens: its most recent messages
     conversation_tokens: int = 4000
 

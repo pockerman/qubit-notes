@@ -257,7 +257,8 @@ export type Original = {
   lessons: { topic: string; document_id: string }[]
 }
 
-/** What a summary, a quiz or a deck of flashcards is about: a section of a document, a whole document, or a topic. */
+/** What a summary, a quiz, a deck of flashcards or a comprehension check is about: a section of a document, a whole
+ * document, a topic, or (for a comprehension check) a whole subject. */
 export type Scope = {
   course_id: string
   document_id?: string | null
@@ -473,11 +474,69 @@ export type MaterialAudio = {
   updated_at: string
 }
 
+/** A page of the web the writing assistant drew on. */
+export type WebSource = { title: string; url: string }
+
+/** What the writing assistant wrote: Markdown citing its sources by number, [1] the first (features/writing_assistant.feature). */
+export type WritingReply = {
+  reply: string
+  sources: WebSource[]
+  searched: boolean
+  // the section of the material it is about, if it was asked about one
+  section: string | null
+  id: string
+  // the student's thumbs up or down of it, if they rated it
+  rating: Rating | null
+}
+
+/** What the student asks the writing assistant, with what they have written and the conversation so far. */
+export type WritingRequest = {
+  request: string
+  draft: string
+  section: string | null
+  history: { request: string; reply: string }[]
+  search_web: boolean
+}
+
 /** One of OpenAI's speech models, which reads the audio of a material aloud. */
 export type SpeechModel = { id: string; name: string; follows_instructions: boolean }
 
 /** The speech models to choose from, the app's own, and whether the app can speak (it needs its OpenAI key). */
 export type SpeechModels = { models: SpeechModel[]; default: string; available: boolean }
+
+/** How well the student understood what a question asked (features/comprehension.feature). */
+export type Understood = 'yes' | 'partly' | 'no'
+
+/** A question of a comprehension check, and once answered, the answer and how well it was understood. */
+export type Exchange = {
+  question: string
+  source: Source
+  answer: string | null
+  spoken: boolean
+  understood: Understood | null
+  feedback: string | null
+  cited: Source[]
+}
+
+export type Verdict = { summary: string; understood: string[]; to_study: Source[] }
+
+/** A check of the student's understanding of a section, a material, a topic or a subject. */
+export type ComprehensionCheck = {
+  id: string
+  scope: Scope
+  exchanges: Exchange[]
+  sources: Source[]
+  verdict: Verdict | null
+  created_at: string
+  updated_at: string
+  ended_at: string | null
+  out_of_date: OutOfDate | null
+}
+
+/** One of OpenAI's transcription models, which hears what the student says (features/transcription.feature). */
+export type TranscriptionModel = { id: string; name: string }
+
+export type TranscriptionModels = { models: TranscriptionModel[]; default: string; available: boolean }
 
 /** A file to save, with the name the backend gives it: a lesson's original is the whole document, e.g. fem.pdf. */
 export type DownloadedFile = { blob: Blob; filename: string | null }
@@ -574,6 +633,74 @@ export class StudyApi {
     return this.request(`${this.materialPath(courseId, documentId)}/audio`)
   }
 
+  /** What the writing assistant writes for a material in the topic. */
+  writingAssistant(courseId: string, subject: string, topic: string, asked: WritingRequest): Promise<WritingReply> {
+    const where = [courseId, subject, topic].map(encodeURIComponent)
+    return this.request(`/courses/${where[0]}/subjects/${where[1]}/topics/${where[2]}/writing-assistant`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(asked),
+    })
+  }
+
+  /** The student's thumbs up or down of a reply of the writing assistant; null takes it back. */
+  rateWriting(replyId: string, rating: Rating | null): Promise<WritingReply> {
+    return this.request(`/writing-assistant/replies/${encodeURIComponent(replyId)}/rating`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating }),
+    })
+  }
+
+  /** A new check of the student's understanding of the scope, with its first question. */
+  startCheck(scope: Scope): Promise<ComprehensionCheck> {
+    return this.request('/comprehension-checks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(scope),
+    })
+  }
+
+  /** The student's checks of exactly the scope, newest first. */
+  checks(scope: Scope): Promise<ComprehensionCheck[]> {
+    return this.request(`/comprehension-checks?${scopeQuery(scope)}`)
+  }
+
+  check(checkId: string): Promise<ComprehensionCheck> {
+    return this.request(`/comprehension-checks/${encodeURIComponent(checkId)}`)
+  }
+
+  /** The answer to the question waiting, assessed, with the next question. */
+  answerCheck(checkId: string, answer: string, spoken: boolean): Promise<ComprehensionCheck> {
+    return this.request(`/comprehension-checks/${encodeURIComponent(checkId)}/answers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answer, spoken }),
+    })
+  }
+
+  /** The check ended, with its verdict. */
+  endCheck(checkId: string): Promise<ComprehensionCheck> {
+    return this.request(`/comprehension-checks/${encodeURIComponent(checkId)}/end`, { method: 'POST' })
+  }
+
+  async deleteCheck(checkId: string): Promise<void> {
+    await this.fetch(`/comprehension-checks/${encodeURIComponent(checkId)}`, { method: 'DELETE' })
+  }
+
+  transcriptionModels(): Promise<TranscriptionModels> {
+    return this.request('/transcription-models')
+  }
+
+  /** What the student said, recorded, as text heard by the model; the app's own if null. */
+  transcribe(recording: Blob, model: string | null): Promise<{ text: string; model: string }> {
+    const form = new FormData()
+    const extension = recording.type.includes('ogg') ? 'ogg' : recording.type.includes('mp4') ? 'mp4' : 'webm'
+    form.append('recording', recording, `answer.${extension}`)
+    if (model) form.append('model', model)
+    return this.request('/transcriptions', { method: 'POST', body: form })
+  }
+
   speechModels(): Promise<SpeechModels> {
     return this.request('/speech-models')
   }
@@ -588,7 +715,12 @@ export class StudyApi {
   }
 
   /** Starts making the audio anew, following the student's suggestions, read by the model. */
-  improveAudio(courseId: string, documentId: string, suggestions: string, model: string | null): Promise<MaterialAudio> {
+  improveAudio(
+    courseId: string,
+    documentId: string,
+    suggestions: string,
+    model: string | null,
+  ): Promise<MaterialAudio> {
     return this.request(`${this.materialPath(courseId, documentId)}/audio/improvements`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
