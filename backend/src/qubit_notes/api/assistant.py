@@ -5,9 +5,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.concurrency import run_in_threadpool
+from pydantic import BaseModel
 
 from qubit_notes.api.deps import Student, assistant
-from qubit_notes.domain.assistant import Assistant, Conversation, Turn
+from qubit_notes.domain.assistant import Assistant, Conversation, Rating, Turn
 from qubit_notes.domain.sources import Scope
 
 router = APIRouter(prefix="/assistant", tags=["assistant"])
@@ -36,3 +37,14 @@ async def conversation(where: Annotated[Scope, Query()], student: Student, servi
 async def start_again(where: Annotated[Scope, Query()], student: Student, service: AssistantDep) -> Conversation:
     """forgets the conversation, so the next request starts a new one"""
     return await run_in_threadpool(service.start_again, student, where)
+
+
+class Rated(BaseModel):
+    # None takes the rating back
+    rating: Rating | None
+
+
+@router.put("/turns/{turn_id}/rating", response_model=Turn)
+async def rate(turn_id: str, rated: Rated, student: Student, service: AssistantDep) -> Turn:
+    """the student's thumbs up or down of a reply of the assistant to them"""
+    return await run_in_threadpool(service.rate, student, turn_id, rated.rating)

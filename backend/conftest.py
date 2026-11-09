@@ -42,6 +42,7 @@ pytest_plugins = [
     "tests.bdd.steps.subjects_steps",
     "tests.bdd.steps.ui_steps",
     "tests.bdd.steps.papers_steps",
+    "tests.bdd.steps.rating_steps",
 ]
 
 

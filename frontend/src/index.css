@@ -1458,3 +1458,21 @@ main {
     white-space: nowrap;
   }
 }
+
+/* below a reply of the assistant: copying it, and a thumb up or down */
+.reply-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.reply-actions button.icon {
+  font-size: 0.85rem;
+}
+
+.reply-actions button.thumb[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--hover);
+}

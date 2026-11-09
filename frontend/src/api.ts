@@ -422,7 +422,11 @@ export type Turn = {
   quiz: Quiz | null
   deck: Deck | null
   created_at: string
+  // the student's thumbs up or down of the reply, if they rated it
+  rating: Rating | null
 }
+
+export type Rating = 'up' | 'down'
 
 export type Conversation = {
   id: string | null
@@ -555,6 +559,15 @@ export class StudyApi {
   /** The conversation with the assistant on the material or the topic of `where`. */
   conversation(where: Scope): Promise<Conversation> {
     return this.request(`/assistant/conversation?${scopeQuery(where)}`)
+  }
+
+  /** The student's thumbs up or down of a reply of the assistant; null takes it back. */
+  rate(turnId: string, rating: Rating | null): Promise<Turn> {
+    return this.request(`/assistant/turns/${encodeURIComponent(turnId)}/rating`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating }),
+    })
   }
 
   /** Forgets the conversation, so the next question starts a new one. */
