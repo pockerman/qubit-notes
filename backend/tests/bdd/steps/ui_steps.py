@@ -689,10 +689,10 @@ def nothing_to_review(page):
     expect(_reviews_status(page)).to_have_text("Nothing to review now.")
 
 
-@then(parsers.parse('I see the buttons "{first}", "{second}" and "{third}" together'))
-def see_buttons_together(page, first, second, third):
+@then(parsers.parse('I see the buttons "{buttons}" together'))
+def see_buttons_together(page, buttons):
     actions = page.get_by_role("group", name="Material actions")
-    expect(actions.get_by_role("button")).to_have_text([first, second, third])
+    expect(actions.get_by_role("button")).to_have_text([button.strip() for button in buttons.split(",")])
 
 
 @then(parsers.parse('I see no "{first}" or "{second}" button'))

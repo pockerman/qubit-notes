@@ -18,7 +18,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from qubit_notes import storage
 from qubit_notes.domain.errors import NotAllowed
 from qubit_notes.domain.written import now
-from qubit_notes.platform.port import Completion, Message, StudyPlatform
+from qubit_notes.platform.port import Completion, Message, Speech, StudyPlatform
 
 DAYS = 30
 
@@ -83,7 +83,13 @@ class AIUsage:
         self._record(student, purpose, completion)
         return completion.text
 
-    def _record(self, student: str, purpose: str, completion: Completion) -> None:
+    def speak(self, student: str, purpose: str, text: str, instructions: str, model: str) -> Speech:
+        """the text read aloud by the speech model, recorded as used by the student for the purpose"""
+        speech = self._platform.speak(text, instructions, model)
+        self._record(student, purpose, speech)
+        return speech
+
+    def _record(self, student: str, purpose: str, completion: Completion | Speech) -> None:
         row = {
             "id": uuid.uuid4().hex,
             "student": student,

@@ -96,6 +96,9 @@ class Settings(BaseSettings):
     llm_provider: str = "anthropic"
     llm_model: str | None = None
     llm_max_tokens: int = 4000
+    # what reads the audio of a material aloud (features/material_audio.feature): OpenAI's speech model and its voice
+    speech_model: str = "gpt-4o-mini-tts"
+    speech_voice: str = "coral"
     # how much of a conversation with the assistant the model is given, in estimated tokens: its most recent messages
     conversation_tokens: int = 4000
 

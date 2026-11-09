@@ -24,6 +24,7 @@ from qubit_notes.platform.port import (
     PlatformHealth,
     Section,
     SectionText,
+    Speech,
 )
 from qubit_notes.platform.standalone import chunking, parsing
 from qubit_notes.platform.standalone.ai import AI, ProviderAI
@@ -635,6 +636,12 @@ class StandalonePlatform:
         history: list[Message] | None = None,
     ) -> Completion:
         return self.ai.complete(system, prompt, json_schema=json_schema, history=history)
+
+    def can_speak(self) -> bool:
+        return self.ai.has_key("openai")
+
+    def speak(self, text: str, instructions: str, model: str) -> Speech:
+        return self.ai.speak(text, instructions, model)
 
     # conversations
 

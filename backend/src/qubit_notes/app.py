@@ -9,6 +9,7 @@ from qubit_notes.api import (
     ai_model,
     app_keys,
     assistant,
+    audio,
     courses,
     generating,
     health,
@@ -29,6 +30,7 @@ from qubit_notes.domain.account import Account
 from qubit_notes.domain.ai_model import AIModel
 from qubit_notes.domain.app_keys import AppKeys
 from qubit_notes.domain.assistant import Assistant
+from qubit_notes.domain.audio import Audios
 from qubit_notes.domain.conversions import Conversions
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
@@ -56,6 +58,7 @@ from qubit_notes.domain.usage import AIUsage
 from qubit_notes.platform import platform_from
 from qubit_notes.platform.named import NamedDocuments
 from qubit_notes.platform.port import StudyPlatform
+from qubit_notes.platform.standalone.files import files_from
 from qubit_notes.settings import Settings
 
 
@@ -160,6 +163,16 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.ai_usage,
         app.state.paper_records,
     )
+    # each student's audio of a material, its MP3s with the app's files
+    app.state.audios = Audios(
+        app.state.database,
+        platform,
+        app.state.courses,
+        sources,
+        app.state.ai_usage,
+        files_from(settings),
+        settings.speech_model,
+    )
     # what is written about the material: everyone's notes, summaries, quizzes, flashcards and conversations on it
     written = (
         app.state.notes,
@@ -168,6 +181,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.quizzes,
         app.state.flashcards,
         app.state.assistant,
+        app.state.audios,
     )
     # deleting a material deletes all of that
     for service in written:
@@ -204,6 +218,8 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         study.router,
         programs.router,
         assistant.router,
+        audio.router,
+        audio.models_router,
         usage.router,
     ):
         app.include_router(router, prefix="/api")

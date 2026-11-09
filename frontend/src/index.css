@@ -1476,3 +1476,39 @@ main {
   border-color: var(--accent);
   background: var(--hover);
 }
+
+/* the student's audio of a material, beside its text */
+.audio-panel .audio-form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.audio-panel .audio-player {
+  width: 100%;
+}
+
+.audio-panel .made-with {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.75rem;
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+}
+
+.audio-panel .made-with dt {
+  color: var(--muted);
+}
+
+.audio-panel .made-with dd {
+  margin: 0;
+}
+
+.audio-panel .narration {
+  margin-bottom: 0.75rem;
+}
+
+.audio-panel .narration [role='group'] {
+  max-height: 40vh;
+  overflow-y: auto;
+  font-size: 0.925rem;
+}

@@ -453,6 +453,32 @@ export type MaterialImages = {
   missing: string[]
 }
 
+/** A student's audio of a material: a narration the AI wrote of it, read aloud (features/material_audio.feature). */
+export type MaterialAudio = {
+  id: string
+  course_id: string
+  document_id: string
+  status: 'generating' | 'ready' | 'failed'
+  instructions: string
+  // what the student last suggested to improve it
+  suggestions: string
+  // what the AI wrote, read aloud; empty while it is generating
+  narration: string
+  // the speech model it is read by
+  model: string
+  // why it failed
+  error: string | null
+  size: number
+  created_at: string
+  updated_at: string
+}
+
+/** One of OpenAI's speech models, which reads the audio of a material aloud. */
+export type SpeechModel = { id: string; name: string; follows_instructions: boolean }
+
+/** The speech models to choose from, the app's own, and whether the app can speak (it needs its OpenAI key). */
+export type SpeechModels = { models: SpeechModel[]; default: string; available: boolean }
+
 /** A file to save, with the name the backend gives it: a lesson's original is the whole document, e.g. fem.pdf. */
 export type DownloadedFile = { blob: Blob; filename: string | null }
 
@@ -541,6 +567,41 @@ export class StudyApi {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     })
+  }
+
+  /** The student's audio of the material, or null if they have none. */
+  audio(courseId: string, documentId: string): Promise<MaterialAudio | null> {
+    return this.request(`${this.materialPath(courseId, documentId)}/audio`)
+  }
+
+  speechModels(): Promise<SpeechModels> {
+    return this.request('/speech-models')
+  }
+
+  /** Starts making the student's audio of the material, following their instructions, read by the model. */
+  makeAudio(courseId: string, documentId: string, instructions: string, model: string | null): Promise<MaterialAudio> {
+    return this.request(`${this.materialPath(courseId, documentId)}/audio`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ instructions, model }),
+    })
+  }
+
+  /** Starts making the audio anew, following the student's suggestions, read by the model. */
+  improveAudio(courseId: string, documentId: string, suggestions: string, model: string | null): Promise<MaterialAudio> {
+    return this.request(`${this.materialPath(courseId, documentId)}/audio/improvements`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ suggestions, model }),
+    })
+  }
+
+  async deleteAudio(courseId: string, documentId: string): Promise<void> {
+    await this.fetch(`${this.materialPath(courseId, documentId)}/audio`, { method: 'DELETE' })
+  }
+
+  async audioFile(courseId: string, documentId: string): Promise<DownloadedFile> {
+    return downloaded(await this.fetch(`${this.materialPath(courseId, documentId)}/audio/file`))
   }
 
   async deleteNote(noteId: string): Promise<void> {

@@ -1,8 +1,9 @@
 import json
 import re
+import threading
 from typing import Any
 
-from qubit_notes.platform.port import Completion, Message, chosen_ai
+from qubit_notes.platform.port import Completion, Message, PlatformError, Speech, chosen_ai
 
 
 class FakeAI:
@@ -16,6 +17,13 @@ class FakeAI:
         # the input and output tokens each answer takes
         self.tokens = (0, 0)
         self.model = ("fake", "fake")
+        # whether it can read text aloud, as if it had the app's OpenAI key, and what it read, with how it was told to
+        # and by which model
+        self.speaks = False
+        self.spoken: list[tuple[str, str]] = []
+        self.speaking_fails = False
+        # set, it reads aloud only once it is let to
+        self.slow_to_speak: threading.Event | None = None
 
     def missing(self) -> str | None:
         return None
@@ -31,7 +39,19 @@ class FakeAI:
         self.model = (provider, model)
 
     def has_key(self, provider: str) -> bool:
-        return False
+        # it has an OpenAI key only to speak with
+        return provider == "openai" and self.speaks
+
+    def speak(self, text: str, instructions: str, model: str) -> Speech:
+        """a stand-in MP3: an MP3 frame header, then the text"""
+        if self.slow_to_speak is not None:
+            self.slow_to_speak.wait(10)
+        if not self.speaks:
+            raise PlatformError("FAILED_PRECONDITION", "the app has no OpenAI key")
+        if self.speaking_fails:
+            raise PlatformError("AI_FAILED", "OpenAI refused: the voice is hoarse")
+        self.spoken.append((text, instructions, model))
+        return Speech(audio=b"\xff\xfb\x90\x00" + text.encode(), provider="openai", model=model)
 
     def complete(
         self,
@@ -62,6 +82,13 @@ class FakeAI:
         if json_schema is None:
             titles = re.findall(r"^## (.+)$", prompt, re.MULTILINE)
             return f"Summary {number} of {', '.join(titles) or 'the summaries'}."
+        if "narration" in json_schema.get("properties", {}):
+            # a narration: the material's sections, said in turn, and how to speak it as the instructions say
+            told = re.search(r"^The student's instructions: (.*)$", prompt, re.MULTILINE)
+            sections = re.findall(r"^## (.+)\n\n(.+)$", prompt.split("Narrate ", 1)[-1], re.MULTILINE)
+            narration = "\n\n".join(f"Narration {number}. {title}. {text}" for title, text in sections)
+            voice = f"Speak as told: {told.group(1)}" if told and told.group(1) != "(none)" else ""
+            return json.dumps({"narration": narration, "voice": voice})
         if "request" in json_schema.get("properties", {}):
             return json.dumps(_understand(prompt, number))
         references = re.findall(r"^\[(S\d+)\] (.+)$", prompt, re.MULTILINE)

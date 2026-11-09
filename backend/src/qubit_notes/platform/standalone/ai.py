@@ -4,7 +4,7 @@ choose, called with the app's key."""
 import json
 from typing import Any, Protocol
 
-from qubit_notes.platform.port import Completion, Message, PlatformError, chosen_ai
+from qubit_notes.platform.port import Completion, Message, PlatformError, Speech, chosen_ai
 from qubit_notes.settings import DEFAULT_MODELS, Settings, missing_key
 
 PROVIDERS = tuple(DEFAULT_MODELS)
@@ -37,6 +37,10 @@ class AI(Protocol):
 
     def has_key(self, provider: str) -> bool:
         """whether it has the provider's key"""
+        ...
+
+    def speak(self, text: str, instructions: str, model: str) -> Speech:
+        """the text read aloud by one of OpenAI's speech models, as MP3; told how to speak it, if instructions say"""
         ...
 
 
@@ -88,6 +92,22 @@ class ProviderAI:
         if provider == "anthropic":
             return self._anthropic(model, key, system, messages, json_schema)
         return self._openai(model, key, system, messages, json_schema)
+
+    def speak(self, text: str, instructions: str, model: str) -> Speech:
+        import openai
+
+        key = self._keys.get("openai")
+        if not key:
+            raise PlatformError("FAILED_PRECONDITION", missing_key("openai"))
+        # tts-1 and tts-1-hd take no instructions
+        told = {"instructions": instructions} if instructions else {}
+        try:
+            response = openai.OpenAI(api_key=key).audio.speech.create(
+                model=model, voice=self._settings.speech_voice, input=text, response_format="mp3", **told
+            )
+        except openai.OpenAIError as e:
+            raise PlatformError("AI_FAILED", f"OpenAI refused: {e}") from e
+        return Speech(audio=response.content, provider="openai", model=model)
 
     def _anthropic(
         self, model: str, key: str, system: str, messages: list[dict], json_schema: dict | None
