@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { Attempt, Deck, OutOfDate, Quiz, Scope, Source, StudyApi, Turn } from '../api'
+import type { Attempt, Deck, OutOfDate, Quiz, Rating, Scope, Source, StudyApi, Turn } from '../api'
 import { href } from '../router'
 import { Markdown } from './Markdown'
 import { ProviderChoice } from './ProviderChoice'
@@ -201,6 +201,84 @@ function Reply({ api, turn }: { api: StudyApi; turn: Turn }) {
   )
 }
 
+/** a reply as Markdown, to copy: a quiz with its questions and choices, flashcards with their fronts and backs */
+function asMarkdown(turn: Turn): string {
+  if (turn.kind === 'summary' && turn.summary) return turn.summary.content
+  if (turn.kind === 'quiz' && turn.quiz) {
+    return turn.quiz.questions
+      .map((q, i) => [`${i + 1}. ${q.question}`, ...q.choices.map((choice) => `   - ${choice}`)].join('\n'))
+      .join('\n\n')
+  }
+  if (turn.kind === 'flashcards' && turn.deck) {
+    return turn.deck.cards.map((card) => `**${card.front}**\n\n${card.back}`).join('\n\n---\n\n')
+  }
+  return turn.answer
+}
+
+/** Below a reply: copying it, and rating it with a thumb, which chosen again takes the rating back. */
+function ReplyActions({ api, turn, onRated }: { api: StudyApi; turn: Turn; onRated: (turn: Turn) => void }) {
+  const [copied, setCopied] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!copied) return
+    const done = setTimeout(() => setCopied(false), 2000)
+    return () => clearTimeout(done)
+  }, [copied])
+
+  async function copy() {
+    setError(null)
+    try {
+      await navigator.clipboard.writeText(asMarkdown(turn))
+      setCopied(true)
+    } catch {
+      setError("Couldn't copy it; select the text and copy it instead.")
+    }
+  }
+
+  async function rate(rating: Rating) {
+    setError(null)
+    try {
+      onRated(await api.rate(turn.id, turn.rating === rating ? null : rating))
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
+  return (
+    <div className="reply-actions" role="group" aria-label="Reply actions">
+      <button type="button" className="icon" onClick={copy} title="Copy as Markdown">
+        {copied ? '✓ Copied' : 'Copy'}
+      </button>
+      <button
+        type="button"
+        className="icon thumb"
+        aria-label="Thumbs up"
+        title="Good reply"
+        aria-pressed={turn.rating === 'up'}
+        onClick={() => rate('up')}
+      >
+        👍
+      </button>
+      <button
+        type="button"
+        className="icon thumb"
+        aria-label="Thumbs down"
+        title="Bad reply"
+        aria-pressed={turn.rating === 'down'}
+        onClick={() => rate('down')}
+      >
+        👎
+      </button>
+      {error && (
+        <span role="alert" className="error">
+          {error}
+        </span>
+      )}
+    </div>
+  )
+}
+
 /** The assistant: the student asks in their own words, for answers, summaries, quizzes and flashcards. */
 export function Assistant({ api, where, label, onClose }: Props) {
   const [turns, setTurns] = useState<Turn[] | null>(null)
@@ -277,6 +355,13 @@ export function Assistant({ api, where, label, onClose }: Props) {
           <li key={turn.id} className="turn">
             <p className="asked">{turn.question}</p>
             <Reply api={api} turn={turn} />
+            <ReplyActions
+              api={api}
+              turn={turn}
+              onRated={(rated) =>
+                setTurns((all) => all?.map((t) => (t.id === rated.id ? { ...t, rating: rated.rating } : t)) ?? null)
+              }
+            />
           </li>
         ))}
         {asking && (

@@ -300,6 +300,23 @@ conversation_turns = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
 )
 
+# a student's thumbs up or down of a reply of the assistant, with what was asked and replied: it outlives the
+# conversation, to learn from, but not the material, the course or the student it is of
+answer_ratings = Table(
+    "answer_ratings",
+    metadata,
+    Column("turn_id", String, primary_key=True),
+    Column("student", String, nullable=False, index=True),
+    Column("course_id", String, nullable=False, index=True),
+    Column("document_id", String, index=True),
+    Column("kind", String, nullable=False),
+    Column("question", Text, nullable=False),
+    Column("answer", Text, nullable=False),
+    # up or down
+    Column("rating", String, nullable=False),
+    Column("rated_at", DateTime(timezone=True), nullable=False),
+)
+
 # the conversion of an uploaded PDF or EPUB to the Markdown its material is: see domain/conversions.py
 conversions = Table(
     "conversions",

@@ -36,6 +36,7 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
   notes follow their passage when the material is edited.
 - **Asking the assistant.** Ask about the material being read or the whole course and get answers that cite their
   sources, in conversations the assistant remembers, kept private to each student.
+- **Copying and rating replies.** Copy any reply of the assistant as Markdown, and give it a thumbs up or down.
 - **Summaries and quizzes.** Summaries and quizzes of 1 to 20 questions on a section, a document or a whole topic,
   saved, retaken, and marked out of date when the material changes.
 - **Flashcards and reviews.** Decks of 1 to 30 flashcards on a section, a document or a topic, whose cards come back
@@ -279,6 +280,15 @@ answer, when the card was due and when it was reviewed, and its ease and interva
 again; a new deck leaves the reviews of the earlier one in the history, and they are deleted with their material.
 **History**, on the Reviews page, shows the latest 50, with each card, how well it was remembered and how long until
 it was due again.
+
+## Rating the assistant's replies
+
+Below each reply of the assistant are "Copy", which copies it as Markdown (a quiz with its questions and choices,
+flashcards with their fronts and backs), and a thumbs up and down (`features/rating_answers.feature`,
+`features/ui_assistant_replies.feature`). Choosing the pressed thumb again takes the rating back. Ratings are kept in
+`answer_ratings` with what was asked and replied, so they outlive a new conversation and can be looked at to see how
+well the assistant answers, e.g. `SELECT rating, kind, question FROM answer_ratings ORDER BY rated_at DESC`. They are
+deleted with the material, the course or the student they are of.
 
 ## Reading progress
 

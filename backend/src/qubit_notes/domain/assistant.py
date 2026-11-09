@@ -17,7 +17,7 @@ from sqlalchemy.engine import Engine
 
 from qubit_notes import storage
 from qubit_notes.domain.courses import Courses
-from qubit_notes.domain.errors import InvalidRequest
+from qubit_notes.domain.errors import InvalidRequest, NotFound
 from qubit_notes.domain.flashcards import Deck, Flashcards
 from qubit_notes.domain.papers import PAPER, PaperRecords
 from qubit_notes.domain.quizzes import AIFailed, Quiz, Quizzes
@@ -70,6 +70,10 @@ class Understood(BaseModel):
     cited: list[str] = Field(default_factory=list)
 
 
+# a student's thumbs up or down of a reply (features/rating_answers.feature)
+Rating = Literal["up", "down"]
+
+
 class Turn(BaseModel):
     """what the student asked and what the assistant replied"""
 
@@ -87,6 +91,8 @@ class Turn(BaseModel):
     quiz: Quiz | None = None
     deck: Deck | None = None
     created_at: datetime
+    # the student's rating of the reply, if they rated it
+    rating: Rating | None = None
 
 
 class Conversation(BaseModel):
@@ -202,7 +208,38 @@ class Assistant:
             rows = connection.execute(
                 select(turns).where(turns.c.conversation_id == conversation_id).order_by(turns.c.created_at)
             ).all()
-        return Conversation(id=conversation_id, turns=[self._turn(student, row) for row in rows])
+        ratings = self._ratings([row.id for row in rows])
+        return Conversation(id=conversation_id, turns=[self._turn(student, row, ratings.get(row.id)) for row in rows])
+
+    def rate(self, student: str, turn_id: str, rating: Rating | None) -> Turn:
+        """the student's rating of a reply to them, or none if ``rating`` is None, which takes it back"""
+        turns, conversations = storage.conversation_turns, storage.conversations
+        with self._engine.connect() as connection:
+            row = connection.execute(
+                select(turns, conversations.c.course_id, conversations.c.document_id)
+                .join(conversations, conversations.c.id == turns.c.conversation_id)
+                .where(turns.c.id == turn_id, conversations.c.student == student)
+            ).first()
+        if row is None:
+            raise NotFound("no such reply of the assistant to you")
+        table = storage.answer_ratings
+        with self._engine.begin() as connection:
+            connection.execute(delete(table).where(table.c.turn_id == turn_id))
+            if rating is not None:
+                connection.execute(
+                    insert(table).values(
+                        turn_id=turn_id,
+                        student=student,
+                        course_id=row.course_id,
+                        document_id=row.document_id,
+                        kind=row.kind,
+                        question=row.question,
+                        answer=row.answer,
+                        rating=rating,
+                        rated_at=now(),
+                    )
+                )
+        return self._turn(student, row, rating)
 
     def start_again(self, student: str, where: Scope) -> Conversation:
         """forgets the student's conversation on the material or the topic, so the next request starts a new one"""
@@ -218,6 +255,7 @@ class Assistant:
         with self._engine.connect() as connection:
             ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.document_id == document_id))]
         self._forget(ids)
+        self._forget_ratings(storage.answer_ratings.c.document_id == document_id)
 
     def forget_course(self, course_id: str) -> None:
         """forgets every student's conversations in the deleted course"""
@@ -225,12 +263,14 @@ class Assistant:
         with self._engine.connect() as connection:
             ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.course_id == course_id))]
         self._forget(ids)
+        self._forget_ratings(storage.answer_ratings.c.course_id == course_id)
 
     def forget_student(self, student: str) -> None:
         table = storage.conversations
         with self._engine.connect() as connection:
             ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.student == student))]
         self._forget(ids)
+        self._forget_ratings(storage.answer_ratings.c.student == student)
 
     # understanding
 
@@ -347,7 +387,19 @@ class Assistant:
             )
             connection.execute(delete(storage.conversations).where(storage.conversations.c.id.in_(ids)))
 
-    def _turn(self, student: str, row) -> Turn:
+    def _forget_ratings(self, condition) -> None:
+        with self._engine.begin() as connection:
+            connection.execute(delete(storage.answer_ratings).where(condition))
+
+    def _ratings(self, turn_ids: list[str]) -> dict[str, Rating]:
+        table = storage.answer_ratings
+        if not turn_ids:
+            return {}
+        with self._engine.connect() as connection:
+            rows = connection.execute(select(table.c.turn_id, table.c.rating).where(table.c.turn_id.in_(turn_ids)))
+            return {row.turn_id: row.rating for row in rows}
+
+    def _turn(self, student: str, row, rating: Rating | None = None) -> Turn:
         return Turn(
             id=row.id,
             question=row.question,
@@ -359,4 +411,5 @@ class Assistant:
             quiz=self._quizzes.by_id(student, row.quiz_id) if row.quiz_id else None,
             deck=self._flashcards.by_id(student, row.deck_id) if row.deck_id else None,
             created_at=row.created_at,
+            rating=rating,
         )
