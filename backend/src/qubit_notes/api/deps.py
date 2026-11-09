@@ -28,6 +28,7 @@ from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
 from qubit_notes.domain.usage import AIUsage
+from qubit_notes.domain.writing_assistant import WriteMaterialAssistantAgent
 
 
 def account(request: Request) -> Account:
@@ -120,6 +121,10 @@ def flashcards(request: Request) -> Flashcards:
 
 def ai_usage(request: Request) -> AIUsage:
     return request.app.state.ai_usage
+
+
+def writing_assistant(request: Request) -> WriteMaterialAssistantAgent:
+    return request.app.state.writing_assistant
 
 
 def audios(request: Request) -> Audios:

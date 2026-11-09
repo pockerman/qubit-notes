@@ -23,6 +23,7 @@ from qubit_notes.api import (
     references,
     study,
     usage,
+    writing_assistant,
 )
 from qubit_notes.api.auth import authenticator
 from qubit_notes.api.errors import add_error_handlers
@@ -55,6 +56,7 @@ from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
 from qubit_notes.domain.usage import AIUsage
+from qubit_notes.domain.writing_assistant import WriteMaterialAssistantAgent
 from qubit_notes.platform import platform_from
 from qubit_notes.platform.named import NamedDocuments
 from qubit_notes.platform.port import StudyPlatform
@@ -192,6 +194,10 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.course_titles = CourseTitles(database, app.state.courses, app.state.paper_records.collections)
     app.state.courses.on_delete(app.state.course_titles.forget)
     # collections of papers: courses of their own, apart from the student's courses
+    # the writing assistant: help writing material, from the web
+    app.state.writing_assistant = WriteMaterialAssistantAgent(
+        platform, app.state.courses, app.state.course_titles, app.state.topics, app.state.ai_usage
+    )
     app.state.papers = Papers(app.state.paper_records, app.state.courses, app.state.course_titles, app.state.materials)
     app.state.materials.on_delete(app.state.paper_records.forget_material)
     app.state.courses.on_delete(lambda course: app.state.paper_records.forget_course(course.id))
@@ -220,6 +226,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         assistant.router,
         audio.router,
         audio.models_router,
+        writing_assistant.router,
         usage.router,
     ):
         app.include_router(router, prefix="/api")

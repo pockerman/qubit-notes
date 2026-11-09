@@ -22,6 +22,7 @@ from qubit_notes.platform.port import (
     Message,
     PlatformError,
     PlatformHealth,
+    Researched,
     Section,
     SectionText,
     Speech,
@@ -639,6 +640,12 @@ class StandalonePlatform:
 
     def can_speak(self) -> bool:
         return self.ai.has_key("openai")
+
+    def can_search_web(self) -> bool:
+        return True
+
+    def research(self, system: str, prompt: str, history: list[Message] | None, search_web: bool) -> Researched:
+        return self.ai.research(system, prompt, history, search_web)
 
     def speak(self, text: str, instructions: str, model: str) -> Speech:
         return self.ai.speak(text, instructions, model)

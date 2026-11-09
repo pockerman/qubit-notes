@@ -1512,3 +1512,37 @@ main {
   overflow-y: auto;
   font-size: 0.925rem;
 }
+
+/* the writing assistant, beside the material being written or edited */
+.writing-assistant .writing-reply {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg);
+}
+
+.writing-assistant .references {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.writing-assistant .references a {
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+
+.writing-assistant .ask {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.writing-assistant label.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.writing-assistant label.checkbox input {
+  width: auto;
+}

@@ -25,6 +25,7 @@ import { ProgramEditor } from './ProgramEditor'
 import { useProgramEditors } from '../programs'
 import { useSubjectTools } from '../subjectTools'
 import { ToolsMenu } from './ToolsMenu'
+import { WritingAssistant } from './WritingAssistant'
 import { Markdown, type ImageRenderer } from './Markdown'
 import { MaterialImage } from './MaterialImage'
 import { NotesPanel } from './NotesPanel'
@@ -84,10 +85,26 @@ type EditorProps = {
   // told of the references of the saved text that are broken, as written
   onSaved: (brokenReferences: string[]) => void
   onCancel: () => void
+  // the topic it is in, and whether the writing assistant is open beside it
+  subject: string
+  topic: string
+  writing: boolean
+  onWriting: (open: boolean) => void
 }
 
 /** Edits the text of a Markdown or text material; once saved, it's processed again. */
-function Editor({ api, courseId, documentId, markdown, onSaved, onCancel }: EditorProps) {
+function Editor({
+  api,
+  courseId,
+  documentId,
+  markdown,
+  onSaved,
+  onCancel,
+  subject,
+  topic,
+  writing,
+  onWriting,
+}: EditorProps) {
   const [text, setText] = useState<string | null>(null)
   const [saving, setSaving] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -118,50 +135,69 @@ function Editor({ api, courseId, documentId, markdown, onSaved, onCancel }: Edit
   }
 
   return (
-    <form className="editor" aria-label="Edit material" onSubmit={save}>
-      {error && (
-        <p role="alert" className="error">
-          {error}
-        </p>
-      )}
-      {text === null ? (
-        <p className="note">Opening…</p>
-      ) : (
-        <label>
-          Text
-          <textarea
-            ref={textarea}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onPaste={markdown ? (e) => images.pasteOrDrop(e.clipboardData?.files, e) : undefined}
-            onDrop={markdown ? (e) => images.pasteOrDrop(e.dataTransfer?.files, e) : undefined}
-            rows={24}
-            spellCheck
+    <>
+      <form className="editor" aria-label="Edit material" onSubmit={save}>
+        {error && (
+          <p role="alert" className="error">
+            {error}
+          </p>
+        )}
+        {text === null ? (
+          <p className="note">Opening…</p>
+        ) : (
+          <label>
+            Text
+            <textarea
+              ref={textarea}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              onPaste={markdown ? (e) => images.pasteOrDrop(e.clipboardData?.files, e) : undefined}
+              onDrop={markdown ? (e) => images.pasteOrDrop(e.dataTransfer?.files, e) : undefined}
+              rows={24}
+              spellCheck
+            />
+          </label>
+        )}
+        {markdown && text !== null && <AddImage onInsert={images.insert} />}
+        {markdown && text !== null && (
+          <AddReference
+            api={api}
+            courseId={courseId}
+            onInsert={(reference) => insertAtCursor(text, setText, textarea, reference)}
           />
-        </label>
-      )}
-      {markdown && text !== null && <AddImage onInsert={images.insert} />}
-      {markdown && text !== null && (
-        <AddReference
+        )}
+        <div className="actions">
+          <button type="submit" disabled={text === null || saving !== null}>
+            Save
+          </button>
+          <button type="button" className="secondary" onClick={onCancel} disabled={saving !== null}>
+            Cancel
+          </button>
+          {markdown && (
+            <button type="button" aria-pressed={writing} onClick={() => onWriting(!writing)}>
+              Writing assistant
+            </button>
+          )}
+          {saving && (
+            <span role="status" className="note">
+              {saving}
+            </span>
+          )}
+        </div>
+      </form>
+      {writing && text !== null && (
+        <WritingAssistant
           api={api}
           courseId={courseId}
-          onInsert={(reference) => insertAtCursor(text, setText, textarea, reference)}
+          subject={subject}
+          topic={topic}
+          text={text}
+          setText={setText}
+          textarea={textarea}
+          onClose={() => onWriting(false)}
         />
       )}
-      <div className="actions">
-        <button type="submit" disabled={text === null || saving !== null}>
-          Save
-        </button>
-        <button type="button" className="secondary" onClick={onCancel} disabled={saving !== null}>
-          Cancel
-        </button>
-        {saving && (
-          <span role="status" className="note">
-            {saving}
-          </span>
-        )}
-      </div>
-    </form>
+    </>
   )
 }
 
@@ -239,7 +275,9 @@ function NoteForm({ label, onSave, onCancel, place }: NoteFormProps) {
   const [text, setText] = useState('')
   return (
     <form
-      className={place === undefined ? 'note-form card' : `note-form card by-passage ${place.above ? 'above' : 'below'}`}
+      className={
+        place === undefined ? 'note-form card' : `note-form card by-passage ${place.above ? 'above' : 'below'}`
+      }
       style={place === undefined ? undefined : { top: place.top, left: place.left, width: place.width }}
       aria-label="New note"
       onSubmit={async (e) => {
@@ -281,6 +319,8 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
   const [assistant, setAssistant] = useState(false)
   // the student's audio of the material, likewise
   const [listening, setListening] = useState(false)
+  // the writing assistant, beside the material while it is edited
+  const [writing, setWriting] = useState(false)
   // the subject's tools, e.g. the Go or Python editor, take their place too; what is in one stays while the material
   // is open
   const tools = useSubjectTools(api, courseId, material?.subject).filter(() => material?.kind === 'text')
@@ -523,6 +563,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                 onOpen={(tool) => {
                   setAssistant(false)
                   setListening(false)
+                  setWriting(false)
                   programs.toggle(tool)
                 }}
               />
@@ -565,14 +606,25 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
       )}
 
       {editing && (
-        <div className={toolPanel ? 'edit-beside with-tool' : 'edit-beside'}>
+        <div className={toolPanel || writing ? 'edit-beside with-tool' : 'edit-beside'}>
           <Editor
             api={api}
             courseId={courseId}
             documentId={documentId}
             markdown={material?.content_type === 'text/markdown'}
-            onCancel={() => setEditing(false)}
+            subject={material?.subject ?? ''}
+            topic={material?.topic ?? ''}
+            writing={writing && !toolPanel}
+            onWriting={(open) => {
+              if (open) programs.close()
+              setWriting(open)
+            }}
+            onCancel={() => {
+              setWriting(false)
+              setEditing(false)
+            }}
             onSaved={(broken) => {
+              setWriting(false)
               setSaved(brokenReferences(material?.filename ?? 'The material', broken))
               setEditing(false)
               setVersion((v) => v + 1)

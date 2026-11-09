@@ -3,7 +3,7 @@ import re
 import threading
 from typing import Any
 
-from qubit_notes.platform.port import Completion, Message, PlatformError, Speech, chosen_ai
+from qubit_notes.platform.port import Completion, Message, PlatformError, Researched, Speech, WebSource, chosen_ai
 
 
 class FakeAI:
@@ -24,6 +24,9 @@ class FakeAI:
         self.speaking_fails = False
         # set, it reads aloud only once it is let to
         self.slow_to_speak: threading.Event | None = None
+        # whether it can search the web, and whether it did, for each thing it wrote searching it
+        self.searches_web = True
+        self.searched: list[bool] = []
 
     def missing(self) -> str | None:
         return None
@@ -52,6 +55,36 @@ class FakeAI:
             raise PlatformError("AI_FAILED", "OpenAI refused: the voice is hoarse")
         self.spoken.append((text, instructions, model))
         return Speech(audio=b"\xff\xfb\x90\x00" + text.encode(), provider="openai", model=model)
+
+    def research(self, system: str, prompt: str, history: list[Message] | None, search_web: bool) -> Researched:
+        """a stand-in: Markdown numbered like the other answers, saying what it was asked, citing two pages of the
+        web if it searched it"""
+        self.completions.append(prompt)
+        self.histories.append(list(history or []))
+        number = len(self.completions)
+        asked = re.search(r"^They ask: (.*)$", prompt, re.MULTILINE)
+        about = asked.group(1) if asked else "it"
+        searched = search_web and self.searches_web
+        self.searched.append(searched)
+        provider, model = chosen_ai.get() or self.model
+        if not searched:
+            text = f"## Writing {number}\n\nOn {about}, from what the AI knows."
+            return Researched(text=text, provider=provider, model=model)
+        text = f"## Writing {number}\n\nOn {about}, as one page says [1].\n\nAnd as another says [2]."
+        sources = [
+            WebSource(title=f"Page {number}.1", url=f"https://example.org/{number}/1"),
+            WebSource(title=f"Page {number}.2", url=f"https://example.org/{number}/2"),
+        ]
+        tokens = self.tokens
+        return Researched(
+            text=text,
+            sources=sources,
+            searched=True,
+            provider=provider,
+            model=model,
+            input_tokens=tokens[0],
+            output_tokens=tokens[1],
+        )
 
     def complete(
         self,

@@ -12,6 +12,7 @@ import { insertAtCursor, referenceLinks, useReferencesIn } from '../referenceLin
 import { href, navigate } from '../router'
 import { useSubjectTools } from '../subjectTools'
 import { ToolsMenu } from '../components/ToolsMenu'
+import { WritingAssistant } from '../components/WritingAssistant'
 
 type Props = {
   api: StudyApi
@@ -47,6 +48,8 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
   const references = useReferencesIn(api, courseId, text, tab === 'preview')
   const tools = useSubjectTools(api, courseId, savingIn.split('/')[0])
   const programs = useProgramEditors(tools)
+  // the writing assistant, beside the text in the place of the code editors
+  const [writing, setWriting] = useState(false)
 
   useEffect(() => {
     api.courses().then(
@@ -68,7 +71,9 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
     () => (src, alt, key) => {
       const added = images.drafts.get(src)
       if (added || /^https:/i.test(src)) {
-        return <img key={key} className="material-image" src={added?.url ?? src} alt={alt} referrerPolicy="no-referrer" />
+        return (
+          <img key={key} className="material-image" src={added?.url ?? src} alt={alt} referrerPolicy="no-referrer" />
+        )
       }
       return (
         <span key={key} className="image-missing" role="group" aria-label={`Missing image ${src}`}>
@@ -127,7 +132,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
         </h2>
       </header>
 
-      <div className={programs.language ? 'edit-beside with-tool' : 'edit-beside'}>
+      <div className={programs.language || writing ? 'edit-beside with-tool' : 'edit-beside'}>
         <form className="editor card" aria-label="Write material" onSubmit={save}>
           <label>
             Name
@@ -175,10 +180,24 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
             >
               Preview
             </button>
+            <button
+              type="button"
+              className="tab"
+              aria-pressed={writing}
+              onClick={() => {
+                programs.close()
+                setWriting(!writing)
+              }}
+            >
+              Writing assistant
+            </button>
             <ToolsMenu
               tools={tools}
               open={programs.language?.id ?? null}
-              onOpen={programs.toggle}
+              onOpen={(tool) => {
+                setWriting(false)
+                programs.toggle(tool)
+              }}
               className="tab"
             />
           </div>
@@ -252,6 +271,18 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
             </div>
           )}
         </form>
+        {writing && !programs.language && (
+          <WritingAssistant
+            api={api}
+            courseId={courseId}
+            subject={savingIn.split('/')[0]}
+            topic={savingIn.split('/')[1]}
+            text={text}
+            setText={setText}
+            textarea={textarea}
+            onClose={() => setWriting(false)}
+          />
+        )}
         {programs.language && (
           <ProgramEditor
             key={programs.language.id}

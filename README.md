@@ -37,6 +37,7 @@ platform. It can run on the [gogi](../gogi) platform instead, with the [gogi-pyt
 - **Asking the assistant.** Ask about the material being read or the whole course and get answers that cite their
   sources, in conversations the assistant remembers, kept private to each student.
 - **Copying and rating replies.** Copy any reply of the assistant as Markdown, and give it a thumbs up or down.
+- **The writing assistant.** Help writing material, on a subject or a section of it, from the web, citing it.
 - **Audio of a material.** Listen to a narration of a material the AI writes as you instruct, read aloud by OpenAI.
 - **Summaries and quizzes.** Summaries and quizzes of 1 to 20 questions on a section, a document or a whole topic,
   saved, retaken, and marked out of date when the material changes.
@@ -281,6 +282,18 @@ answer, when the card was due and when it was reviewed, and its ease and interva
 again; a new deck leaves the reviews of the earlier one in the history, and they are deleted with their material.
 **History**, on the Reviews page, shows the latest 50, with each card, how well it was remembered and how long until
 it was due again.
+
+## The writing assistant
+
+"Writing assistant", when writing or editing Markdown material, opens WriteMaterialAssistantAgent beside the text
+(`features/writing_assistant.feature`, `features/ui_writing_assistant.feature`). An owner of the course asks it for
+material on a subject, or chooses a section of their text, by its heading, and asks for help with it; it is given
+what they have written so far, the course, subject and topic, and the conversation so far, which the browser keeps
+while the page is open. The AI the student chose answers, searching the web (Anthropic's `web_search_20260209` tool,
+OpenAI's `web_search` in its Responses API) unless "Search the web" is off, and cites what it draws on: its reply is
+Markdown with numbered markers, `[1]`, and its references. "Insert", "Add at the end" or, for a section, "Replace the
+section" put it in the material, its markers made links and its references listed after it. It is counted in the AI's
+usage as `writing`. On gogi, which can't search the web, it writes from what it knows and cites nothing.
 
 ## Audio of a material
 

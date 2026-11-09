@@ -13,6 +13,7 @@ from qubit_notes.platform.port import (
     MemberRole,
     Message,
     PlatformHealth,
+    Researched,
     Section,
     SectionText,
     Speech,
@@ -267,6 +268,12 @@ class FakePlatform:
 
     def can_speak(self) -> bool:
         return self.ai.speaks
+
+    def can_search_web(self) -> bool:
+        return self.ai.searches_web
+
+    def research(self, system: str, prompt: str, history: list[Message] | None, search_web: bool) -> Researched:
+        return self.ai.research(system, prompt, history, search_web)
 
     def speak(self, text: str, instructions: str, model: str) -> Speech:
         return self.ai.speak(text, instructions, model)

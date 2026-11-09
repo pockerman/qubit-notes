@@ -32,6 +32,7 @@ from qubit_notes.platform.port import (
     Message,
     PlatformError,
     PlatformHealth,
+    Researched,
     Section,
     SectionText,
     Speech,
@@ -325,6 +326,14 @@ class GogiPlatform:
         ]
 
     # the AI
+
+    # gogi's AI can't search the web, so it writes from what it knows
+    def can_search_web(self) -> bool:
+        return False
+
+    def research(self, system: str, prompt: str, history: list[Message] | None, search_web: bool) -> Researched:
+        completion = self.complete(system, prompt, history=history)
+        return Researched(**completion.model_dump(), sources=[], searched=False)
 
     # gogi has no speech model, so the audio of a material is only made on the app's own platform
     def can_speak(self) -> bool:

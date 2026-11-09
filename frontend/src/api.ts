@@ -473,6 +473,27 @@ export type MaterialAudio = {
   updated_at: string
 }
 
+/** A page of the web the writing assistant drew on. */
+export type WebSource = { title: string; url: string }
+
+/** What the writing assistant wrote: Markdown citing its sources by number, [1] the first (features/writing_assistant.feature). */
+export type WritingReply = {
+  reply: string
+  sources: WebSource[]
+  searched: boolean
+  // the section of the material it is about, if it was asked about one
+  section: string | null
+}
+
+/** What the student asks the writing assistant, with what they have written and the conversation so far. */
+export type WritingRequest = {
+  request: string
+  draft: string
+  section: string | null
+  history: { request: string; reply: string }[]
+  search_web: boolean
+}
+
 /** One of OpenAI's speech models, which reads the audio of a material aloud. */
 export type SpeechModel = { id: string; name: string; follows_instructions: boolean }
 
@@ -572,6 +593,16 @@ export class StudyApi {
   /** The student's audio of the material, or null if they have none. */
   audio(courseId: string, documentId: string): Promise<MaterialAudio | null> {
     return this.request(`${this.materialPath(courseId, documentId)}/audio`)
+  }
+
+  /** What the writing assistant writes for a material in the topic. */
+  writingAssistant(courseId: string, subject: string, topic: string, asked: WritingRequest): Promise<WritingReply> {
+    const where = [courseId, subject, topic].map(encodeURIComponent)
+    return this.request(`/courses/${where[0]}/subjects/${where[1]}/topics/${where[2]}/writing-assistant`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(asked),
+    })
   }
 
   speechModels(): Promise<SpeechModels> {

@@ -136,6 +136,27 @@ class Speech(BaseModel):
     output_tokens: int = 0
 
 
+class WebSource(BaseModel):
+    """a page of the web an answer drew on"""
+
+    title: str
+    url: str
+
+
+class Researched(BaseModel):
+    """what the AI wrote, searching the web for it: its text cites its sources by number, [1] the first of them, and
+    so on; who wrote it, and the tokens it took"""
+
+    text: str
+    sources: list[WebSource] = []
+    # whether it searched the web
+    searched: bool = False
+    provider: str
+    model: str
+    input_tokens: int = 0
+    output_tokens: int = 0
+
+
 class StudyPlatform(Protocol):
     """What qubit-notes needs of a platform.
 
@@ -246,6 +267,12 @@ class StudyPlatform(Protocol):
     def can_speak(self) -> bool: ...
 
     def speak(self, text: str, instructions: str, model: str) -> Speech: ...
+
+    # the AI, searching the web for what it needs, unless told not to, and citing what it draws on
+    # (features/writing_assistant.feature); where it can't search the web, it answers as complete does
+    def can_search_web(self) -> bool: ...
+
+    def research(self, system: str, prompt: str, history: list[Message] | None, search_web: bool) -> Researched: ...
 
     # conversations with the AI, kept by the platform; a conversation's id is the caller's
     def start_conversation(self, user: str, conversation_id: str) -> None: ...
