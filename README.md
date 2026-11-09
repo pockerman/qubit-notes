@@ -319,7 +319,9 @@ flashcards with their fronts and backs), and a thumbs up and down (`features/rat
 `features/ui_assistant_replies.feature`). Choosing the pressed thumb again takes the rating back. Ratings are kept in
 `answer_ratings` with what was asked and replied, so they outlive a new conversation and can be looked at to see how
 well the assistant answers, e.g. `SELECT rating, kind, question FROM answer_ratings ORDER BY rated_at DESC`. They are
-deleted with the material, the course or the student they are of.
+deleted with the material, the course or the student they are of. The writing assistant's replies are rated the same way
+(`features/writing_assistant.feature`): each is kept in `writing_replies`, and its rating in `answer_ratings` with
+the kind `writing`; both are deleted with the course.
 
 ## Reading progress
 

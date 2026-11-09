@@ -2,19 +2,26 @@
 write a Markdown material in one of its topics, on a subject they propose or with a section of what they are
 writing, searching the web for what it needs and citing it.
 
-Its replies aren't kept: the student's browser gives it the conversation so far with each request, and what the
-student takes of its replies goes into their material.
+The student's browser gives it the conversation so far with each request, and what the student takes of its replies
+goes into their material. Each reply is kept, with what was asked, so the student can rate it; a rating is kept with
+the assistant's (domain/assistant.py), as a rating of "writing".
 """
 
 import re
+import uuid
 
 from pydantic import BaseModel, Field
+from sqlalchemy import delete, insert, select
+from sqlalchemy.engine import Engine
 
+from qubit_notes import storage
+from qubit_notes.domain.assistant import Rating
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import InvalidRequest, NotFound
 from qubit_notes.domain.topics import Topics
 from qubit_notes.domain.usage import AIUsage
+from qubit_notes.domain.written import now
 from qubit_notes.platform.port import Message, StudyPlatform, WebSource
 
 # of what the student has written, what the AI is given, as for summaries
@@ -58,6 +65,7 @@ class WritingRequest(BaseModel):
 
 
 class WritingReply(BaseModel):
+    id: str
     # Markdown, citing its sources by number: [1] is the first of them
     reply: str
     sources: list[WebSource] = Field(default_factory=list)
@@ -65,6 +73,8 @@ class WritingReply(BaseModel):
     searched: bool
     # the section it is about, if it was asked about one
     section: str | None = None
+    # the student's rating of it, if they rated it
+    rating: Rating | None = None
 
 
 def sections(draft: str) -> list[tuple[str, int, int]]:
@@ -95,7 +105,16 @@ def section_text(draft: str, title: str) -> str | None:
 
 
 class WriteMaterialAssistantAgent:
-    def __init__(self, platform: StudyPlatform, courses: Courses, titles: CourseTitles, topics: Topics, ai: AIUsage):
+    def __init__(
+        self,
+        engine: Engine,
+        platform: StudyPlatform,
+        courses: Courses,
+        titles: CourseTitles,
+        topics: Topics,
+        ai: AIUsage,
+    ):
+        self._engine = engine
         self._platform = platform
         self._courses = courses
         self._titles = titles
@@ -144,9 +163,66 @@ class WriteMaterialAssistantAgent:
             history,
             search_web=asked.search_web and self._platform.can_search_web(),
         )
-        return WritingReply(
+        reply = WritingReply(
+            id=uuid.uuid4().hex,
             reply=researched.text,
             sources=researched.sources,
             searched=researched.searched,
             section=section,
         )
+        with self._engine.begin() as connection:
+            connection.execute(
+                insert(storage.writing_replies).values(
+                    id=reply.id,
+                    student=student,
+                    course_id=course.id,
+                    subject=subject,
+                    topic=topic,
+                    request=request,
+                    reply=reply.reply,
+                    sources=[source.model_dump() for source in reply.sources],
+                    searched=reply.searched,
+                    created_at=now(),
+                )
+            )
+        return reply
+
+    def rate(self, student: str, reply_id: str, rating: Rating | None) -> WritingReply:
+        """the student's rating of a reply to them, or none if ``rating`` is None, which takes it back"""
+        table = storage.writing_replies
+        with self._engine.connect() as connection:
+            row = connection.execute(select(table).where(table.c.id == reply_id, table.c.student == student)).first()
+        if row is None:
+            raise NotFound("no such reply of the writing assistant to you")
+        ratings = storage.answer_ratings
+        with self._engine.begin() as connection:
+            connection.execute(delete(ratings).where(ratings.c.turn_id == reply_id))
+            if rating is not None:
+                connection.execute(
+                    insert(ratings).values(
+                        turn_id=reply_id,
+                        student=student,
+                        course_id=row.course_id,
+                        document_id=None,
+                        kind="writing",
+                        question=row.request,
+                        answer=row.reply,
+                        rating=rating,
+                        rated_at=now(),
+                    )
+                )
+        return WritingReply(
+            id=row.id,
+            reply=row.reply,
+            sources=[WebSource(**source) for source in row.sources],
+            searched=row.searched,
+            rating=rating,
+        )
+
+    def forget_course(self, course_id: str) -> None:
+        """forgets its replies in the deleted course, and their ratings"""
+        table = storage.writing_replies
+        with self._engine.begin() as connection:
+            ids = [row.id for row in connection.execute(select(table.c.id).where(table.c.course_id == course_id))]
+            connection.execute(delete(storage.answer_ratings).where(storage.answer_ratings.c.turn_id.in_(ids)))
+            connection.execute(delete(table).where(table.c.course_id == course_id))

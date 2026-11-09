@@ -18,8 +18,10 @@ Feature: The writing assistant
   counted in their usage as "writing". Where the AI can't search the web (on gogi), it answers
   from what it knows, and says it searched nothing.
 
-  The replies aren't kept by the app: what the student takes of them goes into their material
-  (see The writing assistant in the browser).
+  What the student takes of its replies goes into their material (see The writing assistant in the
+  browser). Each reply is kept, with what was asked, so the student can rate it "up" or "down", as
+  they rate the assistant's (see Rating the assistant's replies), and change or take back their
+  rating; a rating is kept with the reply, as a rating of "writing", and deleted with the course.
 
   Background:
     Given I am the student "maria"
@@ -87,3 +89,45 @@ Feature: The writing assistant
     Scenario: It needs something to do
       When I ask the writing assistant nothing
       Then I am told to ask the writing assistant something
+
+  Rule: The student rates its replies
+
+    Scenario: A reply has no rating until it is rated
+      When I ask the writing assistant "Write an introduction to the finite element method"
+      Then the writing assistant's reply has no rating
+
+    Scenario Outline: Rate a reply
+      Given I have asked the writing assistant "Write an introduction to the finite element method"
+      When I rate the writing assistant's reply "<rating>"
+      Then the writing assistant's reply is rated "<rating>"
+      And my rating "<rating>" of the writing of "Write an introduction to the finite element method" is kept
+
+      Examples:
+        | rating |
+        | up     |
+        | down   |
+
+    Scenario: Change a rating, and take it back
+      Given I have asked the writing assistant "Write an introduction to the finite element method"
+      And I have rated the writing assistant's reply "up"
+      When I rate the writing assistant's reply "down"
+      Then my rating "down" of the writing of "Write an introduction to the finite element method" is kept
+      When I take back my rating of the writing assistant's reply
+      Then no rating of mine is kept
+
+    Scenario: Only "up" and "down" are ratings
+      Given I have asked the writing assistant "Write an introduction to the finite element method"
+      When I rate the writing assistant's reply "meh"
+      Then the rating is refused as invalid
+
+    Scenario: Only the student it replied to rates a reply
+      Given I have asked the writing assistant "Write an introduction to the finite element method"
+      When the student "pedro" rates my writing assistant's reply "down"
+      Then the rating is refused as not found
+
+    Scenario: Its replies and their ratings are deleted with the course
+      Given I have asked the writing assistant "Write an introduction to the finite element method"
+      And I have rated the writing assistant's reply "up"
+      When I delete the course "aeronautics"
+      Then no rating of mine is kept
+      And no reply of the writing assistant is kept

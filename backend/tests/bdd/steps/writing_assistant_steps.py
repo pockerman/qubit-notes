@@ -5,6 +5,9 @@ import re
 
 from playwright.sync_api import expect
 from pytest_bdd import given, parsers, then, when
+from sqlalchemy import select
+
+from qubit_notes import storage
 
 LOCATION = "aeronautics/numerical-methods/finite-elements"
 
@@ -154,6 +157,57 @@ def told_to_ask(context):
     assert context["response"].json()["detail"] == "ask the writing assistant something"
 
 
+# rating its replies
+
+
+def _rate(students, context, rating, name=None) -> None:
+    context["response"] = students.client.put(
+        f"/api/writing-assistant/replies/{context['writing_reply']['id']}/rating",
+        json={"rating": rating},
+        headers=students.headers(name),
+    )
+
+
+@then("the writing assistant's reply has no rating")
+def reply_not_rated(context):
+    assert _reply(context)["rating"] is None
+
+
+@when(parsers.parse('I rate the writing assistant\'s reply "{rating}"'))
+@given(parsers.parse('I have rated the writing assistant\'s reply "{rating}"'))
+def rate_reply(students, context, rating):
+    _rate(students, context, rating)
+
+
+@when("I take back my rating of the writing assistant's reply")
+def take_back_rating(students, context):
+    _rate(students, context, None)
+
+
+@when(parsers.parse('the student "{name}" rates my writing assistant\'s reply "{rating}"'))
+def they_rate_reply(students, context, name, rating):
+    _rate(students, context, rating, name)
+
+
+@then(parsers.parse('the writing assistant\'s reply is rated "{rating}"'))
+def reply_rated(context, rating):
+    assert _reply(context)["rating"] == rating
+
+
+@then(parsers.parse('my rating "{rating}" of the writing of "{request}" is kept'))
+def writing_rating_kept(client, students, rating, request):
+    with client.app.state.database.connect() as connection:
+        rows = connection.execute(select(storage.answer_ratings)).all()
+    kept = [(row.rating, row.kind, row.question) for row in rows if students.name(row.student) == students.me]
+    assert kept == [(rating, "writing", request)], kept
+
+
+@then("no reply of the writing assistant is kept")
+def no_replies_kept(client):
+    with client.app.state.database.connect() as connection:
+        assert connection.execute(select(storage.writing_replies)).all() == []
+
+
 # in the browser
 
 
@@ -242,3 +296,28 @@ def text_has_reply(page):
     value = _text(page)
     expect(value).to_have_value(re.compile(r"as one page says \[\[1\]\]\(https://example\.org/\d+/1\)"))
     expect(value).to_have_value(re.compile(r"\*\*References\*\*\n\n1\. \[Page \d+\.1\]\(https://example\.org/\d+/1\)"))
+
+
+def _thumb(page, which: str):
+    return _last_reply(page).get_by_role("button", name=f"Thumbs {which}")
+
+
+@when(parsers.re(r"I give the writing assistant's reply a thumbs (?P<which>up|down)$"))
+def give_writing_thumb(page, which):
+    _thumb(page, which).click()
+
+
+@then(parsers.re(r"the thumbs (?P<which>up|down) of the writing assistant's reply is pressed$"))
+def writing_thumb_pressed(page, which):
+    expect(_thumb(page, which)).to_have_attribute("aria-pressed", "true")
+
+
+@then(parsers.re(r"the thumbs (?P<which>up|down) of the writing assistant's reply is not pressed$"))
+def writing_thumb_not_pressed(page, which):
+    expect(_thumb(page, which)).to_have_attribute("aria-pressed", "false")
+
+
+@then("neither thumb of the writing assistant's reply is pressed")
+def neither_writing_thumb(page):
+    writing_thumb_not_pressed(page, "up")
+    writing_thumb_not_pressed(page, "down")

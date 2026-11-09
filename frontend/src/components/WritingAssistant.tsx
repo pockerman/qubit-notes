@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react'
-import type { StudyApi, WritingReply } from '../api'
+import type { Rating, StudyApi, WritingReply } from '../api'
 import { insertAtCursor } from '../referenceLinks'
 import { addAtEnd, replaceSection, sectionsOf, withReferences } from '../writing'
 import { Markdown } from './Markdown'
 import { ProviderChoice } from './ProviderChoice'
+import { Thumbs } from './Thumbs'
 
 type Props = {
   api: StudyApi
@@ -42,6 +43,18 @@ export function WritingAssistant({ api, courseId, subject, topic, text, setText,
   useEffect(() => {
     end.current?.scrollIntoView?.({ block: 'nearest' })
   }, [exchanges, asking])
+
+  async function rate(index: number, rating: Rating | null) {
+    setError(null)
+    try {
+      const rated = await api.rateWriting(exchanges[index].reply.id, rating)
+      setExchanges((all) =>
+        all.map((e, i) => (i === index ? { ...e, reply: { ...e.reply, rating: rated.rating } } : e)),
+      )
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
 
   async function ask(event: FormEvent) {
     event.preventDefault()
@@ -136,6 +149,7 @@ export function WritingAssistant({ api, courseId, subject, topic, text, setText,
                       Replace the section
                     </button>
                   )}
+                  <Thumbs rating={reply.rating} onRate={(rating) => rate(i, rating)} />
                 </div>
               </article>
             </li>

@@ -3,6 +3,7 @@ import type { Attempt, Deck, OutOfDate, Quiz, Rating, Scope, Source, StudyApi, T
 import { href } from '../router'
 import { Markdown } from './Markdown'
 import { ProviderChoice } from './ProviderChoice'
+import { Thumbs } from './Thumbs'
 
 type Props = {
   api: StudyApi
@@ -236,10 +237,10 @@ function ReplyActions({ api, turn, onRated }: { api: StudyApi; turn: Turn; onRat
     }
   }
 
-  async function rate(rating: Rating) {
+  async function rate(rating: Rating | null) {
     setError(null)
     try {
-      onRated(await api.rate(turn.id, turn.rating === rating ? null : rating))
+      onRated(await api.rate(turn.id, rating))
     } catch (e) {
       setError((e as Error).message)
     }
@@ -250,26 +251,7 @@ function ReplyActions({ api, turn, onRated }: { api: StudyApi; turn: Turn; onRat
       <button type="button" className="icon" onClick={copy} title="Copy as Markdown">
         {copied ? '✓ Copied' : 'Copy'}
       </button>
-      <button
-        type="button"
-        className="icon thumb"
-        aria-label="Thumbs up"
-        title="Good reply"
-        aria-pressed={turn.rating === 'up'}
-        onClick={() => rate('up')}
-      >
-        👍
-      </button>
-      <button
-        type="button"
-        className="icon thumb"
-        aria-label="Thumbs down"
-        title="Bad reply"
-        aria-pressed={turn.rating === 'down'}
-        onClick={() => rate('down')}
-      >
-        👎
-      </button>
+      <Thumbs rating={turn.rating} onRate={rate} />
       {error && (
         <span role="alert" className="error">
           {error}

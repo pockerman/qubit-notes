@@ -318,6 +318,22 @@ answer_ratings = Table(
     Column("rated_at", DateTime(timezone=True), nullable=False),
 )
 
+# what the writing assistant replied to a student, kept so they can rate it (features/writing_assistant.feature)
+writing_replies = Table(
+    "writing_replies",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("student", String, nullable=False, index=True),
+    Column("course_id", String, nullable=False, index=True),
+    Column("subject", String, nullable=False),
+    Column("topic", String, nullable=False),
+    Column("request", Text, nullable=False),
+    Column("reply", Text, nullable=False),
+    Column("sources", JSON, nullable=False),
+    Column("searched", Boolean, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
 # a student's audio of a material: a narration the AI wrote, read aloud; its MP3 is with the app's files, under audio/
 material_audio = Table(
     "material_audio",

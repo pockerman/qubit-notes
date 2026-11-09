@@ -483,6 +483,9 @@ export type WritingReply = {
   searched: boolean
   // the section of the material it is about, if it was asked about one
   section: string | null
+  id: string
+  // the student's thumbs up or down of it, if they rated it
+  rating: Rating | null
 }
 
 /** What the student asks the writing assistant, with what they have written and the conversation so far. */
@@ -602,6 +605,15 @@ export class StudyApi {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(asked),
+    })
+  }
+
+  /** The student's thumbs up or down of a reply of the writing assistant; null takes it back. */
+  rateWriting(replyId: string, rating: Rating | null): Promise<WritingReply> {
+    return this.request(`/writing-assistant/replies/${encodeURIComponent(replyId)}/rating`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating }),
     })
   }
 

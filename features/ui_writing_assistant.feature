@@ -13,7 +13,9 @@ Feature: The writing assistant in the browser
   It goes into the material, as Markdown, with its references after it, as links: "Insert" puts it
   where the cursor is, "Add at the end" after the rest, and, for a reply about a section, "Replace
   the section" in the place of that section's text, its heading kept. The conversation lasts while
-  the page is open; "New conversation" starts another.
+  the page is open; "New conversation" starts another. Below each reply are a thumbs up and a
+  thumbs down, as below the assistant's: the thumb chosen stays pressed, and choosing it again
+  takes the rating back.
 
   Background:
     Given I am signed in as "maria"
@@ -72,3 +74,16 @@ Feature: The writing assistant in the browser
     And I turn off searching the web
     And I ask the writing assistant in the browser "Write an introduction to the finite element method"
     Then I see its reply without references
+
+  Scenario: Rate a reply
+    When I open the course "Aeronautics"
+    And I write material in the topic "Finite elements"
+    And I open the writing assistant
+    And I ask the writing assistant in the browser "Write an introduction to the finite element method"
+    And I give the writing assistant's reply a thumbs up
+    Then the thumbs up of the writing assistant's reply is pressed
+    When I give the writing assistant's reply a thumbs down
+    Then the thumbs down of the writing assistant's reply is pressed
+    And the thumbs up of the writing assistant's reply is not pressed
+    When I give the writing assistant's reply a thumbs down
+    Then neither thumb of the writing assistant's reply is pressed

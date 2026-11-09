@@ -196,8 +196,9 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     # collections of papers: courses of their own, apart from the student's courses
     # the writing assistant: help writing material, from the web
     app.state.writing_assistant = WriteMaterialAssistantAgent(
-        platform, app.state.courses, app.state.course_titles, app.state.topics, app.state.ai_usage
+        database, platform, app.state.courses, app.state.course_titles, app.state.topics, app.state.ai_usage
     )
+    app.state.courses.on_delete(lambda course: app.state.writing_assistant.forget_course(course.id))
     app.state.papers = Papers(app.state.paper_records, app.state.courses, app.state.course_titles, app.state.materials)
     app.state.materials.on_delete(app.state.paper_records.forget_material)
     app.state.courses.on_delete(lambda course: app.state.paper_records.forget_course(course.id))
