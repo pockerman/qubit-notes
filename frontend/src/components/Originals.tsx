@@ -52,7 +52,7 @@ export function Originals({ api, courseId, originals }: { api: StudyApi; courseI
                 {pdf && (
                   <button
                     type="button"
-                    className="link"
+                    className="secondary"
                     aria-expanded={isShown}
                     aria-label={`${isShown ? 'Hide' : 'Show'} ${original.filename}`}
                     onClick={() => toggle(original.document_id)}
@@ -62,7 +62,7 @@ export function Originals({ api, courseId, originals }: { api: StudyApi; courseI
                 )}
                 <button
                   type="button"
-                  className="link"
+                  className="secondary"
                   aria-label={`Download ${original.filename}`}
                   onClick={() => download(original)}
                 >

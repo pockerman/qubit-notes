@@ -123,7 +123,7 @@ export function GeneratePage({ api, courseId, subject, topic }: Props) {
           <button type="submit" disabled={writing || ticked.length === 0 || (!kind && !instructions.trim())}>
             {writing ? 'Writing…' : 'Generate'}
           </button>
-          <button type="button" className="link" onClick={() => navigate({ page: 'topic', courseId, subject, topic })}>
+          <button type="button" className="secondary" onClick={() => navigate({ page: 'topic', courseId, subject, topic })}>
             Cancel
           </button>
           {writing && (

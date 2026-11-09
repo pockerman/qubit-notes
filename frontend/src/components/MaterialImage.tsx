@@ -56,7 +56,7 @@ export function MaterialImage({ api, courseId, documentId, path, alt, missing, o
         {error && <span className="error"> {error}</span>}
         {missing && onAdd && (
           <>
-            <button type="button" className="link" onClick={() => picker.current?.click()}>
+            <button type="button" className="secondary" onClick={() => picker.current?.click()}>
               Add the missing image
             </button>
             <input

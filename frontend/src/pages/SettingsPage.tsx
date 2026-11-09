@@ -118,10 +118,10 @@ function ProviderKeys({ api, keys, missing, onChanged }: ProviderKeysProps) {
                 )}
                 {has && !in_settings && replacing !== provider && removing !== provider && (
                   <span className="topic-actions">
-                    <button type="button" className="link" onClick={() => setReplacing(provider)}>
+                    <button type="button" className="secondary" onClick={() => setReplacing(provider)}>
                       Replace
                     </button>
-                    <button type="button" className="link danger" onClick={() => setRemoving(provider)}>
+                    <button type="button" className="secondary danger" onClick={() => setRemoving(provider)}>
                       Remove
                     </button>
                   </span>
@@ -142,7 +142,7 @@ function ProviderKeys({ api, keys, missing, onChanged }: ProviderKeysProps) {
                     <button type="button" className="danger" onClick={() => remove(provider)}>
                       Yes, remove it
                     </button>
-                    <button type="button" className="link" onClick={() => setRemoving(null)}>
+                    <button type="button" className="secondary" onClick={() => setRemoving(null)}>
                       Cancel
                     </button>
                   </div>

@@ -151,7 +151,7 @@ function Editor({ api, courseId, documentId, markdown, onSaved, onCancel }: Edit
         <button type="submit" disabled={text === null || saving !== null}>
           Save
         </button>
-        <button type="button" className="link" onClick={onCancel} disabled={saving !== null}>
+        <button type="button" className="secondary" onClick={onCancel} disabled={saving !== null}>
           Cancel
         </button>
         {saving && (
@@ -253,7 +253,7 @@ function NoteForm({ label, onSave, onCancel, place }: NoteFormProps) {
       </label>
       <div className="actions">
         <button type="submit">Save note</button>
-        <button type="button" className="link" onClick={onCancel}>
+        <button type="button" className="secondary" onClick={onCancel}>
           Cancel
         </button>
       </div>

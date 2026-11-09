@@ -58,7 +58,7 @@ export function Members({ api, course, collection = false }: Props) {
             {isOwner && member.student !== api.student && (
               <button
                 type="button"
-                className="link"
+                className="secondary"
                 aria-label={`Stop sharing with ${member.student}`}
                 onClick={() => run(() => calls.unshare(member.student))}
               >

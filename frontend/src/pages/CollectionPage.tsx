@@ -84,7 +84,7 @@ function DetailsForm({ details, onSave, onCancel }: DetailsFormProps) {
       )}
       <div className="actions">
         <button type="submit">Save details</button>
-        <button type="button" className="link" onClick={onCancel}>
+        <button type="button" className="secondary" onClick={onCancel}>
           Cancel
         </button>
       </div>
@@ -203,11 +203,11 @@ export function CollectionPage({ api, collectionId }: { api: StudyApi; collectio
               </button>
             </form>
           )}
-          <a className="link" href={href({ page: 'collection-members', collectionId })}>
+          <a className="button secondary" href={href({ page: 'collection-members', collectionId })}>
             Members
           </a>
           {isCreator && !confirmingDelete && (
-            <button type="button" className="link danger" onClick={() => setConfirmingDelete(true)}>
+            <button type="button" className="secondary danger" onClick={() => setConfirmingDelete(true)}>
               Delete collection
             </button>
           )}
@@ -227,7 +227,7 @@ export function CollectionPage({ api, collectionId }: { api: StudyApi; collectio
               <button type="button" className="danger" onClick={deleteCollection}>
                 Yes, delete {collection.title}
               </button>
-              <button type="button" className="link" onClick={() => setConfirmingDelete(false)}>
+              <button type="button" className="secondary" onClick={() => setConfirmingDelete(false)}>
                 Cancel
               </button>
             </div>
@@ -282,7 +282,7 @@ export function CollectionPage({ api, collectionId }: { api: StudyApi; collectio
                       <span className="topic-actions">
                         <button
                           type="button"
-                          className="link"
+                          className="secondary"
                           aria-label={`Edit the details of ${details.title}`}
                           onClick={() =>
                             setDescribing(describing === material.document_id ? null : material.document_id)
@@ -292,7 +292,7 @@ export function CollectionPage({ api, collectionId }: { api: StudyApi; collectio
                         </button>
                         <button
                           type="button"
-                          className="link"
+                          className="secondary"
                           aria-label={`Delete ${details.title}`}
                           onClick={() => remove(paper)}
                         >

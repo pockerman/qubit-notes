@@ -98,7 +98,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
           {isOwner && (
             <button
               type="button"
-              className="link"
+              className="secondary"
               aria-label={`Rename ${name}`}
               onClick={() => setRenaming(!renaming)}
             >
@@ -128,7 +128,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
                 Add material
               </a>
               <a
-                className="link"
+                className="button secondary"
                 href={href({ page: 'write', courseId, subject, topic })}
                 aria-label={`Write material in ${name}`}
               >
@@ -136,7 +136,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
               </a>
               {materials.length > 0 && (
                 <a
-                  className="link"
+                  className="button secondary"
                   href={href({ page: 'generate', courseId, subject, topic })}
                   aria-label={`Generate material in ${name}`}
                 >
@@ -194,7 +194,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
                     <span className="topic-actions">
                       <button
                         type="button"
-                        className="link"
+                        className="secondary"
                         aria-label={`Move ${material.filename} up`}
                         disabled={index === 0}
                         onClick={() => move(index, -1)}
@@ -203,7 +203,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
                       </button>
                       <button
                         type="button"
-                        className="link"
+                        className="secondary"
                         aria-label={`Move ${material.filename} down`}
                         disabled={index === materials.length - 1}
                         onClick={() => move(index, 1)}
@@ -215,7 +215,7 @@ export function TopicPage({ api, courseId, subject, topic }: Props) {
                   {isOwner && (
                     <button
                       type="button"
-                      className="link"
+                      className="secondary"
                       aria-label={`Delete ${material.filename}`}
                       onClick={() => remove(material)}
                     >

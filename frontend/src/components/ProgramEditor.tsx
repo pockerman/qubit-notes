@@ -42,7 +42,7 @@ export function ProgramEditor({ api, language, source, onChange, onClose }: Prop
       <header className="assistant-header">
         <h3>{language.name} editor</h3>
         <span className="note">Ctrl+Enter runs it</span>
-        <button type="button" className="link" aria-label={`Close the ${language.name} editor`} onClick={onClose}>
+        <button type="button" className="icon" aria-label={`Close the ${language.name} editor`} onClick={onClose}>
           ✕
         </button>
       </header>
