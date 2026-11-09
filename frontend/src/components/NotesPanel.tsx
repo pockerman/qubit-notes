@@ -35,7 +35,7 @@ function NoteItem({ note, onGoTo, onChange, onDelete }: { note: Note } & Omit<Pr
           </label>
           <div className="actions">
             <button type="submit">Save</button>
-            <button type="button" className="link" onClick={() => setEditing(false)}>
+            <button type="button" className="secondary" onClick={() => setEditing(false)}>
               Cancel
             </button>
           </div>
@@ -44,10 +44,10 @@ function NoteItem({ note, onGoTo, onChange, onDelete }: { note: Note } & Omit<Pr
         <>
           <p>{note.text}</p>
           <div className="actions">
-            <button type="button" className="link" onClick={() => setEditing(true)}>
+            <button type="button" className="secondary" onClick={() => setEditing(true)}>
               Edit
             </button>
-            <button type="button" className="link" onClick={() => onDelete(note)}>
+            <button type="button" className="secondary" onClick={() => onDelete(note)}>
               Delete
             </button>
           </div>

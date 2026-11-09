@@ -236,7 +236,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
                 <button type="button" className="danger" onClick={back}>
                   Discard
                 </button>
-                <button type="button" className="link" onClick={() => setLeaving(false)}>
+                <button type="button" className="secondary" onClick={() => setLeaving(false)}>
                   Keep writing
                 </button>
               </div>
@@ -246,7 +246,7 @@ export function WriteMaterialPage({ api, courseId, subject, topic, initial, choo
               <button type="submit" disabled={saving || !course}>
                 {saving ? 'Saving…' : 'Save'}
               </button>
-              <button type="button" className="link" onClick={cancel} disabled={saving}>
+              <button type="button" className="secondary" onClick={cancel} disabled={saving}>
                 Cancel
               </button>
             </div>

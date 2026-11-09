@@ -115,7 +115,7 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
           {isCreator && (
             <button
               type="button"
-              className="link"
+              className="secondary"
               aria-label={`Rename ${course.title}`}
               onClick={() => setRenaming(renaming === COURSE ? null : COURSE)}
             >
@@ -142,19 +142,19 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
               <a className="button" href={href({ page: 'add', courseId: course.id, subject: '', topic: '' })}>
                 Add material
               </a>
-              <button type="button" className="link" onClick={() => setAddingSubject(!addingSubject)}>
+              <button type="button" className="secondary" onClick={() => setAddingSubject(!addingSubject)}>
                 New subject
               </button>
-              <button type="button" className="link" onClick={() => setAddingTopic(!addingTopic)}>
+              <button type="button" className="secondary" onClick={() => setAddingTopic(!addingTopic)}>
                 New topic
               </button>
             </>
           )}
-          <a className="link" href={href({ page: 'members', courseId: course.id })}>
+          <a className="button secondary" href={href({ page: 'members', courseId: course.id })}>
             Members
           </a>
           {isCreator && !confirmingDelete && (
-            <button type="button" className="link danger" onClick={() => setConfirmingDelete(true)}>
+            <button type="button" className="secondary danger" onClick={() => setConfirmingDelete(true)}>
               Delete course
             </button>
           )}
@@ -169,7 +169,7 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
               <button type="button" className="danger" onClick={deleteCourse}>
                 Yes, delete {course.title}
               </button>
-              <button type="button" className="link" onClick={() => setConfirmingDelete(false)}>
+              <button type="button" className="secondary" onClick={() => setConfirmingDelete(false)}>
                 Cancel
               </button>
             </div>
@@ -219,7 +219,7 @@ export function CoursePage({ api, courseId }: { api: StudyApi; courseId: string 
                   {isOwner && (
                     <button
                       type="button"
-                      className="link"
+                      className="secondary"
                       aria-label={`Rename ${name}`}
                       onClick={() => setRenaming(renaming === subject ? null : subject)}
                     >

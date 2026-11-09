@@ -15,7 +15,7 @@ export function AddImage({ onInsert }: Props) {
   if (!adding) {
     return (
       <p className="note">
-        <button type="button" className="link" onClick={() => setAdding(true)}>
+        <button type="button" className="secondary" onClick={() => setAdding(true)}>
           Add image
         </button>{' '}
         or paste or drop one into the text. PNG, JPEG, GIF or WebP, up to 10 MB.
@@ -46,7 +46,7 @@ export function AddImage({ onInsert }: Props) {
         >
           Insert
         </button>
-        <button type="button" className="link" onClick={() => setAdding(false)}>
+        <button type="button" className="secondary" onClick={() => setAdding(false)}>
           Cancel
         </button>
       </div>

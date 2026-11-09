@@ -123,7 +123,7 @@ function EmailForm({ api, email, onChanged }: EmailFormProps) {
             <button type="submit" disabled={saving || !code.trim()}>
               {saving ? 'Confirming…' : 'Confirm'}
             </button>
-            <button type="button" className="link" onClick={() => setConfirming(null)}>
+            <button type="button" className="secondary" onClick={() => setConfirming(null)}>
               Cancel
             </button>
           </div>

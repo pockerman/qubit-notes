@@ -44,7 +44,7 @@ function NewCollectionForm({ api, onCancel }: { api: StudyApi; onCancel: () => v
       )}
       <div className="actions">
         <button type="submit">Create collection</button>
-        <button type="button" className="link" onClick={onCancel}>
+        <button type="button" className="secondary" onClick={onCancel}>
           Cancel
         </button>
       </div>
@@ -113,7 +113,7 @@ export function PapersPage({ api }: { api: StudyApi }) {
               {collection.owner === api.student && (
                 <button
                   type="button"
-                  className="link"
+                  className="secondary"
                   aria-label={`Rename ${collection.title}`}
                   onClick={() => setRenaming(renaming === collection.id ? null : collection.id)}
                 >

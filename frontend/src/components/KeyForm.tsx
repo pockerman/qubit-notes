@@ -43,7 +43,7 @@ export function KeyForm({ api, provider, onGiven, onCancel }: KeyFormProps) {
           {saving ? 'Saving…' : 'Save'}
         </button>
         {onCancel && (
-          <button type="button" className="link" onClick={onCancel}>
+          <button type="button" className="secondary" onClick={onCancel}>
             Cancel
           </button>
         )}

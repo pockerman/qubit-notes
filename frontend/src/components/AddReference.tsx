@@ -59,7 +59,7 @@ function ReferenceHelp({ onClose }: { onClose: () => void }) {
           Text in code, such as <code>`[[subject/topic]]`</code>, is not a reference.
         </li>
       </ul>
-      <button type="button" className="link" onClick={onClose}>
+      <button type="button" className="secondary" onClick={onClose}>
         Close
       </button>
     </section>
@@ -128,11 +128,11 @@ export function AddReference({ api, courseId, onInsert }: Props) {
     return (
       <>
         <p className="note">
-          <button type="button" className="link" onClick={() => setAdding(true)}>
+          <button type="button" className="secondary" onClick={() => setAdding(true)}>
             Add reference
           </button>{' '}
           to a topic, a material or a section of the course, written <code>[[subject/topic]]</code>.{' '}
-          <button type="button" className="link" aria-expanded={helping} onClick={() => setHelping(!helping)}>
+          <button type="button" className="secondary" aria-expanded={helping} onClick={() => setHelping(!helping)}>
             How references work
           </button>
         </p>
@@ -201,7 +201,7 @@ export function AddReference({ api, courseId, onInsert }: Props) {
         >
           Insert
         </button>
-        <button type="button" className="link" onClick={close}>
+        <button type="button" className="secondary" onClick={close}>
           Cancel
         </button>
       </div>

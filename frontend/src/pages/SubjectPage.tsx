@@ -184,7 +184,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
           {isOwner && (
             <button
               type="button"
-              className="link"
+              className="secondary"
               aria-label={`Rename ${subjectName}`}
               onClick={() => setRenaming(renaming === SUBJECT ? null : SUBJECT)}
             >
@@ -193,7 +193,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
           )}
           <button
             type="button"
-            className="link"
+            className="secondary"
             disabled={zipping}
             onClick={downloadZip}
           >
@@ -207,7 +207,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
           <div className="actions page-actions">
             <button
               type="button"
-              className="link"
+              className="secondary"
               aria-label={`Add a topic to ${subjectName}`}
               onClick={() => setAddingTopic(!addingTopic)}
             >
@@ -215,7 +215,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
             </button>
             <button
               type="button"
-              className="link"
+              className="secondary"
               aria-label={`Make lessons in ${subjectName} from a document`}
               onClick={() => setMakingLessons(!makingLessons)}
             >
@@ -223,7 +223,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
             </button>
             <button
               type="button"
-              className="link"
+              className="secondary"
               aria-label={`The tools of ${subjectName}`}
               aria-expanded={choosingTools}
               onClick={() => setChoosingTools(!choosingTools)}
@@ -233,7 +233,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
             {of.length === 0 && (
               <button
                 type="button"
-                className="link danger"
+                className="secondary danger"
                 aria-label={`Delete ${subjectName}`}
                 onClick={deleteSubject}
               >
@@ -306,7 +306,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
                         <>
                           <button
                             type="button"
-                            className="link"
+                            className="secondary"
                             aria-label={`Move ${name} up`}
                             disabled={index === 0}
                             onClick={() =>
@@ -321,7 +321,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
                           </button>
                           <button
                             type="button"
-                            className="link"
+                            className="secondary"
                             aria-label={`Move ${name} down`}
                             disabled={index === of.length - 1}
                             onClick={() =>
@@ -338,7 +338,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
                       )}
                       <button
                         type="button"
-                        className="link"
+                        className="secondary"
                         aria-label={`Rename ${name}`}
                         onClick={() => setRenaming(renaming === topic ? null : topic)}
                       >
@@ -346,7 +346,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
                       </button>
                       <button
                         type="button"
-                        className="link danger"
+                        className="secondary danger"
                         aria-label={`Delete ${name}`}
                         onClick={() => setDeletingTopic(topic)}
                       >
@@ -375,7 +375,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
                       <button type="button" className="danger" onClick={() => deleteTopic(topic)}>
                         Yes, delete {name}
                       </button>
-                      <button type="button" className="link" onClick={() => setDeletingTopic(null)}>
+                      <button type="button" className="secondary" onClick={() => setDeletingTopic(null)}>
                         Cancel
                       </button>
                     </div>

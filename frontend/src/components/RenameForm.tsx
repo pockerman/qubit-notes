@@ -40,7 +40,7 @@ export function RenameForm({
         <button type="submit" disabled={!value.trim()}>
           Rename
         </button>
-        <button type="button" className="link" onClick={onCancel}>
+        <button type="button" className="secondary" onClick={onCancel}>
           Cancel
         </button>
       </div>

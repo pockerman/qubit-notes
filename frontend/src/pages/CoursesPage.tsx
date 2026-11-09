@@ -38,7 +38,7 @@ function NewCourseForm({ api, onCancel }: { api: StudyApi; onCancel: () => void 
       )}
       <div className="actions">
         <button type="submit">Create course</button>
-        <button type="button" className="link" onClick={onCancel}>
+        <button type="button" className="secondary" onClick={onCancel}>
           Cancel
         </button>
       </div>
@@ -106,7 +106,7 @@ export function CoursesPage({ api }: { api: StudyApi }) {
               {course.owner === api.student && (
                 <button
                   type="button"
-                  className="link"
+                  className="secondary"
                   aria-label={`Rename ${course.title}`}
                   onClick={() => setRenaming(renaming === course.id ? null : course.id)}
                 >

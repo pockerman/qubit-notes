@@ -233,7 +233,7 @@ export function Markdown({
         editors && runnable ? (
           <div key={blocks.length} className="program-block">
             {block}
-            <button type="button" className="link" onClick={() => editors.open(runnable, source)}>
+            <button type="button" className="secondary" onClick={() => editors.open(runnable, source)}>
               Open in the {runnable.name} editor
             </button>
           </div>

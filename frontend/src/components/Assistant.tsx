@@ -109,7 +109,7 @@ function QuizView({ api, quiz }: { api: StudyApi; quiz: Quiz }) {
             </p>
             <button
               type="button"
-              className="link"
+              className="secondary"
               onClick={() => {
                 setAnswers(quiz.questions.map(() => null))
                 setAttempt(null)
@@ -160,7 +160,7 @@ function DeckView({ deck }: { deck: Deck }) {
                 <Markdown text={card.back} />
               </div>
             )}
-            <button type="button" className="link" aria-expanded={turned.has(card.id)} onClick={() => turn(card.id)}>
+            <button type="button" className="secondary" aria-expanded={turned.has(card.id)} onClick={() => turn(card.id)}>
               {turned.has(card.id) ? 'Hide the answer' : 'Show the answer'}
             </button>
           </li>
@@ -257,10 +257,10 @@ export function Assistant({ api, where, label, onClose }: Props) {
       <header className="assistant-header">
         <h3>Assistant</h3>
         <span className="note">on {label}</span>
-        <button type="button" className="link" onClick={startAgain} disabled={!turns?.length || asking !== null}>
+        <button type="button" className="secondary" onClick={startAgain} disabled={!turns?.length || asking !== null}>
           New conversation
         </button>
-        <button type="button" className="link" aria-label="Close the assistant" onClick={onClose}>
+        <button type="button" className="icon" aria-label="Close the assistant" onClick={onClose}>
           ✕
         </button>
         <ProviderChoice api={api} />
