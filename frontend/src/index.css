@@ -521,10 +521,10 @@ main:has(.reader) {
   margin-bottom: 0.75rem;
 }
 
-.section-text mark {
-  background: color-mix(in srgb, var(--accent) 22%, transparent);
-  color: inherit;
-  border-radius: 2px;
+/* the passages with notes, and those highlighted, light yellow, the text dark on it in either theme */
+::highlight(passages) {
+  background-color: #fff3a3;
+  color: #1f1f1f;
 }
 
 .notes ul {

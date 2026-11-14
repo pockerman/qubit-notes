@@ -77,3 +77,19 @@ Feature: Notes in the browser
     And I open "lecture-3.mp4" to read it
     And I note "worked example" at the current moment of the video
     Then I see my note "worked example" at 00:00
+
+  Scenario: Highlight a passage over lines of the text and words in bold
+    Given I am signed in as "maria"
+    And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
+      """
+      # 1 Introduction
+      The finite element method divides a domain
+      into **small elements** joined at their nodes.
+      """
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    And I select from "divides" to "joined"
+    And I choose "Highlight" for the selection
+    Then I see my highlight of "divides a domain into small elements joined"
+    And the passage "divides a domain into small elements joined" is highlighted
+    And I am told of no error
