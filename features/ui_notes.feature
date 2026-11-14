@@ -4,8 +4,10 @@ Feature: Notes in the browser
   I want to take notes on what I read and watch, on screen
   So that my thoughts stay next to the material
 
-  Selecting a passage of a text opens a new note over the text, just above the passage (or just
-  below it, near the top of the window), from where the passage starts, not in a margin.
+  Selecting a passage of a text offers, just above the passage (or just below it, near the top of
+  the window): to copy it, to highlight it, or to take a note on it. The new note opens there too, over
+  the text, from where the passage starts, not in a margin. The selection stays, so it can also be
+  copied as usual.
 
   Scenario: Take a note on a passage of a text
     Given I am signed in as "maria"
@@ -37,7 +39,36 @@ Feature: Notes in the browser
     And I open "fem-notes.md" to read it
     And I choose the section "2 Shape functions"
     And I select the passage "interpolates linearly between its two nodes"
+    And I choose "Note" for the selection
     Then the new note opens over the text, just above or below "interpolates linearly between its two nodes"
+
+  Scenario: Highlight a passage, without a note
+    Given I am signed in as "maria"
+    And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
+      """
+      # 1 Introduction
+      The finite element method divides a domain into small elements.
+      """
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    And I select the passage "divides a domain into small elements"
+    And I choose "Highlight" for the selection
+    Then the passage "divides a domain into small elements" is highlighted
+    And I see my highlight of "divides a domain into small elements"
+
+  Scenario: Copy a passage
+    Given I am signed in as "maria"
+    And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
+      """
+      # 1 Introduction
+      The finite element method divides a domain into small elements.
+      """
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    And I select the passage "divides a domain into small elements"
+    And I choose "Copy" for the selection
+    Then "divides a domain into small elements" is copied
+    And the passage "divides a domain into small elements" is still selected
 
   Scenario: Take a note on a video
     Given I am signed in as "maria"

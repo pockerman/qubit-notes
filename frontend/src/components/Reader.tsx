@@ -210,8 +210,9 @@ function sectionLabel(title: string, filename: string): string {
 // the window, as wide as the note's form, from where the passage starts, as far as the reader goes
 type Place = { top: number; left: number; width: number; above: boolean }
 
-// the words selected in one section of the text, to take a note on, and where the note opens
-type Selection = { section: number; passage: string; place: Place }
+// the words selected in one section of the text, to copy, highlight or take a note on, and where what to do with
+// them opens; noting once the student chose to take a note on them
+type Selection = { section: number; passage: string; place: Place; noting?: boolean }
 
 // the note's form is this wide, if the reader is, and this tall, or about
 const NOTE_WIDTH = 352
@@ -254,7 +255,7 @@ function highlight(paragraph: string, passages: Note[]): ReactNode {
     if (at < cursor) continue
     parts.push(paragraph.slice(cursor, at))
     parts.push(
-      <mark key={note.id} title={note.text}>
+      <mark key={note.id} title={note.text || undefined}>
         {note.passage}
       </mark>,
     )
@@ -262,6 +263,54 @@ function highlight(paragraph: string, passages: Note[]): ReactNode {
   }
   parts.push(paragraph.slice(cursor))
   return parts
+}
+
+/** Copies the words: to the clipboard, or, where the page may not use it, as the browser copies a selection. */
+async function copy(words: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(words)
+  } catch {
+    if (!document.execCommand('copy')) throw new Error('Could not copy the passage')
+  }
+}
+
+type SelectionActionsProps = {
+  place: Place
+  onCopy: () => Promise<void>
+  onHighlight: () => Promise<void>
+  onNote: () => void
+}
+
+/** What to do with the selected words: copy, highlight, or take a note on them. The buttons take no focus, so the
+ * words stay selected, to copy as usual too. */
+function SelectionActions({ place, onCopy, onHighlight, onNote }: SelectionActionsProps) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <div
+      role="toolbar"
+      aria-label="Selection"
+      className={`selection-actions card ${place.above ? 'above' : 'below'}`}
+      style={{ top: place.top, left: place.left }}
+      onMouseDown={(e) => e.preventDefault()}
+    >
+      <button
+        type="button"
+        className="secondary"
+        onClick={async () => {
+          await onCopy()
+          setCopied(true)
+        }}
+      >
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+      <button type="button" className="secondary" onClick={onHighlight}>
+        Highlight
+      </button>
+      <button type="button" className="secondary" onClick={onNote}>
+        Note
+      </button>
+    </div>
+  )
 }
 
 type NoteFormProps = {
@@ -342,6 +391,16 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
   const [topics, setTopics] = useState<Topic[]>([])
   const video = useRef<HTMLVideoElement>(null)
   const body = useRef<HTMLDivElement>(null)
+
+  // Escape puts away what to do with the selected words
+  useEffect(() => {
+    if (!selection || selection.noting) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelection(null)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [selection])
 
   const loadNotes = useCallback(() => {
     api.notes(courseId, documentId).then(setNotes, (e: Error) => setError(e.message))
@@ -762,7 +821,17 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
 
           {beside}
 
-          {selection && (
+          {selection && !selection.noting && (
+            <SelectionActions
+              key={`${selection.section}:${selection.passage}`}
+              place={selection.place}
+              onCopy={() => copy(selection.passage).catch((e: Error) => setError(e.message))}
+              onHighlight={() => addNote({ text: '', section: selection.section, passage: selection.passage })}
+              onNote={() => setSelection({ ...selection, noting: true })}
+            />
+          )}
+
+          {selection?.noting && (
             <NoteForm
               label={`On “${selection.passage}”`}
               place={selection.place}

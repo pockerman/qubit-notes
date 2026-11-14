@@ -404,7 +404,31 @@ def _save_note(page: Page, text: str) -> None:
 def select_and_note(page, passage, text):
     expect(page.get_by_role("article", name="Section text")).to_contain_text(passage)
     assert page.evaluate(SELECT_PASSAGE, passage), f"{passage!r} is not in the text"
+    page.get_by_role("toolbar", name="Selection").get_by_role("button", name="Note").click()
     _save_note(page, text)
+
+
+@when(parsers.parse('I choose "{action}" for the selection'))
+def choose_for_selection(page, action):
+    page.get_by_role("toolbar", name="Selection").get_by_role("button", name=action, exact=True).click()
+
+
+@then(parsers.parse('"{passage}" is copied'))
+def is_copied(page, passage):
+    expect(page.get_by_role("toolbar", name="Selection").get_by_role("button", name="Copied")).to_be_visible()
+    assert page.evaluate("navigator.clipboard.readText()") == passage
+
+
+@then(parsers.parse('the passage "{passage}" is still selected'))
+def still_selected(page, passage):
+    assert page.evaluate("window.getSelection().toString()") == passage
+
+
+@then(parsers.parse('I see my highlight of "{passage}"'))
+def see_my_highlight(page, passage):
+    expect(
+        page.get_by_role("complementary", name="My notes").get_by_role("listitem", name=f"Highlight: {passage}")
+    ).to_be_visible()
 
 
 @when(parsers.parse('I select the passage "{passage}"'))

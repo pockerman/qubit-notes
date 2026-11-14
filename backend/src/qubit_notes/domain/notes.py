@@ -37,7 +37,8 @@ def format_moment(seconds: float) -> str:
 
 class Notes:
     """A student's notes on material: on a passage of a text, or at a moment of a video. Notes are private: only
-    the student who took one sees it. Any member of a course may take notes on its material."""
+    the student who took one sees it. Any member of a course may take notes on its material. A note on a passage
+    with no text is a highlight of it."""
 
     def __init__(self, engine: Engine, reading: Reading):
         self._engine = engine
@@ -55,11 +56,11 @@ class Notes:
         at_seconds: float | None = None,
     ) -> Note:
         text = text.strip()
-        if not text:
-            raise InvalidRequest("a note needs some text")
         opened = self._reading.open(student, course_id, document_id)
         values = {}
         if opened.kind == "video":
+            if not text:
+                raise InvalidRequest("a note on a video needs some text")
             if at_seconds is None or at_seconds < 0:
                 raise InvalidRequest("a note on a video needs the moment it's at")
             if opened.duration_seconds is not None and at_seconds > opened.duration_seconds:

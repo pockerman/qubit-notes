@@ -230,7 +230,8 @@ def browser():
 
 @pytest.fixture
 def page(browser, live_url):
-    context = browser.new_context(base_url=live_url)
+    # the reader copies passages to the clipboard, and a scenario reads it back
+    context = browser.new_context(base_url=live_url, permissions=["clipboard-read", "clipboard-write"])
     context.set_default_timeout(10_000)
     page = context.new_page()
     yield page

@@ -15,9 +15,14 @@ function NoteItem({ note, onGoTo, onChange, onDelete }: { note: Note } & Omit<Pr
   const [text, setText] = useState(note.text)
   const anchor =
     note.at_seconds !== null ? formatMoment(note.at_seconds) : `${note.section_title || 'Start'} · “${note.passage}”`
+  // a note on a passage with no text only highlights it
+  const highlight = !note.text
 
   return (
-    <li className="note-item" aria-label={`Note: ${note.text}`}>
+    <li
+      className={highlight ? 'note-item highlight' : 'note-item'}
+      aria-label={highlight ? `Highlight: ${note.passage}` : `Note: ${note.text}`}
+    >
       <button type="button" className="link anchor" onClick={() => onGoTo(note)}>
         {anchor}
       </button>
@@ -42,10 +47,10 @@ function NoteItem({ note, onGoTo, onChange, onDelete }: { note: Note } & Omit<Pr
         </form>
       ) : (
         <>
-          <p>{note.text}</p>
+          {!highlight && <p>{note.text}</p>}
           <div className="actions">
             <button type="button" className="secondary" onClick={() => setEditing(true)}>
-              Edit
+              {highlight ? 'Add note' : 'Edit'}
             </button>
             <button type="button" className="secondary" onClick={() => onDelete(note)}>
               Delete
@@ -62,7 +67,7 @@ export function NotesPanel({ notes, onGoTo, onChange, onDelete }: Props) {
     <aside className="notes" aria-label="My notes">
       <h3>My notes</h3>
       {notes.length === 0 ? (
-        <p className="note">No notes yet.</p>
+        <p className="note">No notes or highlights yet.</p>
       ) : (
         <ul>
           {notes.map((note) => (
