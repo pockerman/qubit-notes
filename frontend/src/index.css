@@ -575,6 +575,31 @@ main:has(.reader) {
   margin-top: 0.4rem;
 }
 
+/* what to do with the selected words, just above them, or just below */
+.selection-actions {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.25rem;
+  background: var(--bg);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 18%);
+}
+
+.selection-actions.above {
+  transform: translateY(calc(-100% - 0.4rem));
+}
+
+.selection-actions.below {
+  margin-top: 0.4rem;
+}
+
+.selection-actions button {
+  padding: 2px 10px;
+  font-size: 0.85rem;
+}
+
 .note-form.by-passage textarea {
   width: 100%;
 }

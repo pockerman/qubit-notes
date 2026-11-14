@@ -79,6 +79,20 @@ def have_uploaded_video_of(students, minutes, filename, location):
     students.wait_until_ingested(students.upload(location, filename, make_mp4(minutes * 60)))
 
 
+@when(parsers.parse('I highlight "{passage}" in "{title}" of "{filename}"'))
+def highlight_passage(client, students, context, passage, title, filename):
+    context["response"] = _note_on_passage(client, students, "", passage, title, filename)
+    assert context["response"].status_code == 201, context["response"].text
+
+
+@when(parsers.parse('I note nothing at {moment} of "{filename}"'))
+def note_nothing_at_moment(client, students, context, moment, filename):
+    material = students.find_material(filename)
+    context["response"] = client.post(
+        _notes_path(material), headers=students.headers(), json={"text": "", "at_seconds": _seconds(moment)}
+    )
+
+
 @when(parsers.parse('I note "{text}" at {moment} of "{filename}"'))
 def note_at_moment(client, students, context, text, moment, filename):
     material = students.find_material(filename)
@@ -135,6 +149,13 @@ def passage_not_in_section(context):
     response = context["response"]
     assert response.status_code == 422, response.text
     assert "not in that section" in response.json()["detail"]
+
+
+@then("I am told a note on a video needs some text")
+def video_note_needs_text(context):
+    response = context["response"]
+    assert response.status_code == 422, response.text
+    assert "needs some text" in response.json()["detail"]
 
 
 @then(parsers.parse("I am told the video is only {length} long"))

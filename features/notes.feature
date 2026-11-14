@@ -4,6 +4,7 @@ Feature: Notes
   So that my own thoughts stay next to what they are about
 
   A note on a text is anchored to a passage: the words selected in a section.
+  A note on a passage may have no text: it only highlights the passage.
   A note on a video is anchored to a moment in it, e.g. 12:30.
   Notes are private: only the student who took them sees them, even in a shared course.
 
@@ -36,6 +37,12 @@ Feature: Notes
         | 1 Introduction    | divides a domain      | compare with Galerkin's method |
         | 2 Shape functions | between its two nodes | why two nodes?                 |
 
+    Scenario: Highlight a passage, without a note
+      When I highlight "divides a domain into small elements" in "1 Introduction" of "fem-notes.md"
+      Then the notes of "fem-notes.md" are:
+        | section        | passage                              | note |
+        | 1 Introduction | divides a domain into small elements |      |
+
     Scenario: A note can only be anchored to words in its section
       When I note "typo?" on "words that are not there" in "1 Introduction" of "fem-notes.md"
       Then I am told the passage is not in that section
@@ -51,6 +58,11 @@ Feature: Notes
         | at    | note                               |
         | 03:05 | worked example                     |
         | 12:30 | derivation of the stiffness matrix |
+
+    Scenario: A note on a video needs some text
+      Given I have uploaded the video "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
+      When I note nothing at 03:05 of "lecture-3.mp4"
+      Then I am told a note on a video needs some text
 
     Scenario: A note cannot be after the end of a video
       Given I have uploaded the 45-minute video "lecture-3.mp4" to "aeronautics/numerical-methods/finite-elements"
