@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import {
   waitForUpload,
   type MaterialImages,
@@ -243,26 +243,50 @@ function selectedPassage(body: HTMLElement | null): Selection | null {
   }
 }
 
-/** The paragraph, with the passages that have notes marked. */
-function highlight(paragraph: string, passages: Note[]): ReactNode {
-  const marks = passages
-    .map((note) => ({ note, at: note.passage ? paragraph.indexOf(note.passage) : -1 }))
-    .filter(({ at }) => at >= 0)
-    .sort((a, b) => a.at - b.at)
-  const parts: ReactNode[] = []
-  let cursor = 0
-  for (const { note, at } of marks) {
-    if (at < cursor) continue
-    parts.push(paragraph.slice(cursor, at))
-    parts.push(
-      <mark key={note.id} title={note.text || undefined}>
-        {note.passage}
-      </mark>,
-    )
-    cursor = at + (note.passage?.length ?? 0)
+const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/** Where the passage is in the text of an element: the passage as it was selected, which may have run over lines and
+ * across words in bold, in code or in a link, so between its words there may be any space, or none between blocks. */
+function rangeOf(element: HTMLElement, passage: string): Range | null {
+  const words = passage.split(/\s+/).filter(Boolean)
+  if (words.length === 0) return null
+  const nodes: { node: Text; at: number }[] = []
+  let text = ''
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    nodes.push({ node: node as Text, at: text.length })
+    text += node.textContent ?? ''
   }
-  parts.push(paragraph.slice(cursor))
-  return parts
+  const found = new RegExp(words.map(escape).join('\\s*')).exec(text)
+  if (!found) return null
+  const place = (offset: number, end: boolean) => {
+    // the text node the offset is in; the end of a passage is in the node before, where it ends at a node's start
+    let i = nodes.length - 1
+    while (i > 0 && (end ? nodes[i].at >= offset : nodes[i].at > offset)) i--
+    return { node: nodes[i].node, offset: offset - nodes[i].at }
+  }
+  const from = place(found.index, false)
+  const to = place(found.index + found[0].length, true)
+  const range = document.createRange()
+  range.setStart(from.node, from.offset)
+  range.setEnd(to.node, to.offset)
+  return range
+}
+
+// the name the highlights of the passages are painted under, in the style sheet
+const HIGHLIGHTS = 'passages'
+
+/** Paints the passages that have notes or are highlighted, in the sections of the text, in light yellow. */
+function paintPassages(text: HTMLElement | null, notes: Note[]) {
+  if (typeof CSS === 'undefined' || !('highlights' in CSS)) return
+  const ranges: Range[] = []
+  for (const note of notes) {
+    if (!note.passage || note.section === null || !text) continue
+    const section = text.querySelector<HTMLElement>(`[data-section="${note.section}"]`)
+    const range = section && rangeOf(section, note.passage)
+    if (range) ranges.push(range)
+  }
+  CSS.highlights.set(HIGHLIGHTS, new Highlight(...ranges))
 }
 
 /** Copies the words: to the clipboard, or, where the page may not use it, as the browser copies a selection. */
@@ -391,6 +415,13 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
   const [topics, setTopics] = useState<Topic[]>([])
   const video = useRef<HTMLVideoElement>(null)
   const body = useRef<HTMLDivElement>(null)
+  const text = useRef<HTMLElement>(null)
+  // the passages with notes, painted over the text once it is shown
+  useEffect(() => paintPassages(text.current, notes), [notes, parts, material])
+  useEffect(
+    () => () => void (typeof CSS !== 'undefined' && 'highlights' in CSS && CSS.highlights.delete(HIGHLIGHTS)),
+    [],
+  )
 
   // Escape puts away what to do with the selected words
   useEffect(() => {
@@ -791,11 +822,11 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
           <article
             className="section-text"
             aria-label="Section text"
+            ref={text}
             onMouseUp={() => setSelection(selectedPassage(body.current))}
           >
             {parts.map(({ section, content }, i) => {
               const Heading = i === 0 ? 'h3' : 'h4'
-              const passages = notes.filter((note) => note.section === section.position)
               return (
                 <section key={section.position} data-section={section.position}>
                   <Heading>{sectionLabel(section.title, material.filename)}</Heading>
@@ -803,7 +834,6 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                     <Markdown
                       text={content}
                       headingOffset={3}
-                      mark={(text) => highlight(text, passages)}
                       image={materialImages(api, courseId, documentId, images, canEdit ? setImages : undefined)}
                       reference={referenceLinks(courseId, references)}
                       editors={editors}
@@ -812,7 +842,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                     content
                       .split(/\n\s*\n/)
                       .filter((paragraph) => paragraph.trim())
-                      .map((paragraph, j) => <p key={j}>{highlight(paragraph, passages)}</p>)
+                      .map((paragraph, j) => <p key={j}>{paragraph}</p>)
                   )}
                 </section>
               )

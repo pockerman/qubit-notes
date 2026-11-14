@@ -431,6 +431,39 @@ def see_my_highlight(page, passage):
     ).to_be_visible()
 
 
+SELECT_FROM_TO = """([first, last]) => {
+    const article = document.querySelector('article[aria-label="Section text"]')
+    const walker = document.createTreeWalker(article, NodeFilter.SHOW_TEXT)
+    let start = null
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        if (!start) {
+            const at = node.textContent.indexOf(first)
+            if (at >= 0) start = [node, at]
+        }
+        if (start) {
+            const at = node.textContent.indexOf(last)
+            if (at >= 0 && (node !== start[0] || at > start[1])) {
+                const range = document.createRange()
+                range.setStart(start[0], start[1])
+                range.setEnd(node, at + last.length)
+                const selection = window.getSelection()
+                selection.removeAllRanges()
+                selection.addRange(range)
+                article.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+                return true
+            }
+        }
+    }
+    return false
+}"""
+
+
+@when(parsers.parse('I select from "{first}" to "{last}"'))
+def select_from_to(page, first, last):
+    expect(page.get_by_role("article", name="Section text")).to_contain_text(last)
+    assert page.evaluate(SELECT_FROM_TO, [first, last]), f"{first!r} to {last!r} is not in the text"
+
+
 @when(parsers.parse('I select the passage "{passage}"'))
 def select_passage(page, passage):
     expect(page.get_by_role("article", name="Section text")).to_contain_text(passage)
@@ -488,9 +521,20 @@ def see_my_note(page, text):
     ).to_be_visible()
 
 
+# the passages painted as highlighted, their space as it is read
+HIGHLIGHTED = """() => [...(CSS.highlights.get('passages') ?? [])]
+    .map((range) => range.toString().replace(/\\s+/g, ' '))"""
+
+
 @then(parsers.parse('the passage "{passage}" is highlighted'))
 def passage_highlighted(page, passage):
-    expect(page.get_by_role("article", name="Section text").locator("mark", has_text=passage)).to_be_visible()
+    page.wait_for_function(f"({HIGHLIGHTED})().includes({passage!r})")
+    # painted light yellow
+    background = page.evaluate(
+        """() => [...document.styleSheets].flatMap((sheet) => [...sheet.cssRules])
+            .find((rule) => rule.selectorText === '::highlight(passages)')?.style.backgroundColor"""
+    )
+    assert background == "rgb(255, 243, 163)", background
 
 
 # the assistant
@@ -1919,3 +1963,8 @@ def told_sign_in_by_name(page):
 @then("I am not offered to change my email or password")
 def not_offered_account_changes(page):
     expect(_account(page).get_by_role("form")).to_have_count(0)
+
+
+@then("I am told of no error")
+def told_of_no_error(page):
+    expect(page.get_by_role("alert")).to_have_count(0)

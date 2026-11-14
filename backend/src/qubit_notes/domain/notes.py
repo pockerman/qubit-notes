@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import UTC, datetime
 
@@ -33,6 +34,22 @@ def format_moment(seconds: float) -> str:
     hours, rest = divmod(total, 3600)
     minutes, secs = divmod(rest, 60)
     return f"{hours}:{minutes:02d}:{secs:02d}" if hours else f"{minutes:02d}:{secs:02d}"
+
+
+# what Markdown shows differently from how it's written, between the words of a passage as it's read: emphasis, code,
+# struck text, and a link, shown as its label
+_MARKUP = r"(?:[*_`~\[]|\]\([^)]*\))*"
+
+
+def locate(passage: str, content: str) -> int:
+    """where the passage starts in the content, or -1: the passage as it's read, which may run over lines of the
+    text and across words in bold, in code or in a link, as it is written there"""
+    words = passage.split()
+    if not words:
+        return -1
+    pattern = (_MARKUP + r"\s+" + _MARKUP).join(_MARKUP.join(re.escape(c) for c in word) for word in words)
+    found = re.search(pattern, content)
+    return found.start() if found else -1
 
 
 class Notes:
@@ -72,7 +89,7 @@ class Notes:
             titles = {s.position: s.title for s in opened.sections}
             if section not in titles:
                 raise NotFound(f"{opened.filename!r} has no section {section}")
-            start = self._reading.section_content(student, course_id, document_id, section).find(passage)
+            start = locate(passage, self._reading.section_content(student, course_id, document_id, section))
             if start < 0:
                 raise InvalidRequest(f"the passage {passage!r} is not in that section")
             values = {"section": section, "section_title": titles[section], "passage": passage, "passage_start": start}
@@ -123,8 +140,8 @@ class Notes:
             key=lambda part: (part.section.position != row.section, part.section.title != row.section_title),
         )
         for part in candidates:
-            start = part.content.find(row.passage or "")
-            if row.passage and start >= 0:
+            start = locate(row.passage or "", part.content)
+            if start >= 0:
                 note.section, note.section_title = part.section.position, part.section.title
                 return note, start
         note.detached = True
