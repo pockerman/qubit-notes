@@ -8,6 +8,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+from qubit_notes import prompts
 from qubit_notes.domain.conversions import is_original
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound
@@ -32,10 +33,7 @@ UNNAMED = "Generated notes"
 # the most text generated from at once
 MAX_CHARACTERS = 60_000
 
-SYSTEM = """You write new study material for a student, in Markdown, from their own material. Use only the material
-you are given. Use headings, lists and tables where they help. After each statement drawn from the material, cite the
-part it came from by its label in square brackets, e.g. [S2], or [S1][S3] for several. Write nothing before or after
-the material itself."""
+SYSTEM = prompts.load("generating")
 
 LABEL = re.compile(r"\[(S\d+)\]")
 

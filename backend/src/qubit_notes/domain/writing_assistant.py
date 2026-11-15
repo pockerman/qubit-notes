@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import delete, insert, select
 from sqlalchemy.engine import Engine
 
-from qubit_notes import storage
+from qubit_notes import prompts, storage
 from qubit_notes.domain.assistant import Rating
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
@@ -31,16 +31,7 @@ MAX_REQUEST_CHARACTERS = 4_000
 MAX_TURNS = 10
 MAX_REPLY_CHARACTERS = 12_000
 
-SYSTEM = (
-    "You are a writing assistant. You help a student write their own study material, in Markdown, to go into "
-    "their notes. Write what they ask for as the material itself: headings, paragraphs, lists, tables and code "
-    "blocks as they suit it, mathematics in LaTeX between $ signs ($$ for a display), with no preamble or "
-    "remarks about what you wrote. Where they ask about one section of their material, write only what goes in "
-    "that section, without its heading, so it can take the place of the section's text, keeping to what the rest "
-    "of the material says. Search the web for what you aren't sure of and for what the material should cite, "
-    "prefer reputable sources (textbooks, papers, university courses, official documentation), and never make up "
-    "a source. Match the level and the style of what the student has written."
-)
+SYSTEM = prompts.load("writing-assistant")
 
 # a Markdown heading: its #s, and its title
 HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")

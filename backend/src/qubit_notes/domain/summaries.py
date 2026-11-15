@@ -5,13 +5,12 @@ from pydantic import BaseModel
 from sqlalchemy import insert, select
 from sqlalchemy.engine import Engine
 
-from qubit_notes import storage
+from qubit_notes import prompts, storage
 from qubit_notes.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
 from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.written import forget_course_rows, forget_document, now, of_scope, scope_of, scope_values
 
-SYSTEM = """You help a student revise. You write summaries of their study material: clear, accurate and concise,
-in Markdown, keeping the key definitions, results and reasoning. Use only the material you are given."""
+SYSTEM = prompts.load("summaries")
 
 # the most text summarised at once; more is summarised in parts, and the parts' summaries summarised
 MAX_CHARACTERS = 60_000
