@@ -19,7 +19,7 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.engine import Engine
 
-from qubit_notes import storage
+from qubit_notes import prompts, storage
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound, Unavailable
 from qubit_notes.domain.materials import is_video
@@ -66,14 +66,7 @@ class SpeechModels(BaseModel):
     available: bool
 
 
-SYSTEM = (
-    "You write narrations of a student's study material, to be listened to rather than read, e.g. on a walk. "
-    "Write plain spoken English with no Markdown, headings, lists, links or symbols: say formulas and equations in "
-    "words, describe code, tables and figures rather than read them out, and say where one part ends and the next "
-    "begins. Keep to what the material says, in its order, unless the student's instructions say otherwise; follow "
-    "them. Also say, in a sentence or two, how the narration is to be spoken (voice, tone, pace), from the "
-    "instructions if they say."
-)
+SYSTEM = prompts.load("audio-narration")
 
 
 class Narration(BaseModel):

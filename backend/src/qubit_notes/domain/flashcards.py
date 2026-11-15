@@ -7,7 +7,7 @@ from pydantic import BaseModel, ValidationError
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.engine import Engine
 
-from qubit_notes import storage
+from qubit_notes import prompts, storage
 from qubit_notes.domain.errors import InvalidRequest
 from qubit_notes.domain.quizzes import AIFailed
 from qubit_notes.domain.reviews import Reviews
@@ -28,10 +28,7 @@ MIN_CARDS, MAX_CARDS = 1, 30
 # the most text a deck is written from; each section gets an equal share of it
 MAX_CHARACTERS = 60_000
 
-SYSTEM = """You write flashcards that help a student learn their study material by heart. Each card has a front, a
-short question or a term, and a back, its answer, in a sentence or two. Make each card about one thing: a term, a
-fact, a definition or an idea worth remembering. Cover the material evenly, and use only the material you are given.
-Every card names the section it comes from by its reference, e.g. S3."""
+SYSTEM = prompts.load("flashcards")
 
 
 class WrittenCard(BaseModel):

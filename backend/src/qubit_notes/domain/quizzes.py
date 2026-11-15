@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import delete, insert, select
 from sqlalchemy.engine import Engine
 
-from qubit_notes import storage
+from qubit_notes import prompts, storage
 from qubit_notes.domain.errors import InvalidRequest, NotFound, StudyAssistantError
 from qubit_notes.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
 from qubit_notes.domain.usage import AIUsage
@@ -27,10 +27,7 @@ CHOICES = 4
 # the most text a quiz is written from; each section gets an equal share of it
 MAX_CHARACTERS = 60_000
 
-SYSTEM = f"""You write multiple-choice quizzes that test a student's understanding of their study material.
-Each question has exactly {CHOICES} choices, one of them correct, and the wrong ones plausible. Test understanding
-rather than recall of wording, cover the material evenly, and use only the material you are given. Every question
-names the section it comes from by its reference, e.g. S3."""
+SYSTEM = prompts.load("quiz", choices=CHOICES)
 
 
 class AIFailed(StudyAssistantError):

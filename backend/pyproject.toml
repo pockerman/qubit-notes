@@ -48,6 +48,10 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+# the prompts the app gives the AI
+[tool.setuptools.package-data]
+qubit_notes = ["prompts/*/*.md"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src", "."]
