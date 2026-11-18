@@ -602,6 +602,11 @@ export class StudyApi {
     return this.request(`${this.materialPath(courseId, documentId)}/sections/${position}`)
   }
 
+  /** Every section of the material, in order, each with its own text. */
+  readContents(courseId: string, documentId: string): Promise<SectionText[]> {
+    return this.request(`${this.materialPath(courseId, documentId)}/contents`)
+  }
+
   /** The file's address for a <video> element, which can't send headers: who the student is goes in it. */
   fileUrl(courseId: string, documentId: string): string {
     const query = new URLSearchParams({ ...this.identity.linkQuery(), inline: 'true' })

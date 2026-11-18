@@ -139,6 +139,12 @@ class Students:
             headers=self.headers(name),
         )
 
+    def read_contents(self, material: dict, *, name: str | None = None) -> Response:
+        return self.client.get(
+            f"/api/courses/{material['course_id']}/materials/{material['document_id']}/contents",
+            headers=self.headers(name),
+        )
+
     def download(self, material: dict, *, name: str | None = None) -> Response:
         return self.client.get(
             f"/api/courses/{material['course_id']}/materials/{material['document_id']}/file",

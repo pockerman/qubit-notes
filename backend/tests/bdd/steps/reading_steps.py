@@ -32,6 +32,18 @@ def have_uploaded_with_content(students, context, filename, location, docstring)
     students.wait_until_ingested(students.upload(location, filename, docstring.encode()))
 
 
+@given(parsers.parse('I have uploaded a long "{filename}" to "{location}" with the sections "{titles}"'))
+def have_uploaded_long(students, context, filename, location, titles):
+    # each section much taller than the screen, so the text scrolls
+    sections = [
+        f"# {title}\n\n" + "\n\n".join(f"Paragraph {n} of {title}." for n in range(1, 41))
+        for title in (t.strip() for t in titles.split(","))
+    ]
+    content = "\n\n".join(sections).encode()
+    context.setdefault("uploaded", {})[filename] = content
+    students.wait_until_ingested(students.upload(location, filename, content))
+
+
 @given(parsers.parse('I have uploaded a {pages:d}-page PDF "{filename}" without an outline to "{location}"'))
 def have_uploaded_pdf(students, pages, filename, location):
     pdf = make_pdf([f"Text of page {n}." for n in range(1, pages + 1)])
@@ -67,6 +79,18 @@ def read_section(students, context, title, filename):
 @when(parsers.parse('the student "{name}" reads the section "{title}" of "{filename}"'))
 def student_reads_section(students, context, name, title, filename):
     _read(students, context, title, filename, name=name)
+
+
+@when(parsers.parse('I read the whole of "{filename}"'))
+def read_whole(students, context, filename):
+    context["response"] = students.read_contents(students.find_material(filename))
+
+
+@then(parsers.parse('I read its sections "{titles}" in order'))
+def read_sections_in_order(context, titles):
+    response = context["response"]
+    assert response.status_code == 200, response.text
+    assert [part["section"]["title"] for part in response.json()] == [t.strip() for t in titles.split(",")]
 
 
 @then(parsers.parse('I read "{text}"'))

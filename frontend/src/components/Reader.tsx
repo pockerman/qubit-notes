@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import {
   waitForUpload,
   type MaterialImages,
@@ -110,7 +110,12 @@ function Editor({
   const [saving, setSaving] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const textarea = useRef<HTMLTextAreaElement>(null)
-  const images = useImageDrafts({ text: text ?? '', setText, textarea, setError })
+  const images = useImageDrafts({
+    text: text ?? '',
+    setText,
+    textarea,
+    setError,
+  })
 
   useEffect(() => {
     api.materialText(courseId, documentId).then(setText, (e: Error) => setError(e.message))
@@ -212,7 +217,12 @@ type Place = { top: number; left: number; width: number; above: boolean }
 
 // the words selected in one section of the text, to copy, highlight or take a note on, and where what to do with
 // them opens; noting once the student chose to take a note on them
-type Selection = { section: number; passage: string; place: Place; noting?: boolean }
+type Selection = {
+  section: number
+  passage: string
+  place: Place
+  noting?: boolean
+}
 
 // the note's form is this wide, if the reader is, and this tall, or about
 const NOTE_WIDTH = 352
@@ -437,17 +447,73 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
     api.notes(courseId, documentId).then(setNotes, (e: Error) => setError(e.message))
   }, [api, courseId, documentId])
 
+  // the section to go to once the text is shown: the one the material is opened at
+  const goingTo = useRef<number | null>(null)
+  // where going to a section left the page: while it is still there, the section being read is the one gone to,
+  // even if another heading is nearer the top, e.g. at the end of the page
+  const jumpedTo = useRef<number | null>(null)
+  // the sections already told to the platform as opened, so each is told once
+  const told = useRef<Set<number>>(new Set())
+  const toldLater = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // the header of the reader, which stays in view; its height is where the text starts under it
+  const top = useRef<HTMLDivElement>(null)
+  const [topHeight, setTopHeight] = useState(0)
+
   useEffect(() => {
     api.openMaterial(courseId, documentId).then(
       (opened) => {
         setMaterial(opened)
         const at = opened.sections.find((s) => s.position === section) ?? opened.sections[0]
         setPosition(at?.position ?? null)
+        goingTo.current = section !== undefined && at ? at.position : null
         loadNotes()
       },
       (e: Error) => setError(e.message),
     )
   }, [api, courseId, documentId, section, loadNotes, version])
+
+  useEffect(() => {
+    const header = top.current
+    if (!header || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => setTopHeight(header.getBoundingClientRect().height))
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [])
+
+  // the section is opened: what the student has read is kept, and the sections marked as opened
+  const markOpened = useCallback(
+    (at: number) => {
+      if (toldLater.current) clearTimeout(toldLater.current)
+      if (told.current.has(at)) return
+      told.current.add(at)
+      // the student can read on without it, so a failure isn't shown
+      api.openedSection(courseId, documentId, at).then(
+        (progress) => {
+          progress.opened.forEach((p) => told.current.add(p))
+          setOpened(new Set(progress.opened))
+        },
+        () => told.current.delete(at),
+      )
+    },
+    [api, courseId, documentId],
+  )
+
+  useEffect(() => {
+    told.current = new Set()
+  }, [courseId, documentId])
+
+  // the page scrolls to the section, which is then the one being read
+  const jumpTo = useCallback(
+    (at: number) => {
+      setPosition(at)
+      markOpened(at)
+      const shown = text.current?.querySelector<HTMLElement>(`:scope > section[data-section="${at}"]`)
+      if (!shown) return
+      shown.scrollIntoView({ block: 'start' })
+      jumpedTo.current = window.scrollY
+    },
+    [markOpened],
+  )
 
   useEffect(() => {
     if (material?.content_type !== 'text/markdown') return
@@ -471,19 +537,65 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
       .then(setTopics, () => setTopics([]))
   }, [api, courseId, isPaper])
 
+  // the whole of the text, every section in order: choosing a section goes to it in the text
   useEffect(() => {
-    if (position === null) return
-    api.readSection(courseId, documentId, position).then(setParts, (e: Error) => setError(e.message))
-  }, [api, courseId, documentId, position, version])
+    if (material?.kind !== 'text') return
+    api.readContents(courseId, documentId).then(setParts, (e: Error) => setError(e.message))
+  }, [api, courseId, documentId, material])
 
+  // once the text is shown, it is at the section it was opened at, which is opened
   useEffect(() => {
-    if (position === null) return
-    // the student can read on without it, so a failure isn't shown
-    api.openedSection(courseId, documentId, position).then(
-      (progress) => setOpened(new Set(progress.opened)),
-      () => undefined,
-    )
-  }, [api, courseId, documentId, position])
+    if (parts.length === 0 || position === null) return
+    if (goingTo.current !== null) {
+      const at = goingTo.current
+      goingTo.current = null
+      jumpTo(at)
+    } else {
+      markOpened(position)
+    }
+    // only when the text is shown: the section being read changes as the student scrolls, which is handled below
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parts])
+
+  // the section being read is the last one whose heading has been scrolled past the header; a section the student
+  // stays in for a moment is opened
+  useEffect(() => {
+    if (material?.kind !== 'text' || parts.length === 0) return
+    let frame = 0
+    const follow = () => {
+      frame = 0
+      const article = text.current
+      if (!article) return
+      if (jumpedTo.current !== null && Math.abs(window.scrollY - jumpedTo.current) < 2) return
+      jumpedTo.current = null
+      const shown = Array.from(article.querySelectorAll<HTMLElement>(':scope > section[data-section]'))
+      if (shown.length === 0) return
+      const line = (top.current?.getBoundingClientRect().bottom ?? 0) + 24
+      let current = shown[0]
+      for (const s of shown) {
+        if (s.getBoundingClientRect().top > line) break
+        current = s
+      }
+      // at the end of the page the last sections can't reach the header: the last one in view is being read
+      const page = document.documentElement
+      if (window.innerHeight + window.scrollY >= page.scrollHeight - 2) {
+        current = shown.filter((s) => s.getBoundingClientRect().top < window.innerHeight).pop() ?? current
+      }
+      const at = Number(current.dataset.section)
+      setPosition(at)
+      if (toldLater.current) clearTimeout(toldLater.current)
+      toldLater.current = setTimeout(() => markOpened(at), 800)
+    }
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(follow)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (frame) cancelAnimationFrame(frame)
+      if (toldLater.current) clearTimeout(toldLater.current)
+    }
+  }, [material, parts, markOpened])
 
   // the uploaded file, or a converted material as it is now
   async function download(asItIsNow = false) {
@@ -537,8 +649,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
       video.current.currentTime = note.at_seconds
       void video.current.play().catch(() => undefined)
     } else if (note.section !== null) {
-      // the note may be in a subsection of the section being read
-      if (!parts.some((part) => part.section.position === note.section)) setPosition(note.section)
+      jumpTo(note.section)
     }
   }
 
@@ -569,7 +680,11 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
     <Assistant
       key={documentId}
       api={api}
-      where={{ course_id: courseId, document_id: documentId, section: material?.kind === 'text' ? position : null }}
+      where={{
+        course_id: courseId,
+        document_id: documentId,
+        section: material?.kind === 'text' ? position : null,
+      }}
       label={paper?.title || material?.filename || ''}
       onClose={() => setAssistant(false)}
     />
@@ -581,12 +696,19 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
         ...(position !== null
           ? [
               {
-                label: `this section (${parts[0]?.section.title || 'the one being read'})`,
-                scope: { course_id: courseId, document_id: documentId, section: position },
+                label: `this section (${parts.find((part) => part.section.position === position)?.section.title || 'the one being read'})`,
+                scope: {
+                  course_id: courseId,
+                  document_id: documentId,
+                  section: position,
+                },
               },
             ]
           : []),
-        { label: 'the whole material', scope: { course_id: courseId, document_id: documentId } },
+        {
+          label: 'the whole material',
+          scope: { course_id: courseId, document_id: documentId },
+        },
       ]}
       label={paper?.title || material?.filename || ''}
       onClose={() => setChecking(false)}
@@ -606,127 +728,142 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
   const markdown = material?.content_type === 'text/markdown'
 
   return (
-    <section className="reader" aria-labelledby="reader-title">
-      <header className="reader-header">
-        <button type="button" className="link" onClick={() => onClose(material)}>
-          ← Back
-        </button>
-        <h2 id="reader-title">{material ? paper?.title || material.filename : 'Opening…'}</h2>
-        {material && (
-          <>
-            <span className="note">
-              {paper
-                ? `${paper.collection} · ${material.filename}`
-                : `${namesOf(topics).subject(material.subject)} › ${namesOf(topics).topic(material.subject, material.topic)}`}
-            </span>
-            <div role="group" aria-label="Material actions" className="reader-actions">
-              {canEdit && EDITABLE.includes(material.content_type) && !editing && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSaved(null)
-                    setEditing(true)
-                  }}
-                >
-                  Edit
-                </button>
-              )}
-              {material.converted_from ? (
-                <>
+    <section
+      className="reader"
+      aria-labelledby="reader-title"
+      style={{ '--reader-top': `${topHeight}px` } as CSSProperties}
+    >
+      {/* the material's name and actions, and the materials before and after it, stay in view as the text scrolls */}
+      <div className="reader-top" ref={top}>
+        <header className="reader-header">
+          <button type="button" className="link" onClick={() => onClose(material)}>
+            ← Back
+          </button>
+          <h2 id="reader-title">{material ? paper?.title || material.filename : 'Opening…'}</h2>
+          {material && (
+            <>
+              <span className="note">
+                {paper
+                  ? `${paper.collection} · ${material.filename}`
+                  : `${namesOf(topics).subject(material.subject)} › ${namesOf(topics).topic(material.subject, material.topic)}`}
+              </span>
+              <div role="group" aria-label="Material actions" className="reader-actions">
+                {canEdit && EDITABLE.includes(material.content_type) && !editing && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSaved(null)
+                      setEditing(true)
+                    }}
+                  >
+                    Edit
+                  </button>
+                )}
+                {material.converted_from ? (
+                  <>
+                    <button type="button" onClick={() => download()}>
+                      Download original
+                    </button>
+                    <button type="button" onClick={() => download(true)}>
+                      Download as {material.converted_from.toUpperCase()}
+                    </button>
+                  </>
+                ) : (
                   <button type="button" onClick={() => download()}>
-                    Download original
+                    Download
                   </button>
-                  <button type="button" onClick={() => download(true)}>
-                    Download as {material.converted_from.toUpperCase()}
-                  </button>
-                </>
-              ) : (
-                <button type="button" onClick={() => download()}>
-                  Download
-                </button>
-              )}
-              <button
-                type="button"
-                aria-pressed={assistant}
-                onClick={() => {
-                  programs.close()
-                  setListening(false)
-                  setChecking(false)
-                  setAssistant(!assistant)
-                }}
-              >
-                AI
-              </button>
-              {material.kind === 'text' && (
+                )}
                 <button
                   type="button"
-                  aria-pressed={checking}
+                  aria-pressed={assistant}
                   onClick={() => {
                     programs.close()
+                    setListening(false)
+                    setChecking(false)
+                    setAssistant(!assistant)
+                  }}
+                >
+                  AI
+                </button>
+                {material.kind === 'text' && (
+                  <button
+                    type="button"
+                    aria-pressed={checking}
+                    onClick={() => {
+                      programs.close()
+                      setAssistant(false)
+                      setListening(false)
+                      setChecking(!checking)
+                    }}
+                  >
+                    Check understanding
+                  </button>
+                )}
+                {material.kind === 'text' && (
+                  <button
+                    type="button"
+                    aria-pressed={listening}
+                    onClick={() => {
+                      programs.close()
+                      setAssistant(false)
+                      setChecking(false)
+                      setListening(!listening)
+                    }}
+                  >
+                    Audio
+                  </button>
+                )}
+                <ToolsMenu
+                  tools={tools}
+                  open={programs.language?.id ?? null}
+                  onOpen={(tool) => {
                     setAssistant(false)
                     setListening(false)
-                    setChecking(!checking)
-                  }}
-                >
-                  Check understanding
-                </button>
-              )}
-              {material.kind === 'text' && (
-                <button
-                  type="button"
-                  aria-pressed={listening}
-                  onClick={() => {
-                    programs.close()
-                    setAssistant(false)
                     setChecking(false)
-                    setListening(!listening)
+                    setWriting(false)
+                    programs.toggle(tool)
                   }}
-                >
-                  Audio
-                </button>
-              )}
-              <ToolsMenu
-                tools={tools}
-                open={programs.language?.id ?? null}
-                onOpen={(tool) => {
-                  setAssistant(false)
-                  setListening(false)
-                  setChecking(false)
-                  setWriting(false)
-                  programs.toggle(tool)
-                }}
-              />
-            </div>
-          </>
+                />
+              </div>
+            </>
+          )}
+        </header>
+
+        {error && (
+          <p role="alert" className="error">
+            {error}
+          </p>
         )}
-      </header>
 
-      {error && (
-        <p role="alert" className="error">
-          {error}
-        </p>
-      )}
-
-      {material && neighbours && (neighbours.previous || neighbours.next) && (
-        <nav className="reading-order" aria-label="Reading order">
-          {neighbours.previous && (
-            <a
-              className="previous"
-              href={href({ page: 'material', courseId, documentId: neighbours.previous.material.document_id })}
-            >
-              ← Previous: {neighbours.previous.name}
-            </a>
-          )}
-          {neighbours.next && (
-            <a
-              className="next"
-              href={href({ page: 'material', courseId, documentId: neighbours.next.material.document_id })}
-            >
-              Next: {neighbours.next.name} →
-            </a>
-          )}
-        </nav>
-      )}
+        {material && neighbours && (neighbours.previous || neighbours.next) && (
+          <nav className="reading-order" aria-label="Reading order">
+            {neighbours.previous && (
+              <a
+                className="previous"
+                href={href({
+                  page: 'material',
+                  courseId,
+                  documentId: neighbours.previous.material.document_id,
+                })}
+              >
+                ← Previous: {neighbours.previous.name}
+              </a>
+            )}
+            {neighbours.next && (
+              <a
+                className="next"
+                href={href({
+                  page: 'material',
+                  courseId,
+                  documentId: neighbours.next.material.document_id,
+                })}
+              >
+                Next: {neighbours.next.name} →
+              </a>
+            )}
+          </nav>
+        )}
+      </div>
 
       {saved && !editing && (
         <p role="status" className="warning">
@@ -810,7 +947,7 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
                       .join(' ')}
                     aria-current={section.position === position ? 'true' : undefined}
                     aria-description={opened.has(section.position) ? 'Opened' : undefined}
-                    onClick={() => setPosition(section.position)}
+                    onClick={() => jumpTo(section.position)}
                   >
                     {sectionLabel(section.title, material.filename)}
                   </button>
@@ -825,8 +962,8 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
             ref={text}
             onMouseUp={() => setSelection(selectedPassage(body.current))}
           >
-            {parts.map(({ section, content }, i) => {
-              const Heading = i === 0 ? 'h3' : 'h4'
+            {parts.map(({ section, content }) => {
+              const Heading = section.level <= 1 ? 'h3' : section.level === 2 ? 'h4' : 'h5'
               return (
                 <section key={section.position} data-section={section.position}>
                   <Heading>{sectionLabel(section.title, material.filename)}</Heading>
@@ -849,14 +986,20 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
             })}
           </article>
 
-          {beside}
+          <div className="beside">{beside}</div>
 
           {selection && !selection.noting && (
             <SelectionActions
               key={`${selection.section}:${selection.passage}`}
               place={selection.place}
               onCopy={() => copy(selection.passage).catch((e: Error) => setError(e.message))}
-              onHighlight={() => addNote({ text: '', section: selection.section, passage: selection.passage })}
+              onHighlight={() =>
+                addNote({
+                  text: '',
+                  section: selection.section,
+                  passage: selection.passage,
+                })
+              }
               onNote={() => setSelection({ ...selection, noting: true })}
             />
           )}
@@ -865,7 +1008,13 @@ export function Reader({ api, courseId, documentId, section, canEdit, onClose, p
             <NoteForm
               label={`On “${selection.passage}”`}
               place={selection.place}
-              onSave={(text) => addNote({ text, section: selection.section, passage: selection.passage })}
+              onSave={(text) =>
+                addNote({
+                  text,
+                  section: selection.section,
+                  passage: selection.passage,
+                })
+              }
               onCancel={() => setSelection(null)}
             />
           )}

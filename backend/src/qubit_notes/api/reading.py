@@ -30,6 +30,12 @@ async def read_section(
     return await run_in_threadpool(service.read, student, course_id, document_id, position)
 
 
+@router.get("/contents", response_model=list[SectionText])
+async def read_contents(course_id: str, document_id: str, student: Student, service: ReadingDep) -> list[SectionText]:
+    """every section of the material, in order, each with its own text"""
+    return await run_in_threadpool(service.contents, student, course_id, document_id)
+
+
 @router.post("/sections/{position}/opened", response_model=Progress)
 async def opened_section(
     course_id: str, document_id: str, position: int, student: Student, service: ProgressDep
