@@ -295,6 +295,53 @@ def choose_section(page, title):
     page.get_by_role("navigation", name="Sections").get_by_role("button", name=title, exact=True).click()
 
 
+def _section_heading(page: Page, title: str):
+    return page.get_by_role("article", name="Section text").get_by_role("heading", name=title, exact=True)
+
+
+@when(parsers.parse('I scroll to the section "{title}"'))
+def scroll_to_section(page, title):
+    heading = _section_heading(page, title)
+    expect(heading).to_be_attached()
+    # as the student would: the heading just under the reader's header, which is then at the top of the page
+    heading.evaluate(
+        """heading => {
+          const header = document.querySelector('.reader-top').getBoundingClientRect().height
+          window.scrollTo(0, window.scrollY + heading.getBoundingClientRect().top - header - 4)
+        }"""
+    )
+
+
+@when("I scroll to the end of the material")
+def scroll_to_end(page):
+    expect(page.get_by_role("article", name="Section text")).not_to_be_empty()
+    page.evaluate("window.scrollTo(0, document.documentElement.scrollHeight)")
+
+
+@then(parsers.parse('the section "{title}" is at the top of the text'))
+def section_at_top(page, title):
+    heading = _section_heading(page, title)
+    expect(heading).to_be_in_viewport()
+    header = page.locator(".reader-top").bounding_box()
+    top = heading.bounding_box()["y"]
+    assert header["y"] + header["height"] - 1 <= top <= header["y"] + header["height"] + 60, (header, top)
+
+
+@then(parsers.parse('the section "{title}" is the one being read'))
+def section_being_read(page, title):
+    section = page.get_by_role("navigation", name="Sections").get_by_role("button", name=title, exact=True)
+    expect(section).to_have_attribute("aria-current", "true")
+
+
+@then("I see the material's name and its actions")
+def see_name_and_actions(page):
+    expect(page.get_by_role("button", name="← Back")).to_be_in_viewport()
+    expect(page.locator("#reader-title")).to_be_in_viewport()
+    actions = page.get_by_role("group", name="Material actions")
+    expect(actions.get_by_role("button", name="Edit")).to_be_in_viewport()
+    expect(actions.get_by_role("button", name="Download")).to_be_in_viewport()
+
+
 @given(parsers.parse("my screen is {width:d} pixels wide"))
 def screen_width(page, width):
     page.set_viewport_size({"width": width, "height": 900})

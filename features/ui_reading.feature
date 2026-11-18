@@ -23,6 +23,36 @@ Feature: Reading material in the browser
     And I see the text "The finite element method divides a domain into small elements."
     When I choose the section "2.1 Linear elements"
     Then I see the text "A linear element interpolates linearly between its two nodes."
+    And I see the text "The finite element method divides a domain into small elements."
+
+  Scenario: Choosing a section goes to it in the whole of the material
+    Given I am signed in as "maria"
+    And I have uploaded a long "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the sections "1 Introduction, 2 Shape functions, 3 Assembly"
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    And I choose the section "3 Assembly"
+    Then the section "3 Assembly" is at the top of the text
+    And the section "3 Assembly" is the one being read
+    And I see the text "Paragraph 1 of 1 Introduction."
+
+  Scenario: The section being read follows the scrolling
+    Given I am signed in as "maria"
+    And I have uploaded a long "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the sections "1 Introduction, 2 Shape functions, 3 Assembly"
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    Then the section "1 Introduction" is the one being read
+    When I scroll to the section "2 Shape functions"
+    Then the section "2 Shape functions" is the one being read
+    And the sections "1 Introduction, 2 Shape functions" are marked as opened
+    And the section "3 Assembly" is not marked as opened
+
+  Scenario: The material's name and actions stay in view as I scroll
+    Given I am signed in as "maria"
+    And I have uploaded a long "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the sections "1 Introduction, 2 Shape functions, 3 Assembly"
+    When I open the course "Aeronautics"
+    And I open "fem-notes.md" to read it
+    And I scroll to the end of the material
+    Then I see the material's name and its actions
 
   Scenario: The sections I have opened are marked
     Given I am signed in as "maria"

@@ -1,6 +1,6 @@
 Feature: Reading material
   As a student
-  I want to read my material in the assistant, section by section
+  I want to read my material in the assistant, the whole of it or a section at a time
   So that I can study, take notes and ask for summaries and quizzes in one place
 
   A document is divided into sections: its chapters and the headings within them.
@@ -45,6 +45,13 @@ Feature: Reading material
     Scenario: Read a section
       When I read the section "2.1 Linear elements" of "fem-notes.md"
       Then I read "A linear element interpolates linearly between its two nodes."
+
+    @platform
+    Scenario: Read the whole document
+      When I read the whole of "fem-notes.md"
+      Then I read its sections "1 Introduction, 2 Shape functions, 2.1 Linear elements, 2.2 Quadratic elements, 3 Assembly" in order
+      And I read "The finite element method divides a domain into small elements."
+      And I read "The element matrices are assembled into the global stiffness matrix."
 
     Scenario: Reading a section includes its subsections
       When I read the section "2 Shape functions" of "fem-notes.md"

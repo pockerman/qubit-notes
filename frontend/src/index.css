@@ -368,6 +368,37 @@ button.icon:hover {
   color: var(--bad);
 }
 
+/* the material's name and actions, and the materials before and after it, stay at the top as the text scrolls */
+.reader-top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 0 0.25rem;
+}
+
+/* going to a section puts its heading just under the header, not behind it */
+.section-text > section {
+  scroll-margin-top: calc(var(--reader-top, 0px) + 0.75rem);
+}
+
+.beside {
+  min-width: 0;
+}
+
+/* beside the text, the sections and the panel stay in view too, under the header */
+@media (min-width: 961px) {
+  .reader-body > .outline,
+  .reader-body > .beside {
+    position: sticky;
+    top: calc(var(--reader-top, 0px) + 0.75rem);
+    align-self: start;
+    max-height: calc(100vh - var(--reader-top, 0px) - 1.5rem);
+    overflow-y: auto;
+  }
+}
+
 .reader-header {
   display: flex;
   align-items: baseline;
