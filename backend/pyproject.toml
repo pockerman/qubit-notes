@@ -28,6 +28,7 @@ dependencies = [
     "markdown-it-py>=4.2.0",
     # the keys the admins give the app, encrypted in its database
     "cryptography>=43",
+    "langfuse>=4.7",
 ]
 
 [project.scripts]

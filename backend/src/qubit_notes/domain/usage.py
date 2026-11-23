@@ -1,7 +1,11 @@
-"""How many tokens the AI uses, on what and for whom (features/ai_usage.feature).
+"""How many tokens the AI uses, on what and for whom (features/ai_usage.feature), and the traces of its calls
+(features/tracing.feature).
 
-Every call to the AI goes through ``AIUsage.complete``, which records what it took. A call that fails at the provider
-took nothing we can know of, and isn't recorded; a reply the app can't use took tokens all the same, and is.
+Every call to the AI goes through ``AIUsage``, which records what it took and traces it. A call that fails at the
+provider took nothing we can know of, and isn't recorded, but is traced; a reply the app can't use took tokens all the
+same, and is recorded, and traced as unusable.
+
+A call is a step of the trace open around it (``AIUsage.traced``), or else of a trace of its own.
 """
 
 import uuid
@@ -17,6 +21,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from qubit_notes import storage
 from qubit_notes.domain.errors import NotAllowed
+from qubit_notes.domain.tracing import Step, Traces
 from qubit_notes.domain.written import now
 from qubit_notes.platform.port import Completion, Message, Researched, Speech, StudyPlatform, Transcript
 
@@ -62,12 +67,28 @@ def _spent():
 
 
 class AIUsage:
-    """Calls the AI for a student, for a purpose, and tells what those calls took. ``now`` is the clock it goes by."""
+    """Calls the AI for a student, for a purpose, traces those calls, and tells what they took. ``now`` is the clock it
+    goes by."""
 
-    def __init__(self, engine: Engine, platform: StudyPlatform, clock: Callable[[], datetime] = now):
+    def __init__(
+        self,
+        engine: Engine,
+        platform: StudyPlatform,
+        traces: Traces | None = None,
+        clock: Callable[[], datetime] = now,
+    ):
         self._engine = engine
         self._platform = platform
+        if traces is None:
+            from qubit_notes.tracers import NoTracer
+
+            traces = Traces(engine, NoTracer())
+        self.traces = traces
         self.now = clock
+
+    def traced(self, student: str, purpose: str, session_id: str | None = None):
+        """the trace of the calls to the AI made inside it, as one thing the student asked for"""
+        return self.traces.trace(student, purpose, session_id)
 
     def complete(
         self,
@@ -77,30 +98,58 @@ class AIUsage:
         prompt: str,
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
+        usable: Callable[[str], object] | None = None,
     ) -> str:
-        """what the AI answers, recorded as used by the student for the purpose"""
-        completion = self._platform.complete(system, prompt, json_schema=json_schema, history=history)
-        self._record(student, purpose, completion)
+        """what the AI answers, recorded as used by the student for the purpose; ``usable`` tells whether the app can
+        use it, returning something or raising ValueError, so its trace says"""
+        with self.traced(student, purpose):
+            step = _step("generation", purpose, system, {"prompt": prompt, "history": len(history or [])})
+            with self.traces.step(step):
+                completion = _called(
+                    step, lambda: self._platform.complete(system, prompt, json_schema=json_schema, history=history)
+                )
+                step.output = completion.text
+                if usable is not None:
+                    _check(step, usable, completion.text)
+            self._record(student, purpose, completion)
         return completion.text
 
     def speak(self, student: str, purpose: str, text: str, instructions: str, model: str) -> Speech:
         """the text read aloud by the speech model, recorded as used by the student for the purpose"""
-        speech = self._platform.speak(text, instructions, model)
-        self._record(student, purpose, speech)
+        with self.traced(student, purpose):
+            step = _step("speech", purpose, None, {"text": text, "instructions": instructions})
+            with self.traces.step(step):
+                speech = _called(step, lambda: self._platform.speak(text, instructions, model))
+                # the sound is not traced
+                step.output = f"{len(speech.audio)} bytes of audio"
+            self._record(student, purpose, speech)
         return speech
 
     def transcribe(self, student: str, purpose: str, audio: bytes, content_type: str, model: str) -> Transcript:
         """what the recording says, heard by the transcription model, recorded as used by the student for the purpose"""
-        transcript = self._platform.transcribe(audio, content_type, model)
-        self._record(student, purpose, transcript)
+        with self.traced(student, purpose):
+            step = _step("transcription", purpose, None, f"{len(audio)} bytes of {content_type}")
+            with self.traces.step(step):
+                transcript = _called(step, lambda: self._platform.transcribe(audio, content_type, model))
+                step.output = transcript.text
+            self._record(student, purpose, transcript)
         return transcript
 
     def research(
         self, student: str, purpose: str, system: str, prompt: str, history: list[Message], search_web: bool
     ) -> Researched:
         """what the AI writes, searching the web, unless told not to; recorded as used by the student for the purpose"""
-        researched = self._platform.research(system, prompt, history, search_web)
-        self._record(student, purpose, researched)
+        with self.traced(student, purpose):
+            given = {"prompt": prompt, "history": len(history), "search_web": search_web}
+            step = _step("generation", purpose, system, given)
+            with self.traces.step(step):
+                researched = _called(step, lambda: self._platform.research(system, prompt, history, search_web))
+                step.output = {
+                    "text": researched.text,
+                    "searched": researched.searched,
+                    "sources": [source.model_dump() for source in researched.sources],
+                }
+            self._record(student, purpose, researched)
         return researched
 
     def _record(self, student: str, purpose: str, completion: Completion | Speech | Researched | Transcript) -> None:
@@ -161,3 +210,42 @@ class AIUsage:
                 .order_by(total.desc(), table.c.student)
             ).all()
         return [StudentUsage(**row._mapping) for row in rows]
+
+
+def _step(kind, purpose: str, system: str | None, given: Any) -> Step:
+    """a step of a call to the AI, about to be made with the system prompt and what it is given"""
+    return Step(
+        kind=kind,
+        name=purpose,
+        prompt=getattr(system, "name", None),
+        prompt_version=getattr(system, "version", None),
+        input=given,
+        started_at=now(),
+    )
+
+
+def _called[T: Completion | Speech | Researched | Transcript](step: Step, call: Callable[[], T]) -> T:
+    """what the AI answered the call, which the step records; or the provider's failure, which it records too"""
+    try:
+        answered = call()
+    except Exception as e:
+        step.outcome = "failed at the provider"
+        step.error = str(e)
+        raise
+    step.provider = answered.provider
+    step.model = answered.model
+    step.input_tokens = answered.input_tokens
+    step.output_tokens = answered.output_tokens
+    return answered
+
+
+def _check(step: Step, usable: Callable[[str], object], text: str) -> None:
+    """whether the app can use the AI's reply, which the step records"""
+    try:
+        if usable(text):
+            return
+        why = "the app can't use the reply"
+    except ValueError as e:
+        why = str(e)
+    step.outcome = "unusable reply"
+    step.error = why

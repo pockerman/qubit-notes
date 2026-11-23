@@ -91,9 +91,10 @@ def test_a_database_made_before_migrations_keeps_its_data(database_url):
         "material_audio",
         "writing_replies",
         "comprehension_checks",
+        "ai_trace",
     )
     # and the columns added to them since
-    added = {"topics": {"name"}, "conversation_turns": {"deck_id"}}
+    added = {"topics": {"name"}, "conversation_turns": {"deck_id", "trace_id"}}
     before = MetaData()
     for table in storage.metadata.sorted_tables:
         if not table.name.startswith(later):

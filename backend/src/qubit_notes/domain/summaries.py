@@ -80,13 +80,15 @@ class Summaries:
             forget_course_rows(connection, storage.summaries, course_id)
 
     def _write(self, student: str, scope: Scope) -> Summary:
-        gathered = self._sources.gather(student, scope)
-        batches = _batches(gathered.sources)
-        if len(batches) == 1:
-            content = self._summarise(student, _material(batches[0]))
-        else:
-            parts = [self._summarise(student, _material(batch)) for batch in batches]
-            content = self._summarise(student, "\n\n".join(parts), of_summaries=True)
+        # a long material is summarised in parts: one trace
+        with self._ai.traced(student, "summary"):
+            gathered = self._sources.gather(student, scope)
+            batches = _batches(gathered.sources)
+            if len(batches) == 1:
+                content = self._summarise(student, _material(batches[0]))
+            else:
+                parts = [self._summarise(student, _material(batch)) for batch in batches]
+                content = self._summarise(student, "\n\n".join(parts), of_summaries=True)
 
         sources = [Source(**source.model_dump(exclude={"content"})) for source in gathered.sources]
         row = {

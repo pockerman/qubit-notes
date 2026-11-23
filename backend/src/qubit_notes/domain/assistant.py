@@ -24,6 +24,7 @@ from qubit_notes.domain.quizzes import AIFailed, Quiz, Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.sources import Scope, Source
 from qubit_notes.domain.summaries import Summaries, Summary
+from qubit_notes.domain.tracing import RATING, RATING_SCORES, Passage, Trace
 from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.written import now
 from qubit_notes.platform.port import Chunk, Message, StudyPlatform
@@ -132,8 +133,56 @@ class Assistant:
         course = self._courses.get_by_id(student, where.course_id)
         reading = self._describe(student, where)
         conversation_id = self._conversation_id(student, where, create=True)
+        # the request, and a summary, a quiz or flashcards written for it: one trace, of the conversation
+        with self._ai.traced(student, "assistant", session_id=conversation_id) as trace:
+            turn, trace_id = self._reply(student, where, course.id, conversation_id, reading, question, trace)
 
-        passages = self._passages(course.id, question, self._paper(where))
+        self._platform.add_to_conversation(
+            conversation_id,
+            [Message(role="user", content=question), Message(role="assistant", content=turn.answer)],
+        )
+        with self._engine.begin() as connection:
+            connection.execute(
+                insert(storage.conversation_turns).values(
+                    id=turn.id,
+                    conversation_id=conversation_id,
+                    question=turn.question,
+                    kind=turn.kind,
+                    answer=turn.answer,
+                    covered=turn.covered,
+                    sources=[source.model_dump() for source in turn.sources],
+                    summary_id=turn.summary.id if turn.summary else None,
+                    quiz_id=turn.quiz.id if turn.quiz else None,
+                    deck_id=turn.deck.id if turn.deck else None,
+                    created_at=turn.created_at,
+                    trace_id=trace_id,
+                )
+            )
+        return turn
+
+    def _reply(
+        self,
+        student: str,
+        where: Scope,
+        course_id: str,
+        conversation_id: str,
+        reading: str,
+        question: str,
+        trace: Trace,
+    ) -> tuple[Turn, str]:
+        passages = self._passages(course_id, question, self._paper(where))
+        trace.search(
+            question,
+            [
+                Passage(
+                    reference=reference,
+                    text=text,
+                    **source.model_dump(include={"document_id", "filename", "section", "title"}),
+                )
+                for reference, (source, text) in passages.items()
+            ],
+            course_id,
+        )
         understood = self._understand(student, conversation_id, reading, passages, question)
 
         turn = {"id": uuid.uuid4().hex, "question": question, "created_at": now()}
@@ -155,29 +204,7 @@ class Assistant:
             deck = self._flashcards.get(student, self._scope(student, where, understood.of), count, understood.new)
             what = f"{len(deck.cards)} flashcards; they are due for review now"
             turn |= {"kind": "flashcards", "answer": f"Here are {what}.", "sources": deck.sources, "deck": deck}
-        turn = Turn(**turn)
-
-        self._platform.add_to_conversation(
-            conversation_id,
-            [Message(role="user", content=question), Message(role="assistant", content=turn.answer)],
-        )
-        with self._engine.begin() as connection:
-            connection.execute(
-                insert(storage.conversation_turns).values(
-                    id=turn.id,
-                    conversation_id=conversation_id,
-                    question=turn.question,
-                    kind=turn.kind,
-                    answer=turn.answer,
-                    covered=turn.covered,
-                    sources=[source.model_dump() for source in turn.sources],
-                    summary_id=turn.summary.id if turn.summary else None,
-                    quiz_id=turn.quiz.id if turn.quiz else None,
-                    deck_id=turn.deck.id if turn.deck else None,
-                    created_at=turn.created_at,
-                )
-            )
-        return turn
+        return Turn(**turn), trace.id
 
     def conversation(self, student: str, where: Scope) -> Conversation:
         """the student's conversation on the material or the topic, oldest turn first"""
@@ -219,8 +246,10 @@ class Assistant:
                         answer=row.answer,
                         rating=rating,
                         rated_at=now(),
+                        trace_id=row.trace_id,
                     )
                 )
+        self._ai.traces.score(row.trace_id, RATING, RATING_SCORES.get(rating) if rating else None)
         return self._turn(student, row, rating)
 
     def start_again(self, student: str, where: Scope) -> Conversation:
@@ -271,7 +300,13 @@ class Assistant:
         history = self._platform.conversation_context(conversation_id)
         for _ in range(2):
             reply = self._ai.complete(
-                student, "assistant", SYSTEM, prompt, json_schema=Understood.model_json_schema(), history=history
+                student,
+                "assistant",
+                SYSTEM,
+                prompt,
+                json_schema=Understood.model_json_schema(),
+                history=history,
+                usable=lambda text: Understood.model_validate(json.loads(text)),
             )
             try:
                 return Understood.model_validate(json.loads(reply))

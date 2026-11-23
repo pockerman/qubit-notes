@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 
 from loguru import logger
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 from sqlalchemy import delete, insert, select, update
 from sqlalchemy.engine import Engine
 
@@ -103,15 +103,17 @@ class Flashcards:
                 connection.execute(delete(storage.card_reviews).where(storage.card_reviews.c.deck_id.in_(ids)))
 
     def _write(self, student: str, scope: Scope, count: int) -> Deck:
-        gathered = self._sources.gather(student, scope)
-        cited = {f"S{i}": source for i, source in enumerate(gathered.sources, start=1)}
-        prompt = f"Write {count} flashcards on this material.\n\n{material(gathered.sources, MAX_CHARACTERS)}"
+        # a reply that can't be used is asked for again: one trace
+        with self._ai.traced(student, "flashcards"):
+            gathered = self._sources.gather(student, scope)
+            cited = {f"S{i}": source for i, source in enumerate(gathered.sources, start=1)}
+            prompt = f"Write {count} flashcards on this material.\n\n{material(gathered.sources, MAX_CHARACTERS)}"
 
-        cards = None
-        for _ in range(2):
-            cards = self._cards(student, prompt, cited, count)
-            if cards:
-                break
+            cards = None
+            for _ in range(2):
+                cards = self._cards(student, prompt, cited, count)
+                if cards:
+                    break
         if not cards:
             raise AIFailed("the assistant could not write the flashcards; try again")
 
@@ -151,22 +153,19 @@ class Flashcards:
 
     def _cards(self, student: str, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
         """the cards the AI writes, if there are at least ``count`` well-formed ones"""
-        answer = self._ai.complete(student, "flashcards", SYSTEM, prompt, json_schema=WrittenDeck.model_json_schema())
+        answer = self._ai.complete(
+            student,
+            "flashcards",
+            SYSTEM,
+            prompt,
+            json_schema=WrittenDeck.model_json_schema(),
+            usable=lambda text: _well_formed(text, cited, count),
+        )
         try:
-            written = WrittenDeck.model_validate(json.loads(answer))
-        except (ValueError, ValidationError) as e:
+            return _well_formed(answer, cited, count)
+        except ValueError as e:
             logger.warning(f"the AI's flashcards are not valid: {e}")
             return None
-        valid = [
-            {
-                "front": card.front.strip(),
-                "back": card.back.strip(),
-                "source": cited[card.source].model_dump(exclude={"content"}),
-            }
-            for card in written.cards
-            if card.front.strip() and card.back.strip() and card.source in cited
-        ]
-        return valid[:count] if len(valid) >= count else None
 
     def _rows(self, student: str, scope: Scope) -> list:
         with self._engine.connect() as connection:
@@ -187,3 +186,20 @@ class Flashcards:
             created_at=row.created_at,
             out_of_date=self._sources.out_of_date(student, scope, row.documents),
         )
+
+
+def _well_formed(answer: str, cited: dict[str, SourceText], count: int) -> list[dict]:
+    """``count`` well-formed cards of the AI's answer; raises ValueError if it hasn't as many"""
+    written = WrittenDeck.model_validate(json.loads(answer))
+    valid = [
+        {
+            "front": card.front.strip(),
+            "back": card.back.strip(),
+            "source": cited[card.source].model_dump(exclude={"content"}),
+        }
+        for card in written.cards
+        if card.front.strip() and card.back.strip() and card.source in cited
+    ]
+    if len(valid) < count:
+        raise ValueError(f"{len(valid)} of the {count} cards asked for are well-formed")
+    return valid[:count]
