@@ -252,16 +252,24 @@ class ComprehensionAssistantAgent:
 
     def _written[T: BaseModel](self, student: str, prompt: str, shape: type[T], valid) -> T:
         """what the AI writes in the shape, if valid; it is asked twice before the student is told it failed"""
-        for _ in range(2):
-            answer = self._ai.complete(student, PURPOSE, SYSTEM, prompt, json_schema=shape.model_json_schema())
-            try:
-                written = shape.model_validate(json.loads(answer))
-            except (ValueError, ValidationError) as e:
-                logger.warning(f"the AI's {shape.__name__} is not valid: {e}")
-                continue
-            if valid(written):
-                return written
-            logger.warning(f"the AI's {shape.__name__} cites no section it was given: {written}")
+
+        def usable(text: str) -> bool:
+            return bool(valid(shape.model_validate(json.loads(text))))
+
+        # a reply that can't be used is asked for again: one trace
+        with self._ai.traced(student, PURPOSE):
+            for _ in range(2):
+                answer = self._ai.complete(
+                    student, PURPOSE, SYSTEM, prompt, json_schema=shape.model_json_schema(), usable=usable
+                )
+                try:
+                    written = shape.model_validate(json.loads(answer))
+                except (ValueError, ValidationError) as e:
+                    logger.warning(f"the AI's {shape.__name__} is not valid: {e}")
+                    continue
+                if valid(written):
+                    return written
+                logger.warning(f"the AI's {shape.__name__} cites no section it was given: {written}")
         raise AIFailed("the assistant could not check your understanding just now; try again")
 
     def _check_with_material(self, student: str, check_id: str) -> tuple[Check, list[SourceText]]:

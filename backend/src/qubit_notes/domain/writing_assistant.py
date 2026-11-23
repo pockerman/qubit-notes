@@ -15,11 +15,13 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.engine import Engine
 
 from qubit_notes import prompts, storage
+from qubit_notes.domain import tracing
 from qubit_notes.domain.assistant import Rating
 from qubit_notes.domain.course_titles import CourseTitles
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import InvalidRequest, NotFound
 from qubit_notes.domain.topics import Topics
+from qubit_notes.domain.tracing import RATING, RATING_SCORES
 from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.written import now
 from qubit_notes.platform.port import Message, StudyPlatform, WebSource
@@ -146,14 +148,17 @@ class WriteMaterialAssistantAgent:
                 Message(role="user", content=turn.request),
                 Message(role="assistant", content=turn.reply[:MAX_REPLY_CHARACTERS]),
             ]
-        researched = self._ai.research(
-            student,
-            "writing",
-            SYSTEM,
-            "\n\n".join(prompt),
-            history,
-            search_web=asked.search_web and self._platform.can_search_web(),
-        )
+        with self._ai.traced(student, "writing") as trace:
+            # the topic's material isn't drawn on, but the student's draft is: its trace goes with the course
+            tracing.holds(course.id)
+            researched = self._ai.research(
+                student,
+                "writing",
+                SYSTEM,
+                "\n\n".join(prompt),
+                history,
+                search_web=asked.search_web and self._platform.can_search_web(),
+            )
         reply = WritingReply(
             id=uuid.uuid4().hex,
             reply=researched.text,
@@ -174,6 +179,7 @@ class WriteMaterialAssistantAgent:
                     sources=[source.model_dump() for source in reply.sources],
                     searched=reply.searched,
                     created_at=now(),
+                    trace_id=trace.id,
                 )
             )
         return reply
@@ -200,8 +206,10 @@ class WriteMaterialAssistantAgent:
                         answer=row.reply,
                         rating=rating,
                         rated_at=now(),
+                        trace_id=row.trace_id,
                     )
                 )
+        self._ai.traces.score(row.trace_id, RATING, RATING_SCORES.get(rating) if rating else None)
         return WritingReply(
             id=row.id,
             reply=row.reply,

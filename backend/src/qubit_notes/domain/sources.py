@@ -2,6 +2,7 @@
 
 from pydantic import BaseModel, model_validator
 
+from qubit_notes.domain import tracing
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import InvalidRequest, NotFound
 from qubit_notes.domain.materials import is_video
@@ -99,6 +100,8 @@ class Sources:
                 raise InvalidRequest(f"{opened.filename!r} is a video: only texts are summarised and quizzed")
             documents = self._current(course.id, scope)
 
+        # the AI is given them next: its trace holds them
+        tracing.holds(course.id, documents)
         sources = []
         for document_id, ref in documents.items():
             filename = ref.filename

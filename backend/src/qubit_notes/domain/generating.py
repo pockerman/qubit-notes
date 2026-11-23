@@ -9,6 +9,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 from qubit_notes import prompts
+from qubit_notes.domain import tracing
 from qubit_notes.domain.conversions import is_original
 from qubit_notes.domain.courses import Courses
 from qubit_notes.domain.errors import Conflict, InvalidRequest, NotFound
@@ -64,6 +65,8 @@ class Generator:
         if kind is None and not instructions:
             raise InvalidRequest("choose a kind of material, or write instructions, or both")
 
+        # the AI is given them: its trace holds them
+        tracing.holds(course.id, document_ids)
         # each section of each material, labelled for the AI to cite, with the reference it is cited by
         labelled: list[tuple[str, str, str]] = []
         for document_id in dict.fromkeys(document_ids):

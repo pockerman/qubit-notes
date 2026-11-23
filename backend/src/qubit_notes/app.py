@@ -57,6 +57,7 @@ from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.subject_download import SubjectDownload
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
+from qubit_notes.domain.tracing import Tracer, Traces
 from qubit_notes.domain.transcription import Transcription
 from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.writing_assistant import WriteMaterialAssistantAgent
@@ -65,6 +66,7 @@ from qubit_notes.platform.named import NamedDocuments
 from qubit_notes.platform.port import StudyPlatform
 from qubit_notes.platform.standalone.files import files_from
 from qubit_notes.settings import Settings
+from qubit_notes.tracers import tracer_from
 
 
 @asynccontextmanager
@@ -74,13 +76,17 @@ async def _lifespan(app: FastAPI):
     # starts again
     app.state.conversions.stop()
     app.state.lessons.stop()
+    # the traces still to be sent are sent
+    app.state.traces.stop()
     if stop := getattr(app.state.platform, "stop", None):
         stop()
 
 
-def create_app(platform: StudyPlatform | None = None, settings: Settings | None = None) -> FastAPI:
+def create_app(
+    platform: StudyPlatform | None = None, settings: Settings | None = None, tracer: Tracer | None = None
+) -> FastAPI:
     """Build the app. Tests pass their own ``platform``; otherwise it's the one the settings name: the app's own, or
-    gogi."""
+    gogi. Likewise the ``tracer`` the AI is traced to: Langfuse where the settings have its keys."""
     settings = settings or Settings()
     database = storage.connect(settings.database_url)
     if platform is None:
@@ -138,8 +144,11 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     # a deleted topic's material goes with it
     app.state.topics.on_delete(app.state.materials.delete_topic)
     app.state.reading_order = ReadingOrder(app.state.courses, app.state.topics, app.state.materials)
-    # every call to the AI goes through it, so that it is counted
-    app.state.ai_usage = AIUsage(database, platform)
+    # every call to the AI goes through it, so that it is counted and traced; the traces go with the material they
+    # hold, and those Langfuse couldn't delete before are tried again
+    app.state.traces = Traces(database, tracer or tracer_from(settings))
+    app.state.traces.retry_deletions_in_background()
+    app.state.ai_usage = AIUsage(database, platform, app.state.traces)
     app.state.generator = Generator(platform, app.state.ai_usage, app.state.courses, app.state.reading)
     sources = Sources(platform, app.state.courses, app.state.reading)
     app.state.summaries = Summaries(app.state.database, app.state.ai_usage, sources)
@@ -195,7 +204,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
         app.state.comprehension,
     )
     # deleting a material deletes all of that
-    for service in written:
+    for service in (*written, app.state.traces):
         app.state.materials.on_delete(service.forget_material)
     # deleting a course deletes all of that, its topics, and what the assistant learned from its material
     app.state.courses.on_delete(app.state.materials.forget_course)
@@ -211,7 +220,7 @@ def create_app(platform: StudyPlatform | None = None, settings: Settings | None 
     app.state.papers = Papers(app.state.paper_records, app.state.courses, app.state.course_titles, app.state.materials)
     app.state.materials.on_delete(app.state.paper_records.forget_material)
     app.state.courses.on_delete(lambda course: app.state.paper_records.forget_course(course.id))
-    for service in (*written, app.state.topics):
+    for service in (*written, app.state.topics, app.state.traces):
         app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 
     add_error_handlers(app)

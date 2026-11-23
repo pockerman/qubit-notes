@@ -226,6 +226,33 @@ ai_usage = Table(
     Column("created_at", DateTime(timezone=True), nullable=False, index=True),
 )
 
+# a row for every trace of the AI sent to the tracer (features/tracing.feature), with the course it holds material
+# of: traces hold the students' material, and are deleted with it
+ai_traces = Table(
+    "ai_traces",
+    metadata,
+    Column("id", String, primary_key=True),
+    Column("student", String, nullable=False, index=True),
+    Column("course_id", String, index=True),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
+# the materials a trace holds passages or sections of
+ai_trace_documents = Table(
+    "ai_trace_documents",
+    metadata,
+    Column("trace_id", String, primary_key=True),
+    Column("document_id", String, primary_key=True, index=True),
+)
+
+# traces deleted with their material that the tracer is still to delete; tried again until it does
+ai_trace_deletions = Table(
+    "ai_trace_deletions",
+    metadata,
+    Column("trace_id", String, primary_key=True),
+    Column("created_at", DateTime(timezone=True), nullable=False),
+)
+
 # a row for every time a student is shown a section: what they have opened, and when, can be told from it
 section_opens = Table(
     "section_opens",
@@ -299,6 +326,8 @@ conversation_turns = Table(
     Column("quiz_id", String),
     Column("deck_id", String),
     Column("created_at", DateTime(timezone=True), nullable=False),
+    # the trace of the reply, which its rating scores
+    Column("trace_id", String),
 )
 
 # a student's thumbs up or down of a reply of the assistant, with what was asked and replied: it outlives the
@@ -316,6 +345,8 @@ answer_ratings = Table(
     # up or down
     Column("rating", String, nullable=False),
     Column("rated_at", DateTime(timezone=True), nullable=False),
+    # the trace of the reply rated, if it was traced
+    Column("trace_id", String),
 )
 
 # what the writing assistant replied to a student, kept so they can rate it (features/writing_assistant.feature)
@@ -332,6 +363,8 @@ writing_replies = Table(
     Column("sources", JSON, nullable=False),
     Column("searched", Boolean, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
+    # the trace of the reply, which its rating scores
+    Column("trace_id", String),
 )
 
 # a student's check of their understanding of a section, a document, a topic or a subject: the questions the AI

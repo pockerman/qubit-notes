@@ -104,6 +104,15 @@ class Settings(BaseSettings):
     # how much of a conversation with the assistant the model is given, in estimated tokens: its most recent messages
     conversation_tokens: int = 4000
 
+    # where every call to the AI is traced (features/tracing.feature): Langfuse, with the keys of its project, at its
+    # EU cloud unless another host is named, e.g. https://us.cloud.langfuse.com or one's own; nothing is traced without
+    # the keys
+    langfuse_public_key: str | None = None
+    langfuse_secret_key: str | None = None
+    langfuse_host: str = "https://cloud.langfuse.com"
+    # what Langfuse files the traces under, e.g. production or development
+    langfuse_environment: str | None = None
+
     # the model that embeds material for search: bge-small-en-v1.5 runs in the app (or in gogi) and needs no API key;
     # voyage-* models need the Voyage AI key, text-embedding-3-* ones the OpenAI key. Material embedded with one
     # model is not found by searching with another: after changing it, run qubit-notes reembed

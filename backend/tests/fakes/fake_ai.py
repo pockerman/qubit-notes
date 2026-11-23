@@ -40,6 +40,9 @@ class FakeAI:
         # heard by
         self.hears = False
         self.heard: list[str] = []
+        # how many of its next replies of a shape, e.g. the assistant's, are not valid; and whether its provider fails
+        self.invalid_replies = 0
+        self.fails = False
 
     def missing(self) -> str | None:
         return None
@@ -115,8 +118,13 @@ class FakeAI:
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
     ) -> Completion:
+        if self.fails:
+            raise PlatformError("AI_FAILED", "the provider refused: it is overloaded")
         provider, model = chosen_ai.get() or self.model
         text = self._answer(prompt, json_schema, history)
+        if json_schema is not None and self.invalid_replies:
+            self.invalid_replies -= 1
+            text = "This is not what was asked for."
         return Completion(
             text=text, provider=provider, model=model, input_tokens=self.tokens[0], output_tokens=self.tokens[1]
         )

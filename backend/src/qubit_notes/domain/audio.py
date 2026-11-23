@@ -298,24 +298,37 @@ class Audios:
         model: str,
     ) -> None:
         try:
-            sources = self._sources.gather(student, Scope(course_id=course_id, document_id=document_id)).sources
-            if not sources:
-                raise InvalidRequest("the material has no text to narrate yet")
-            batches = _batches(sources)
-            narrated = [
-                self._narrate(student, batch, instructions, earlier, i, len(batches))
-                for i, batch in enumerate(batches, start=1)
-            ]
-            narration = "\n\n".join(n.narration.strip() for n in narrated)
-            voice = next((n.voice.strip() for n in narrated if n.voice.strip()), VOICE)
-            # only a model that follows how to speak it is told
-            how = voice if _SPEECH_MODELS[model].follows_instructions else ""
-            audio = b"".join(self._ai.speak(student, "audio", part, how, model).audio for part in parts(narration))
-            self._files.put(_key(audio_id), audio, CONTENT_TYPE)
-            self._update(audio_id, status="ready", narration=narration, voice=voice, size=len(audio), error=None)
+            with self._ai.traced(student, "audio"):
+                self._narrate_and_speak(student, audio_id, course_id, document_id, instructions, earlier, model)
         except Exception as e:  # noqa: BLE001 - whatever went wrong, the student is told, not left waiting
             logger.error(f"the audio {audio_id} could not be made: {e}")
             self._update(audio_id, status="failed", error=_why(e))
+
+    def _narrate_and_speak(
+        self,
+        student: str,
+        audio_id: str,
+        course_id: str,
+        document_id: str,
+        instructions: str,
+        earlier: tuple[str, str] | None,
+        model: str,
+    ) -> None:
+        sources = self._sources.gather(student, Scope(course_id=course_id, document_id=document_id)).sources
+        if not sources:
+            raise InvalidRequest("the material has no text to narrate yet")
+        batches = _batches(sources)
+        narrated = [
+            self._narrate(student, batch, instructions, earlier, i, len(batches))
+            for i, batch in enumerate(batches, start=1)
+        ]
+        narration = "\n\n".join(n.narration.strip() for n in narrated)
+        voice = next((n.voice.strip() for n in narrated if n.voice.strip()), VOICE)
+        # only a model that follows how to speak it is told
+        how = voice if _SPEECH_MODELS[model].follows_instructions else ""
+        audio = b"".join(self._ai.speak(student, "audio", part, how, model).audio for part in parts(narration))
+        self._files.put(_key(audio_id), audio, CONTENT_TYPE)
+        self._update(audio_id, status="ready", narration=narration, voice=voice, size=len(audio), error=None)
 
     def _narrate(
         self,
@@ -338,7 +351,12 @@ class Audios:
         reply = ""
         for _ in range(2):
             reply = self._ai.complete(
-                student, "audio", SYSTEM, "\n\n".join(prompt), json_schema=Narration.model_json_schema()
+                student,
+                "audio",
+                SYSTEM,
+                "\n\n".join(prompt),
+                json_schema=Narration.model_json_schema(),
+                usable=lambda text: Narration.model_validate(json.loads(text)).narration.strip(),
             )
             try:
                 narrated = Narration.model_validate(json.loads(reply))

@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 
 from loguru import logger
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 from sqlalchemy import delete, insert, select
 from sqlalchemy.engine import Engine
 
@@ -168,15 +168,19 @@ class Quizzes:
                 connection.execute(delete(storage.quiz_attempts).where(storage.quiz_attempts.c.quiz_id.in_(ids)))
 
     def _write(self, student: str, scope: Scope, count: int) -> Quiz:
-        gathered = self._sources.gather(student, scope)
-        cited = {f"S{i}": source for i, source in enumerate(gathered.sources, start=1)}
-        prompt = f"Write a quiz of {count} questions on this material.\n\n{material(gathered.sources, MAX_CHARACTERS)}"
+        # a reply that can't be used is asked for again: one trace
+        with self._ai.traced(student, "quiz"):
+            gathered = self._sources.gather(student, scope)
+            cited = {f"S{i}": source for i, source in enumerate(gathered.sources, start=1)}
+            prompt = (
+                f"Write a quiz of {count} questions on this material.\n\n{material(gathered.sources, MAX_CHARACTERS)}"
+            )
 
-        questions = None
-        for _ in range(2):
-            questions = self._questions(student, prompt, cited, count)
-            if questions:
-                break
+            questions = None
+            for _ in range(2):
+                questions = self._questions(student, prompt, cited, count)
+                if questions:
+                    break
         if not questions:
             raise AIFailed("the assistant could not write the quiz; try again")
 
@@ -196,23 +200,19 @@ class Quizzes:
 
     def _questions(self, student: str, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
         """the questions the AI writes, if there are at least ``count`` well-formed ones"""
-        answer = self._ai.complete(student, "quiz", SYSTEM, prompt, json_schema=WrittenQuiz.model_json_schema())
+        answer = self._ai.complete(
+            student,
+            "quiz",
+            SYSTEM,
+            prompt,
+            json_schema=WrittenQuiz.model_json_schema(),
+            usable=lambda text: _well_formed(text, cited, count),
+        )
         try:
-            written = WrittenQuiz.model_validate(json.loads(answer))
-        except (ValueError, ValidationError) as e:
+            return _well_formed(answer, cited, count)
+        except ValueError as e:
             logger.warning(f"the AI's quiz is not valid: {e}")
             return None
-        valid = [
-            {
-                "question": q.question,
-                "choices": q.choices,
-                "answer": q.answer,
-                "source": cited[q.source].model_dump(exclude={"content"}),
-            }
-            for q in written.questions
-            if len(q.choices) == CHOICES and 0 <= q.answer < CHOICES and q.source in cited
-        ]
-        return valid[:count] if len(valid) >= count else None
 
     def _rows(self, student: str, scope: Scope) -> list:
         with self._engine.connect() as connection:
@@ -241,3 +241,21 @@ class Quizzes:
             created_at=row.created_at,
             out_of_date=self._sources.out_of_date(student, scope, row.documents),
         )
+
+
+def _well_formed(answer: str, cited: dict[str, SourceText], count: int) -> list[dict]:
+    """``count`` well-formed questions of the AI's answer; raises ValueError if it hasn't as many"""
+    written = WrittenQuiz.model_validate(json.loads(answer))
+    valid = [
+        {
+            "question": q.question,
+            "choices": q.choices,
+            "answer": q.answer,
+            "source": cited[q.source].model_dump(exclude={"content"}),
+        }
+        for q in written.questions
+        if len(q.choices) == CHOICES and 0 <= q.answer < CHOICES and q.source in cited
+    ]
+    if len(valid) < count:
+        raise ValueError(f"{len(valid)} of the {count} questions asked for are well-formed")
+    return valid[:count]
