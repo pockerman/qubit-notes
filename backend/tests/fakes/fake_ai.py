@@ -43,6 +43,8 @@ class FakeAI:
         # how many of its next replies of a shape, e.g. the assistant's, are not valid; and whether its provider fails
         self.invalid_replies = 0
         self.fails = False
+        # the system prompt it was given with each prompt, with its name and version (qubit_notes.prompts.Prompt)
+        self.systems: list[str] = []
 
     def missing(self) -> str | None:
         return None
@@ -84,6 +86,7 @@ class FakeAI:
     def research(self, system: str, prompt: str, history: list[Message] | None, search_web: bool) -> Researched:
         """a stand-in: Markdown numbered like the other answers, saying what it was asked, citing two pages of the
         web if it searched it"""
+        self.systems.append(system)
         self.completions.append(prompt)
         self.histories.append(list(history or []))
         number = len(self.completions)
@@ -118,6 +121,7 @@ class FakeAI:
         json_schema: dict[str, Any] | None = None,
         history: list[Message] | None = None,
     ) -> Completion:
+        self.systems.append(system)
         if self.fails:
             raise PlatformError("AI_FAILED", "the provider refused: it is overloaded")
         provider, model = chosen_ai.get() or self.model

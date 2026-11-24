@@ -79,7 +79,7 @@ class LangfuseTracer:
             name=step.name,
             as_type=_OBSERVATION[step.kind],
             input=step.input,
-            version=step.prompt_version,
+            version=str(step.prompt_version) if step.prompt_version is not None else None,
         ) as observation:
             try:
                 yield
@@ -113,7 +113,11 @@ def _ended(step: Step) -> dict[str, Any]:
     """what Langfuse is told of a step once it is done"""
     metadata: dict[str, Any] = {"outcome": step.outcome}
     if step.prompt:
-        metadata |= {"prompt": step.prompt, "prompt_version": step.prompt_version}
+        metadata |= {
+            "prompt": step.prompt,
+            "prompt_version": step.prompt_version,
+            "prompt_sha256": step.prompt_sha256,
+        }
     if step.passages:
         metadata["passages"] = [passage.model_dump() for passage in step.passages]
     ended: dict[str, Any] = {"output": step.output, "metadata": metadata, "level": _LEVEL[step.outcome]}

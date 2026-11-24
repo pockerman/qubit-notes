@@ -34,7 +34,6 @@ UNNAMED = "Generated notes"
 # the most text generated from at once
 MAX_CHARACTERS = 60_000
 
-SYSTEM = prompts.load("generating")
 
 LABEL = re.compile(r"\[(S\d+)\]")
 
@@ -44,6 +43,8 @@ class Generated(BaseModel):
     name: str
     # Markdown, citing its sources with references to them
     text: str
+    # the prompt it was written with, and its version, e.g. generating@1
+    prompt: str | None = None
 
 
 class Generator:
@@ -96,9 +97,10 @@ class Generator:
         asked = f"Write {ASKED[kind]}." if kind else "Write what the student asks for."
         if instructions:
             asked += f"\n\nThe student asks: {instructions}"
-        text = self._ai.complete(student, "generating", SYSTEM, f"{asked}\n\nThe material:\n\n{material}").strip()
+        system = prompts.load("generating")
+        text = self._ai.complete(student, "generating", system, f"{asked}\n\nThe material:\n\n{material}").strip()
 
         references = {f"S{i}": reference for i, (_, _, reference) in enumerate(labelled, start=1)}
         # a label the material doesn't have is dropped
         text = LABEL.sub(lambda match: references.get(match.group(1), ""), text)
-        return Generated(name=NAMED[kind] if kind else UNNAMED, text=text)
+        return Generated(name=NAMED[kind] if kind else UNNAMED, text=text, prompt=system.ref)

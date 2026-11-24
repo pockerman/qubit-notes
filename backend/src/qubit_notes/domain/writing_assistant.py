@@ -33,7 +33,6 @@ MAX_REQUEST_CHARACTERS = 4_000
 MAX_TURNS = 10
 MAX_REPLY_CHARACTERS = 12_000
 
-SYSTEM = prompts.load("writing-assistant")
 
 # a Markdown heading: its #s, and its title
 HEADING = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")
@@ -68,6 +67,8 @@ class WritingReply(BaseModel):
     section: str | None = None
     # the student's rating of it, if they rated it
     rating: Rating | None = None
+    # the prompt it was written with, and its version, e.g. writing-assistant@1
+    prompt: str | None = None
 
 
 def sections(draft: str) -> list[tuple[str, int, int]]:
@@ -151,10 +152,11 @@ class WriteMaterialAssistantAgent:
         with self._ai.traced(student, "writing") as trace:
             # the topic's material isn't drawn on, but the student's draft is: its trace goes with the course
             tracing.holds(course.id)
+            system = prompts.load("writing-assistant")
             researched = self._ai.research(
                 student,
                 "writing",
-                SYSTEM,
+                system,
                 "\n\n".join(prompt),
                 history,
                 search_web=asked.search_web and self._platform.can_search_web(),
@@ -165,6 +167,7 @@ class WriteMaterialAssistantAgent:
             sources=researched.sources,
             searched=researched.searched,
             section=section,
+            prompt=system.ref,
         )
         with self._engine.begin() as connection:
             connection.execute(
@@ -180,6 +183,7 @@ class WriteMaterialAssistantAgent:
                     searched=reply.searched,
                     created_at=now(),
                     trace_id=trace.id,
+                    prompt=system.ref,
                 )
             )
         return reply
@@ -216,6 +220,7 @@ class WriteMaterialAssistantAgent:
             sources=[WebSource(**source) for source in row.sources],
             searched=row.searched,
             rating=rating,
+            prompt=row.prompt,
         )
 
     def forget_course(self, course_id: str) -> None:

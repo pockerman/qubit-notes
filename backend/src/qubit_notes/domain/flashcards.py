@@ -28,8 +28,6 @@ MIN_CARDS, MAX_CARDS = 1, 30
 # the most text a deck is written from; each section gets an equal share of it
 MAX_CHARACTERS = 60_000
 
-SYSTEM = prompts.load("flashcards")
-
 
 class WrittenCard(BaseModel):
     front: str
@@ -56,6 +54,8 @@ class Deck(BaseModel):
     sources: list[Source]
     created_at: datetime
     out_of_date: OutOfDate | None = None
+    # the prompt it was written with, and its version, e.g. flashcards@1
+    prompt: str | None = None
 
 
 class Flashcards:
@@ -105,13 +105,14 @@ class Flashcards:
     def _write(self, student: str, scope: Scope, count: int) -> Deck:
         # a reply that can't be used is asked for again: one trace
         with self._ai.traced(student, "flashcards"):
+            system = prompts.load("flashcards")
             gathered = self._sources.gather(student, scope)
             cited = {f"S{i}": source for i, source in enumerate(gathered.sources, start=1)}
             prompt = f"Write {count} flashcards on this material.\n\n{material(gathered.sources, MAX_CHARACTERS)}"
 
             cards = None
             for _ in range(2):
-                cards = self._cards(student, prompt, cited, count)
+                cards = self._cards(student, system, prompt, cited, count)
                 if cards:
                     break
         if not cards:
@@ -125,6 +126,7 @@ class Flashcards:
             "documents": {d: ref.model_dump() for d, ref in gathered.documents.items()},
             "count": count,
             "created_at": now(),
+            "prompt": system.ref,
         }
         earlier = [deck.id for deck in self._rows(student, scope)]
         schedule = self._reviews.new_schedule()
@@ -151,12 +153,14 @@ class Flashcards:
                 )
         return self._deck(student, Row(row))
 
-    def _cards(self, student: str, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
+    def _cards(
+        self, student: str, system: str, prompt: str, cited: dict[str, SourceText], count: int
+    ) -> list[dict] | None:
         """the cards the AI writes, if there are at least ``count`` well-formed ones"""
         answer = self._ai.complete(
             student,
             "flashcards",
-            SYSTEM,
+            system,
             prompt,
             json_schema=WrittenDeck.model_json_schema(),
             usable=lambda text: _well_formed(text, cited, count),
@@ -185,6 +189,7 @@ class Flashcards:
             sources=[Source(**source) for source in row.sources],
             created_at=row.created_at,
             out_of_date=self._sources.out_of_date(student, scope, row.documents),
+            prompt=row.prompt,
         )
 
 

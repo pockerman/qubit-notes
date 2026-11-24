@@ -10,6 +10,9 @@ from tests.bdd.steps.assistant_steps import _conversation
 from tests.bdd.steps.study_steps import _document_scope
 from tests.fakes.fake_tracer import FakeTracer, Traced
 
+# the values a prompt takes
+_VALUES = {"quiz": {"choices": 4}}
+
 
 def _tracer(context) -> FakeTracer:
     return context["tracer"]
@@ -98,7 +101,7 @@ def traced_for_me(students, context, count, purpose):
 @then(parsers.parse('its step used the prompt "{prompt}" at its version'))
 def used_prompt(context, prompt):
     call = _the_call(context)
-    assert (call.prompt, call.prompt_version) == (prompt, prompts.version(prompt))
+    assert (call.prompt, call.prompt_version) == (prompt, prompts.load(prompt, **_VALUES.get(prompt, {})).version)
 
 
 @then(

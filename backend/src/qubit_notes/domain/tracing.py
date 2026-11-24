@@ -59,7 +59,8 @@ class Step(BaseModel):
     name: str
     # the system prompt and its version (qubit_notes.prompts)
     prompt: str | None = None
-    prompt_version: str | None = None
+    prompt_version: int | None = None
+    prompt_sha256: str | None = None
     provider: str = ""
     model: str = ""
     input: Any = None

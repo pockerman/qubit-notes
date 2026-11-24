@@ -1,0 +1,25 @@
+# the SHA-256 of every released version of the prompts: written by qubit-notes prompts lock, not by hand
+
+["audio-narration"]
+1 = "dc3dab9dfeb1ef281c11ed2c1426ddf3dacab79e838ef337ce8f13af24739fc2"
+
+["comprehension-check"]
+1 = "9b95c87f89bb4be986358bf72560f4ed078dd7fe33f43e771350e3fc07d05906"
+
+["flashcards"]
+1 = "0398ea2c1f67186c2367e114b177f50aabcbab62d667f7a5ea9bae6bcec9d701"
+
+["generating"]
+1 = "3b4dc09cca68fbfd73bf4b38786ba72050bf5bd1da787383c06dcb0731f3aa28"
+
+["quiz"]
+1 = "0a87616271e58428ab2973e8da11085bd8942df39c622cad3645ff76b4b51063"
+
+["study-assistant"]
+1 = "9e0ba09103ebc59b9803f847b89ead82d3a0abf17085db5c540efabe37145fcb"
+
+["summaries"]
+1 = "31bbcb3d896815313c85b70937a983b49313b83b3b1732905c6a056510ede1b8"
+
+["writing-assistant"]
+1 = "f777f1195575ba0ff3cf81b83a572aaa1377546c12ab2fd7b615750b3258d1fe"

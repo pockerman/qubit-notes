@@ -51,7 +51,7 @@ where = ["src"]
 
 # the prompts the app gives the AI
 [tool.setuptools.package-data]
-qubit_notes = ["prompts/*/*.md"]
+qubit_notes = ["prompts/*/*.md", "prompts/*/prompt.toml", "prompts/versions.lock"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

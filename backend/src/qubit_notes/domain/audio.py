@@ -66,9 +66,6 @@ class SpeechModels(BaseModel):
     available: bool
 
 
-SYSTEM = prompts.load("audio-narration")
-
-
 class Narration(BaseModel):
     """what the AI writes: the narration, and how it is to be spoken"""
 
@@ -88,6 +85,8 @@ class Audio(BaseModel):
     suggestions: str = ""
     # what the AI wrote, read aloud; empty until it is ready
     narration: str = ""
+    # the prompt its narration was written with, and its version, e.g. audio-narration@1
+    prompt: str | None = None
     # the speech model it is read by
     model: str
     # why it failed
@@ -314,12 +313,13 @@ class Audios:
         earlier: tuple[str, str] | None,
         model: str,
     ) -> None:
+        system = prompts.load("audio-narration")
         sources = self._sources.gather(student, Scope(course_id=course_id, document_id=document_id)).sources
         if not sources:
             raise InvalidRequest("the material has no text to narrate yet")
         batches = _batches(sources)
         narrated = [
-            self._narrate(student, batch, instructions, earlier, i, len(batches))
+            self._narrate(student, system, batch, instructions, earlier, i, len(batches))
             for i, batch in enumerate(batches, start=1)
         ]
         narration = "\n\n".join(n.narration.strip() for n in narrated)
@@ -328,11 +328,20 @@ class Audios:
         how = voice if _SPEECH_MODELS[model].follows_instructions else ""
         audio = b"".join(self._ai.speak(student, "audio", part, how, model).audio for part in parts(narration))
         self._files.put(_key(audio_id), audio, CONTENT_TYPE)
-        self._update(audio_id, status="ready", narration=narration, voice=voice, size=len(audio), error=None)
+        self._update(
+            audio_id,
+            status="ready",
+            narration=narration,
+            voice=voice,
+            size=len(audio),
+            error=None,
+            prompt=system.ref,
+        )
 
     def _narrate(
         self,
         student: str,
+        system: str,
         batch: list[SourceText],
         instructions: str,
         earlier: tuple[str, str] | None,
@@ -353,7 +362,7 @@ class Audios:
             reply = self._ai.complete(
                 student,
                 "audio",
-                SYSTEM,
+                system,
                 "\n\n".join(prompt),
                 json_schema=Narration.model_json_schema(),
                 usable=lambda text: Narration.model_validate(json.loads(text)).narration.strip(),
@@ -449,6 +458,7 @@ def _audio(row) -> Audio:
         narration=row.narration if row.status != "generating" else "",
         model=row.model,
         error=row.error,
+        prompt=row.prompt,
         size=row.size or 0,
         created_at=row.created_at,
         updated_at=row.updated_at,

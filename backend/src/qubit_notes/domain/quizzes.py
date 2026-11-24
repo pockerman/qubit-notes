@@ -27,8 +27,6 @@ CHOICES = 4
 # the most text a quiz is written from; each section gets an equal share of it
 MAX_CHARACTERS = 60_000
 
-SYSTEM = prompts.load("quiz", choices=CHOICES)
-
 
 class AIFailed(StudyAssistantError):
     """The AI didn't write what was asked for."""
@@ -62,6 +60,8 @@ class Quiz(BaseModel):
     sources: list[Source]
     created_at: datetime
     out_of_date: OutOfDate | None = None
+    # the prompt it was written with, and its version, e.g. quiz@1
+    prompt: str | None = None
 
 
 class QuestionResult(BaseModel):
@@ -170,6 +170,7 @@ class Quizzes:
     def _write(self, student: str, scope: Scope, count: int) -> Quiz:
         # a reply that can't be used is asked for again: one trace
         with self._ai.traced(student, "quiz"):
+            system = prompts.load("quiz", choices=CHOICES)
             gathered = self._sources.gather(student, scope)
             cited = {f"S{i}": source for i, source in enumerate(gathered.sources, start=1)}
             prompt = (
@@ -178,7 +179,7 @@ class Quizzes:
 
             questions = None
             for _ in range(2):
-                questions = self._questions(student, prompt, cited, count)
+                questions = self._questions(student, system, prompt, cited, count)
                 if questions:
                     break
         if not questions:
@@ -193,17 +194,20 @@ class Quizzes:
             "count": count,
             "questions": questions,
             "created_at": now(),
+            "prompt": system.ref,
         }
         with self._engine.begin() as connection:
             connection.execute(insert(storage.quizzes).values(**row))
         return self._quiz(student, Row(row))
 
-    def _questions(self, student: str, prompt: str, cited: dict[str, SourceText], count: int) -> list[dict] | None:
+    def _questions(
+        self, student: str, system: str, prompt: str, cited: dict[str, SourceText], count: int
+    ) -> list[dict] | None:
         """the questions the AI writes, if there are at least ``count`` well-formed ones"""
         answer = self._ai.complete(
             student,
             "quiz",
-            SYSTEM,
+            system,
             prompt,
             json_schema=WrittenQuiz.model_json_schema(),
             usable=lambda text: _well_formed(text, cited, count),
@@ -240,6 +244,7 @@ class Quizzes:
             sources=[Source(**source) for source in row.sources],
             created_at=row.created_at,
             out_of_date=self._sources.out_of_date(student, scope, row.documents),
+            prompt=row.prompt,
         )
 
 

@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -20,6 +21,7 @@ from qubit_notes.api import (
     notes,
     papers,
     programs,
+    prompts,
     reading,
     references,
     study,
@@ -47,6 +49,7 @@ from qubit_notes.domain.memory import StudentMemory
 from qubit_notes.domain.notes import Notes
 from qubit_notes.domain.papers import PaperRecords, Papers
 from qubit_notes.domain.programs import programs as programs_from
+from qubit_notes.domain.prompt_versions import PromptVersions
 from qubit_notes.domain.quizzes import Quizzes
 from qubit_notes.domain.reading import Reading
 from qubit_notes.domain.reading_order import ReadingOrder
@@ -65,6 +68,8 @@ from qubit_notes.platform import platform_from
 from qubit_notes.platform.named import NamedDocuments
 from qubit_notes.platform.port import StudyPlatform
 from qubit_notes.platform.standalone.files import files_from
+from qubit_notes.prompts import DIRECTORY, Prompts
+from qubit_notes.prompts import use as use_prompts
 from qubit_notes.settings import Settings
 from qubit_notes.tracers import tracer_from
 
@@ -101,6 +106,14 @@ def create_app(
     app.state.authenticator = authenticator(settings)
     app.state.account = Account(settings)
     # the keys the admins gave the app, given to its platform again
+    # the prompts the AI is given, at the version in use: prompt.toml's, or the one the admins chose
+    app.state.prompt_versions = PromptVersions(database)
+    app.state.prompt_versions.prompts = Prompts(
+        Path(settings.prompts_dir) if settings.prompts_dir else DIRECTORY, chosen=app.state.prompt_versions.chosen
+    )
+    # a prompt.toml naming a version that doesn't exist is refused now, rather than when the AI is asked
+    app.state.prompt_versions.prompts.validate()
+    use_prompts(app.state.prompt_versions.prompts)
     app.state.app_keys = AppKeys(database, settings, platform)
     app.state.app_keys.restore()
     # the AI's model, as the admins chose it or the settings name it
@@ -249,6 +262,7 @@ def create_app(
         comprehension.router,
         comprehension.transcription_router,
         usage.router,
+        prompts.router,
     ):
         app.include_router(router, prefix="/api")
     if settings.frontend_dir:

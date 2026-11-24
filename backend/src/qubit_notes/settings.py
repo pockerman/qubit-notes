@@ -104,6 +104,9 @@ class Settings(BaseSettings):
     # how much of a conversation with the assistant the model is given, in estimated tokens: its most recent messages
     conversation_tokens: int = 4000
 
+    # the prompts the AI is given (features/prompt_versions.feature): the package's own unless another folder is named
+    prompts_dir: str | None = None
+
     # where every call to the AI is traced (features/tracing.feature): Langfuse, with the keys of its project, at its
     # EU cloud unless another host is named, e.g. https://us.cloud.langfuse.com or one's own; nothing is traced without
     # the keys
