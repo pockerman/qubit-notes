@@ -38,8 +38,6 @@ QUIZ_QUESTIONS = 5
 # and of a deck of flashcards
 DECK_CARDS = 10
 
-SYSTEM = prompts.load("study-assistant")
-
 
 class Understood(BaseModel):
     """what the AI makes of a request"""
@@ -76,6 +74,8 @@ class Turn(BaseModel):
     created_at: datetime
     # the student's rating of the reply, if they rated it
     rating: Rating | None = None
+    # the prompt it was understood and answered with, and its version, e.g. study-assistant@1
+    prompt: str | None = None
 
 
 class Conversation(BaseModel):
@@ -156,6 +156,7 @@ class Assistant:
                     deck_id=turn.deck.id if turn.deck else None,
                     created_at=turn.created_at,
                     trace_id=trace_id,
+                    prompt=turn.prompt,
                 )
             )
         return turn
@@ -183,9 +184,10 @@ class Assistant:
             ],
             course_id,
         )
-        understood = self._understand(student, conversation_id, reading, passages, question)
+        system = prompts.load("study-assistant")
+        understood = self._understand(student, system, conversation_id, reading, passages, question)
 
-        turn = {"id": uuid.uuid4().hex, "question": question, "created_at": now()}
+        turn = {"id": uuid.uuid4().hex, "question": question, "created_at": now(), "prompt": system.ref}
         if understood.request == "question":
             cited = [passages[ref][0] for ref in dict.fromkeys(understood.cited) if ref in passages]
             covered = understood.covered and bool(cited)
@@ -286,7 +288,13 @@ class Assistant:
     # understanding
 
     def _understand(
-        self, student: str, conversation_id: str, reading: str, passages: dict[str, tuple[Source, str]], question: str
+        self,
+        student: str,
+        system: str,
+        conversation_id: str,
+        reading: str,
+        passages: dict[str, tuple[Source, str]],
+        question: str,
     ) -> Understood:
         material = "\n\n".join(
             f"[{reference}] {source.filename} › {source.title}\n{text}"
@@ -302,7 +310,7 @@ class Assistant:
             reply = self._ai.complete(
                 student,
                 "assistant",
-                SYSTEM,
+                system,
                 prompt,
                 json_schema=Understood.model_json_schema(),
                 history=history,
@@ -429,4 +437,5 @@ class Assistant:
             deck=self._flashcards.by_id(student, row.deck_id) if row.deck_id else None,
             created_at=row.created_at,
             rating=rating,
+            prompt=row.prompt,
         )

@@ -167,6 +167,8 @@ summaries = Table(
     Column("id", String, primary_key=True),
     *_scope_columns(),
     Column("content", Text, nullable=False),
+    # the prompt it was written with, and its version, e.g. quiz@1 (features/prompt_versions.feature)
+    Column("prompt", String),
 )
 
 quizzes = Table(
@@ -177,6 +179,8 @@ quizzes = Table(
     Column("count", Integer, nullable=False),
     # each question with its choices, the index of the correct one, and the section it's from
     Column("questions", JSON, nullable=False),
+    # the prompt it was written with, and its version, e.g. quiz@1 (features/prompt_versions.feature)
+    Column("prompt", String),
 )
 
 quiz_attempts = Table(
@@ -271,6 +275,8 @@ flashcard_decks = Table(
     Column("id", String, primary_key=True),
     *_scope_columns(),
     Column("count", Integer, nullable=False),
+    # the prompt it was written with, and its version, e.g. quiz@1 (features/prompt_versions.feature)
+    Column("prompt", String),
 )
 
 # a deck's cards, each with when the student is to review it next: see domain/reviews.py
@@ -328,6 +334,8 @@ conversation_turns = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
     # the trace of the reply, which its rating scores
     Column("trace_id", String),
+    # the prompt it was written with, and its version, e.g. quiz@1 (features/prompt_versions.feature)
+    Column("prompt", String),
 )
 
 # a student's thumbs up or down of a reply of the assistant, with what was asked and replied: it outlives the
@@ -365,6 +373,8 @@ writing_replies = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
     # the trace of the reply, which its rating scores
     Column("trace_id", String),
+    # the prompt it was written with, and its version, e.g. quiz@1 (features/prompt_versions.feature)
+    Column("prompt", String),
 )
 
 # a student's check of their understanding of a section, a document, a topic or a subject: the questions the AI
@@ -380,6 +390,8 @@ comprehension_checks = Table(
     Column("verdict", JSON),
     Column("updated_at", DateTime(timezone=True), nullable=False),
     Column("ended_at", DateTime(timezone=True)),
+    # the prompt it was written with, and its version, e.g. quiz@1 (features/prompt_versions.feature)
+    Column("prompt", String),
 )
 
 # a student's audio of a material: a narration the AI wrote, read aloud; its MP3 is with the app's files, under audio/
@@ -404,6 +416,8 @@ material_audio = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
     UniqueConstraint("student", "document_id"),
+    # the prompt it was written with, and its version, e.g. quiz@1 (features/prompt_versions.feature)
+    Column("prompt", String),
 )
 
 # the conversion of an uploaded PDF or EPUB to the Markdown its material is: see domain/conversions.py

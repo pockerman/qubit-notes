@@ -2,6 +2,7 @@
 
 import os
 import shlex
+import shutil
 import socket
 import subprocess
 import threading
@@ -14,7 +15,7 @@ import pytest
 import uvicorn
 from fastapi.testclient import TestClient
 
-from qubit_notes import storage
+from qubit_notes import prompts, storage
 from qubit_notes.app import create_app
 from qubit_notes.platform.standalone import StandalonePlatform
 from qubit_notes.platform.standalone.embeddings import Embedder, embedder_from
@@ -187,7 +188,17 @@ def app(request, platform, tmp_path):
         # a browser asks for several things at once, which one in-memory connection can't serve together
         database_url = f"sqlite:///{tmp_path / 'qubit-notes.db'}"
     # the app's own files, e.g. the audio of materials, in a directory of the scenario's
-    settings = Settings(frontend_dir=frontend, database_url=database_url, files_dir=str(tmp_path / "app-files"))
+    # the app's prompts, in a folder of the scenario's, which it can add versions to (features/prompt_versions.feature)
+    prompts_dir = tmp_path / "prompts"
+    shutil.copytree(prompts.DIRECTORY, prompts_dir, ignore=shutil.ignore_patterns("*.py", "__pycache__"))
+    settings = Settings(
+        frontend_dir=frontend,
+        database_url=database_url,
+        files_dir=str(tmp_path / "app-files"),
+        prompts_dir=str(prompts_dir),
+        langfuse_public_key=None,
+        langfuse_secret_key=None,
+    )
     if "cognito" in request.keywords:
         cognito = request.getfixturevalue("cognito")
         settings = settings.model_copy(
@@ -199,7 +210,9 @@ def app(request, platform, tmp_path):
                 "cognito_api_url": f"{cognito.base_url}/",
             }
         )
-    return create_app(platform=platform, settings=settings)
+    yield create_app(platform=platform, settings=settings)
+    # the app's prompts are the package's again, for whatever runs next
+    prompts.use(prompts.Prompts())
 
 
 @pytest.fixture

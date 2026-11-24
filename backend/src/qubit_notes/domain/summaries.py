@@ -10,8 +10,6 @@ from qubit_notes.domain.sources import OutOfDate, Scope, Source, Sources, Source
 from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.written import forget_course_rows, forget_document, now, of_scope, scope_of, scope_values
 
-SYSTEM = prompts.load("summaries")
-
 # the most text summarised at once; more is summarised in parts, and the parts' summaries summarised
 MAX_CHARACTERS = 60_000
 
@@ -24,6 +22,8 @@ class Summary(BaseModel):
     created_at: datetime
     # how a topic's material changed since the summary was written, if it has
     out_of_date: OutOfDate | None = None
+    # the prompt it was written with, and its version, e.g. summaries@1
+    prompt: str | None = None
 
 
 def _material(sources: list[SourceText]) -> str:
@@ -82,13 +82,14 @@ class Summaries:
     def _write(self, student: str, scope: Scope) -> Summary:
         # a long material is summarised in parts: one trace
         with self._ai.traced(student, "summary"):
+            system = prompts.load("summaries")
             gathered = self._sources.gather(student, scope)
             batches = _batches(gathered.sources)
             if len(batches) == 1:
-                content = self._summarise(student, _material(batches[0]))
+                content = self._summarise(student, system, _material(batches[0]))
             else:
-                parts = [self._summarise(student, _material(batch)) for batch in batches]
-                content = self._summarise(student, "\n\n".join(parts), of_summaries=True)
+                parts = [self._summarise(student, system, _material(batch)) for batch in batches]
+                content = self._summarise(student, system, "\n\n".join(parts), of_summaries=True)
 
         sources = [Source(**source.model_dump(exclude={"content"})) for source in gathered.sources]
         row = {
@@ -98,14 +99,22 @@ class Summaries:
             "documents": {d: ref.model_dump() for d, ref in gathered.documents.items()},
             "content": content,
             "created_at": now(),
+            "prompt": system.ref,
         }
         with self._engine.begin() as connection:
             connection.execute(insert(storage.summaries).values(**row))
-        return Summary(id=row["id"], scope=scope, content=content, sources=sources, created_at=row["created_at"])
+        return Summary(
+            id=row["id"],
+            scope=scope,
+            content=content,
+            sources=sources,
+            created_at=row["created_at"],
+            prompt=system.ref,
+        )
 
-    def _summarise(self, student: str, material: str, of_summaries: bool = False) -> str:
+    def _summarise(self, student: str, system: str, material: str, of_summaries: bool = False) -> str:
         what = "these summaries of parts of the material into one summary" if of_summaries else "this material"
-        return self._ai.complete(student, "summary", SYSTEM, f"Summarise {what}.\n\n{material}").strip()
+        return self._ai.complete(student, "summary", system, f"Summarise {what}.\n\n{material}").strip()
 
     def _summary(self, student: str, row) -> Summary:
         scope = scope_of(row)
@@ -116,4 +125,5 @@ class Summaries:
             sources=[Source(**source) for source in row.sources],
             created_at=row.created_at,
             out_of_date=self._sources.out_of_date(student, scope, row.documents),
+            prompt=row.prompt,
         )

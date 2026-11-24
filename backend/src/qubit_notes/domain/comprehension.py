@@ -41,8 +41,6 @@ PURPOSE = "comprehension"
 
 Understood = Literal["yes", "partly", "no"]
 
-SYSTEM = prompts.load("comprehension-check")
-
 
 class AIFailed(StudyAssistantError):
     """The AI didn't write what was asked for."""
@@ -102,6 +100,8 @@ class Check(BaseModel):
     updated_at: datetime
     ended_at: datetime | None = None
     out_of_date: OutOfDate | None = None
+    # the prompt it was started with, and its version, e.g. comprehension-check@1
+    prompt: str | None = None
 
     @property
     def question(self) -> Exchange | None:
@@ -128,7 +128,10 @@ class ComprehensionAssistantAgent:
         gathered = self._sources.gather(student, scope)
         cited = _labelled(gathered.sources)
         prompt = _prompt(gathered.sources, [], "Ask the first question.")
-        written = self._written(student, prompt, WrittenQuestion, lambda q: q.question.strip() and q.source in cited)
+        system = prompts.load("comprehension-check")
+        written = self._written(
+            student, prompt, WrittenQuestion, lambda q: q.question.strip() and q.source in cited, system
+        )
         at = now()
         row = {
             "id": uuid.uuid4().hex,
@@ -140,6 +143,7 @@ class ComprehensionAssistantAgent:
             "created_at": at,
             "updated_at": at,
             "ended_at": None,
+            "prompt": system.ref,
         }
         with self._engine.begin() as connection:
             connection.execute(insert(storage.comprehension_checks).values(**row))
@@ -250,17 +254,18 @@ class ComprehensionAssistantAgent:
         with self._engine.begin() as connection:
             forget_course_rows(connection, storage.comprehension_checks, course_id)
 
-    def _written[T: BaseModel](self, student: str, prompt: str, shape: type[T], valid) -> T:
+    def _written[T: BaseModel](self, student: str, prompt: str, shape: type[T], valid, system: str | None = None) -> T:
         """what the AI writes in the shape, if valid; it is asked twice before the student is told it failed"""
 
         def usable(text: str) -> bool:
             return bool(valid(shape.model_validate(json.loads(text))))
 
+        system = system or prompts.load("comprehension-check")
         # a reply that can't be used is asked for again: one trace
         with self._ai.traced(student, PURPOSE):
             for _ in range(2):
                 answer = self._ai.complete(
-                    student, PURPOSE, SYSTEM, prompt, json_schema=shape.model_json_schema(), usable=usable
+                    student, PURPOSE, system, prompt, json_schema=shape.model_json_schema(), usable=usable
                 )
                 try:
                     written = shape.model_validate(json.loads(answer))
@@ -316,6 +321,7 @@ class ComprehensionAssistantAgent:
             updated_at=row.updated_at,
             ended_at=row.ended_at,
             out_of_date=out_of_date,
+            prompt=row.prompt,
         )
 
 

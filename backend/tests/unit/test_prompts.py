@@ -1,13 +1,10 @@
-from importlib.resources import files
-
 import pytest
 
 from qubit_notes import prompts
 
 
 def names() -> list[str]:
-    folders = files("qubit_notes.prompts").iterdir()
-    return sorted(entry.name for entry in folders if entry.is_dir() and not entry.name.startswith("_"))
+    return prompts.Prompts().names()
 
 
 @pytest.mark.parametrize("name", names())
@@ -26,3 +23,17 @@ def test_a_value_the_prompt_does_not_take_is_refused():
 
 def test_dollar_signs_and_braces_are_kept():
     assert "$ signs" in prompts.load("writing-assistant")
+
+
+def test_every_released_version_is_as_it_was_released():
+    # a change to a released version fails here: add a version instead, and release it with qubit-notes prompts lock
+    assert [str(problem) for problem in prompts.Prompts().check()] == []
+
+
+def test_every_prompt_toml_names_a_version_that_exists():
+    prompts.Prompts().validate()
+
+
+def test_a_loaded_prompt_has_its_name_and_version():
+    loaded = prompts.load("summaries")
+    assert (loaded.name, loaded.ref) == ("summaries", f"summaries@{loaded.version}")

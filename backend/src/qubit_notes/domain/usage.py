@@ -219,6 +219,7 @@ def _step(kind, purpose: str, system: str | None, given: Any) -> Step:
         name=purpose,
         prompt=getattr(system, "name", None),
         prompt_version=getattr(system, "version", None),
+        prompt_sha256=getattr(system, "sha256", None),
         input=given,
         started_at=now(),
     )

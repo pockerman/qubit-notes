@@ -44,8 +44,9 @@ def ai_uses(app, tokens_in, tokens_out):
 
 @when(parsers.parse("I ask the AI for {what}"))
 @given(parsers.parse("I have asked the AI for {what}"))
-def ask_ai(students, what):
-    _ask_ai(students, what)
+def ask_ai(students, context, what):
+    context["asked_ai"] = what
+    context["response"] = _ask_ai(students, what)
 
 
 @given(parsers.parse('the student "{name}" has asked the AI for {what}'))
