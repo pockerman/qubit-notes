@@ -88,6 +88,24 @@ subject_tools = Table(
     Column("tool", String, primary_key=True),
 )
 
+# the repository a student pushes a subject to (domain/subject_repositories.py): its token, encrypted with the app's
+# secret, and what the app wrote to it when it last pushed it
+subject_repositories = Table(
+    "subject_repositories",
+    metadata,
+    Column("student", String, primary_key=True),
+    Column("course_id", String, primary_key=True, index=True),
+    Column("subject", String, primary_key=True),
+    Column("repository", String, nullable=False),
+    Column("token", Text, nullable=False),
+    Column("connected_at", DateTime(timezone=True), nullable=False),
+    Column("pushed_at", DateTime(timezone=True), nullable=True),
+    Column("commit_sha", String, nullable=True),
+    Column("commit_url", String, nullable=True),
+    # the paths of the files the app wrote when it last pushed
+    Column("files", JSON, nullable=False),
+)
+
 # where the owners put a topic among its subject's topics, 0 first; topics without one come after, oldest first
 topic_order = Table(
     "topic_order",

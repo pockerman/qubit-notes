@@ -92,6 +92,7 @@ def test_a_database_made_before_migrations_keeps_its_data(database_url):
         "writing_replies",
         "comprehension_checks",
         "ai_trace",
+        "subject_repositories",
     )
     # and the columns added to them since
     added = {

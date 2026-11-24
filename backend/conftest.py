@@ -48,6 +48,7 @@ pytest_plugins = [
     "tests.bdd.steps.comprehension_steps",
     "tests.bdd.steps.tracing_steps",
     "tests.bdd.steps.prompt_versions_steps",
+    "tests.bdd.steps.subject_repository_steps",
 ]
 
 

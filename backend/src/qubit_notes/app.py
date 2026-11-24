@@ -24,6 +24,7 @@ from qubit_notes.api import (
     prompts,
     reading,
     references,
+    repositories,
     study,
     usage,
     writing_assistant,
@@ -58,12 +59,14 @@ from qubit_notes.domain.references import References
 from qubit_notes.domain.reviews import Reviews
 from qubit_notes.domain.sources import Sources
 from qubit_notes.domain.subject_download import SubjectDownload
+from qubit_notes.domain.subject_repositories import GitHost, SubjectRepositories
 from qubit_notes.domain.summaries import Summaries
 from qubit_notes.domain.topics import Topics
 from qubit_notes.domain.tracing import Tracer, Traces
 from qubit_notes.domain.transcription import Transcription
 from qubit_notes.domain.usage import AIUsage
 from qubit_notes.domain.writing_assistant import WriteMaterialAssistantAgent
+from qubit_notes.github import GitHub
 from qubit_notes.platform import platform_from
 from qubit_notes.platform.named import NamedDocuments
 from qubit_notes.platform.port import StudyPlatform
@@ -88,10 +91,14 @@ async def _lifespan(app: FastAPI):
 
 
 def create_app(
-    platform: StudyPlatform | None = None, settings: Settings | None = None, tracer: Tracer | None = None
+    platform: StudyPlatform | None = None,
+    settings: Settings | None = None,
+    tracer: Tracer | None = None,
+    git_host: GitHost | None = None,
 ) -> FastAPI:
     """Build the app. Tests pass their own ``platform``; otherwise it's the one the settings name: the app's own, or
-    gogi. Likewise the ``tracer`` the AI is traced to: Langfuse where the settings have its keys."""
+    gogi. Likewise the ``tracer`` the AI is traced to: Langfuse where the settings have its keys, and the
+    ``git_host`` students push their subjects to: GitHub."""
     settings = settings or Settings()
     database = storage.connect(settings.database_url)
     if platform is None:
@@ -179,6 +186,20 @@ def create_app(
         app.state.images,
         app.state.reviews,
     )
+    # the repositories students push their subjects to
+    app.state.subject_repositories = SubjectRepositories(
+        database,
+        settings.secret_key,
+        git_host or GitHub(),
+        app.state.courses,
+        app.state.topics,
+        app.state.materials,
+        app.state.notes,
+        app.state.summaries,
+        app.state.quizzes,
+        app.state.flashcards,
+        app.state.reviews,
+    )
     app.state.assistant = Assistant(
         app.state.database,
         platform,
@@ -233,7 +254,7 @@ def create_app(
     app.state.papers = Papers(app.state.paper_records, app.state.courses, app.state.course_titles, app.state.materials)
     app.state.materials.on_delete(app.state.paper_records.forget_material)
     app.state.courses.on_delete(lambda course: app.state.paper_records.forget_course(course.id))
-    for service in (*written, app.state.topics, app.state.traces):
+    for service in (*written, app.state.topics, app.state.traces, app.state.subject_repositories):
         app.state.courses.on_delete(lambda course, forget=service.forget_course: forget(course.id))
 
     add_error_handlers(app)
@@ -263,6 +284,7 @@ def create_app(
         comprehension.transcription_router,
         usage.router,
         prompts.router,
+        repositories.router,
     ):
         app.include_router(router, prefix="/api")
     if settings.frontend_dir:

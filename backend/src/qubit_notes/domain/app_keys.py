@@ -107,7 +107,12 @@ class AppKeys:
         return bool(getattr(self._settings, f"{provider}_api_key", None))
 
     def _fernet(self) -> Fernet | None:
-        if not self._settings.secret_key:
-            return None
-        # Fernet takes a key of 32 bytes; the secret is any text
-        return Fernet(base64.urlsafe_b64encode(hashlib.sha256(self._settings.secret_key.encode()).digest()))
+        return fernet(self._settings.secret_key)
+
+
+def fernet(secret: str | None) -> Fernet | None:
+    """what the app encrypts what it keeps secret with, e.g. the keys it is given: none without its secret"""
+    if not secret:
+        return None
+    # Fernet takes a key of 32 bytes; the secret is any text
+    return Fernet(base64.urlsafe_b64encode(hashlib.sha256(secret.encode()).digest()))

@@ -64,6 +64,7 @@ def have_noted(client, students, text, passage, title, filename):
 
 
 @when(parsers.parse('the student "{name}" notes "{text}" on "{passage}" in "{title}" of "{filename}"'))
+@given(parsers.parse('the student "{name}" has noted "{text}" on "{passage}" in "{title}" of "{filename}"'))
 def student_notes(client, students, context, name, text, passage, title, filename):
     context["response"] = _note_on_passage(client, students, text, passage, title, filename, name=name)
     assert context["response"].status_code == 201, context["response"].text
@@ -80,6 +81,7 @@ def have_uploaded_video_of(students, minutes, filename, location):
 
 
 @when(parsers.parse('I highlight "{passage}" in "{title}" of "{filename}"'))
+@given(parsers.parse('I have highlighted "{passage}" in "{title}" of "{filename}"'))
 def highlight_passage(client, students, context, passage, title, filename):
     context["response"] = _note_on_passage(client, students, "", passage, title, filename)
     assert context["response"].status_code == 201, context["response"].text
@@ -99,6 +101,12 @@ def note_at_moment(client, students, context, text, moment, filename):
     context["response"] = client.post(
         _notes_path(material), headers=students.headers(), json={"text": text, "at_seconds": _seconds(moment)}
     )
+
+
+@given(parsers.parse('I have noted "{text}" at {moment} of "{filename}"'))
+def have_noted_at_moment(client, students, context, text, moment, filename):
+    note_at_moment(client, students, context, text, moment, filename)
+    assert context["response"].status_code == 201, context["response"].text
 
 
 # listing
