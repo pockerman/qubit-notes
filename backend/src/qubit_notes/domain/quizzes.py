@@ -17,6 +17,7 @@ from qubit_notes.domain.written import (
     forget_document,
     material,
     now,
+    of_course,
     of_scope,
     scope_of,
     scope_values,
@@ -103,6 +104,12 @@ class Quizzes:
 
     def history(self, student: str, scope: Scope) -> list[Quiz]:
         return [self._quiz(student, row) for row in self._rows(student, scope)]
+
+    def of_course(self, student: str, course_id: str) -> list[Quiz]:
+        """the student's quizzes on anything in the course, newest first"""
+        with self._engine.connect() as connection:
+            rows = connection.execute(of_course(storage.quizzes, student, course_id)).all()
+        return [self._quiz(student, row) for row in rows]
 
     def by_id(self, student: str, quiz_id: str) -> Quiz | None:
         """the student's quiz, or None if it was deleted with its material"""

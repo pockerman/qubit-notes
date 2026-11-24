@@ -87,6 +87,13 @@ def summary_of_document(students, context, filename):
     _asked(context, "summaries", scope, _ask(students, "summaries", scope))
 
 
+@given(parsers.parse('I have asked for a new summary of "{filename}"'))
+def new_summary_of_document(students, context, filename):
+    scope = _document_scope(students, filename)
+    _asked(context, "summaries", scope, _ask(students, "summaries", scope, new=True))
+    assert context["response"].status_code == 200, context["response"].text
+
+
 @when(parsers.parse("I ask for " + SUMMARY_OF_TOPIC))
 @given(parsers.parse("I have asked for " + SUMMARY_OF_TOPIC))
 def summary_of_topic(students, context, location):

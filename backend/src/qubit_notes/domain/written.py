@@ -32,6 +32,12 @@ def of_scope(table: Table, student: str, scope: Scope):
     return select(table).where(*conditions).order_by(table.c.created_at.desc())
 
 
+def of_course(table: Table, student: str, course_id: str):
+    """a query of the student's rows about anything in the course, newest first"""
+    conditions = (table.c.student == student, table.c.course_id == course_id)
+    return select(table).where(*conditions).order_by(table.c.created_at.desc())
+
+
 def scope_of(row) -> Scope:
     return Scope(
         course_id=row.course_id,

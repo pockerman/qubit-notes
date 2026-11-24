@@ -19,6 +19,7 @@ from qubit_notes.domain.written import (
     forget_document,
     material,
     now,
+    of_course,
     of_scope,
     scope_of,
     scope_values,
@@ -80,6 +81,12 @@ class Flashcards:
 
     def history(self, student: str, scope: Scope) -> list[Deck]:
         return [self._deck(student, row) for row in self._rows(student, scope)]
+
+    def of_course(self, student: str, course_id: str) -> list[Deck]:
+        """the student's decks of anything in the course, newest first"""
+        with self._engine.connect() as connection:
+            rows = connection.execute(of_course(storage.flashcard_decks, student, course_id)).all()
+        return [self._deck(student, row) for row in rows]
 
     def by_id(self, student: str, deck_id: str) -> Deck | None:
         """the student's deck, or None if it was deleted with its material"""

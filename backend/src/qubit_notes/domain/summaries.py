@@ -8,7 +8,15 @@ from sqlalchemy.engine import Engine
 from qubit_notes import prompts, storage
 from qubit_notes.domain.sources import OutOfDate, Scope, Source, Sources, SourceText
 from qubit_notes.domain.usage import AIUsage
-from qubit_notes.domain.written import forget_course_rows, forget_document, now, of_scope, scope_of, scope_values
+from qubit_notes.domain.written import (
+    forget_course_rows,
+    forget_document,
+    now,
+    of_course,
+    of_scope,
+    scope_of,
+    scope_values,
+)
 
 # the most text summarised at once; more is summarised in parts, and the parts' summaries summarised
 MAX_CHARACTERS = 60_000
@@ -62,6 +70,12 @@ class Summaries:
     def history(self, student: str, scope: Scope) -> list[Summary]:
         with self._engine.connect() as connection:
             rows = connection.execute(of_scope(storage.summaries, student, scope)).all()
+        return [self._summary(student, row) for row in rows]
+
+    def of_course(self, student: str, course_id: str) -> list[Summary]:
+        """the student's summaries of anything in the course, newest first"""
+        with self._engine.connect() as connection:
+            rows = connection.execute(of_course(storage.summaries, student, course_id)).all()
         return [self._summary(student, row) for row in rows]
 
     def by_id(self, student: str, summary_id: str) -> Summary | None:

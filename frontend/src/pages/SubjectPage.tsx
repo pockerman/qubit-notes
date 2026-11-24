@@ -5,6 +5,7 @@ import { LessonsForm } from '../components/LessonsForm'
 import { NewTopicForm } from '../components/NewTopicForm'
 import { Originals } from '../components/Originals'
 import { RenameForm } from '../components/RenameForm'
+import { RepositoryPanel } from '../components/RepositoryPanel'
 import { namesOf } from '../names'
 import { ToolChoice } from '../components/ToolChoice'
 import { href, navigate } from '../router'
@@ -28,6 +29,8 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
   const [makingLessons, setMakingLessons] = useState(false)
   // the subject's tools are shown only when asked for
   const [choosingTools, setChoosingTools] = useState(false)
+  // the GitHub repository the student pushes the subject to, shown when asked for
+  const [showingRepository, setShowingRepository] = useState(false)
   // while the zip of the subject is being made
   const [zipping, setZipping] = useState(false)
   // the comprehension assistant, on the whole subject
@@ -199,6 +202,15 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
           <button type="button" className="secondary" disabled={zipping} onClick={downloadZip}>
             {zipping ? 'Preparing the zip…' : 'Download as zip'}
           </button>
+          <button
+            type="button"
+            className="secondary"
+            aria-label={`The repository of ${subjectName}`}
+            aria-expanded={showingRepository}
+            onClick={() => setShowingRepository(!showingRepository)}
+          >
+            Repository
+          </button>
           {ready && (
             <button type="button" aria-pressed={checking} onClick={() => setChecking(!checking)}>
               Check understanding
@@ -250,6 +262,16 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
       </header>
 
       {isOwner && choosingTools && <ToolChoice api={api} chosen={found.tools} onChange={attachTools} />}
+
+      {showingRepository && (
+        <RepositoryPanel
+          key={`${courseId}/${subject}`}
+          api={api}
+          course={course.name}
+          subject={subject}
+          subjectName={subjectName}
+        />
+      )}
 
       {error && (
         <p role="alert" className="error">
