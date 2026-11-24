@@ -1691,3 +1691,13 @@ main {
   border-color: #c62828;
   color: #fff;
 }
+
+/* a subject's GitHub repository, on its page */
+.repository-panel {
+  margin: 0.5rem 0 1rem;
+  max-width: 40rem;
+}
+
+.repository-panel p {
+  margin: 0 0 0.5rem;
+}

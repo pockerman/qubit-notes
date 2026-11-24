@@ -6,6 +6,7 @@ import io
 import re
 from datetime import UTC, datetime, timedelta
 
+from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, then, when
 from sqlalchemy import select
 
@@ -72,7 +73,13 @@ def _new_commits(app, context, repository: str) -> list:
     return _repository(app, repository).commits[context["commits_before"].get(repository, 0) :]
 
 
-def _told(context, status: int, *words: str) -> None:
+def _told(request, context, status: int, *words: str) -> None:
+    """told so by the API, or, in the browser, by the subject's repository on its page"""
+    if "ui" in request.keywords:
+        alert = _panel(request.getfixturevalue("page")).get_by_role("alert")
+        for said in words:
+            expect(alert).to_contain_text(said)
+        return
     response = context["response"]
     assert response.status_code == status, response.text
     for said in words:
@@ -195,18 +202,18 @@ def no_token_kept(app, students):
 
 
 @then(parsers.parse('I am told the token may not write to "{repository}"'))
-def told_not_writable(context, repository):
-    _told(context, 403, "may not write to", repository)
+def told_not_writable(request, context, repository):
+    _told(request, context, 403, "may not write to", repository)
 
 
 @then(parsers.parse('I am told GitHub has no repository "{repository}" that the token can see'))
-def told_no_repository(context, repository):
-    _told(context, 404, f"GitHub has no repository '{repository}' that the token can see")
+def told_no_repository(request, context, repository):
+    _told(request, context, 404, f"GitHub has no repository '{repository}' that the token can see")
 
 
 @then("I am told the app can't keep the token without its secret")
-def told_no_secret(context):
-    _told(context, 409, "without its secret", "QUBIT_NOTES_SECRET_KEY")
+def told_no_secret(request, context):
+    _told(request, context, 409, "without its secret", "QUBIT_NOTES_SECRET_KEY")
 
 
 @then("the connection is refused as not found")
@@ -267,20 +274,24 @@ def no_new_commit(app, context, repository):
 
 
 @then("I am told there is nothing new to push")
-def nothing_new(context):
+def nothing_new(request, context):
+    if "ui" in request.keywords:
+        status = _panel(request.getfixturevalue("page")).get_by_role("status")
+        expect(status).to_contain_text("Nothing new to push")
+        return
     response = context["response"]
     assert response.status_code == 200, response.text
     assert response.json()["pushed"] is False
 
 
 @then("I am told the subject isn't connected to a repository")
-def told_not_connected(context):
-    _told(context, 409, "isn't connected to a repository")
+def told_not_connected(request, context):
+    _told(request, context, 409, "isn't connected to a repository")
 
 
 @then(parsers.parse('I am told GitHub refused the push: the token may not write to "{repository}"'))
-def told_refused(context, repository):
-    _told(context, 403, "GitHub refused the push", "may not write to", repository)
+def told_refused(request, context, repository):
+    _told(request, context, 403, "GitHub refused the push", "may not write to", repository)
 
 
 @then(parsers.parse('"{repository}" has the file "{path}"'))
@@ -398,3 +409,121 @@ def have_deleted_note(students, text, filename):
     note = next(note for note in notes if note["text"] == text)
     response = students.client.delete(f"/api/notes/{note['id']}", headers=students.headers())
     assert response.status_code == 204, response.text
+
+
+# in the browser (ui_subject_repository.feature)
+
+
+def _panel(page: Page):
+    """the subject's repository, on the subject's page"""
+    return page.get_by_role("region", name=re.compile("^Repository of "))
+
+
+def _commit_url(app, repository: str) -> str:
+    sha = _repository(app, repository).commits[-1].sha
+    return f"https://github.com/{repository}/commit/{sha}"
+
+
+@when("I open the subject's repository")
+def open_repository(app, page):
+    _github(app)
+    page.get_by_role("button", name=re.compile("^The repository of ")).click()
+    expect(_panel(page)).to_be_visible()
+
+
+@then("I am asked for a repository and a token that may write to it")
+def asked_to_connect(page):
+    form = _panel(page).get_by_role("form", name="Connect to a repository")
+    expect(form.get_by_label("Repository", exact=True)).to_be_visible()
+    expect(form.get_by_label("Token", exact=True)).to_have_attribute("type", "password")
+    expect(form.get_by_role("link", name="fine-grained token")).to_have_attribute(
+        "href", "https://github.com/settings/personal-access-tokens/new"
+    )
+
+
+@when(parsers.parse('I connect it to "{repository}" with the token "{token}"'))
+def connect_in_browser(app, page, context, repository, token):
+    _github(app)
+    context["token"] = token
+    panel = _panel(page)
+    panel.get_by_label("Repository", exact=True).fill(repository)
+    panel.get_by_label("Token", exact=True).fill(token)
+    panel.get_by_role("button", name="Connect").click()
+    expect(panel.get_by_text("Connected to").or_(panel.get_by_role("alert"))).to_be_visible()
+
+
+@then(parsers.parse('I see the subject is connected to "{repository}", which links to it on GitHub'))
+def see_connected(page, repository):
+    panel = _panel(page)
+    expect(panel.get_by_text("Connected to")).to_be_visible()
+    expect(panel.get_by_role("link", name=repository, exact=True)).to_have_attribute(
+        "href", f"https://github.com/{repository}"
+    )
+
+
+@then("I see it has never been pushed")
+def see_never_pushed(page):
+    expect(_panel(page).get_by_label("Last pushed")).to_have_text("Never pushed")
+
+
+@then(parsers.parse('I am not shown "{text}" on the page'))
+def not_shown_on_page(page, text):
+    expect(page.locator("body")).not_to_contain_text(text)
+    for field in page.locator("input").all():
+        assert text not in field.input_value()
+
+
+@then(parsers.parse('the repository is still filled in as "{repository}", and the token is empty'))
+def still_filled_in(page, repository):
+    panel = _panel(page)
+    expect(panel.get_by_label("Repository", exact=True)).to_have_value(repository)
+    expect(panel.get_by_label("Token", exact=True)).to_have_value("")
+
+
+@when("I push the subject")
+def push_in_browser(app, page, context):
+    context["commits_before"] = {n: len(r.commits) for n, r in _github(app).repositories.items()}
+    panel = _panel(page)
+    panel.get_by_role("button", name="Push", exact=True).click()
+    # pushed, or told why not
+    expect(panel.get_by_role("status").or_(panel.get_by_role("alert"))).to_be_visible()
+    expect(panel.get_by_role("button", name="Push", exact=True)).to_be_enabled()
+
+
+@then(parsers.re(r"I am told the push (?P<did>wrote .+), with a link to its commit$"))
+def told_pushed(app, page, context, did):
+    status = _panel(page).get_by_role("status")
+    expect(status).to_contain_text(f"The push {did}.")
+    href = status.get_by_role("link", name="See the commit").get_attribute("href")
+    # the commit the push made, of the repository it was made to
+    made = [_commit_url(app, name) for name in _github(app).repositories if _new_commits(app, context, name)]
+    assert made == [href], (made, href)
+    context["commit_url"] = href
+
+
+@then("I see it was last pushed just now, as a link to that commit")
+def see_pushed_just_now(page, context):
+    last = _panel(page).get_by_label("Last pushed")
+    expect(last).to_have_text("Last pushed just now")
+    expect(last.get_by_role("link", name="just now")).to_have_attribute("href", context["commit_url"])
+
+
+@then(parsers.parse('"{repository}" has one new commit on its default branch'))
+def one_new_commit_of(app, context, repository):
+    commits = _new_commits(app, context, repository)
+    assert len(commits) == 1, commits
+
+
+@when("I disconnect the subject")
+def disconnect_in_browser(page):
+    _panel(page).get_by_role("button", name="Disconnect").click()
+
+
+@then(parsers.parse('I am asked to confirm, and told "{repository}" is left as it is'))
+def asked_to_confirm(page, repository):
+    expect(_panel(page).get_by_role("alertdialog")).to_contain_text(f"{repository} is left as it is")
+
+
+@when("I confirm")
+def confirm(page):
+    _panel(page).get_by_role("alertdialog").get_by_role("button", name="Yes, disconnect").click()

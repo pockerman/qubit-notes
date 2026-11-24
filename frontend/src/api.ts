@@ -538,6 +538,31 @@ export type TranscriptionModel = { id: string; name: string }
 
 export type TranscriptionModels = { models: TranscriptionModel[]; default: string; available: boolean }
 
+/** The GitHub repository a student pushes a subject to, as they see it; its token is never shown back. */
+export type SubjectRepository = {
+  course_id: string
+  subject: string
+  connected: boolean
+  // e.g. maria/numerical-methods, or null when the subject isn't connected
+  repository: string | null
+  connected_at: string | null
+  // the last push, if any
+  pushed_at: string | null
+  commit_sha: string | null
+  commit_url: string | null
+}
+
+/** What a push did: none was made when nothing changed since the last. */
+export type Pushed = {
+  pushed: boolean
+  commit_sha: string | null
+  commit_url: string | null
+  pushed_at: string | null
+  // the files it wrote and removed, by path
+  written: string[]
+  removed: string[]
+}
+
 /** A file to save, with the name the backend gives it: a lesson's original is the whole document, e.g. fem.pdf. */
 export type DownloadedFile = { blob: Blob; filename: string | null }
 
@@ -835,6 +860,34 @@ export class StudyApi {
     return downloaded(
       await this.fetch(`/courses/${encodeURIComponent(course)}/subjects/${encodeURIComponent(subject)}/zip`),
     )
+  }
+
+  private repositoryPath(course: string, subject: string): string {
+    return `/courses/${encodeURIComponent(course)}/subjects/${encodeURIComponent(subject)}/repository`
+  }
+
+  /** The repository the student pushes the subject to, if any (features/subject_repository.feature). */
+  repository(course: string, subject: string): Promise<SubjectRepository> {
+    return this.request(this.repositoryPath(course, subject))
+  }
+
+  /** Connects the subject to a GitHub repository, with a token that may write to it. */
+  connectRepository(course: string, subject: string, repository: string, token: string): Promise<SubjectRepository> {
+    return this.request(this.repositoryPath(course, subject), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repository, token }),
+    })
+  }
+
+  /** Forgets the subject's repository and its token; the repository is left as it is. */
+  async disconnectRepository(course: string, subject: string): Promise<void> {
+    await this.fetch(this.repositoryPath(course, subject), { method: 'DELETE' })
+  }
+
+  /** Pushes everything of the subject that is the student's own, in one commit. */
+  pushRepository(course: string, subject: string): Promise<Pushed> {
+    return this.request(`${this.repositoryPath(course, subject)}/push`, { method: 'POST' })
   }
 
   async export(courseId: string, documentId: string): Promise<DownloadedFile> {
