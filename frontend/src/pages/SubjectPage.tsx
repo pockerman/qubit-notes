@@ -261,7 +261,9 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
         )}
       </header>
 
-      {isOwner && choosingTools && <ToolChoice api={api} chosen={found.tools} onChange={attachTools} />}
+      {isOwner && choosingTools && (
+        <ToolChoice api={api} chosen={found.tools} onChange={attachTools} onClose={() => setChoosingTools(false)} />
+      )}
 
       {showingRepository && (
         <RepositoryPanel
@@ -270,6 +272,7 @@ export function SubjectPage({ api, courseId, subject }: { api: StudyApi; courseI
           course={course.name}
           subject={subject}
           subjectName={subjectName}
+          onClose={() => setShowingRepository(false)}
         />
       )}
 

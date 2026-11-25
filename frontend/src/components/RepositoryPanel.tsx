@@ -7,6 +7,7 @@ type Props = {
   course: string
   subject: string
   subjectName: string
+  onClose: () => void
 }
 
 // where GitHub gives fine-grained tokens
@@ -33,7 +34,7 @@ function when(at: string): string {
 
 /** The GitHub repository the student pushes a subject to, as they see it: connecting it, pushing to it, and
  * disconnecting it (features/ui_subject_repository.feature). */
-export function RepositoryPanel({ api, course, subject, subjectName }: Props) {
+export function RepositoryPanel({ api, course, subject, subjectName, onClose }: Props) {
   // undefined while it's asked for
   const [connection, setConnection] = useState<SubjectRepository | undefined>(undefined)
   const [repository, setRepository] = useState('')
@@ -101,8 +102,11 @@ export function RepositoryPanel({ api, course, subject, subjectName }: Props) {
   }
 
   return (
-    <section className="card repository-panel" aria-label={`Repository of ${subjectName}`}>
+    <section className="card repository-panel closable" aria-label={`Repository of ${subjectName}`}>
       <h3>Repository</h3>
+      <button type="button" className="icon close" aria-label="Close the repository" onClick={onClose}>
+        ✕
+      </button>
       {connection === undefined && !error && <p className="note">Opening…</p>}
 
       {connection && !connection.connected && (
