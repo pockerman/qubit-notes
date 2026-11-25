@@ -569,6 +569,59 @@ With `platform = "gogi"` the app keeps no files or keys of its own, and uses an 
    read -rs ANTHROPIC_API_KEY && echo "$ANTHROPIC_API_KEY" | sudo docker exec -i qubit-notes qubit-notes store-provider-key anthropic
    ```
 
+## Deploying on Hetzner
+
+[`deploy/hetzner`](deploy/hetzner) is the Terraform for the app on Hetzner Cloud, on its own platform, for a fraction
+of AWS's cost:
+
+| | |
+|---|---|
+| Address | `https://<ip>.sslip.io` while there's no domain, or your own `domain`; Caddy gets and renews its certificate from Let's Encrypt |
+| Server | one `cx23` (2 vCPU, 4 GB), Ubuntu 24.04, running the app, Postgres and Caddy with Docker Compose as `qubit-notes.service`; reached with SSH, by key only |
+| Sign-in | a Cognito user pool in AWS, as on AWS |
+| Data | Postgres 16 with pgvector, the students' uploads and Caddy's certificate, all on a Hetzner volume; the database is backed up to it every night, the last 7 days kept |
+| Secrets | the database's password and the app's secret, made on the server the first time it starts and kept on the volume, never in Terraform's state |
+
+This costs about €7 a month for the server, its IPv4 address and a 20 GB volume, at the prices of November 2026;
+Hetzner's console has the current ones. The server keeps nothing of its own: it is replaced whenever its settings
+change, e.g. `image_tag`, and the new one takes the same volume and address. The volume is replicated by Hetzner, but
+its backups are on it: copy `/srv/qubit-notes/backups` elsewhere, e.g. with `rsync` from your own machine, to survive
+losing it.
+
+1. Make a Hetzner Cloud project and an API token for it, and have AWS credentials for Cognito. In
+   `terraform.tfvars`:
+
+   ```hcl
+   ssh_public_key = file("~/.ssh/id_ed25519.pub")
+   admins         = ["alex"]
+   acme_email     = "you@example.org"
+   # domain       = "notes.example.org"   # its A record is the server_ipv4 output
+   ```
+
+   ```bash
+   cd deploy/hetzner
+   export HCLOUD_TOKEN=...
+   terraform init
+   terraform apply
+   ```
+
+2. Make the students' accounts, the admins' first, as on AWS:
+
+   ```bash
+   aws cognito-idp admin-create-user --user-pool-id "$(terraform output -raw user_pool_id)" \
+     --username alex --user-attributes Name=email,Value=alex@example.org Name=email_verified,Value=true
+   ```
+
+3. Open `terraform output -raw url`, sign in as an admin, and give the app its keys under Settings › AI model; they're
+   kept in the database, encrypted with the app's secret. Or put them on the server, in
+   `/srv/qubit-notes/keys.env`, e.g. `QUBIT_NOTES_ANTHROPIC_API_KEY=sk-ant-...`, and restart the app:
+   `sudo systemctl restart qubit-notes`.
+
+To see the app's logs: `ssh root@<ip> docker compose --project-directory /opt/qubit-notes logs app`. If the image is
+private, log in to its registry on the server once: `DOCKER_CONFIG=/srv/qubit-notes/docker docker login ghcr.io`.
+To restore a backup: `docker compose --project-directory /opt/qubit-notes --env-file /srv/qubit-notes/secrets.env
+exec -T db pg_restore --username qubit --dbname qubit_notes --clean < /srv/qubit-notes/backups/<backup>.dump`.
+
 ## Contributing and releases
 
 Pull requests are squash-merged, and the squash commit takes the PR's title as its message. So the title must be a

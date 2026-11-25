@@ -1,0 +1,12 @@
+%{ if acme_email != "" ~}
+{
+	email ${acme_email}
+}
+
+%{ endif ~}
+# The app over HTTPS, with a certificate Caddy gets from Let's Encrypt and renews; plain HTTP is sent on to HTTPS.
+# A Terraform template
+${domain} {
+	encode zstd gzip
+	reverse_proxy app:8000
+}

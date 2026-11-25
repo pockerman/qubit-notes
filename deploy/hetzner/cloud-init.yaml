@@ -1,0 +1,80 @@
+#cloud-config
+# The app's server, on Ubuntu 24.04: Docker, the volume at /srv/qubit-notes, qubit-notes.service, which runs the app
+# with Docker Compose, and a nightly backup of its database. A Terraform template.
+package_update: true
+package_upgrade: true
+packages:
+  - docker.io
+  - docker-compose-v2
+
+ssh_pwauth: false
+
+# the volume, by its id; nofail, as it is attached once the server is up, when the service mounts it
+mounts:
+  - ["${volume_device}", "/srv/qubit-notes", "ext4", "defaults,nofail,discard", "0", "2"]
+
+write_files:
+  - path: /opt/qubit-notes/settings.env
+    encoding: b64
+    permissions: "0644"
+    content: ${settings}
+  - path: /opt/qubit-notes/compose.yaml
+    encoding: b64
+    permissions: "0644"
+    content: ${compose}
+  - path: /opt/qubit-notes/Caddyfile
+    encoding: b64
+    permissions: "0644"
+    content: ${caddyfile}
+  - path: /opt/qubit-notes/start-qubit-notes.sh
+    encoding: b64
+    permissions: "0755"
+    content: ${start_script}
+  - path: /opt/qubit-notes/backup-qubit-notes.sh
+    encoding: b64
+    permissions: "0755"
+    content: ${backup_script}
+  - path: /etc/systemd/system/qubit-notes.service
+    content: |
+      [Unit]
+      Description=qubit-notes
+      Requires=docker.service
+      After=docker.service network-online.target
+      Wants=network-online.target
+
+      [Service]
+      # until the volume is attached, the app is tried again
+      Restart=always
+      RestartSec=15
+      ExecStart=/opt/qubit-notes/start-qubit-notes.sh
+      ExecStop=/usr/bin/docker compose --project-directory /opt/qubit-notes --env-file /srv/qubit-notes/secrets.env stop
+      TimeoutStartSec=900
+
+      [Install]
+      WantedBy=multi-user.target
+  - path: /etc/systemd/system/qubit-notes-backup.service
+    content: |
+      [Unit]
+      Description=a backup of qubit-notes' database
+      Requires=qubit-notes.service
+      After=qubit-notes.service
+
+      [Service]
+      Type=oneshot
+      ExecStart=/opt/qubit-notes/backup-qubit-notes.sh
+  - path: /etc/systemd/system/qubit-notes-backup.timer
+    content: |
+      [Unit]
+      Description=a nightly backup of qubit-notes' database
+
+      [Timer]
+      OnCalendar=*-*-* 03:30:00 UTC
+      Persistent=true
+
+      [Install]
+      WantedBy=timers.target
+
+runcmd:
+  - systemctl daemon-reload
+  - systemctl enable --now docker
+  - systemctl enable --now qubit-notes.service qubit-notes-backup.timer
