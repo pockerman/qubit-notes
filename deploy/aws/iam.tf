@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "server" {
     sid     = "Secrets"
     actions = ["secretsmanager:GetSecretValue"]
     resources = concat(
-      [aws_secretsmanager_secret.database.arn, aws_secretsmanager_secret.registry.arn],
+      [aws_secretsmanager_secret.database.arn, aws_secretsmanager_secret.secret_key.arn, aws_secretsmanager_secret.registry.arn],
       aws_secretsmanager_secret.provider_keys[*].arn,
       aws_secretsmanager_secret.gogi_api_key[*].arn,
     )

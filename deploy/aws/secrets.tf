@@ -16,6 +16,25 @@ resource "aws_secretsmanager_secret_version" "database" {
   })
 }
 
+# What the app keeps the keys and tokens it is given encrypted with, in its database: the model providers' keys its
+# admins give it, and the students' tokens of their repositories. It must never change, or what was kept with it can't
+# be read: it is made once, and kept in the state, as the database's password is
+resource "random_password" "secret_key" {
+  length  = 64
+  special = false
+}
+
+resource "aws_secretsmanager_secret" "secret_key" {
+  name                    = "${var.name}/secret-key"
+  description             = "What the app keeps the keys and tokens it is given encrypted with"
+  recovery_window_in_days = 0
+}
+
+resource "aws_secretsmanager_secret_version" "secret_key" {
+  secret_id     = aws_secretsmanager_secret.secret_key.id
+  secret_string = random_password.secret_key.result
+}
+
 # On its own platform, the app's keys of the model providers, which the operator puts here, so they're never in the
 # state; the app needs the key of its LLM provider (anthropic by default), and of its embedding model's if that isn't
 # one that runs in the app:
@@ -74,6 +93,7 @@ resource "aws_ssm_parameter" "settings" {
     gogi_ca       = var.gogi_ca_certificate
     region        = var.region
     database      = aws_secretsmanager_secret.database.name
+    secret_key    = aws_secretsmanager_secret.secret_key.name
     provider_keys = local.standalone ? aws_secretsmanager_secret.provider_keys[0].name : ""
     gogi_api_key  = local.standalone ? "" : aws_secretsmanager_secret.gogi_api_key[0].name
     registry      = aws_secretsmanager_secret.registry.name

@@ -26,6 +26,8 @@ umask 077
 {
   jq -r '.environment | to_entries[] | "\(.key)=\(.value)"' <<<"$settings"
   echo "QUBIT_NOTES_DATABASE_URL=postgresql+psycopg://$(field username):$(field password)@$(field host):$(field port)/$(field dbname)?sslmode=require"
+  # what the app keeps the keys and tokens it is given encrypted with
+  echo "QUBIT_NOTES_SECRET_KEY=$(secret "$(setting secret_key)")"
   # on its own platform, the app's keys of the model providers: until the operator puts them, the app runs, and
   # reports that it has no key for its model provider
   if [ -n "$(setting provider_keys)" ] && keys="$(secret "$(setting provider_keys)" 2>/dev/null)"; then

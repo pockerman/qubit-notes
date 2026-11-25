@@ -503,7 +503,7 @@ one of the applications of a gogi deployment (gogi's `docs/deployment.md`):
 | Sign-in | a Cognito user pool, with its own sign-in pages at an `amazoncognito.com` address |
 | Data | RDS for PostgreSQL 16 (`db.t4g.micro`) with pgvector, in private subnets, backed up for a week |
 | Files | an S3 bucket of the students' uploads, private, reached through a gateway endpoint; replaced or deleted uploads are kept 30 days |
-| Secrets | Secrets Manager: the database's password, and the app's keys of the model providers |
+| Secrets | Secrets Manager: the database's password, the app's secret, which keeps the keys and tokens it is given encrypted, and the app's keys of the model providers |
 
 This costs about $40 a month in eu-west-2 at on-demand prices. The server keeps nothing of its own, so it can be
 replaced at any time.
