@@ -1,0 +1,61 @@
+# The app, its Postgres and Caddy, which serves the app over HTTPS with a certificate of Let's Encrypt. Everything they
+# keep is on the volume, at /srv/qubit-notes. A Terraform template: Terraform fills in the image, and Compose the
+# secrets the server made (start-qubit-notes.sh)
+name: qubit-notes
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: qubit
+      POSTGRES_DB: qubit_notes
+      POSTGRES_PASSWORD: $${POSTGRES_PASSWORD}
+    volumes:
+      - /srv/qubit-notes/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "--username", "qubit", "--dbname", "qubit_notes"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: &logging
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "5"
+
+  app:
+    image: ${image}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - /opt/qubit-notes/settings.env
+      # the model providers' keys, if the operator put them there rather than giving them in the app
+      - path: /srv/qubit-notes/keys.env
+        required: false
+    environment:
+      QUBIT_NOTES_DATABASE_URL: postgresql+psycopg://qubit:$${POSTGRES_PASSWORD}@db:5432/qubit_notes
+      # what the keys and tokens the app is given are kept encrypted with
+      QUBIT_NOTES_SECRET_KEY: $${QUBIT_NOTES_SECRET_KEY}
+    volumes:
+      # the students' uploads
+      - /srv/qubit-notes/material:/app/material
+    logging: *logging
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - /opt/qubit-notes/Caddyfile:/etc/caddy/Caddyfile:ro
+      # the certificate, kept so a new server doesn't ask Let's Encrypt for another
+      - /srv/qubit-notes/caddy/data:/data
+      - /srv/qubit-notes/caddy/config:/config
+    logging: *logging
