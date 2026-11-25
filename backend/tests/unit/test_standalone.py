@@ -181,14 +181,16 @@ class FakeAnthropic:
 
     def create(self, **arguments):
         self.asked.update(arguments)
-        return SimpleNamespace(content=self._content, usage=SimpleNamespace(input_tokens=11, output_tokens=7))
+        return SimpleNamespace(
+            content=self._content, stop_reason="end_turn", usage=SimpleNamespace(input_tokens=11, output_tokens=7)
+        )
 
 
-def test_anthropic_answers_in_json_through_a_tool(monkeypatch):
+def test_anthropic_answers_in_json_with_structured_outputs(monkeypatch):
     import anthropic
 
     answer = {"request": "question", "answer": "It is assembled."}
-    fake = FakeAnthropic([SimpleNamespace(type="tool_use", input=answer)])
+    fake = FakeAnthropic([SimpleNamespace(type="text", text=json.dumps(answer))])
     monkeypatch.setattr(anthropic, "Anthropic", fake)
     ai = ProviderAI(Settings(llm_provider="anthropic", anthropic_api_key="key", llm_model="claude-sonnet-5-5"))
     schema = {"type": "object", "properties": {"request": {"type": "string"}}}
@@ -207,8 +209,11 @@ def test_anthropic_answers_in_json_through_a_tool(monkeypatch):
         {"role": "user", "content": "hi"},
         {"role": "user", "content": "what is assembled?"},
     ]
-    assert fake.asked["tools"][0]["input_schema"] == schema
-    assert fake.asked["tool_choice"] == {"type": "tool", "name": "answer"}
+    # not by forcing a tool, which Claude Sonnet 5.5 refuses
+    assert "tools" not in fake.asked and "tool_choice" not in fake.asked
+    assert fake.asked["output_config"] == {
+        "format": {"type": "json_schema", "schema": anthropic.transform_schema(schema)}
+    }
 
 
 def test_anthropic_answers_in_text(monkeypatch):
