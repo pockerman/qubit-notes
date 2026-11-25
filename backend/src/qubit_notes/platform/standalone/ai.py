@@ -1,7 +1,6 @@
 """The AI of the app's own platform: the model provider QUBIT_NOTES_LLM_PROVIDER names, or the one the admins
 choose, called with the app's key."""
 
-import json
 from typing import Any, Protocol
 
 from qubit_notes.platform.port import (
@@ -172,21 +171,25 @@ class ProviderAI:
             "messages": messages,
         }
         if json_schema:
-            arguments["tools"] = [
-                {"name": "answer", "description": "Give the answer.", "input_schema": json_schema},
-            ]
-            arguments["tool_choice"] = {"type": "tool", "name": "answer"}
+            # the answer as JSON of the schema, with structured outputs: Claude Sonnet 5.5 and Opus 5.5 refuse a
+            # forced tool, which the app asked for it with before. The schema is made one the API takes, e.g. with
+            # additionalProperties false on each object
+            arguments["output_config"] = {
+                "format": {"type": "json_schema", "schema": anthropic.transform_schema(json_schema)}
+            }
         try:
             response = anthropic.Anthropic(api_key=key).messages.create(**arguments)
         except anthropic.APIError as e:
             raise PlatformError("AI_FAILED", f"Anthropic refused: {e}") from e
+        text = "".join(block.text for block in response.content if block.type == "text")
         if json_schema:
-            answer = next((block.input for block in response.content if block.type == "tool_use"), None)
-            if answer is None:
+            # what isn't the whole answer isn't JSON of the schema
+            if response.stop_reason == "refusal":
+                raise PlatformError("AI_FAILED", "Anthropic's model declined to answer")
+            if response.stop_reason == "max_tokens":
+                raise PlatformError("AI_FAILED", "Anthropic's model ran out of tokens before it finished its answer")
+            if not text:
                 raise PlatformError("AI_FAILED", "Anthropic's model gave no answer")
-            text = json.dumps(answer)
-        else:
-            text = "".join(block.text for block in response.content if block.type == "text")
         return Completion(
             text=text,
             provider="anthropic",
