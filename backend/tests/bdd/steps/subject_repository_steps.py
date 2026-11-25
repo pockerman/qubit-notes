@@ -527,3 +527,16 @@ def asked_to_confirm(page, repository):
 @when("I confirm")
 def confirm(page):
     _panel(page).get_by_role("alertdialog").get_by_role("button", name="Yes, disconnect").click()
+
+
+@when("I close the subject's repository")
+def close_repository(page):
+    _panel(page).get_by_role("button", name="Close the repository").click()
+
+
+@then("I don't see the subject's repository")
+def repository_hidden(page):
+    expect(_panel(page)).to_have_count(0)
+    expect(page.get_by_role("button", name=re.compile("^The repository of "))).to_have_attribute(
+        "aria-expanded", "false"
+    )

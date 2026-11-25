@@ -257,6 +257,11 @@ def show_subject_tools(page):
     _subject_tools(page).click()
 
 
+@when("I close the subject's tools")
+def close_subject_tools(page):
+    page.get_by_role("group", name="Tools").get_by_role("button", name="Close the tools").click()
+
+
 @then(parsers.parse('I can attach the tool "{tool}"'))
 def can_attach_tool(page, tool):
     expect(page.get_by_role("group", name="Tools").get_by_role("checkbox", name=tool)).to_be_visible()

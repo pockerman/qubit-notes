@@ -1701,3 +1701,14 @@ main {
 .repository-panel p {
   margin: 0 0 0.5rem;
 }
+
+/* a panel with a ✕ in its top right corner, e.g. a subject's tools or its repository */
+.closable {
+  position: relative;
+}
+
+.closable > button.close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+}

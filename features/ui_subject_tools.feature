@@ -6,7 +6,7 @@ Feature: The tools of a subject in the browser
 
   "New subject" has a "Tools" section with the tools there are, to attach any of them to the
   subject's notes. A subject's page doesn't show them until its owners choose "Tools" there,
-  to change them. The tools attached to a
+  to change them; they close with their ✕, or with "Tools" again. The tools attached to a
   subject are in the "Tools" menu of its material, as it is read, edited or written, to open one
   beside it. Material of a subject without tools has no "Tools" menu, and its Go code blocks can't
   be opened in the Go editor.
@@ -39,6 +39,13 @@ Feature: The tools of a subject in the browser
     Then I don't see the subject's tools
     When I choose to see the subject's tools
     Then I can attach the tool "Go compiler"
+
+  Scenario: Close the subject's tools with their ✕
+    When I open the course "Go"
+    And I open the subject "Programming"
+    And I choose to see the subject's tools
+    And I close the subject's tools
+    Then I don't see the subject's tools
 
   Scenario: The attached tools are in the Tools menu
     Given I have attached the tools "go" to the subject "programming" of "go"

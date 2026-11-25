@@ -18,6 +18,8 @@ Feature: Pushing a subject to a repository in the browser
     that there was nothing new to push.
   - "Disconnect" asks first, saying the repository is left as it is, then disconnects the subject.
 
+  The panel closes with its ✕, or with "Repository" again.
+
   Background:
     Given I am signed in as "maria"
     And I have uploaded "fem-notes.md" to "aeronautics/numerical-methods/finite-elements" with the content:
@@ -36,6 +38,13 @@ Feature: Pushing a subject to a repository in the browser
     Then I see the subject is connected to "maria/numerical-methods", which links to it on GitHub
     And I see it has never been pushed
     And I am not shown "maria-token" on the page
+
+  Scenario: Close the subject's repository with its ✕
+    When I open the course "Aeronautics"
+    And I open the subject "Numerical methods"
+    And I open the subject's repository
+    And I close the subject's repository
+    Then I don't see the subject's repository
 
   Scenario: A token that can't write is refused, and what I typed stays
     Given GitHub has the repository "maria/old-notes", which the token "maria-token" may only read
