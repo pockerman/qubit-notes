@@ -41,6 +41,8 @@ class FakeAPI:
             return self._answer(201, {"commit": {"sha": "c1", "html_url": "https://github.com/maria/notes/commit/c1"}})
         if method == "GET" and path.startswith(f"{repo}/git/commits/"):
             return self._answer(200, {"tree": {"sha": f"tree-of-{path.rsplit('/', 1)[1]}"}})
+        if (method, path) == ("POST", f"{repo}/git/blobs"):
+            return self._answer(201, {"sha": f"blob-{len(self.requests)}"})
         if (method, path) == ("POST", f"{repo}/git/trees"):
             return self._answer(201, {"sha": "t2"})
         if (method, path) == ("POST", f"{repo}/git/commits"):
@@ -102,6 +104,23 @@ def test_one_commit_writes_and_removes_files(api):
     assert made == {"message": "Qubit Notes: FEM", "tree": "t2", "parents": ["c0"]}
 
 
+def test_an_image_is_written_as_a_blob_made_first(api):
+    github.GitHub().commit(
+        "maria/notes", "the-token", "main", {"a/figures/mesh.png": b"\x89PNG\x00"}, [], "Qubit Notes"
+    )
+    made = [
+        (number, body)
+        for number, (method, path, body) in enumerate(api.requests, start=1)
+        if (method, path) == ("POST", "/repos/maria/notes/git/blobs")
+    ]
+    assert [body for _, body in made] == [{"content": "iVBORwA=", "encoding": "base64"}]
+    tree = next(
+        body for method, path, body in api.requests if (method, path) == ("POST", "/repos/maria/notes/git/trees")
+    )
+    blob = f"blob-{made[0][0]}"
+    assert tree["tree"] == [{"path": "a/figures/mesh.png", "mode": "100644", "type": "blob", "sha": blob}]
+
+
 def test_an_empty_repository_gets_its_readme_first(api):
     api.head = None
     commit = github.GitHub().commit(
@@ -132,3 +151,4 @@ def test_a_push_the_token_may_not_make_is_refused(api):
 def test_a_blob_sha_is_gits():
     # git hash-object of a file holding "hello\n"
     assert blob_sha("hello\n") == "ce013625030ba8dba906f756967f9e9ca394464a"
+    assert blob_sha(b"hello\n") == "ce013625030ba8dba906f756967f9e9ca394464a"

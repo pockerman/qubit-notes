@@ -3,7 +3,8 @@
 A student connects a subject to a repository on GitHub with a token that may write to it; the token is kept encrypted
 with the app's secret. Pushing writes everything of the subject that is the student's own, as Markdown, in one
 commit: their notes and highlights, summaries, quizzes and flashcards, topic by topic in the order they are read, as
-a downloaded subject is laid out (see subject_download.py). The material itself isn't pushed.
+a downloaded subject is laid out (see subject_download.py), with the material the student wrote in Markdown
+beside what they made of it. Material they didn't write, such as PDFs and videos, isn't pushed.
 
 Pushing again writes the subject as it is then. The app remembers the files it wrote; one it wrote that isn't
 written any more is removed, and files it didn't write are left as they are. A file is written only when its content
@@ -26,6 +27,7 @@ from qubit_notes.domain.app_keys import fernet
 from qubit_notes.domain.courses import Course, Courses
 from qubit_notes.domain.errors import Conflict, InvalidRequest, NotAllowed, NotFound, StudyAssistantError
 from qubit_notes.domain.flashcards import Deck, Flashcards
+from qubit_notes.domain.images import Images
 from qubit_notes.domain.materials import Material, Materials
 from qubit_notes.domain.notes import Note, Notes, format_moment
 from qubit_notes.domain.quizzes import Attempt, Quiz, Quizzes
@@ -34,12 +36,16 @@ from qubit_notes.domain.sources import Scope, Source
 from qubit_notes.domain.subject_download import _csv, _Folder, _safe
 from qubit_notes.domain.summaries import Summaries, Summary
 from qubit_notes.domain.topics import Subject, Topics
+from qubit_notes.platform.port import StudyPlatform
 
 table = storage.subject_repositories
 
 # a repository on GitHub, by its owner and name, e.g. maria/numerical-methods
 _REPOSITORY = re.compile(r"^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$")
 
+
+# what a file holds: text, or the bytes of an image
+Content = str | bytes
 
 # the Git host the repositories are on
 
@@ -74,15 +80,15 @@ class GitHost(Protocol):
         ...
 
     def commit(
-        self, name: str, token: str, branch: str, write: dict[str, str], remove: list[str], message: str
+        self, name: str, token: str, branch: str, write: dict[str, Content], remove: list[str], message: str
     ) -> Commit:
         """one commit on the branch writing these files and removing those; raises PushRefused"""
         ...
 
 
-def blob_sha(content: str) -> str:
+def blob_sha(content: Content) -> str:
     """the SHA Git knows a file's content by"""
-    data = content.encode()
+    data = content.encode() if isinstance(content, str) else content
     return hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
 
 
@@ -134,6 +140,8 @@ class SubjectRepositories:
         quizzes: Quizzes,
         flashcards: Flashcards,
         reviews: Reviews,
+        platform: StudyPlatform,
+        images: Images,
     ):
         self._engine = engine
         # the app's secret, which the tokens are encrypted with
@@ -147,6 +155,8 @@ class SubjectRepositories:
         self._quizzes = quizzes
         self._flashcards = flashcards
         self._reviews = reviews
+        self._platform = platform
+        self._images = images
 
     # connecting
 
@@ -265,7 +275,7 @@ class SubjectRepositories:
             removed=sorted(remove),
         )
 
-    def files(self, student: str, course: Course, subject: Subject) -> dict[str, str]:
+    def files(self, student: str, course: Course, subject: Subject) -> dict[str, Content]:
         """what is pushed of the subject: each file's content by its path"""
         topics = [t for t in self._topics.of_course(course) if t.subject == subject.subject]
         materials = self._materials.list_of(course, subject.subject)
@@ -283,7 +293,7 @@ class SubjectRepositories:
         def attempts(quiz: Quiz) -> tuple[list[int], list[Attempt]]:
             return self._quizzes.answers(student, quiz.id), self._quizzes.attempts(student, quiz.id)
 
-        files: dict[str, str] = {}
+        files: dict[str, Content] = {}
         root = _Folder("")
         readme_name = root.name("README.md")
         csv_name = root.name("flashcards.csv")
@@ -310,7 +320,8 @@ class SubjectRepositories:
             for material in (m for m in materials if m.topic == topic.topic):
                 of_material = [[x for x in kind if x.scope.document_id == material.document_id] for kind in whole]
                 notes = self._notes_of(student, material) if material.document_id in noted else []
-                if not notes and not any(of_material):
+                text = self._written_by(student, material)
+                if not notes and not any(of_material) and text is None:
                     continue
                 inside = _Folder(folder.name(_safe(PurePosixPath(material.filename).stem, material.document_id)))
                 name = material.filename
@@ -318,6 +329,15 @@ class SubjectRepositories:
                 write(inside, "summaries", of_material[0], lambda k, n=name: _summaries(n, k))
                 write(inside, "quizzes", of_material[1], lambda k, n=name: _quizzes(n, k, attempts))
                 write(inside, "flashcards", of_material[2], lambda k, n=name: _decks(n, k))
+                if text is not None:
+                    # last, so what the app writes keeps its names whatever the material is called
+                    stem = _safe(PurePosixPath(material.filename).stem, material.document_id)
+                    files[inside.name(f"{stem}.md")] = text
+                    # where the material refers to them, so they show beside it on GitHub
+                    for image_path, content in self._images.contents(material.course_id, material.document_id).items():
+                        parts = [_safe(p, "image") for p in PurePosixPath(image_path).parts if p not in ("", ".", "..")]
+                        if parts:
+                            files[f"{inside.path}/{'/'.join(parts)}"] = content
                 held.append(material.filename)
             contents.append((folder.path, held))
 
@@ -333,6 +353,19 @@ class SubjectRepositories:
         except StudyAssistantError:
             # e.g. a material not processed yet, which has no sections to place its notes in
             return []
+
+    def _written_by(self, student: str, material: Material) -> str | None:
+        """the material's text, if the student wrote it: Markdown they uploaded or generated material they saved; not
+        a PDF or an EPUB converted to Markdown, a video, or material of a course shared with them"""
+        if material.kind != "text" or material.converted_from:
+            return None
+        document = self._platform.get_document(material.course_id, material.document_id)
+        if document is None or document.metadata.get("uploaded_by") != student:
+            return None
+        downloaded = self._platform.download_document(material.course_id, material.document_id)
+        if downloaded is None or downloaded.content_type != "text/markdown":
+            return None
+        return downloaded.content.decode("utf-8", errors="replace")
 
     def _subject(self, student: str, course_name: str, subject: str) -> tuple[Course, Subject]:
         course = self._courses.get(student, course_name)
@@ -430,9 +463,10 @@ def _readme(subject: Subject, course: Course, contents: list[tuple[str, list[str
         f"What I made while studying {subject.name}, of the course {course.name}, pushed from Qubit Notes.",
         "",
         "Each topic is a folder, numbered in the order the topics are read, with a folder for each material I made"
-        " something of: notes.md (my notes and highlights, in the order of the material), summaries.md, quizzes.md"
-        " (each question with its correct choice ticked, and my scores) and flashcards.md. A topic's own summaries,"
-        " quizzes and flashcards are in its folder. The material itself isn't here.",
+        " something of: the material itself if I wrote it, notes.md (my notes and highlights, in the order of the"
+        " material), summaries.md, quizzes.md (each question with its correct choice ticked, and my scores) and"
+        " flashcards.md. A topic's own summaries, quizzes and flashcards are in its folder. Material I didn't write,"
+        " such as PDFs and videos, isn't here.",
         "",
     ]
     for folder, filenames in contents:

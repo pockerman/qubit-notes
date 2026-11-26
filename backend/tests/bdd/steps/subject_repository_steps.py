@@ -5,6 +5,7 @@ import csv
 import io
 import re
 from datetime import UTC, datetime, timedelta
+from pathlib import PurePosixPath
 
 from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, then, when
@@ -303,6 +304,26 @@ def has_file(app, repository, path):
 def has_no_file(app, context, repository, path):
     assert context["response"].status_code == 200, context["response"].text
     assert path not in _repository(app, repository).files, sorted(_repository(app, repository).files)
+
+
+@then(parsers.parse('"{repository}" has no file of the material "{filename}"'))
+def has_no_material_file(app, context, repository, filename):
+    assert context["response"].status_code == 200, context["response"].text
+    stem = PurePosixPath(filename).stem
+    files = sorted(_repository(app, repository).files)
+    assert not [path for path in files if PurePosixPath(path).stem == stem], files
+
+
+@then(parsers.parse('"{path}" in "{repository}" is the image I added'))
+def is_image_added(app, context, path, repository):
+    assert context["response"].status_code == 200, context["response"].text
+    assert _file(app, repository, path) == next(iter(context["added"].values()))
+
+
+@then(parsers.parse('"{path}" in "{repository}" is:'))
+def file_is(app, context, path, repository, docstring):
+    assert context["response"].status_code == 200, context["response"].text
+    assert _file(app, repository, path).strip() == docstring.strip()
 
 
 @then(parsers.parse('"{repository}" still has the files it was pushed'))

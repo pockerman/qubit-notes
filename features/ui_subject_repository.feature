@@ -71,7 +71,7 @@ Feature: Pushing a subject to a repository in the browser
     And I open the subject "Numerical methods"
     And I open the subject's repository
     And I push the subject
-    Then I am told the push wrote 2 files, with a link to its commit
+    Then I am told the push wrote 3 files, with a link to its commit
     And I see it was last pushed just now, as a link to that commit
     And "maria/numerical-methods" has one new commit on its default branch
 
@@ -89,12 +89,12 @@ Feature: Pushing a subject to a repository in the browser
     Given I have connected the subject "numerical-methods" of "aeronautics" to "maria/numerical-methods"
     And I have noted "compare with Galerkin's method" on "divides a domain into small elements" in "1 Introduction" of "fem-notes.md"
     And I have pushed the subject "numerical-methods" of "aeronautics"
-    And I have deleted my note "compare with Galerkin's method" of "fem-notes.md"
+    And I have deleted the material "fem-notes.md"
     When I open the course "Aeronautics"
     And I open the subject "Numerical methods"
     And I open the subject's repository
     And I push the subject
-    Then I am told the push wrote 1 file and removed 1, with a link to its commit
+    Then I am told the push wrote 1 file and removed 2, with a link to its commit
 
   Scenario: A push GitHub refuses says why
     Given I have connected the subject "numerical-methods" of "aeronautics" to "maria/numerical-methods"

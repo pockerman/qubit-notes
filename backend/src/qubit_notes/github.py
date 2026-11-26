@@ -6,7 +6,7 @@ import base64
 import httpx
 
 from qubit_notes.domain.errors import Unavailable
-from qubit_notes.domain.subject_repositories import Commit, PushRefused, RemoteRepository, RepositoryNotFound
+from qubit_notes.domain.subject_repositories import Commit, Content, PushRefused, RemoteRepository, RepositoryNotFound
 
 API = "https://api.github.com"
 
@@ -38,13 +38,13 @@ class GitHub:
         return {entry["path"]: entry["sha"] for entry in response.json()["tree"] if entry["type"] == "blob"}
 
     def commit(
-        self, name: str, token: str, branch: str, write: dict[str, str], remove: list[str], message: str
+        self, name: str, token: str, branch: str, write: dict[str, Content], remove: list[str], message: str
     ) -> Commit:
         parent = self._head(name, token, branch)
         if parent is None:
             # the Git data API can't write to an empty repository: its first file makes its first commit
             path = "README.md" if "README.md" in write else next(iter(write))
-            content = base64.b64encode(write[path].encode()).decode()
+            content = base64.b64encode(_bytes(write[path])).decode()
             created = self._write(
                 "PUT", f"/repos/{name}/contents/{path}", token, {"message": message, "content": content}
             )
@@ -53,7 +53,7 @@ class GitHub:
                 return Commit(sha=created["commit"]["sha"], url=created["commit"]["html_url"])
             parent = self._head(name, token, branch)
         base = self._write("GET", f"/repos/{name}/git/commits/{parent}", token)["tree"]["sha"]
-        entries = [{"path": p, "mode": "100644", "type": "blob", "content": c} for p, c in write.items()]
+        entries = [self._entry(name, token, p, c) for p, c in write.items()]
         entries += [{"path": p, "mode": "100644", "type": "blob", "sha": None} for p in remove]
         tree = self._write("POST", f"/repos/{name}/git/trees", token, {"base_tree": base, "tree": entries})
         commit = self._write(
@@ -61,6 +61,14 @@ class GitHub:
         )
         self._write("PATCH", f"/repos/{name}/git/refs/heads/{branch}", token, {"sha": commit["sha"]})
         return Commit(sha=commit["sha"], url=commit["html_url"])
+
+    def _entry(self, name: str, token: str, path: str, content: Content) -> dict:
+        """a file of the tree: text in it as it is; an image, which a tree can't hold, as a blob made first"""
+        if isinstance(content, str):
+            return {"path": path, "mode": "100644", "type": "blob", "content": content}
+        body = {"content": base64.b64encode(content).decode(), "encoding": "base64"}
+        blob = self._write("POST", f"/repos/{name}/git/blobs", token, body)
+        return {"path": path, "mode": "100644", "type": "blob", "sha": blob["sha"]}
 
     def _head(self, name: str, token: str, branch: str) -> str | None:
         response = self._request("GET", f"/repos/{name}/git/ref/heads/{branch}", token)
@@ -92,3 +100,7 @@ class GitHub:
     def _check(response: httpx.Response) -> None:
         if response.status_code >= 400:
             raise Unavailable(f"GitHub answered {response.status_code}: {response.text[:200]}")
+
+
+def _bytes(content: Content) -> bytes:
+    return content.encode() if isinstance(content, str) else content
