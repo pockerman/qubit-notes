@@ -199,6 +199,8 @@ def create_app(
         app.state.quizzes,
         app.state.flashcards,
         app.state.reviews,
+        platform,
+        app.state.images,
     )
     app.state.assistant = Assistant(
         app.state.database,

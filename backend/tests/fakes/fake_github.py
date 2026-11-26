@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 
 from qubit_notes.domain.subject_repositories import (
     Commit,
+    Content,
     PushRefused,
     RemoteRepository,
     RepositoryNotFound,
@@ -18,7 +19,7 @@ class FakeCommit:
     sha: str
     message: str
     # the files of the repository at this commit, by path
-    files: dict[str, str]
+    files: dict[str, Content]
     # the paths it wrote or removed
     changed: set[str]
 
@@ -32,7 +33,7 @@ class FakeRepository:
     commits: list[FakeCommit] = field(default_factory=list)
 
     @property
-    def files(self) -> dict[str, str]:
+    def files(self) -> dict[str, Content]:
         return dict(self.commits[-1].files) if self.commits else {}
 
     def add_file(self, path: str, content: str) -> None:
@@ -63,7 +64,7 @@ class FakeGitHub:
         return {path: blob_sha(content) for path, content in found.files.items()}
 
     def commit(
-        self, name: str, token: str, branch: str, write: dict[str, str], remove: list[str], message: str
+        self, name: str, token: str, branch: str, write: dict[str, Content], remove: list[str], message: str
     ) -> Commit:
         found = self._found(name, token)
         assert branch == found.default_branch
