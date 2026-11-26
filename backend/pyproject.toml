@@ -1,6 +1,6 @@
 [project]
 name = "qubit-notes"
-version = "0.1.0"
+version = "0.2.0"
 description = "Study your own material with notes, summaries, quizzes and an AI assistant"
 requires-python = ">=3.12"
 dependencies = [
